@@ -16,7 +16,8 @@ use Throwable;
 class ClientController extends Controller
 {
     private const EVENT_UNINSTALL = 'addon:uninstall';
-    private const EVENT_DEACTIVATE = 'addon:deactivate';
+    private const EVENT_DEACTIVATE = 'addon:suspend';
+    private const EVENT_ACTIVATE = 'addon:approve';
 
     public function install(Request $request): Response
     {
@@ -98,12 +99,19 @@ class ClientController extends Controller
     public function deactivate(): Response
     {
         $body = file_get_contents('php://input');
-        $webhook = json_decode($body, TRUE);
-        $eshopId = $webhook['eshopId'];
+        $webhook = Json::decode($body);
+        if (JsonHelper::containsKey($webhook, 'event') === false) {
+            return Response('bad request', 400);
+        }
         $event = $webhook['event'];
         if ($event !== self::EVENT_DEACTIVATE) {
             return Response('bad request', 400);
         }
+        if (JsonHelper::containsKey($webhook, 'eshopId') === false) {
+            return Response('bad request', 400);
+        }
+        $eshopId = $webhook->eshopId;
+
         $client = Client::where('eshop_id', $eshopId)->firstOrFail();
         $client->status = ClientStatusEnum::INACTIVE;
         try {
@@ -132,6 +140,32 @@ class ClientController extends Controller
        
         $client = Client::where('eshop_id', $eshopId)->firstOrFail();
         $client->status = ClientStatusEnum::DELETED;
+        try {
+            $client->save();
+        } catch (Throwable $t) {
+            throw new DataUpdateFailException($t);
+        }
+        return Response('ok', 200);
+    }
+
+    public function activate(): Response
+    {
+        $body = file_get_contents('php://input');
+        $webhook = Json::decode($body);
+        if (JsonHelper::containsKey($webhook, 'event') === false) {
+            return Response('bad request', 400);
+        }
+        $event = $webhook->event;
+        if ($event !== self::EVENT_ACTIVATE) {
+            return Response('bad request', 400);
+        }
+        if (JsonHelper::containsKey($webhook, 'eshopId') === false) {
+            return Response('bad request', 400);
+        }
+        $eshopId = $webhook->eshopId;
+       
+        $client = Client::where('eshop_id', $eshopId)->firstOrFail();
+        $client->status = ClientStatusEnum::ACTIVE;
         try {
             $client->save();
         } catch (Throwable $t) {
