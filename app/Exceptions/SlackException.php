@@ -3,6 +3,7 @@ namespace App\Exceptions;
 
 use Throwable;
 use Maknz\Slack\Client;
+use Maknz\Slack\Message;
 
 class SlackException extends \Exception
 {
@@ -10,7 +11,7 @@ class SlackException extends \Exception
     {
         $this->report($t);
     }
-    public function report(Throwable $t)
+    public function report(Throwable $t): Message
     {
         $attachments = [];
         foreach($t->getTrace() as $trace) {
@@ -25,6 +26,6 @@ class SlackException extends \Exception
         foreach ($attachments as $attachment) {
             $client->attach($attachment);
         }
-        $client->send(get_class($t) . ': ' . $t->getMessage());
+        return $client->send(get_class($t) . ': ' . $t->getMessage());
     }
 }
