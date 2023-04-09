@@ -27,24 +27,17 @@ class ClientController extends Controller
         if ($code === NULL) {
             return Response('Bad request', 400);
         }
-        $clientId = env('SHOPTET_CLIENT_ID');
-        $clientSecret = env('SHOPTET_CLIENT_SECRET');
-        $oAuthServerTokenUrl = env('SHOPTET_OAUTH_SERVER_TOKEN_URL');
-        $grantType = 'authorization_code';
-        $scope = 'api';
-        $redirectUri = Route('client.install');
-        $redirectUri = 'https://slabihoud.cz/addon-install';
 
         $data = [
-            'client_id' => $clientId,
-            'client_secret' => $clientSecret, 
+            'client_id' => env('SHOPTET_CLIENT_ID'),
+            'client_secret' => env('SHOPTET_CLIENT_SECRET'), 
             'code' => $code,
-            'grant_type' => $grantType,
-            'redirect_uri' => $redirectUri,
-            'scope' => $scope,
+            'grant_type' => 'authorization_code',
+            'redirect_uri' => Route('client.install'),
+            'scope' => 'api',
         ];
 
-        $curl = curl_init($oAuthServerTokenUrl);
+        $curl = curl_init(env('SHOPTET_OAUTH_SERVER_TOKEN_URL'));
         curl_setopt($curl, CURLOPT_POST, TRUE);
         curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
@@ -52,27 +45,27 @@ class ClientController extends Controller
         $response = curl_exec($curl);
         curl_close($curl);
 
-        $response = Json::decode($response);
+        $response = Json::decode($response, true);
         if (JsonHelper::containsKey($response, 'error') === false) {
-            throw new AddonInstallFailException(new Exception($response->error[0] . ': ' . $response->error_description[0]));
+            throw new AddonInstallFailException(new Exception($response->error . ': ' . $response->error_description));
         }
         if (JsonHelper::containsKey($response, 'access_token') === false) {
             return Response('Bad request', 400);
         }
-        $oAuthAccessToken = $response->access_token[0];
+        $oAuthAccessToken = $response->access_token;
 
         if (JsonHelper::containsKey($response, 'eshop_id') === false) {
             return Response('Bad request', 400);
         }
-        $eshopId = $response->eshop_id[0];
+        $eshopId = $response->eshop_id;
 
         $eshopUrl = NULL;
         if (JsonHelper::containsKey($response, 'eshopUrl')) {
-            $eshopUrl = $response->eshopUrl[0];
+            $eshopUrl = $response->eshopUrl;
         }
         $contactEmail = NULL;
         if (JsonHelper::containsKey($response, 'contactEmail')) {
-            $contactEmail = $response->contactEmail[0];
+            $contactEmail = $response->contactEmail;
         }
 
         $client = Client::where('eshop_id', $eshopId)->first();
@@ -109,14 +102,14 @@ class ClientController extends Controller
         if (JsonHelper::containsKey($webhook, 'event') === false) {
             return Response('bad request', 400);
         }
-        $event = $webhook->event[0];
+        $event = $webhook->event;
         if ($event !== self::EVENT_DEACTIVATE) {
             return Response('bad request', 400);
         }
         if (JsonHelper::containsKey($webhook, 'eshopId') === false) {
             return Response('bad request', 400);
         }
-        $eshopId = $webhook->eshopId[0];
+        $eshopId = $webhook->eshopId;
 
         $client = Client::where('eshop_id', $eshopId)->firstOrFail();
         $client->status = ClientStatusEnum::INACTIVE;
@@ -135,14 +128,14 @@ class ClientController extends Controller
         if (JsonHelper::containsKey($webhook, 'event') === false) {
             return Response('bad request', 400);
         }
-        $event = $webhook->event[0];
+        $event = $webhook->event;
         if ($event !== self::EVENT_UNINSTALL) {
             return Response('bad request', 400);
         }
         if (JsonHelper::containsKey($webhook, 'eshopId') === false) {
             return Response('bad request', 400);
         }
-        $eshopId = $webhook->eshopId[0];
+        $eshopId = $webhook->eshopId;
        
         $client = Client::where('eshop_id', $eshopId)->firstOrFail();
         $client->status = ClientStatusEnum::DELETED;
@@ -161,14 +154,14 @@ class ClientController extends Controller
         if (JsonHelper::containsKey($webhook, 'event') === false) {
             return Response('bad request', 400);
         }
-        $event = $webhook->event[0];
+        $event = $webhook->event;
         if ($event !== self::EVENT_ACTIVATE) {
             return Response('bad request', 400);
         }
         if (JsonHelper::containsKey($webhook, 'eshopId') === false) {
             return Response('bad request', 400);
         }
-        $eshopId = $webhook->eshopId[0];
+        $eshopId = $webhook->eshopId;
        
         $client = Client::where('eshop_id', $eshopId)->firstOrFail();
         $client->status = ClientStatusEnum::ACTIVE;
