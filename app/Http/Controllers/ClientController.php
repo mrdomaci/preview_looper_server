@@ -3,17 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ClientStatusEnum;
+use App\Exceptions\DataInsertFailException;
+use App\Exceptions\DataUpdateFailException;
+use App\Helpers\ArrayHelper;
 use App\Models\Client;
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Throwable;
 
 class ClientController extends Controller
 {
     private const EVENT_UNINSTALL = 'addon:uninstall';
     private const EVENT_DEACTIVATE = 'addon:deactivate';
+
     public function install(Request $request): Response
     {
         $code = $request->input('code');
+        if ($code === NULL) {
+            return Response('Bad request', 400);
+        }
         $clientId = env('SHOPTET_CLIENT_ID');
         $clientSecret = env('SHOPTET_CLIENT_SECRET');
         $oAuthServerTokenUrl = env('SHOPTET_OAUTH_SERVER_TOKEN_URL');
@@ -39,28 +47,50 @@ class ClientController extends Controller
         curl_close($curl);
 
         $response = json_decode($response, TRUE);
+        if (ArrayHelper::containsKey($response, 'access_token') === false) {
+            return Response('Bad request', 400);
+        }
         $oAuthAccessToken = $response['access_token'];
+
+        if (ArrayHelper::containsKey($response, 'eshop_id') === false) {
+            return Response('Bad request', 400);
+        }
         $eshopId = $response['eshop_id'];
-        $eshopUrl = $response['eshopUrl'];
-        $contactEmail = $response['contactEmail'];
+
+        $eshopUrl = NULL;
+        if (ArrayHelper::containsKey($response, 'eshopUrl')) {
+            $eshopUrl = $response['eshopUrl'];
+        }
+        $contactEmail = NULL;
+        if (ArrayHelper::containsKey($response, 'contactEmail')) {
+            $contactEmail = $response['contactEmail'];
+        }
 
         $client = Client::where('eshop_id', $eshopId)->first();
         if ($client === NULL) {
-            $client = Client::create([
-                'oauth_access_token' => $oAuthAccessToken,
-                'eshop_id' => $eshopId,
-                'eshop_url' => $eshopUrl,
-                'contact_email' => $contactEmail,
-                'status' => ClientStatusEnum::ACTIVE,
-            ]);
+            try {
+                Client::create([
+                    'oauth_access_token' => $oAuthAccessToken,
+                    'eshop_id' => $eshopId,
+                    'eshop_url' => $eshopUrl,
+                    'contact_email' => $contactEmail,
+                    'status' => ClientStatusEnum::ACTIVE,
+                ]);
+            } catch (Throwable $t) {
+                throw new DataInsertFailException($t);
+            }
         } else {
             $client->oauth_access_token = $oAuthAccessToken;
             $client->eshop_url = $eshopUrl;
             $client->contact_email = $contactEmail;
             $client->status = ClientStatusEnum::ACTIVE;
-            $client->save();
+            try {
+                $client->save();
+            } catch (Throwable $t) {
+                throw new DataUpdateFailException($t);
+            }
         }
-        return new Response(200);
+        return Response('ok', 200);
     }
 
     public function deactivate(): Response
@@ -70,27 +100,42 @@ class ClientController extends Controller
         $eshopId = $webhook['eshopId'];
         $event = $webhook['event'];
         if ($event !== self::EVENT_DEACTIVATE) {
-            return new Response(400);
+            return Response('bad request', 400);
         }
         $client = Client::where('eshop_id', $eshopId)->firstOrFail();
         $client->status = ClientStatusEnum::INACTIVE;
-        $client->save();
-        return new Response(200);
+        try {
+            $client->save();
+        } catch (Throwable $t) {
+            throw new DataUpdateFailException($t);
+        }
+        return Response('ok', 200);
     }
 
     public function uninstall(): Response
     {
         $body = file_get_contents('php://input');
         $webhook = json_decode($body, TRUE);
-        $eshopId = $webhook['eshopId'];
+        if (ArrayHelper::containsKey($webhook, 'event') === false) {
+            return Response('bad request', 400);
+        }
         $event = $webhook['event'];
         if ($event !== self::EVENT_UNINSTALL) {
-            return new Response(400);
+            return Response('bad request', 400);
         }
+        if (ArrayHelper::containsKey($webhook, 'eshopId') === false) {
+            return Response('bad request', 400);
+        }
+        $eshopId = $webhook['eshopId'];
+       
         $client = Client::where('eshop_id', $eshopId)->firstOrFail();
         $client->status = ClientStatusEnum::DELETED;
-        $client->save();
-        return new Response(200);
+        try {
+            $client->save();
+        } catch (Throwable $t) {
+            throw new DataUpdateFailException($t);
+        }
+        return Response('ok', 200);
     }
 
     public function getApiAccessToken(Client $client): string
@@ -104,6 +149,9 @@ class ClientController extends Controller
         $response = curl_exec($curl);
         curl_close($curl);
         $response = json_decode($response, TRUE);
+        if (ArrayHelper::containsKey($response, 'access_token') === false) {
+            return Response('Bad request', 400);
+        }
         return $response['access_token'];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ClientStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Client extends Model
 {
@@ -28,11 +29,14 @@ class Client extends Model
         'last_synced_at',
     ];
 
+    /**
+     * @var array <string, string>
+     */
     protected $casts = [
         'status' => ClientStatusEnum::class,
     ];
 
-    public function images()
+    public function images(): HasMany
     {
         return $this->hasMany(Image::class);
     }
