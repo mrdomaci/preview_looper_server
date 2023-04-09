@@ -46,25 +46,25 @@ class ClientController extends Controller
         curl_close($curl);
 
         $response = Json::decode($response, true);
-        if (JsonHelper::containsKey($response, 'error') === false) {
+        if (ArrayHelper::containsKey($response, 'error') === false) {
             throw new AddonInstallFailException(new Exception($response->error . ': ' . $response->error_description));
         }
-        if (JsonHelper::containsKey($response, 'access_token') === false) {
+        if (ArrayHelper::containsKey($response, 'access_token') === false) {
             return Response('Bad request', 400);
         }
         $oAuthAccessToken = $response->access_token;
 
-        if (JsonHelper::containsKey($response, 'eshop_id') === false) {
+        if (ArrayHelper::containsKey($response, 'eshop_id') === false) {
             return Response('Bad request', 400);
         }
         $eshopId = $response->eshop_id;
 
         $eshopUrl = NULL;
-        if (JsonHelper::containsKey($response, 'eshopUrl')) {
+        if (ArrayHelper::containsKey($response, 'eshopUrl')) {
             $eshopUrl = $response->eshopUrl;
         }
         $contactEmail = NULL;
-        if (JsonHelper::containsKey($response, 'contactEmail')) {
+        if (ArrayHelper::containsKey($response, 'contactEmail')) {
             $contactEmail = $response->contactEmail;
         }
 
@@ -99,14 +99,14 @@ class ClientController extends Controller
     {
         $body = file_get_contents('php://input');
         $webhook = Json::decode($body);
-        if (JsonHelper::containsKey($webhook, 'event') === false) {
+        if (ArrayHelper::containsKey($webhook, 'event') === false) {
             return Response('bad request', 400);
         }
         $event = $webhook->event;
         if ($event !== self::EVENT_DEACTIVATE) {
             return Response('bad request', 400);
         }
-        if (JsonHelper::containsKey($webhook, 'eshopId') === false) {
+        if (ArrayHelper::containsKey($webhook, 'eshopId') === false) {
             return Response('bad request', 400);
         }
         $eshopId = $webhook->eshopId;
@@ -125,14 +125,14 @@ class ClientController extends Controller
     {
         $body = file_get_contents('php://input');
         $webhook = Json::decode($body);
-        if (JsonHelper::containsKey($webhook, 'event') === false) {
+        if (ArrayHelper::containsKey($webhook, 'event') === false) {
             return Response('bad request', 400);
         }
         $event = $webhook->event;
         if ($event !== self::EVENT_UNINSTALL) {
             return Response('bad request', 400);
         }
-        if (JsonHelper::containsKey($webhook, 'eshopId') === false) {
+        if (ArrayHelper::containsKey($webhook, 'eshopId') === false) {
             return Response('bad request', 400);
         }
         $eshopId = $webhook->eshopId;
@@ -151,14 +151,14 @@ class ClientController extends Controller
     {
         $body = file_get_contents('php://input');
         $webhook = Json::decode($body);
-        if (JsonHelper::containsKey($webhook, 'event') === false) {
+        if (ArrayHelper::containsKey($webhook, 'event') === false) {
             return Response('bad request', 400);
         }
         $event = $webhook->event;
         if ($event !== self::EVENT_ACTIVATE) {
             return Response('bad request', 400);
         }
-        if (JsonHelper::containsKey($webhook, 'eshopId') === false) {
+        if (ArrayHelper::containsKey($webhook, 'eshopId') === false) {
             return Response('bad request', 400);
         }
         $eshopId = $webhook->eshopId;
