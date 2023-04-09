@@ -79,7 +79,7 @@ class ClientController extends Controller
                     'oauth_access_token' => $oAuthAccessToken,
                     'eshop_id' => $eshopId,
                     'url' => $eshopUrl,
-                    'contact_email' => $contactEmail,
+                    'email' => $contactEmail,
                     'status' => ClientStatusEnum::ACTIVE,
                 ]);
             } catch (Throwable $t) {
