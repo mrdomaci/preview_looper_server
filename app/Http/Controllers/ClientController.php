@@ -78,7 +78,7 @@ class ClientController extends Controller
                 Client::create([
                     'oauth_access_token' => $oAuthAccessToken,
                     'eshop_id' => $eshopId,
-                    'eshop_url' => $eshopUrl,
+                    'url' => $eshopUrl,
                     'contact_email' => $contactEmail,
                     'status' => ClientStatusEnum::ACTIVE,
                 ]);
