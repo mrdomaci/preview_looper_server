@@ -8,6 +8,7 @@ use App\Exceptions\DataInsertFailException;
 use App\Exceptions\DataUpdateFailException;
 use App\Helpers\ArrayHelper;
 use App\Helpers\JsonHelper;
+use App\Helpers\LoggerHelper;
 use App\Models\Client;
 use Exception;
 use Illuminate\Http\Request;
@@ -46,6 +47,9 @@ class ClientController extends Controller
         curl_close($curl);
 
         $response = Json::decode($response, true);
+        foreach($response as $key => $value) {
+            LoggerHelper::log($key . ': ' . $value);
+        }
         if (ArrayHelper::containsKey($response, 'error') === true) {
             throw new AddonInstallFailException(new Exception($response['error'] . ': ' . $response['error_description']));
         }
