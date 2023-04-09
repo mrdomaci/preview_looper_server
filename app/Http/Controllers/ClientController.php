@@ -49,24 +49,24 @@ class ClientController extends Controller
         $response = curl_exec($curl);
         curl_close($curl);
 
-        $response = json_decode($response, TRUE);
-        if (ArrayHelper::containsKey($response, 'access_token') === false) {
+        $response = Json::decode($response);
+        if (JsonHelper::containsKey($response, 'access_token') === false) {
             return Response('Bad request', 400);
         }
-        $oAuthAccessToken = $response['access_token'];
+        $oAuthAccessToken = $response->access_token;
 
-        if (ArrayHelper::containsKey($response, 'eshop_id') === false) {
+        if (JsonHelper::containsKey($response, 'eshop_id') === false) {
             return Response('Bad request', 400);
         }
-        $eshopId = $response['eshop_id'];
+        $eshopId = $response->eshop_id;
 
         $eshopUrl = NULL;
-        if (ArrayHelper::containsKey($response, 'eshopUrl')) {
-            $eshopUrl = $response['eshopUrl'];
+        if (JsonHelper::containsKey($response, 'eshopUrl')) {
+            $eshopUrl = $response->eshopUrl;
         }
         $contactEmail = NULL;
-        if (ArrayHelper::containsKey($response, 'contactEmail')) {
-            $contactEmail = $response['contactEmail'];
+        if (JsonHelper::containsKey($response, 'contactEmail')) {
+            $contactEmail = $response->contactEmail;
         }
 
         $client = Client::where('eshop_id', $eshopId)->first();
