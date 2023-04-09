@@ -58,10 +58,10 @@ class ClientController extends Controller
         }
         $oAuthAccessToken = $response['access_token'];
 
-        if (ArrayHelper::containsKey($response, 'eshop_id') === false) {
+        if (ArrayHelper::containsKey($response, 'eshopId') === false) {
             return Response('Bad request', 400);
         }
-        $eshopId = $response['eshop_id'];
+        $eshopId = $response['eshopId'];
 
         $eshopUrl = NULL;
         if (ArrayHelper::containsKey($response, 'eshopUrl')) {
