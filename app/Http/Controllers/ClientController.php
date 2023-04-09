@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ClientStatusEnum;
+use App\Exceptions\AddonInstallFailException;
 use App\Exceptions\DataInsertFailException;
 use App\Exceptions\DataUpdateFailException;
 use App\Helpers\ArrayHelper;
 use App\Helpers\JsonHelper;
 use App\Models\Client;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Nette\Utils\Json;
@@ -31,6 +33,7 @@ class ClientController extends Controller
         $grantType = 'authorization_code';
         $scope = 'api';
         $redirectUri = Route('client.install');
+        $redirectUri = 'https://slabihoud.cz/addon-install';
 
         $data = [
             'client_id' => $clientId,
@@ -50,6 +53,9 @@ class ClientController extends Controller
         curl_close($curl);
 
         $response = Json::decode($response);
+        if (JsonHelper::containsKey($response, 'error') === false) {
+            throw new AddonInstallFailException(new Exception($response->error . ': ' . $response->error_description));
+        }
         if (JsonHelper::containsKey($response, 'access_token') === false) {
             return Response('Bad request', 400);
         }
