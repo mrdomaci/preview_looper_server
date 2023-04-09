@@ -65,7 +65,7 @@ class ClientController extends Controller
 
         $eshopUrl = NULL;
         if (ArrayHelper::containsKey($response, 'eshopUrl')) {
-            $eshopUrl = $response['shopUrl'];
+            $eshopUrl = $response['eshopUrl'];
         }
         $contactEmail = NULL;
         if (ArrayHelper::containsKey($response, 'contactEmail')) {
