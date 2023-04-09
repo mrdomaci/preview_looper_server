@@ -54,25 +54,25 @@ class ClientController extends Controller
 
         $response = Json::decode($response);
         if (JsonHelper::containsKey($response, 'error') === false) {
-            throw new AddonInstallFailException(new Exception($response->error . ': ' . $response->error_description));
+            throw new AddonInstallFailException(new Exception($response->error[0] . ': ' . $response->error_description[0]));
         }
         if (JsonHelper::containsKey($response, 'access_token') === false) {
             return Response('Bad request', 400);
         }
-        $oAuthAccessToken = $response->access_token;
+        $oAuthAccessToken = $response->access_token[0];
 
         if (JsonHelper::containsKey($response, 'eshop_id') === false) {
             return Response('Bad request', 400);
         }
-        $eshopId = $response->eshop_id;
+        $eshopId = $response->eshop_id[0];
 
         $eshopUrl = NULL;
         if (JsonHelper::containsKey($response, 'eshopUrl')) {
-            $eshopUrl = $response->eshopUrl;
+            $eshopUrl = $response->eshopUrl[0];
         }
         $contactEmail = NULL;
         if (JsonHelper::containsKey($response, 'contactEmail')) {
-            $contactEmail = $response->contactEmail;
+            $contactEmail = $response->contactEmail[0];
         }
 
         $client = Client::where('eshop_id', $eshopId)->first();
@@ -109,14 +109,14 @@ class ClientController extends Controller
         if (JsonHelper::containsKey($webhook, 'event') === false) {
             return Response('bad request', 400);
         }
-        $event = $webhook['event'];
+        $event = $webhook->event[0];
         if ($event !== self::EVENT_DEACTIVATE) {
             return Response('bad request', 400);
         }
         if (JsonHelper::containsKey($webhook, 'eshopId') === false) {
             return Response('bad request', 400);
         }
-        $eshopId = $webhook->eshopId;
+        $eshopId = $webhook->eshopId[0];
 
         $client = Client::where('eshop_id', $eshopId)->firstOrFail();
         $client->status = ClientStatusEnum::INACTIVE;
@@ -135,14 +135,14 @@ class ClientController extends Controller
         if (JsonHelper::containsKey($webhook, 'event') === false) {
             return Response('bad request', 400);
         }
-        $event = $webhook->event;
+        $event = $webhook->event[0];
         if ($event !== self::EVENT_UNINSTALL) {
             return Response('bad request', 400);
         }
         if (JsonHelper::containsKey($webhook, 'eshopId') === false) {
             return Response('bad request', 400);
         }
-        $eshopId = $webhook->eshopId;
+        $eshopId = $webhook->eshopId[0];
        
         $client = Client::where('eshop_id', $eshopId)->firstOrFail();
         $client->status = ClientStatusEnum::DELETED;
@@ -161,14 +161,14 @@ class ClientController extends Controller
         if (JsonHelper::containsKey($webhook, 'event') === false) {
             return Response('bad request', 400);
         }
-        $event = $webhook->event;
+        $event = $webhook->event[0];
         if ($event !== self::EVENT_ACTIVATE) {
             return Response('bad request', 400);
         }
         if (JsonHelper::containsKey($webhook, 'eshopId') === false) {
             return Response('bad request', 400);
         }
-        $eshopId = $webhook->eshopId;
+        $eshopId = $webhook->eshopId[0];
        
         $client = Client::where('eshop_id', $eshopId)->firstOrFail();
         $client->status = ClientStatusEnum::ACTIVE;
