@@ -46,7 +46,7 @@ class ClientController extends Controller
         curl_close($curl);
 
         $response = Json::decode($response, true);
-        if (ArrayHelper::containsKey($response, 'error') === false) {
+        if (ArrayHelper::containsKey($response, 'error') === true) {
             throw new AddonInstallFailException(new Exception($response['error'] . ': ' . $response['error_description']));
         }
         if (ArrayHelper::containsKey($response, 'access_token') === false) {
