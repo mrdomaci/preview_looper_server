@@ -1,0 +1,28 @@
+<html>
+<head>
+<title>Test</title>
+<script type="text/javascript" src="jquery.min.js"></script>
+</head>
+<body>
+<h1>Test</h1>
+<button id="ajaxButton">Ajax Call</button>
+</body>
+<script>
+    $(document).ready(function() {
+    $("#ajaxButton").click(function() {
+        $.ajax({
+            url: "http://localhost/product-images?products=2577",
+            type: "GET",
+            dataType: "json",
+            success: function(response) {
+                console.log(response); // View response in console
+                // Add code here to save response
+            },
+            error: function(xhr, status, error) {
+                console.log("Error: " + error);
+            }
+        });
+    });
+});
+</script>
+</html>
