@@ -6,9 +6,11 @@ use App\Enums\ClientStatusEnum;
 use App\Exceptions\DataInsertFailException;
 use App\Exceptions\DataUpdateFailException;
 use App\Helpers\ArrayHelper;
+use App\Helpers\JsonHelper;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Nette\Utils\Json;
 use Throwable;
 
 class ClientController extends Controller
@@ -115,18 +117,18 @@ class ClientController extends Controller
     public function uninstall(): Response
     {
         $body = file_get_contents('php://input');
-        $webhook = json_decode($body, TRUE);
-        if (ArrayHelper::containsKey($webhook, 'event') === false) {
+        $webhook = Json::decode($body);
+        if (JsonHelper::containsKey($webhook, 'event') === false) {
             return Response('bad request', 400);
         }
-        $event = $webhook['event'];
+        $event = $webhook->event;
         if ($event !== self::EVENT_UNINSTALL) {
             return Response('bad request', 400);
         }
-        if (ArrayHelper::containsKey($webhook, 'eshopId') === false) {
+        if (JsonHelper::containsKey($webhook, 'eshopId') === false) {
             return Response('bad request', 400);
         }
-        $eshopId = $webhook['eshopId'];
+        $eshopId = $webhook->eshopId;
        
         $client = Client::where('eshop_id', $eshopId)->firstOrFail();
         $client->status = ClientStatusEnum::DELETED;
