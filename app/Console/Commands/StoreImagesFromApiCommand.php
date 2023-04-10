@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\ClientStatusEnum;
+use App\Helpers\TokenHelper;
 use App\Models\Client;
 use Illuminate\Console\Command;
 
@@ -31,6 +32,8 @@ class StoreImagesFromApiCommand extends Command
         $clients = Client::where('status', ClientStatusEnum::ACTIVE)->get();
         foreach ($clients as $client) {
             $this->info('Updating images for client ' . $client->getAttribute('eshop_name'));
+            $apiAccessToken = TokenHelper::getApiAccessToken($client);
+            $this->info('API access token: ' . $apiAccessToken);
         }
         return Command::SUCCESS;
     }
