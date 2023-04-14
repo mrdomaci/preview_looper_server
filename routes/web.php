@@ -20,5 +20,8 @@ Route::get('/', function () {
 });
 
 Route::get('/addon-install', [ClientController::class, 'install'])->name('client.install');
+Route::get('/addon-uninstall', [ClientController::class, 'uninstall'])->name('client.uninstall');
+Route::get('/addon-deactivate', [ClientController::class, 'deactivate'])->name('client.deactivate');
+Route::get('/addon-activate', [ClientController::class, 'activate'])->name('client.activate');
 
 Route::get('/images/{clientId}/{productIds}', [ImageController::class, 'list'])->name('images.list');
