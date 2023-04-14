@@ -14,4 +14,9 @@ class ArrayHelper
     {
         return array_key_exists($key, $array);
     }
+
+    public static function isArray(mixed $value): bool
+    {
+        return is_array($value);
+    }
 }
