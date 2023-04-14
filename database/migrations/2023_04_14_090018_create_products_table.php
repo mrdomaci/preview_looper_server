@@ -13,11 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('images', function (Blueprint $table) {
+        Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(\App\Models\Client::class, 'client_id');
-            $table->foreignIdFor(\App\Models\Product::class, 'product_id');
-            $table->string('name');
+            $table->string('guid')->index('guid_index');
+            $table->boolean('active');
+            $table->dateTime('created_at');
+            $table->dateTime('updated_at');
         });
     }
 
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('images');
+        Schema::dropIfExists('products');
     }
 };

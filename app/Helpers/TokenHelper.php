@@ -20,9 +20,6 @@ class TokenHelper
         $response = curl_exec($curl);
         curl_close($curl);
         $response = json_decode($response, TRUE);
-        foreach ($response as $key => $value) {
-            LoggerHelper::log($key . ' => ' . $value);
-        }
         if (ArrayHelper::containsKey($response, 'access_token') === false) {
             throw new ApiAccessTokenNotFoundException(new Exception('Api access token not found in response: ' . (string) $response));
         }
