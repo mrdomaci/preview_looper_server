@@ -32,7 +32,8 @@ class StoreImagesFromApiCommand extends Command
      */
     public function handle()
     {
-        $clients = Client::where('status', ClientStatusEnum::ACTIVE)->get();
+        $yesterday = now()->subDay();
+        $clients = Client::where('status', ClientStatusEnum::ACTIVE)->whereDate('last_synced_at', '<=', $yesterday)->get();
         foreach ($clients as $client) {
             $this->info('Updating images for client ' . $client->getAttribute('eshop_name'));
             $clientId = $client->getAttribute('id');
@@ -42,19 +43,28 @@ class StoreImagesFromApiCommand extends Command
                 $productGuid = $product->getAttribute('guid');
                 $productId = $product->getAttribute('id');
                 $imageResponses = ConnectorHelper::getProductImages($apiAccessToken, $productGuid);
+                $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get();
                 foreach ($imageResponses as $imageResponse) {
                     $this->info('Updating image ' . $imageResponse->getName());
-                    $image = Image::where('client_id', $clientId)->where('product_id', $productId)->where('name', $imageResponse->getName())->first();
-                    if ($image === null) {
-                        $image = new Image();
-                        $image->setAttribute('client_id', $clientId);
-                        $image->setAttribute('product_id', $productId);
-                        $image->setAttribute('name', $imageResponse->getCdnName());
-                        $image->save();
-                    } else if ($imageResponse->getCdnName() !== $product->getAttribute('name')) {
-                        $image->setAttribute('name', $imageResponse->getCdnName());
-                        $image->save();
+                    $imageExists = false;
+                    foreach ($images as $key => $image) {
+                        if ($image->getAttribute('name') === $imageResponse->getCdnName()) {
+                            unset($images[$key]);
+                            $imageExists = true;
+                            break;
+                        }
                     }
+                    if ($imageExists) {
+                        continue;
+                    }
+                    $image = new Image();
+                    $image->setAttribute('client_id', $clientId);
+                    $image->setAttribute('product_id', $productId);
+                    $image->setAttribute('name', $imageResponse->getCdnName());
+                    $image->save();
+                }
+                foreach ($images as $image) {
+                    Image::destroy($image->getAttribute('id'));
                 }
             }
             $client->setAttribute('last_synced_at', now());

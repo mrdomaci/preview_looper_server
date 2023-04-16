@@ -10,4 +10,3 @@ class ApiAccessTokenNotFoundException extends SlackException
         $this->report($t);
     }
 }
-    
