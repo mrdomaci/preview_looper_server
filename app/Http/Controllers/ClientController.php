@@ -11,6 +11,7 @@ use App\Models\Client;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\View\View;
 use Nette\Utils\Json;
 use Throwable;
 
@@ -185,8 +186,8 @@ class ClientController extends Controller
         return $response['access_token'];
     }
 
-    public function settings(string $languageCode, string $shopId, string $oauthToken, Request $request)
+    public function settings(string $languageCode, string $shopId, string $oauthToken, Request $request): View
     {
-        dd($languageCode, $shopId, $oauthToken);
+        return view('settings', ['languageCode' => $languageCode, 'shopId' => $shopId, 'oauthToken' => $oauthToken]);
     }
 }
