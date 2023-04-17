@@ -25,3 +25,4 @@ Route::get('/addon-deactivate', [ClientController::class, 'deactivate'])->name('
 Route::get('/addon-activate', [ClientController::class, 'activate'])->name('client.activate');
 
 Route::get('/images/{clientId}/{productIds}', [ImageController::class, 'list'])->name('images.list');
+Route::get('/client-settings/{language}/{shopId}/{oauthToken}'. [ClientController::class, 'settings'])->name('client.settings');
