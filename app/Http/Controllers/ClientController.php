@@ -184,4 +184,9 @@ class ClientController extends Controller
         }
         return $response['access_token'];
     }
+
+    public function settings(string $languageCode, string $shopId, string $oauthToken, Request $request)
+    {
+        dd($languageCode, $shopId, $oauthToken);
+    }
 }
