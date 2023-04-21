@@ -41,7 +41,7 @@ class AuthorizationHelper
         return $response;
     }
 
-    public static function getAccessTokenForSettings(string $code, string $language, string $baseOAuthUrl): string
+    public static function getAccessTokenForSettings(string $code, string $language, ?string $baseOAuthUrl): string
     {
         $data = [
             'client_id' => env('SHOPTET_CLIENT_ID'),
@@ -76,7 +76,7 @@ class AuthorizationHelper
         return $response['access_token'];
     }
 
-    public static function getEshopId(string $accessToken, string $baseOAuthUrl): int
+    public static function getEshopId(string $accessToken, ?string $baseOAuthUrl): int
     {
         $url = $baseOAuthUrl . 'resource?method=getBasicEshop';
         $curl = curl_init($url);
