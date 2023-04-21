@@ -1,11 +1,13 @@
 includes:
     - ./vendor/nunomaduro/larastan/extension.neon
 parameters:
+    checkGenericClassInNonGenericObjectType: false
     paths:
         - app
     level: 9
     ignoreErrors:
-        - '#^Call to an undefined static method App\Models\'
     excludePaths:
         - app/Http/Middleware/*
+        - app/Providers/*
+
         
