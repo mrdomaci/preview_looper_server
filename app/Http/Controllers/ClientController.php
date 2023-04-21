@@ -108,6 +108,6 @@ class ClientController extends Controller
             abort(404);
         }
         Client::updateSettings($client, NumbersHelper::intToBool((int)$infiniteRepeat), NumbersHelper::intToBool((int)$returnToDefault), (int)$showTime);
-        return redirect()->route('client.settings', ['language' => $language, 'code' => $code, 'success' => trans('messages.saved')]);
+        return redirect()->route('client.settings', ['language' => $language, 'code' => $code])->with('success', trans('messages.saved'));
     }
 }
