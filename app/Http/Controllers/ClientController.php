@@ -77,7 +77,7 @@ class ClientController extends Controller
 
     public function settings(string $language, string $code, Request $request): View
     {
-        $baseOAuthUrl = $request->session()->get('base_oauth_url');
+        $baseOAuthUrl = session('base_oauth_url');
         $accessToken = AuthorizationHelper::getAccessTokenForSettings($code, $language, $baseOAuthUrl);
         $eshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
         LocaleHelper::setLocale($language);
