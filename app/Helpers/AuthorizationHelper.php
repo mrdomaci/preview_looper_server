@@ -41,7 +41,7 @@ class AuthorizationHelper
         return $response;
     }
 
-    public static function getAccessTokenForSettings(string $code, string $language): string
+    public static function getAccessTokenForSettings(string $code, string $language, string $baseOAuthUrl): string
     {
         $data = [
             'client_id' => env('SHOPTET_CLIENT_ID'),
@@ -52,7 +52,7 @@ class AuthorizationHelper
             'scope' => 'basic_eshop',
         ];
 
-        $url = $_SESSION['base_oauth_url'] . 'token';
+        $url = $baseOAuthUrl . 'token';
 
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_POST, TRUE);
@@ -76,9 +76,9 @@ class AuthorizationHelper
         return $response['access_token'];
     }
 
-    public static function getEshopId(string $accessToken): int
+    public static function getEshopId(string $accessToken, string $baseOAuthUrl): int
     {
-        $url = $_SESSION['base_oauth_url'] . 'resource?method=getBasicEshop';
+        $url = $baseOAuthUrl . 'resource?method=getBasicEshop';
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $accessToken]);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
