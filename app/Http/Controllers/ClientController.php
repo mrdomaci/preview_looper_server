@@ -3,24 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ClientStatusEnum;
-use App\Exceptions\AddonInstallFailException;
-use App\Exceptions\DataInsertFailException;
-use App\Exceptions\DataUpdateFailException;
 use App\Helpers\ArrayHelper;
+use App\Helpers\AuthorizationHelper;
+use App\Helpers\LocaleHelper;
+use App\Helpers\NumbersHelper;
+use App\Helpers\ResponseHelper;
+use App\Helpers\WebHookHelper;
 use App\Models\Client;
-use Exception;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\View\View;
-use Nette\Utils\Json;
-use Throwable;
 
 class ClientController extends Controller
 {
-    private const EVENT_UNINSTALL = 'addon:uninstall';
-    private const EVENT_DEACTIVATE = 'addon:suspend';
-    private const EVENT_ACTIVATE = 'addon:approve';
-
     public function install(Request $request): Response
     {
         $code = $request->input('code');
@@ -28,144 +23,38 @@ class ClientController extends Controller
             return Response('Bad request', 400);
         }
 
-        $data = [
-            'client_id' => env('SHOPTET_CLIENT_ID'),
-            'client_secret' => env('SHOPTET_CLIENT_SECRET'), 
-            'code' => $code,
-            'grant_type' => 'authorization_code',
-            'redirect_uri' => Route('client.install'),
-            'scope' => 'api',
-        ];
+        $response = AuthorizationHelper::getResponseForInstall($code);
 
-        $curl = curl_init(env('SHOPTET_OAUTH_SERVER_TOKEN_URL'));
-        curl_setopt($curl, CURLOPT_POST, TRUE);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-type: application/json']);
-        $response = curl_exec($curl);
-        curl_close($curl);
-
-        $response = Json::decode($response, true);
-        if (ArrayHelper::containsKey($response, 'error') === true) {
-            throw new AddonInstallFailException(new Exception($response['error'] . ': ' . $response['error_description']));
-        }
-        if (ArrayHelper::containsKey($response, 'access_token') === false) {
-            return Response('Bad request', 400);
-        }
-        $oAuthAccessToken = $response['access_token'];
-
-        if (ArrayHelper::containsKey($response, 'eshopId') === false) {
-            return Response('Bad request', 400);
-        }
-        $eshopId = $response['eshopId'];
-
-        $eshopUrl = NULL;
-        if (ArrayHelper::containsKey($response, 'eshopUrl')) {
-            $eshopUrl = $response['eshopUrl'];
-        }
-        $contactEmail = NULL;
-        if (ArrayHelper::containsKey($response, 'contactEmail')) {
-            $contactEmail = $response['contactEmail'];
-        }
-
-        $client = Client::where('eshop_id', $eshopId)->first();
-        if ($client === NULL) {
-            try {
-                Client::create([
-                    'oauth_access_token' => $oAuthAccessToken,
-                    'eshop_id' => $eshopId,
-                    'url' => $eshopUrl,
-                    'email' => $contactEmail,
-                    'status' => ClientStatusEnum::ACTIVE,
-                ]);
-            } catch (Throwable $t) {
-                throw new DataInsertFailException($t);
-            }
-        } else {
-            $client->oauth_access_token = $oAuthAccessToken;
-            $client->eshop_url = $eshopUrl;
-            $client->contact_email = $contactEmail;
-            $client->status = ClientStatusEnum::ACTIVE;
-            try {
-                $client->save();
-            } catch (Throwable $t) {
-                throw new DataUpdateFailException($t);
-            }
-        }
+        $oAuthAccessToken = ResponseHelper::getAccessToken($response);
+        $eshopId = ResponseHelper::getEshopId($response);
+        $eshopUrl = ResponseHelper::getEshopUrl($response);
+        $contactEmail = ResponseHelper::getContactEmail($response);
+        
+        Client::updateOrCreate($eshopId, $oAuthAccessToken, $eshopUrl, $contactEmail);
         return Response('ok', 200);
     }
 
     public function deactivate(): Response
     {
-        $body = file_get_contents('php://input');
-        $webhook = Json::decode($body);
-        if (ArrayHelper::containsKey($webhook, 'event') === false) {
-            return Response('bad request', 400);
-        }
-        $event = $webhook['event'];
-        if ($event !== self::EVENT_DEACTIVATE) {
-            return Response('bad request', 400);
-        }
-        if (ArrayHelper::containsKey($webhook, 'eshopId') === false) {
-            return Response('bad request', 400);
-        }
-        $eshopId = $webhook['eshopId'];
+        $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_DEACTIVATE);
+        Client::updateStatus($eshopId, ClientStatusEnum::INACTIVE);
 
-        $client = Client::where('eshop_id', $eshopId)->firstOrFail();
-        $client->status = ClientStatusEnum::INACTIVE;
-        try {
-            $client->save();
-        } catch (Throwable $t) {
-            throw new DataUpdateFailException($t);
-        }
         return Response('ok', 200);
     }
 
     public function uninstall(): Response
     {
-        $body = file_get_contents('php://input');
-        $webhook = Json::decode($body);
-        if (ArrayHelper::containsKey($webhook, 'event') === false) {
-            return Response('bad request', 400);
-        }
-        if ($webhook['event'] !== self::EVENT_UNINSTALL) {
-            return Response('bad request', 400);
-        }
-        if (ArrayHelper::containsKey($webhook, 'eshopId') === false) {
-            return Response('bad request', 400);
-        }
-       
-        $client = Client::where('eshop_id', $webhook['eshopId'])->firstOrFail();
-        $client->status = ClientStatusEnum::DELETED;
-        try {
-            $client->save();
-        } catch (Throwable $t) {
-            throw new DataUpdateFailException($t);
-        }
+        $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_UNINSTALL);
+        Client::updateStatus($eshopId, ClientStatusEnum::DELETED);
+
         return Response('ok', 200);
     }
 
     public function activate(): Response
     {
-        $body = file_get_contents('php://input');
-        $webhook = Json::decode($body);
-        if (ArrayHelper::containsKey($webhook, 'event') === false) {
-            return Response('bad request', 400);
-        }
-        if ($webhook['event'] !== self::EVENT_ACTIVATE) {
-            return Response('bad request', 400);
-        }
-        if (ArrayHelper::containsKey($webhook, 'eshopId') === false) {
-            return Response('bad request', 400);
-        }
+        $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_UNINSTALL);
+        Client::updateStatus($eshopId, ClientStatusEnum::ACTIVE);
        
-        $client = Client::where('eshop_id', $webhook['eshopId'])->firstOrFail();
-        $client->status = ClientStatusEnum::ACTIVE;
-        try {
-            $client->save();
-        } catch (Throwable $t) {
-            throw new DataUpdateFailException($t);
-        }
         return Response('ok', 200);
     }
 
@@ -186,8 +75,39 @@ class ClientController extends Controller
         return $response['access_token'];
     }
 
-    public function settings(string $languageCode, string $shopId, string $oauthToken, Request $request): View
+    public function settings(string $language, string $code, Request $request): View
     {
-        return view('settings', ['languageCode' => $languageCode, 'shopId' => $shopId, 'oauthToken' => $oauthToken]);
+        $accessToken = AuthorizationHelper::getAccessTokenForSettings($code);
+        $eshopId = AuthorizationHelper::getEshopId($accessToken);
+        LocaleHelper::setLocale($language);
+        $client = Client::where('eshop_id', (int) $eshopId)->first();
+        if ($client === NULL) {
+            abort(404);
+        }
+        return view('settings',
+            [
+                'language' => $language,
+                'code' => $code,
+                'eshop_name' => $client->getAttribute('eshop_name'),
+                'eshop_id' => $client->getAttribute('eshop_id'),
+                'infinite_repeat' => $client->getAttribute('settings_infinite_repeat'),
+                'return_to_default' => $client->getAttribute('settings_return_to_default'),
+                'show_time' => $client->getAttribute('settings_show_time'),
+            ]);
+    }
+
+    public function saveSettings(string $language, string $code, Request $request): \Illuminate\Http\RedirectResponse
+    {
+        LocaleHelper::setLocale($language);
+        $infiniteRepeat = $request->input('settings_infinite_repeat');
+        $returnToDefault = $request->input('settings_return_to_default');
+        $showTime = $request->input('settings_show_time');
+        $eshopId = $request->input('eshop_id');
+        $client = Client::where('eshop_id', (int) $eshopId)->first();
+        if ($client === NULL) {
+            abort(404);
+        }
+        Client::updateSettings($client, NumbersHelper::intToBool((int)$infiniteRepeat), NumbersHelper::intToBool((int)$returnToDefault), (int)$showTime);
+        return redirect()->route('client.settings', ['language' => $language, 'code' => $code])->with('success', trans('messages.saved'));
     }
 }

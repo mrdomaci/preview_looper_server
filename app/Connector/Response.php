@@ -11,7 +11,7 @@ use Exception;
 class Response
 {
     /**
-     * @param array<string, array|string> $data
+     * @param array<string, mixed> $data
      * @param array<string, string>|null $errors
      */
     public function __construct(

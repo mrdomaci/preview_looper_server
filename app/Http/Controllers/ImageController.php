@@ -29,7 +29,7 @@ class ImageController extends Controller
         } catch (\Throwable $e) {
             throw new DataNotFoundException($e);
         }
-        $imagesResponse = ResponseHelper::getImageResponseArray($images, $client->getAttribute('eshop_id'));
+        $imagesResponse = ResponseHelper::getImageResponseArray($images, $client);
 
         return response()->json($imagesResponse);
     }

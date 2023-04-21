@@ -15,6 +15,16 @@ class ArrayHelper
         return array_key_exists($key, $array);
     }
 
+    /**
+     * @param array<mixed> $array
+     * @param mixed $value
+     * @return bool
+     */
+    public static function containsValue(array $array, mixed $value): bool
+    {
+        return in_array($value, $array, true);
+    }
+
     public static function isArray(mixed $value): bool
     {
         return is_array($value);
