@@ -41,14 +41,14 @@ class AuthorizationHelper
         return $response;
     }
 
-    public static function getAccessTokenForSettings(string $code): string
+    public static function getAccessTokenForSettings(string $code, string $language): string
     {
         $data = [
             'client_id' => env('SHOPTET_CLIENT_ID'),
             'client_secret' => env('SHOPTET_CLIENT_SECRET'), 
             'code' => $code,
             'grant_type' => 'authorization_code',
-            'redirect_uri' => Route('client.settings'),
+            'redirect_uri' => Route('client.settings', ['language' => $language, 'code' => $code]),
             'scope' => 'basic_eshop',
         ];
 

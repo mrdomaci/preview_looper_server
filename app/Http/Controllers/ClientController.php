@@ -77,7 +77,7 @@ class ClientController extends Controller
 
     public function settings(string $language, string $code, Request $request): View
     {
-        $accessToken = AuthorizationHelper::getAccessTokenForSettings($code);
+        $accessToken = AuthorizationHelper::getAccessTokenForSettings($code, $language);
         $eshopId = AuthorizationHelper::getEshopId($accessToken);
         LocaleHelper::setLocale($language);
         $client = Client::where('eshop_id', (int) $eshopId)->first();
