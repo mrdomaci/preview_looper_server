@@ -172,7 +172,7 @@ class Response
         $title = null;
         $category = null;
         $subtitle = null;
-        $url = null;
+        $ehopUrl = null;
         $contactPerson = null;
         $email = null;
         $phone = null;
@@ -188,7 +188,7 @@ class Response
             $title = ResponseHelper::getFromResponse($this->data['contactInformation'], 'eshopTitle');
             $category = ResponseHelper::getFromResponse($this->data['contactInformation'], 'eshopCategory');
             $subtitle = ResponseHelper::getFromResponse($this->data['contactInformation'], 'eshopSubtitle');
-            $url = ResponseHelper::getFromResponse($this->data['contactInformation'], 'url');
+            $ehopUrl = ResponseHelper::getFromResponse($this->data['contactInformation'], 'url');
             $contactPerson = ResponseHelper::getFromResponse($this->data['contactInformation'], 'contactPerson');
             $email = ResponseHelper::getFromResponse($this->data['contactInformation'], 'email');
             $phone = ResponseHelper::getFromResponse($this->data['contactInformation'], 'phone');
@@ -213,7 +213,7 @@ class Response
                 }
             }
         }
-        return new EshopResponse($name, $title, $category, $subtitle, $url, $contactPerson, $email, $phone, $street, $city, $zip, $country, $vatNumber, $oauthUrl);
+        return new EshopResponse($name, $title, $category, $subtitle, $ehopUrl, $contactPerson, $email, $phone, $street, $city, $zip, $country, $vatNumber, $oauthUrl);
     }
 
     /**

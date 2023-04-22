@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\ClientStatusEnum;
 use App\Helpers\ConnectorHelper;
+use App\Helpers\LoggerHelper;
 use App\Models\Client;
 use Illuminate\Console\Command;
 use Throwable;
@@ -48,8 +49,11 @@ class StoreClientsFromApiCommand extends Command
                 $client->setAttribute('city', $clientResponse->getCity());
                 $client->setAttribute('zip', $clientResponse->getZip());
                 $client->setAttribute('country', $clientResponse->getCountry());
+                $client->setAttribute('status', ClientStatusEnum::ACTIVE);
             } catch (Throwable $t) {
+                $this->error('Error updating client ' . $t->getMessage());
                 $client->setAttribute('status', ClientStatusEnum::INACTIVE);
+                LoggerHelper::log('Error updating client ' . $t->getMessage());
             }
 
             $client->save();

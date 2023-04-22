@@ -81,7 +81,7 @@ class ClientController extends Controller
     public function settings(string $language, string $eshopId, string $code, Request $request): View
     {
         $client = Client::getByEshopId((int) $eshopId);
-        $eshopResponse = ConnectorHelper::getEshop($client->getAttribute('oauth_access_token'));
+        $eshopResponse = ConnectorHelper::getEshop($client->getAccessToken());
         $baseOAuthUrl = null;
         if ($eshopResponse->getOauthUrl() !== null) {
             $baseOAuthUrl = $eshopResponse->getOauthUrl();
@@ -94,7 +94,7 @@ class ClientController extends Controller
             throw new ApiRequestFailException(new Exception('Base OAuth URL not found in session or response for client ' . $client->getAttribute('eshop_id')));
         }
 
-        $accessToken = AuthorizationHelper::getAccessTokenForSettings($code, $language, $baseOAuthUrl);
+        $accessToken = AuthorizationHelper::getAccessTokenForSettings($code, $language, $eshopId, $baseOAuthUrl);
         $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
         LocaleHelper::setLocale($language);
         if ($checkEshopId !== $client->getAttribute('eshop_id')) {
