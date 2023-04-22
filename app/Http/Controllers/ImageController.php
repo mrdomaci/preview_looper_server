@@ -13,11 +13,7 @@ class ImageController extends Controller
 {
     public function list(string $clientId, string $productGUIDs): JsonResponse
     {
-        try {
-            $client = Client::where('eshop_id', (int) $clientId)->first();
-        } catch (\Throwable $e) {
-            return response()->json(['error' => 'Client not found'], 404);
-        }
+        $client = Client::getByEshopId((int) $clientId);
         $productGUIDs = explode('|', $productGUIDs);
         try {
             $products = Product::select('id')->where('client_id', $client->getAttribute('id'))->whereIn('guid', $productGUIDs)->get();

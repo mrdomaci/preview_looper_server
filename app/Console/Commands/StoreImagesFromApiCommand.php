@@ -38,7 +38,7 @@ class StoreImagesFromApiCommand extends Command
             $this->info('Updating images for client ' . $client->getAttribute('eshop_name'));
             $clientId = $client->getAttribute('id');
             $products = Product::where('client_id', $clientId)->where('active', true)->get();
-            $apiAccessToken = TokenHelper::getApiAccessToken($client);
+            $apiAccessToken = $client->getAccessToken();
             foreach($products as $product) {
                 $productGuid = $product->getAttribute('guid');
                 $productId = $product->getAttribute('id');

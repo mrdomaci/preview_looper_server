@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ClientStatusEnum;
+use App\Exceptions\ApiRequestFailException;
 use App\Helpers\ArrayHelper;
 use App\Helpers\AuthorizationHelper;
+use App\Helpers\ConnectorHelper;
 use App\Helpers\LocaleHelper;
 use App\Helpers\NumbersHelper;
 use App\Helpers\ResponseHelper;
 use App\Helpers\WebHookHelper;
 use App\Models\Client;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -27,8 +30,8 @@ class ClientController extends Controller
 
         $oAuthAccessToken = ResponseHelper::getAccessToken($response);
         $eshopId = ResponseHelper::getEshopId($response);
-        $eshopUrl = ResponseHelper::getEshopUrl($response);
-        $contactEmail = ResponseHelper::getContactEmail($response);
+        $eshopUrl = ResponseHelper::getFromResponse($response, 'eshopUrl');
+        $contactEmail = ResponseHelper::getFromResponse($response, 'contactEmail');
         
         Client::updateOrCreate($eshopId, $oAuthAccessToken, $eshopUrl, $contactEmail);
         return Response('ok', 200);
@@ -75,14 +78,26 @@ class ClientController extends Controller
         return $response['access_token'];
     }
 
-    public function settings(string $language, string $code, Request $request): View
+    public function settings(string $language, string $eshopId, string $code, Request $request): View
     {
-        $baseOAuthUrl = session('base_oauth_url');
+        $client = Client::getByEshopId((int) $eshopId);
+        $eshopResponse = ConnectorHelper::getEshop($client->getAttribute('oauth_access_token'));
+        $baseOAuthUrl = null;
+        if ($eshopResponse->getOauthUrl() !== null) {
+            $baseOAuthUrl = $eshopResponse->getOauthUrl();
+            session(['base_oauth_url' => $baseOAuthUrl]);
+        }
+        if ($baseOAuthUrl === null) {
+            $baseOAuthUrl = session('base_oauth_url');
+        }
+        if ($baseOAuthUrl === null) {
+            throw new ApiRequestFailException(new Exception('Base OAuth URL not found in session or response for client ' . $client->getAttribute('eshop_id')));
+        }
+
         $accessToken = AuthorizationHelper::getAccessTokenForSettings($code, $language, $baseOAuthUrl);
-        $eshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
+        $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
         LocaleHelper::setLocale($language);
-        $client = Client::where('eshop_id', (int) $eshopId)->first();
-        if ($client === NULL) {
+        if ($checkEshopId !== $client->getAttribute('eshop_id')) {
             abort(404);
         }
         return view('settings',
@@ -97,17 +112,14 @@ class ClientController extends Controller
             ]);
     }
 
-    public function saveSettings(string $language, string $code, Request $request): \Illuminate\Http\RedirectResponse
+    public function saveSettings(string $language, string $eshopId, string $code, Request $request): \Illuminate\Http\RedirectResponse
     {
         LocaleHelper::setLocale($language);
         $infiniteRepeat = $request->input('settings_infinite_repeat');
         $returnToDefault = $request->input('settings_return_to_default');
         $showTime = $request->input('settings_show_time');
         $eshopId = $request->input('eshop_id');
-        $client = Client::where('eshop_id', (int) $eshopId)->first();
-        if ($client === NULL) {
-            abort(404);
-        }
+        $client = Client::getByEshopId((int) $eshopId);
         Client::updateSettings($client, NumbersHelper::intToBool((int)$infiniteRepeat), NumbersHelper::intToBool((int)$returnToDefault), (int)$showTime);
         return redirect()->route('client.settings', ['language' => $language, 'code' => $code])->with('success', trans('messages.saved'));
     }
