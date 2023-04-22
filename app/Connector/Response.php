@@ -5,6 +5,7 @@ namespace App\Connector;
 
 use App\Exceptions\ApiResponsePaginatorFailException;
 use App\Helpers\ArrayHelper;
+use App\Helpers\ResponseHelper;
 use DateTime;
 use Exception;
 
@@ -163,6 +164,56 @@ class Response
             $result[] = new ProductImageResponse($name, $priority, $seoName, $cdnName, $description, $changeTime);
         }
         return $result;
+    }
+
+    public function getEshop(): EshopResponse
+    {
+        $name = null;
+        $title = null;
+        $category = null;
+        $subtitle = null;
+        $url = null;
+        $contactPerson = null;
+        $email = null;
+        $phone = null;
+        $street = null;
+        $city = null;
+        $zip = null;
+        $country = null;
+        $vatNumber = null;
+        $oauthUrl = null;
+
+        if (ArrayHelper::containsKey($this->data, 'contactInformation') === true) {
+            $name = ResponseHelper::getFromResponse($this->data['contactInformation'], 'eshopName');
+            $title = ResponseHelper::getFromResponse($this->data['contactInformation'], 'eshopTitle');
+            $category = ResponseHelper::getFromResponse($this->data['contactInformation'], 'eshopCategory');
+            $subtitle = ResponseHelper::getFromResponse($this->data['contactInformation'], 'eshopSubtitle');
+            $url = ResponseHelper::getFromResponse($this->data['contactInformation'], 'url');
+            $contactPerson = ResponseHelper::getFromResponse($this->data['contactInformation'], 'contactPerson');
+            $email = ResponseHelper::getFromResponse($this->data['contactInformation'], 'email');
+            $phone = ResponseHelper::getFromResponse($this->data['contactInformation'], 'phone');
+        }
+        if (ArrayHelper::containsKey($this->data, 'address') === true) {
+            $street = ResponseHelper::getFromResponse($this->data['address'], 'streetAddress');
+            $city = ResponseHelper::getFromResponse($this->data['address'], 'city');
+            $zip = ResponseHelper::getFromResponse($this->data['address'], 'zip');
+        }
+        if (ArrayHelper::containsKey($this->data, 'country') === true) {
+            $country = ResponseHelper::getFromResponse($this->data['country'], 'countryCode');
+        }
+        if (ArrayHelper::containsKey($this->data, 'billingInformation') === true) {
+            if (ArrayHelper::containsKey($this->data['billingInformation'], 'company')) {
+                $vatNumber = ResponseHelper::getFromResponse($this->data['billingInformation']['company'], 'vatId');
+            }
+        }
+        if (ArrayHelper::containsKey($this->data, 'urls') === true) {
+            foreach ($this->data['urls'] as $url) {
+                if (ArrayHelper::containsKey($url, 'ident') && $url['ident'] === 'oauth') {
+                    $oauthUrl = ResponseHelper::getFromResponse($url, 'url');
+                }
+            }
+        }
+        return new EshopResponse($name, $title, $category, $subtitle, $url, $contactPerson, $email, $phone, $street, $city, $zip, $country, $vatNumber, $oauthUrl);
     }
 
     /**

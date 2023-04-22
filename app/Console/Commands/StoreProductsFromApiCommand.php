@@ -37,7 +37,7 @@ class StoreProductsFromApiCommand extends Command
         foreach ($clients as $client) {
             $this->info('Updating products for client ' . $client->getAttribute('eshop_name'));
             $clientId = $client->getAttribute('id');
-            $apiAccessToken = TokenHelper::getApiAccessToken($client);
+            $apiAccessToken = $client->getAccessToken();
             $productResponses = ConnectorHelper::getProducts($apiAccessToken);
             $products = Product::where('client_id', $clientId)->where('active', true)->get();
             foreach ($productResponses as $productResponse) {

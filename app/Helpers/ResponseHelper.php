@@ -55,25 +55,12 @@ class ResponseHelper
      * @param array<string, string> $response
      * @return string
      */
-    public static function getEshopUrl(array $response): ?string
+    public static function getFromResponse(array $response, string $key): ?string
     {
-        $eshopUrl = null;
-        if (ArrayHelper::containsKey($response, 'eshopUrl')) {
-            $eshopUrl = $response['eshopUrl'];
+        $value = null;
+        if (ArrayHelper::containsKey($response, $key)) {
+            $value = $response[$key];
         }
-        return $eshopUrl;
-    }
-
-    /**
-     * @param array<string, string> $response
-     * @return string
-     */
-    public static function getContactEmail(array $response): ?string
-    {
-        $contactEmail = null;
-        if (ArrayHelper::containsKey($response, 'contactEmail')) {
-            $contactEmail = $response['contactEmail'];
-        }
-        return $contactEmail;
+        return $value;
     }
 }

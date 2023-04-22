@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use App\Connector\EshopResponse;
 use App\Connector\ProductImageResponse;
 use App\Connector\ProductResponse;
 use App\Connector\Request;
@@ -29,5 +30,13 @@ class ConnectorHelper
         $request->getProductImages($productGuid, 'shop');
         $response = $request->send();
         return $response->getProductImages();
+    }
+
+    public static function getEshop(string $apiAccessToken): EshopResponse
+    {
+        $request = new Request($apiAccessToken);
+        $request->getEshop();
+        $response = $request->send();
+        return $response->getEshop();
     }
 }

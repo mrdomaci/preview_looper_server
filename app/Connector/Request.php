@@ -47,6 +47,14 @@ class Request
         return $this;
     }
 
+    public function getEshop(): Request
+    {
+        $this->setMethod(Eshop::getMethod());
+        $this->setEndpoint(Eshop::getEndpoint());
+        $this->setQuery(Eshop::getQuery());
+        return $this;
+    }
+
     public function getToken(): string
     {
         return $this->token;

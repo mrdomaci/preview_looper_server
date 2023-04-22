@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\ClientStatusEnum;
 use App\Exceptions\DataInsertFailException;
 use App\Exceptions\DataUpdateFailException;
+use App\Helpers\TokenHelper;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -47,6 +49,19 @@ class Client extends Model
         return $this->hasMany(Image::class);
     }
 
+    public static function getByEshopId(int $eshopId): Client
+    {
+        $client = Client::where('eshop_id', $eshopId)->first();
+        if ($client === NULL) {
+            throw new DataUpdateFailException(new Exception('Client not found'));
+        }
+        return $client;
+    }
+
+    public function getAccessToken(): string
+    {
+        return TokenHelper::getApiAccessToken($this);
+    }
     public static function updateOrCreate(int $eshopId, string $oAuthAccessToken, string $eshopUrl, string $email): Client
     {
         $client = Client::where('eshop_id', $eshopId)->first();
@@ -79,7 +94,7 @@ class Client extends Model
 
     public static function updateStatus(int $eshopId, ClientStatusEnum $status): void
     {
-        $client = Client::where('eshop_id', $eshopId)->firstOrFail();
+        $client = Client::getByEshopId($eshopId);
         $client->status = $status;
         try {
             $client->save();
