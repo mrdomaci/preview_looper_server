@@ -34,11 +34,11 @@ class StoreProductsFromApiCommand extends Command
     {
         $yesterday = now()->subDay();
         $clients = Client::where('status', ClientStatusEnum::ACTIVE)->whereDate('last_synced_at', '<=', $yesterday)->get();
+        /** @var Client $client */
         foreach ($clients as $client) {
             $this->info('Updating products for client ' . $client->getAttribute('eshop_name'));
             $clientId = $client->getAttribute('id');
-            $apiAccessToken = $client->getAccessToken();
-            $productResponses = ConnectorHelper::getProducts($apiAccessToken);
+            $productResponses = ConnectorHelper::getProducts($client);
             $products = Product::where('client_id', $clientId)->where('active', true)->get();
             foreach ($productResponses as $productResponse) {
                 $this->info('Updating product ' . $productResponse->getGuid());

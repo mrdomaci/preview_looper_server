@@ -48,7 +48,7 @@ class AuthorizationHelper
             'client_secret' => env('SHOPTET_CLIENT_SECRET'), 
             'code' => $code,
             'grant_type' => 'authorization_code',
-            'redirect_uri' => Route('client.saveSettings', ['language' => $language, 'eshopId' => $eshopId, 'code' => $code]),
+            'redirect_uri' => 'https://slabihoud.cz',
             'scope' => 'basic_eshop',
         ];
 

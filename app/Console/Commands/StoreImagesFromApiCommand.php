@@ -34,18 +34,18 @@ class StoreImagesFromApiCommand extends Command
     {
         $yesterday = now()->subDay();
         $clients = Client::where('status', ClientStatusEnum::ACTIVE)->whereDate('last_synced_at', '<=', $yesterday)->get();
+        /** @var Client $client */
         foreach ($clients as $client) {
             $this->info('Updating images for client ' . $client->getAttribute('eshop_name'));
             $clientId = $client->getAttribute('id');
             $products = Product::where('client_id', $clientId)->where('active', true)->get();
-            $apiAccessToken = $client->getAccessToken();
             foreach($products as $product) {
                 $productGuid = $product->getAttribute('guid');
                 $productId = $product->getAttribute('id');
-                $imageResponses = ConnectorHelper::getProductImages($apiAccessToken, $productGuid);
+                $imageResponses = ConnectorHelper::getProductImages($client, $productGuid);
                 $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get();
                 foreach ($imageResponses as $imageResponse) {
-                    $this->info('Updating image ' . $imageResponse->getName());
+                    $this->info('Updating image ' . $imageResponse->getName() . ' for product ' . $productGuid);
                     $imageExists = false;
                     foreach ($images as $key => $image) {
                         if ($image->getAttribute('name') === $imageResponse->getCdnName()) {
