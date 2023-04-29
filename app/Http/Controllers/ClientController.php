@@ -81,7 +81,7 @@ class ClientController extends Controller
     public function settings(string $language, string $eshopId, string $code, Request $request): View
     {
         $client = Client::getByEshopId((int) $eshopId);
-        $eshopResponse = ConnectorHelper::getEshop($client->getAccessToken());
+        $eshopResponse = ConnectorHelper::getEshop($client);
         $baseOAuthUrl = null;
         if ($eshopResponse->getOauthUrl() !== null) {
             $baseOAuthUrl = $eshopResponse->getOauthUrl();

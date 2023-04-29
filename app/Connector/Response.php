@@ -223,4 +223,14 @@ class Response
     {
         return $this->errors;
     }
+
+    public function isInvalidToken(): bool
+    {
+        foreach ($this->errors as $error) {
+            if ($error['errorCode'] === 'invalid-token') {
+                return true;
+            }
+        }
+        return false;
+    }
 }

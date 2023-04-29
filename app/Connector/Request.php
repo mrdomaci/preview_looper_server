@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Connector;
 
 use App\Exceptions\ApiRequestFailException;
+use App\Helpers\TokenHelper;
+use App\Models\Client;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 
@@ -12,13 +14,13 @@ class Request
     private const API_URL = 'https://api.myshoptet.com/api';
 
     /**
-     * @param string $token
+     * @param Client $client
      * @param string $method
      * @param string $endpoint
      * @param array<string, string> $query
      */
     public function __construct(
-        private string $token,
+        private Client $client,
         private string $method = 'GET',
         private string $endpoint = '/products',
         private array $query = [],
@@ -57,12 +59,7 @@ class Request
 
     public function getToken(): string
     {
-        return $this->token;
-    }
-
-    public function setToken(string $token): void
-    {
-        $this->token = $token;
+        return $this->client->getAttribute('access_token');
     }
 
     public function getMethod(): string
@@ -112,13 +109,26 @@ class Request
 
     public function send(): Response
     {
-        $client = new \GuzzleHttp\Client();
-        $options = ['headers' => ['Shoptet-Access-Token' => $this->token, 'Content-Type' => 'application/vnd.shoptet.v1.0']];
-        $response = $client->request($this->method, self::API_URL . $this->endpoint . $this->getQueryAsAString(), $options);
-        if ($response->getStatusCode() !== 200) {
-            throw new ApiRequestFailException(new Exception('API request failed for ' . self::API_URL . $this->endpoint . $this->getQueryAsAString() . ' with status code ' . $response->getStatusCode()));
+        try {
+            $response = $this->sendRequest();
+        } catch (Exception $e) {
+            if ($e->getCode() === 401) {
+                $this->client->setAttribute('access_token', TokenHelper::getApiAccessToken($this->client));
+                $this->client->save();
+                $response = $this->sendRequest();
+            } else {
+                throw new ApiRequestFailException(new Exception('API request failed for ' . self::API_URL . $this->endpoint . $this->getQueryAsAString() . ' with status code ' . $e->getCode() . ' and message ' . $e->getMessage()));
+            }
         }
+
         return $this->parseResponse($response->getBody()->getContents());
+    }
+
+    private function sendRequest(): ResponseInterface
+    {
+        $client = new \GuzzleHttp\Client();
+        $options = ['headers' => ['Shoptet-Access-Token' => $this->client->getAttribute('access_token'), 'Content-Type' => 'application/vnd.shoptet.v1.0']];
+        return $client->request($this->method, self::API_URL . $this->endpoint . $this->getQueryAsAString(), $options);
     }
 
     private function parseResponse(string $response): Response

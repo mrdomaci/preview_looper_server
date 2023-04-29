@@ -33,11 +33,11 @@ class StoreClientsFromApiCommand extends Command
     public function handle()
     {
         $clients = Client::get();
+        /** @var Client $client */
         foreach ($clients as $client) {
-            $this->info('Updating images for client ' . $client->getAttribute('eshop_name'));
+            $this->info('Updating client ' . $client->getAttribute('eshop_name'));
             try {
-                $apiAccessToken = $client->getAccessToken();
-                $clientResponse = ConnectorHelper::getEshop($apiAccessToken);
+                $clientResponse = ConnectorHelper::getEshop($client);
                 $client->setAttribute('eshop_name', $clientResponse->getName());
                 $client->setAttribute('url', $clientResponse->getUrl());
                 $client->setAttribute('eshop_category', $clientResponse->getCategory());

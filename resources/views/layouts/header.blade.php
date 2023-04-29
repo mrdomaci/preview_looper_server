@@ -7,5 +7,6 @@
     <link rel="stylesheet" href="../../css/bootstrap.min.css">
     <link rel="stylesheet" href="../../css/bootstrap.rtl.css">
     <link rel="stylesheet" href="../../css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="../../css/custom.css">
 </head>
 <body>

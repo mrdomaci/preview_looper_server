@@ -34,7 +34,8 @@ class Client extends Model
         'last_synced_at',
         'settings_infinite_repeat',
         'settings_return_to_default',
-        'settings_show_time'
+        'settings_show_time',
+        'access_token'
     ];
 
     /**
