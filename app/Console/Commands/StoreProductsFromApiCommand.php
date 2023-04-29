@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\ClientStatusEnum;
 use App\Helpers\ConnectorHelper;
+use App\Helpers\ResponseHelper;
 use App\Helpers\TokenHelper;
 use App\Models\Client;
 use App\Models\Product;
@@ -38,36 +39,42 @@ class StoreProductsFromApiCommand extends Command
         foreach ($clients as $client) {
             $this->info('Updating products for client ' . $client->getAttribute('eshop_name'));
             $clientId = $client->getAttribute('id');
-            $productResponses = ConnectorHelper::getProducts($client);
-            $products = Product::where('client_id', $clientId)->where('active', true)->get();
-            foreach ($productResponses as $productResponse) {
-                $this->info('Updating product ' . $productResponse->getGuid());
-                $productExists = false;
-                foreach ($products as $key => $product) {
-                    if ($product->getAttribute('guid') === $productResponse->getGuid()) {
-                        unset($products[$key]);
-                        $productExists = true;
-                        break;
+            
+            for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
+                $productResponses = ConnectorHelper::getProducts($client, $page);
+                $products = Product::where('client_id', $clientId)->where('active', true)->get();
+                foreach ($productResponses as $productResponse) {
+                    $this->info('Updating product ' . $productResponse->getGuid());
+                    $productExists = false;
+                    foreach ($products as $key => $product) {
+                        if ($product->getAttribute('guid') === $productResponse->getGuid()) {
+                            unset($products[$key]);
+                            $productExists = true;
+                            break;
+                        }
+                    }
+                    if ($productExists) {
+                        continue;
+                    }
+                    $product = Product::where('guid', $productResponse->getGuid())->first();
+                    if ($product === null) {
+                        $product = new Product();
+                        $product->setAttribute('guid', $productResponse->getGuid());
+                        $product->setAttribute('client_id', $clientId);
+                        $product->setAttribute('active', true);
+                        $product->save();
+                    } else if ($product->getAttribute('active') === false) {
+                        $product->setAttribute('active', true);
+                        $product->save();
                     }
                 }
-                if ($productExists) {
-                    continue;
-                }
-                $product = Product::where('guid', $productResponse->getGuid())->first();
-                if ($product === null) {
-                    $product = new Product();
-                    $product->setAttribute('guid', $productResponse->getGuid());
-                    $product->setAttribute('client_id', $clientId);
-                    $product->setAttribute('active', true);
-                    $product->save();
-                } else if ($product->getAttribute('active') === false) {
-                    $product->setAttribute('active', true);
+                foreach ($products as $product) {
+                    $product->setAttribute('active', false);
                     $product->save();
                 }
-            }
-            foreach ($products as $product) {
-                $product->setAttribute('active', false);
-                $product->save();
+                if (count($productResponses) < ResponseHelper::MAXIMUM_ITEMS_PER_PAGE) {
+                    break;
+                }
             }
         }
         return Command::SUCCESS;

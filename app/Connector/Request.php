@@ -27,11 +27,12 @@ class Request
     ) {
     }
 
-    public function getProducts(): Request
+    public function getProducts(int $page): Request
     {
         $this->setMethod(Product::getMethod());
         $this->setEndpoint(Product::getEndpoint());
         $this->setQuery(Product::getQuery());
+        $this->setPage($page);
         return $this;
     }
 
@@ -104,6 +105,11 @@ class Request
     public function setQuery(array $query): void
     {
         $this->query = $query;
+    }
+
+    public function setPage(int $page): void
+    {
+        $this->setQuery(['page' => (string) $page]);
     }
 
 

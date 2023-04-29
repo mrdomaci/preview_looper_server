@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Enums\ClientStatusEnum;
 use App\Helpers\ConnectorHelper;
-use App\Helpers\TokenHelper;
 use App\Models\Client;
 use App\Models\Image;
 use App\Models\Product;
