@@ -14,10 +14,10 @@ class ConnectorHelper
     /**
      * @return array<ProductResponse>
      */
-    public static function getProducts(Client $client): array
+    public static function getProducts(Client $client, int $page): array
     {
         $request = new Request($client);
-        $request->getProducts();
+        $request->getProducts($page);
         $response = $request->send();
         return $response->getProducts();
     }
