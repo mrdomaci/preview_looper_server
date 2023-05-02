@@ -115,4 +115,18 @@ class ClientController extends Controller
                 'show_time' => $client->getAttribute('settings_show_time'),
             ]);
     }
+
+    public function saveSettings(string $language, string $eshopId, string $code, Request $request): \Illuminate\Http\RedirectResponse
+    {
+        LocaleHelper::setLocale($language);
+        $infiniteRepeat = $request->input('settings_infinite_repeat');
+        $returnToDefault = $request->input('settings_return_to_default');
+        $showTime = $request->input('settings_show_time');
+        if ($eshopId !== $request->input('eshop_id')) {
+            abort(403);
+        }
+        $client = Client::getByEshopId((int) $eshopId);
+        Client::updateSettings($client, NumbersHelper::intToBool((int)$infiniteRepeat), NumbersHelper::intToBool((int)$returnToDefault), (int)$showTime);
+        return redirect()->route('client.settings', ['language' => $language, 'code' => $code, 'eshop_id' => $eshopId])->with('success', trans('messages.saved'));
+    }
 }
