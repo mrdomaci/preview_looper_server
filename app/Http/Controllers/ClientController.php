@@ -78,8 +78,12 @@ class ClientController extends Controller
         return $response['access_token'];
     }
 
-    public function settings(string $language, string $eshopId, string $code, Request $request): View
+    public function settings(Request $request): View
     {
+        $language = $request->input('language');
+        $code = $request->input('code');
+        $eshopId = $request->input('eshop_id');
+
         $client = Client::getByEshopId((int) $eshopId);
         $eshopResponse = ConnectorHelper::getEshop($client);
         $baseOAuthUrl = null;
@@ -110,17 +114,5 @@ class ClientController extends Controller
                 'return_to_default' => $client->getAttribute('settings_return_to_default'),
                 'show_time' => $client->getAttribute('settings_show_time'),
             ]);
-    }
-
-    public function saveSettings(string $language, string $eshopId, string $code, Request $request): \Illuminate\Http\RedirectResponse
-    {
-        LocaleHelper::setLocale($language);
-        $infiniteRepeat = $request->input('settings_infinite_repeat');
-        $returnToDefault = $request->input('settings_return_to_default');
-        $showTime = $request->input('settings_show_time');
-        $eshopId = $request->input('eshop_id');
-        $client = Client::getByEshopId((int) $eshopId);
-        Client::updateSettings($client, NumbersHelper::intToBool((int)$infiniteRepeat), NumbersHelper::intToBool((int)$returnToDefault), (int)$showTime);
-        return redirect()->route('client.settings', ['language' => $language, 'code' => $code])->with('success', trans('messages.saved'));
     }
 }
