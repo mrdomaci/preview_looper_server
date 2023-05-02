@@ -51,6 +51,8 @@ class AuthorizationHelper
             'redirect_uri' => Route('client.settings'),
             'scope' => 'basic_eshop',
         ];
+        
+        LoggerHelper::log(Route('client.settings'));
 
         $url = $baseOAuthUrl . 'token';
 
