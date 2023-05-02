@@ -48,7 +48,7 @@ class AuthorizationHelper
             'client_secret' => env('SHOPTET_CLIENT_SECRET'), 
             'code' => $code,
             'grant_type' => 'authorization_code',
-            'redirect_uri' => Route('client.saveSettings', ['language' => $language, 'eshopId' => $eshopId, 'code' => $code]),
+            'redirect_uri' => Route('client.settings', ['language' => $language, 'eshop_id' => $eshopId, 'code' => $code]),
             'scope' => 'basic_eshop',
         ];
 

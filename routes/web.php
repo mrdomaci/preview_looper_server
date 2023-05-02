@@ -26,7 +26,6 @@ Route::get('/addon-deactivate', [ClientController::class, 'deactivate'])->name('
 Route::get('/addon-activate', [ClientController::class, 'activate'])->name('client.activate');
 
 Route::get('/images/{clientId}/{productIds}', [ImageController::class, 'list'])->name('images.list');
-Route::get('/client-settings/{language}/{eshopId}/{code}',[ClientController::class, 'settings'])->name('client.settings');
-Route::post('/client-settings/{language}/{eshopId}/{code}',[ClientController::class, 'saveSettings'])->name('client.saveSettings');
+Route::get('/client-settings',[ClientController::class, 'settings'])->name('client.settings');
 
 Route::get('/locale/{locale}', [HomepageController::class, 'setLocale'])->name('homepage.setLocale');
