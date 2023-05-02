@@ -52,8 +52,6 @@ class AuthorizationHelper
             'scope' => 'basic_eshop',
         ];
         
-        LoggerHelper::log(Route('client.settings'));
-
         $url = $baseOAuthUrl . 'token';
 
         $curl = curl_init($url);
