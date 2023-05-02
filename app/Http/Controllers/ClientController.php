@@ -127,6 +127,6 @@ class ClientController extends Controller
         }
         $client = Client::getByEshopId((int) $eshopId);
         Client::updateSettings($client, NumbersHelper::intToBool((int)$infiniteRepeat), NumbersHelper::intToBool((int)$returnToDefault), (int)$showTime);
-        return redirect()->route('client.settings', ['language' => $language, 'code' => $code, 'eshop_id' => $eshopId])->with('success', trans('messages.saved'));
+        return redirect()->route('client.settings', ['language' => $language, 'code' => $code, 'eshopId' => $eshopId])->with('success', trans('messages.saved'));
     }
 }
