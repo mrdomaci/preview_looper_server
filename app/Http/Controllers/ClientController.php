@@ -129,4 +129,17 @@ class ClientController extends Controller
         Client::updateSettings($client, NumbersHelper::intToBool((int)$infiniteRepeat), NumbersHelper::intToBool((int)$returnToDefault), (int)$showTime);
         return redirect()->route('client.settings', ['language' => $language, 'code' => $code, 'eshop_id' => $eshopId])->with('success', trans('messages.saved'));
     }
+
+    public function showSettings(string $language, string $eshopId): View
+    {
+        LocaleHelper::setLocale($language);
+        $client = Client::getByEshopId((int) $eshopId);
+        return view('client.show_settings',
+            [
+                'eshop_name' => $client->getAttribute('eshop_name'),
+                'infinite_repeat' => $client->getAttribute('settings_infinite_repeat'),
+                'return_to_default' => $client->getAttribute('settings_return_to_default'),
+                'show_time' => $client->getAttribute('settings_show_time'),
+            ]);
+    }
 }
