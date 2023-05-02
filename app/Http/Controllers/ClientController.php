@@ -98,7 +98,7 @@ class ClientController extends Controller
             throw new ApiRequestFailException(new Exception('Base OAuth URL not found in session or response for client ' . $client->getAttribute('eshop_id')));
         }
 
-        $accessToken = AuthorizationHelper::getAccessTokenForSettings($code, $language, $eshopId, $baseOAuthUrl);
+        $accessToken = AuthorizationHelper::getAccessTokenForSettings($code, $eshopId, $language, $baseOAuthUrl);
         $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
         LocaleHelper::setLocale($language);
         if ($checkEshopId !== $client->getAttribute('eshop_id')) {
