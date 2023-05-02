@@ -134,7 +134,7 @@ class ClientController extends Controller
     {
         LocaleHelper::setLocale($language);
         $client = Client::getByEshopId((int) $eshopId);
-        return view('client.show_settings',
+        return view('show_settings',
             [
                 'eshop_name' => $client->getAttribute('eshop_name'),
                 'infinite_repeat' => $client->getAttribute('settings_infinite_repeat'),
