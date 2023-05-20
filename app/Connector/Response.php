@@ -5,6 +5,7 @@ namespace App\Connector;
 
 use App\Exceptions\ApiResponsePaginatorFailException;
 use App\Helpers\ArrayHelper;
+use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
 use DateTime;
 use Exception;
@@ -19,6 +20,12 @@ class Response
         private array $data,
         private ?array $errors = null,
     ) {
+        if ($errors !== null) {
+            foreach($errors as $key => $error) {
+                LoggerHelper::log($key);
+                LoggerHelper::log($error);
+            }
+        }
     }
 
     public function getPaginator(): Paginator
@@ -214,6 +221,25 @@ class Response
             }
         }
         return new EshopResponse($name, $title, $category, $subtitle, $ehopUrl, $contactPerson, $email, $phone, $street, $city, $zip, $country, $vatNumber, $oauthUrl);
+    }
+
+    public function postTemplateIncluded(): TemplateIncludeResponse
+    {
+        $templateIncludes = [];
+        if (ArrayHelper::containsKey($this->data, 'snippets') === true) {
+            foreach ($this->data['snippets'] as $snippet) {
+                if (ArrayHelper::containsKey($snippet, 'location') === true) {
+                    $location = $snippet['location'];
+                }
+                if (ArrayHelper::containsKey($snippet, 'html') === true) {
+                    $html = $snippet['html'];
+                }
+                if (isset($location) && isset($html)) {
+                    $templateIncludes[] = new TemplateIncludeSnippet($location, $html);
+                }
+            }    
+        }
+        return new TemplateIncludeResponse($templateIncludes);
     }
 
     /**

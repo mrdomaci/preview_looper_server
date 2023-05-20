@@ -14,16 +14,18 @@ class Request
     private const API_URL = 'https://api.myshoptet.com/api';
 
     /**
-     * @param Client $client
-     * @param string $method
-     * @param string $endpoint
-     * @param array<string, string> $query
-     */
+    * @param Client $client
+    * @param string $method
+    * @param string $endpoint
+    * @param array<string, string> $query
+    * @param string $body
+    */
     public function __construct(
         private Client $client,
         private string $method = 'GET',
         private string $endpoint = '/products',
         private array $query = [],
+        private ?string $body = null,
     ) {
     }
 
@@ -55,6 +57,15 @@ class Request
         $this->setMethod(Eshop::getMethod());
         $this->setEndpoint(Eshop::getEndpoint());
         $this->setQuery(Eshop::getQuery());
+        return $this;
+    }
+
+    public function postTemplateInclude(string $body): Request
+    {
+        $this->setMethod(TemplateInclude::getMethod());
+        $this->setEndpoint(TemplateInclude::getEndpoint());
+        $this->setQuery(TemplateInclude::getQuery());
+        $this->setBody($body);
         return $this;
     }
 
@@ -112,6 +123,10 @@ class Request
         $this->setQuery(['page' => (string) $page]);
     }
 
+    public function setBody(string $body): void
+    {
+        $this->body = $body;
+    }
 
     public function send(): Response
     {
@@ -133,7 +148,15 @@ class Request
     private function sendRequest(): ResponseInterface
     {
         $client = new \GuzzleHttp\Client();
-        $options = ['headers' => ['Shoptet-Access-Token' => $this->client->getAttribute('access_token'), 'Content-Type' => 'application/vnd.shoptet.v1.0']];
+        $options = [
+            'headers' => [
+                'Shoptet-Access-Token' => $this->client->getAttribute('access_token'),
+                'Content-Type' => 'application/vnd.shoptet.v1.0'
+                ]
+            ];
+        if ($this->body !== null) {
+            $options[\GuzzleHttp\RequestOptions::JSON] = $this->body;
+        }
         return $client->request($this->method, self::API_URL . $this->endpoint . $this->getQueryAsAString(), $options);
     }
 
