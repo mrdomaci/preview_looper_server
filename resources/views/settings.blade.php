@@ -52,19 +52,19 @@
                 <select class="form-control" name="settings_show_time" id="settings_show_time">
                     <option
                         value="1000"
-                        @if ($show_time <= 1000)
+                        @if ($show_time == 1000)
                             selected 
                         @endif
                     >{{ __('messages.show_time_short') }}</option>
                     <option
-                        value="2000"
-                        @if ($show_time > 1000 && $show_time <= 2000)
+                        value="1500"
+                        @if ($show_time == 1500)
                             selected 
                         @endif
                     >{{ __('messages.show_time_medium') }}</option>
                     <option
-                        value="3000"
-                        @if ($show_time > 3000)
+                        value="2000"
+                        @if ($show_time == 2000)
                             selected 
                         @endif
                     >{{ __('messages.show_time_long') }}</option>

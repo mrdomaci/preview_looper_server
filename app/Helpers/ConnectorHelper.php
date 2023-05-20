@@ -7,6 +7,7 @@ use App\Connector\EshopResponse;
 use App\Connector\ProductImageResponse;
 use App\Connector\ProductResponse;
 use App\Connector\Request;
+use App\Connector\TemplateIncludeResponse;
 use App\Models\Client;
 
 class ConnectorHelper
@@ -39,5 +40,13 @@ class ConnectorHelper
         $request->getEshop();
         $response = $request->send();
         return $response->getEshop();
+    }
+
+    public static function postTemplateInclude(Client $client, string $body): TemplateIncludeResponse
+    {
+        $request = new Request($client);
+        $request->postTemplateInclude($body);
+        $response = $request->send();
+        return $response->postTemplateIncluded();
     }
 }

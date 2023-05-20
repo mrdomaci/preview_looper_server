@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Connector\TemplateIncludeSnippet;
 use App\Enums\ClientStatusEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Helpers\ArrayHelper;
 use App\Helpers\AuthorizationHelper;
+use App\Helpers\ConnectorBodyHelper;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LocaleHelper;
+use App\Helpers\LoggerHelper;
 use App\Helpers\NumbersHelper;
 use App\Helpers\ResponseHelper;
 use App\Helpers\WebHookHelper;
@@ -126,7 +129,16 @@ class ClientController extends Controller
             abort(403);
         }
         $client = Client::getByEshopId((int) $eshopId);
-        Client::updateSettings($client, NumbersHelper::intToBool((int)$infiniteRepeat), NumbersHelper::intToBool((int)$returnToDefault), (int)$showTime);
+        $infiniteRepeat = NumbersHelper::intToBool((int)$infiniteRepeat);
+        $returnToDefault = NumbersHelper::intToBool((int)$returnToDefault);
+        $showTime = (int)$showTime;
+        Client::updateSettings($client, $infiniteRepeat, $returnToDefault, $showTime);
+        $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($infiniteRepeat, $returnToDefault, $showTime);
+        $templateIncludeResponse = ConnectorHelper::postTemplateInclude($client, $body);
+        if ($templateIncludeResponse->getTemplateIncludes() === []) {
+            LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));
+            return redirect()->route('client.showSettings', ['language' => $language, 'eshopId' => $eshopId])->with('error', trans('messages.error'));
+        }
         return redirect()->route('client.showSettings', ['language' => $language, 'eshopId' => $eshopId])->with('success', trans('messages.saved'));
     }
 

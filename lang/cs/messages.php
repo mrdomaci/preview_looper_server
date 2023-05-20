@@ -17,5 +17,6 @@ return [
     'homepage_title' => 'Kolotoč náhledů',
     'homepage_description' => 'Kolotoč náhledů je doplněk, který umožňuje postupně zobrazit náhledové obrázky produktu, na který se právě zákazník eshopu dívá.',
     'homepage_button' => 'To chci',
-    'homepage_terms' => 'Pravidla použití'
+    'homepage_terms' => 'Pravidla použití',
+    'error' => 'Nastala chyba, zkuste to prosím znovu později',
 ];
