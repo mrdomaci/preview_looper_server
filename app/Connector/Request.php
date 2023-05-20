@@ -155,7 +155,7 @@ class Request
                 ]
             ];
         if ($this->body !== null) {
-            $options[\GuzzleHttp\RequestOptions::JSON] = $this->body;
+            $options[\GuzzleHttp\RequestOptions::JSON] = json_decode($this->body);
         }
         return $client->request($this->method, self::API_URL . $this->endpoint . $this->getQueryAsAString(), $options);
     }
