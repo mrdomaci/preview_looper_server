@@ -30,8 +30,11 @@ for (let i = 0; i < elements.length; i++) {
   products.push({ id: microDataValue, images: images});
 
   element.addEventListener('mouseenter', enter, false);
-  //element.addEventListener('touchmove', enter, false);
   element.addEventListener('mouseleave', leave, false);
+
+  const image = element.querySelector('img');
+  image.addEventListener('touchstart', handleTouchStart, false);
+  image.addEventListener('touchmove', handleTouchMove, false);
 }
 globalProducts = products;
 })();
@@ -106,6 +109,9 @@ function getHrefValues(url) {
     return null;
   }
 
+  var startX;
+  var startY;
+
   var enter = function(element) {
     const productElement = element.target;
     const id = productElement.getAttribute('data-micro-identifier');
@@ -149,4 +155,64 @@ function getHrefValues(url) {
 
   var leave = function(element) {
     stopLooping(element);
+  }
+
+  function handleTouchStart(event) {
+    const firstTouch = event.touches[0];
+    startX = firstTouch.clientX;
+    startY = firstTouch.clientY;
+  }
+  
+  function handleTouchMove(element) {
+    if (!startX || !startY) {
+      return;
+    }
+  
+    const xDiff = startX - element.touches[0].clientX;
+    const yDiff = startY - element.touches[0].clientY;
+  
+    if (Math.abs(xDiff) > Math.abs(yDiff)) {
+      const productElement = findParentElementByClassName(element.target, 'p');
+      const id = productElement.getAttribute('data-micro-identifier');
+      const img = productElement.querySelector('img');
+      const product = getProduct(id);
+      let currentImg = img.src;
+      imagePrefix = currentImg;
+      let currentImgArray = currentImg.split('/');
+      currentImg = currentImgArray[currentImgArray.length - 1];
+      imagePrefix = imagePrefix.substring(0, imagePrefix.length - currentImg.length);
+      let index = getIndex(product, currentImg);
+      if (xDiff > 0) {
+        if (index === 0) {
+          index = product.images.length - 1;
+        } else {
+          index = index - 1;
+        }
+      } else {
+        index = (index + 1) % product.images.length;
+      }
+      if (product.images.length === 0) {
+        return;
+      }
+      imageName = product.images[index];
+      if (imageName === undefined) {
+        return;
+      }
+      let imageNameArray = imageName.split('/');
+      imageName = imageNameArray[imageNameArray.length - 1];
+      img.src = imagePrefix + imageName;
+    }
+  
+    startX = null;
+    startY = null;
+  }
+
+  function findParentElementByClassName(element, className) {
+    if (!element) {
+      return null;
+    }
+    if (element.classList && element.classList.contains(className)) {
+      return element;
+    }
+    return findParentElementByClassName(element.parentElement, className);
   }
