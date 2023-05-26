@@ -35,6 +35,13 @@ for (let i = 0; i < elements.length; i++) {
   const image = element.querySelector('img');
   image.addEventListener('touchstart', handleTouchStart, false);
   image.addEventListener('touchmove', handleTouchMove, false);
+    if (images && images.length > 0 && screen.width < 768) {
+      image.classList.add("overlay-on");
+      let icon = document.createElement('div');
+      icon.classList.add('middle');
+      icon.innerHTML = "<svg class='icon' width='40' height='40'><circle cx='20' cy='20' r='15' stroke='gray' stroke-width='8' fill='none'/></svg>";
+      image.after(icon);
+    }
 }
 globalProducts = products;
 })();
