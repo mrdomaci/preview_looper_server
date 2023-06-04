@@ -1,66 +1,233 @@
   const imageData = {
     "product-1": [
-      "http://localhost/images/product1_1.png",
-      "http://localhost/images/product1_2.png",
-      "http://localhost/images/product1_3.png",
-      "http://localhost/images/product1_4.png",
-      "http://localhost/images/product1_5.png"
+      "/images/product1_1.png",
+      "/images/product1_2.png",
+      "/images/product1_3.png",
+      "/images/product1_4.png",
+      "/images/product1_5.png"
     ],
     "product-2": [
-      "http://localhost/images/product2_1.png",
-      "http://localhost/images/product2_2.png",
-      "http://localhost/images/product2_3.png",
-      "http://localhost/images/product2_4.png",
-      "http://localhost/images/product2_5.png"
+      "/images/product2_1.png",
+      "/images/product2_2.png",
+      "/images/product2_3.png",
+      "/images/product2_4.png",
+      "/images/product2_5.png"
     ],
     "product-3": [
-      "http://localhost/images/product3_1.png",
-      "http://localhost/images/product3_2.png",
-      "http://localhost/images/product3_3.png",
-      "http://localhost/images/product3_4.png",
-      "http://localhost/images/product3_5.png"
+      "/images/product3_1.png",
+      "/images/product3_2.png",
+      "/images/product3_3.png",
+      "/images/product3_4.png",
+      "/images/product3_5.png"
     ]
   };
-  var runningInterval = null;
-  
-  (function() {
-    window.onload = function() {
-      const productElements = document.querySelectorAll("[id^='product-']");
-  
-      var enter = function(element) {
-        var id = element.target.id;
-        const product = document.getElementById(id); // get the element by id
-        const img = product.querySelector('.card-img-top'); // get the image element within the product element
-        currentImg = img.src;
-        let index = getIndex(currentImg, imageData[id]);
-        const intervalID = setInterval(() => {
-          index = (index + 1) % imageData[id].length; // increment the index and wrap around if necessary
-          img.src = imageData[id][index]; // set the new source
-        }, 1000);
-        runningInterval = intervalID;
-      };
-  
-      var leave = function(element) {
-        stopLooping();
-      }
-  
-      productElements.forEach(function(element) {
-        element.addEventListener('mouseenter', enter, false);
-        element.addEventListener('mouseleave', leave, false);
-      });
-    };
-  }());
+  var getUrl = window.location;
+  var baseUrl = getUrl .protocol + "//" + getUrl.host;
 
-  function stopLooping() {
+const carouselSettings = document.getElementById('preview-looper-settings');
+let infiniteRepeat = carouselSettings.getAttribute('data-infinite-repeat');
+let returnToDefault = carouselSettings.getAttribute('data-return-to-default');
+let showTime = carouselSettings.getAttribute('data-show-time');
+
+let imagePrefix;
+if (infiniteRepeat === null) {
+  infiniteRepeat = '0';
+}
+if (returnToDefault === null) {
+  returnToDefault = '0';
+}
+if (showTime === null) {
+  showTime = 1000;
+} else {
+  showTime = parseInt(showTime);
+}
+
+let globalProducts = [];
+let runningInterval;
+
+var enter = function(element) {
+  const parentElement = element.target;
+  const productElement = parentElement.querySelector('.p');
+  const id = productElement.getAttribute('data-micro-identifier');
+  const img = productElement.querySelector('img');
+  const product = getProduct(id);
+  let currentImg = img.src;
+  let currentImgArray = currentImg.split('/');
+  currentImg = currentImgArray[currentImgArray.length - 1];
+  let index = getIndex(product, currentImg);
+  const intervalID = setInterval(() => {
+    index = (index + 1) % product.images.length;
+    if (product.images.length === 0) {
+      return;
+    }
+    imageName = product.images[index];
+    if (imageName === undefined) {
+      return;
+    }
+
+    if (infiniteRepeat === '0' && index === product.images.length ) {
+      if (returnToDefault === '1') {
+        let imageNameDefault = product.images[0];
+        if (imageNameDefault === undefined) {
+          return;
+        }
+        img.src = imagePrefix + imageNameDefault;
+      }
+      stopLooping(element);
+    } else {
+      img.src = imageName;
+    }
+  }, showTime);
+  runningInterval = intervalID;
+};
+
+var leave = function(element) {
+  stopLooping(element);
+}
+
+const products = [];
+const elements = document.getElementsByClassName('p');
+(async () => {
+for (let i = 0; i < elements.length; i++) {
+  const element = elements[i];
+  const microDataValue = element.getAttribute('data-micro-identifier');
+  products.push({ id: microDataValue, images: imageData[microDataValue]});
+
+  parentElement = findParentElementByClassName(element, 'p-area');
+
+  parentElement.addEventListener('mouseenter', enter, false);
+  parentElement.addEventListener('mouseleave', leave, false);
+
+  const image = element.querySelector('img');
+  image.addEventListener('touchstart', handleTouchStart, false);
+  image.addEventListener('touchmove', handleTouchMove, false);
+    if (imageData[microDataValue] && imageData[microDataValue].length > 0 && screen.width < 768) {
+      let icon = document.createElement('div');
+      image.after(icon);
+      icon.classList.add('overlay-container');
+      let innerHtml = '';
+      for (let i = 0; i < imageData[microDataValue].length; i++) {
+        if (i === 0) {
+          innerHtml = innerHtml + "<svg width='10' height='10' class='circle'><circle cx='5' cy='5' r='4'/></svg>";
+        } else {
+          innerHtml = innerHtml + "<svg width='10' height='10' class='empty-circle'><circle cx='5' cy='5' r='4'/></svg>";
+        }
+      }
+      icon.innerHTML = innerHtml;
+    }
+}
+globalProducts = products;
+})();
+
+  function stopLooping(element) {
     clearInterval(runningInterval);
+    if (returnToDefault === '1' && imagePrefix) {
+      const productElement = element.target;
+      const img = productElement.querySelector('img');
+      const id = productElement.getAttribute('data-micro-identifier');
+      const product = getProduct(id);
+      if (product && product.images.length > 1) {
+        let imageNameDefaultArray = product.images[0].split('/');
+        img.src = imagePrefix + imageNameDefaultArray[imageNameDefaultArray.length - 1];
+      }
+    }
   }
 
-  function getIndex(currentImg, imageData) {
-    for (let i = 0; i < imageData.length; i++) {
-      if (currentImg === imageData[i]) {
+  function getIndex(product, currentImg) {
+    for (let i = 0; i < product.images.length; i++) {
+      let hrefValueArray = product.images[i].split('/');
+      let value = hrefValueArray[hrefValueArray.length - 1]
+      if (currentImg === value) {
         return i;
       }
     }
     return 0;
+  }
+
+  function getProduct(id) {
+    for (let i = 0; i < globalProducts.length; i++) {
+      if (id === globalProducts[i].id) {
+        return globalProducts[i];
+      }
+    }
+    return null;
+  }
+
+  var startX;
+  var startY;
+
+  function handleTouchStart(event) {
+    const firstTouch = event.touches[0];
+    startX = firstTouch.clientX;
+    startY = firstTouch.clientY;
+  }
+  
+  function handleTouchMove(element) {
+    if (!startX || !startY) {
+      return;
+    }
+  
+    const xDiff = startX - element.touches[0].clientX;
+    const yDiff = startY - element.touches[0].clientY;
+  
+    if (Math.abs(xDiff) > Math.abs(yDiff)) {
+      const productElement = findParentElementByClassName(element.target, 'p');
+      const id = productElement.getAttribute('data-micro-identifier');
+      const img = productElement.querySelector('img');
+      const product = getProduct(id);
+      let currentImg = img.src;
+      imagePrefix = currentImg;
+      let currentImgArray = currentImg.split('/');
+      currentImg = currentImgArray[currentImgArray.length - 1];
+      imagePrefix = imagePrefix.substring(0, imagePrefix.length - currentImg.length);
+      let index = getIndex(product, currentImg);
+      let initIndex = index;
+      if (xDiff > 0) {
+        if (index === 0) {
+          index = product.images.length - 1;
+        } else {
+          index = index - 1;
+        }
+      } else {
+        index = (index + 1) % product.images.length;
+      }
+      if (product.images.length === 0) {
+        return;
+      }
+      imageName = product.images[index];
+      if (imageName === undefined) {
+        return;
+      }
+      let imageNameArray = imageName.split('/');
+      imageName = imageNameArray[imageNameArray.length - 1];
+      img.src = imagePrefix + imageName;
+
+      const image = element.srcElement;
+      const link = image.parentElement;
+      const svgs = link.querySelectorAll('svg');
+      svgs.forEach((svg, i) => {
+        if (initIndex === i) {
+          svg.classList.remove('circle');
+          svg.classList.add('empty-circle');
+        }
+        if (index === i) {
+          svg.classList.remove('empty-circle');
+          svg.classList.add('circle');
+        }
+      });
+    }
+  
+    startX = null;
+    startY = null;
+  }
+
+  function findParentElementByClassName(element, className) {
+    if (!element) {
+      return null;
+    }
+    if (element.classList && element.classList.contains(className)) {
+      return element;
+    }
+    return findParentElementByClassName(element.parentElement, className);
   }
   

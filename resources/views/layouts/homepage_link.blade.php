@@ -1,0 +1,1 @@
+<li class="list-inline-item"><a href="{{ URL::route('welcome') }}">{{ __('messages.main_page') }}</a></li>
