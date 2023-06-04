@@ -1,16 +1,15 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'Laravel') }}</title>
-</head>
+@include('layouts.header')
 <body>
-    @include('layouts.header')
     <div id="preview-looper-settings" data-infinite-repeat="0" data-return-to-default="0" data-show-time="1500"></div>
     <div class="container">
             <div class="jumbotron text-center mt-4">
-            <h1>{{ __('messages.homepage_title') }}</h1>
+                <div class="logo-warper">
+                    @if ( Config::get('app.locale') == 'cs')
+                        <img class="logo-img" src="{{ url('images/webpage_logo_cs.png') }}" alt="">
+                    @else
+                        <h1>{{ __('messages.homepage_title') }}</h1>
+                    @endif
+                </div>
             <p>{{ __('messages.homepage_description') }}</p>
             <a class="btn btn-primary btn-lg mb-4" href="#" role="button">{{ __('messages.homepage_button') }}</a>
         </div>

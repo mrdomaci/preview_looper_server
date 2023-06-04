@@ -117,6 +117,7 @@ class ClientController extends Controller
                 'infinite_repeat' => $client->getAttribute('settings_infinite_repeat'),
                 'return_to_default' => $client->getAttribute('settings_return_to_default'),
                 'show_time' => $client->getAttribute('settings_show_time'),
+                'footer_link' => 'layouts.terms_link'
             ]);
     }
 
@@ -153,6 +154,7 @@ class ClientController extends Controller
                 'infinite_repeat' => $client->getAttribute('settings_infinite_repeat'),
                 'return_to_default' => $client->getAttribute('settings_return_to_default'),
                 'show_time' => $client->getAttribute('settings_show_time'),
+                'footer_link' => 'layouts.terms_link'
             ]);
     }
 
