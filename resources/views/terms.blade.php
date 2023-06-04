@@ -1,14 +1,15 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'Laravel') }}</title>
-</head>
+@include('layouts.header')
 <body>
-    @include('layouts.header')
-
     <div class="container py-5">
+        <div class="jumbotron text-center mt-4">
+                <div class="logo-warper">
+                    @if ( Config::get('app.locale') == 'cs')
+                        <a href="/"><img class="logo-img" src="{{ url('images/webpage_logo_cs.png') }}" alt=""></a>
+                    @else
+                        <a href="/"><h1>{{ __('messages.homepage_title') }}</h1></a>
+                    @endif
+                </div>
+        </div>
         <h1 class="mb-4">{{ __('messages.terms') }}</h1>
         <div class="accordion" id="termsAccordion">
             <div class="accordion-item">
