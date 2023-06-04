@@ -38,9 +38,17 @@ for (let i = 0; i < elements.length; i++) {
     if (images && images.length > 0 && screen.width < 768) {
       image.classList.add("overlay-on");
       let icon = document.createElement('div');
-      icon.classList.add('middle');
-      icon.innerHTML = "<svg class='icon' width='40' height='40'><circle cx='20' cy='20' r='15' stroke='gray' stroke-width='8' fill='none'/></svg>";
       image.after(icon);
+      icon.classList.add('overlay-container');
+      let innerHtml = '';
+      for (let i = 0; i < images.length; i++) {
+        if (i === 0) {
+          innerHtml = innerHtml + "<svg width='10' height='10' class='circle'><circle cx='5' cy='5' r='4'/></svg>";
+        } else {
+          innerHtml = innerHtml + "<svg width='10' height='10' class='empty-circle'><circle cx='5' cy='5' r='4'/></svg>";
+        }
+      }
+      icon.innerHTML = innerHtml;
     }
 }
 globalProducts = products;
@@ -189,6 +197,7 @@ function getHrefValues(url) {
       currentImg = currentImgArray[currentImgArray.length - 1];
       imagePrefix = imagePrefix.substring(0, imagePrefix.length - currentImg.length);
       let index = getIndex(product, currentImg);
+      let initIndex = index;
       if (xDiff > 0) {
         if (index === 0) {
           index = product.images.length - 1;
@@ -208,6 +217,20 @@ function getHrefValues(url) {
       let imageNameArray = imageName.split('/');
       imageName = imageNameArray[imageNameArray.length - 1];
       img.src = imagePrefix + imageName;
+
+      const image = element.srcElement;
+      const link = image.parentElement;
+      const svgs = link.querySelectorAll('svg');
+      svgs.forEach((svg, i) => {
+        if (initIndex === i) {
+          svg.classList.remove('circle');
+          svg.classList.add('empty-circle');
+        }
+        if (index === i) {
+          svg.classList.remove('empty-circle');
+          svg.classList.add('circle');
+        }
+      });
     }
   
     startX = null;

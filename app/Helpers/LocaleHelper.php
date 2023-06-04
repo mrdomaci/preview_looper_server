@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Session;
 
 class LocaleHelper
 {
@@ -20,10 +21,10 @@ class LocaleHelper
 
     public static function setLocale(string $locale): void
     {
-        if (ArrayHelper::containsValue(self::SUPPORTED_LOCALES, $locale)) {
-            App::setLocale($locale);
-        } else {
-            App::setLocale(self::SUPPORTED_LOCALES[0]);
+        if (!ArrayHelper::containsValue(self::SUPPORTED_LOCALES, $locale)) {
+            $locale = self::SUPPORTED_LOCALES[0];
         }
+        App::setLocale($locale);
+        Session::put('locale', $locale);
     }
 }

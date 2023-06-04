@@ -16,9 +16,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomepageController::class, 'index'])->name('welcome');
+Route::get('/terms', [HomepageController::class, 'terms'])->name('terms');
 
 Route::get('/addon-install', [ClientController::class, 'install'])->name('client.install');
 Route::get('/addon-uninstall', [ClientController::class, 'uninstall'])->name('client.uninstall');
