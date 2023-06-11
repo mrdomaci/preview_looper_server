@@ -69,7 +69,7 @@ class Client extends Model
 
         if ($client === NULL) {
             try {
-                Client::create([
+                $client = Client::create([
                     'oauth_access_token' => $oAuthAccessToken,
                     'eshop_id' => $eshopId,
                     'url' => $eshopUrl,
