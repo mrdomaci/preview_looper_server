@@ -17,3 +17,7 @@ yarn-error.log
 /.idea
 /.vscode
 **/.DS_Store
+/adminer
+/autoconfig
+/mail
+/roundcubemail
