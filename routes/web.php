@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\CommandController;
 use App\Http\Controllers\HomepageController;
-use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,3 +31,4 @@ Route::get('/client-settings-show/{language}/{eshopId}', [ClientController::clas
 Route::get('/locale/{locale}', [HomepageController::class, 'setLocale'])->name('homepage.setLocale');
 
 Route::get('/update', [ClientController::class, 'update'])->name('client.update');
+Route::get('/deploy', [CommandController::class, 'deploy'])->name('command.deploy');
