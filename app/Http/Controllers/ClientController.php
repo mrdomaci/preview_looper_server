@@ -112,7 +112,6 @@ class ClientController extends Controller
             [
                 'language' => $language,
                 'code' => $code,
-                'eshop_name' => $client->getAttribute('eshop_name'),
                 'eshop_id' => $client->getAttribute('eshop_id'),
                 'infinite_repeat' => $client->getAttribute('settings_infinite_repeat'),
                 'return_to_default' => $client->getAttribute('settings_return_to_default'),
@@ -139,23 +138,9 @@ class ClientController extends Controller
         $templateIncludeResponse = ConnectorHelper::postTemplateInclude($client, $body);
         if ($templateIncludeResponse->getTemplateIncludes() === []) {
             LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));
-            return redirect()->route('client.showSettings', ['language' => $language, 'eshopId' => $eshopId])->with('error', trans('messages.error'));
+            return redirect()->route('client.settings', ['language' => $language, 'eshopId' => $eshopId, 'code' => $code])->with('error', trans('messages.error'));
         }
         return redirect()->route('client.showSettings', ['language' => $language, 'eshopId' => $eshopId])->with('success', trans('messages.saved'));
-    }
-
-    public function showSettings(string $language, string $eshopId): View
-    {
-        LocaleHelper::setLocale($language);
-        $client = Client::getByEshopId((int) $eshopId);
-        return view('show_settings',
-            [
-                'eshop_name' => $client->getAttribute('eshop_name'),
-                'infinite_repeat' => $client->getAttribute('settings_infinite_repeat'),
-                'return_to_default' => $client->getAttribute('settings_return_to_default'),
-                'show_time' => $client->getAttribute('settings_show_time'),
-                'footer_link' => 'layouts.terms_link'
-            ]);
     }
 
     public function update(Request $request): Response

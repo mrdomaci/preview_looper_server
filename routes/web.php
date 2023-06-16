@@ -26,7 +26,6 @@ Route::get('/addon-activate', [ClientController::class, 'activate'])->name('clie
 
 Route::get('/client-settings',[ClientController::class, 'settings'])->name('client.settings');
 Route::post('/client-settings/{language}/{eshopId}/{code}',[ClientController::class, 'saveSettings'])->name('client.saveSettings');
-Route::get('/client-settings-show/{language}/{eshopId}', [ClientController::class, 'showSettings'])->name('client.showSettings');
 
 Route::get('/locale/{locale}', [HomepageController::class, 'setLocale'])->name('homepage.setLocale');
 
