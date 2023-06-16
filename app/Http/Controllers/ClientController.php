@@ -140,7 +140,7 @@ class ClientController extends Controller
             LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));
             return redirect()->route('client.settings', ['language' => $language, 'eshopId' => $eshopId, 'code' => $code])->with('error', trans('messages.error'));
         }
-        return redirect()->route('client.showSettings', ['language' => $language, 'eshopId' => $eshopId])->with('success', trans('messages.saved'));
+        return redirect()->route('client.settings', ['language' => $language, 'eshopId' => $eshopId, 'code' => $code])->with('success', trans('messages.saved'));
     }
 
     public function update(Request $request): Response
