@@ -89,20 +89,28 @@ class ClientController extends Controller
         $eshopId = $request->input('eshop_id');
 
         $client = Client::getByEshopId((int) $eshopId);
-        $eshopResponse = ConnectorHelper::getEshop($client);
-        $baseOAuthUrl = null;
-        if ($eshopResponse->getOauthUrl() !== null) {
-            $baseOAuthUrl = $eshopResponse->getOauthUrl();
-            session(['base_oauth_url' => $baseOAuthUrl]);
-        }
-        if ($baseOAuthUrl === null) {
-            $baseOAuthUrl = session('base_oauth_url');
-        }
-        if ($baseOAuthUrl === null) {
-            throw new ApiRequestFailException(new Exception('Base OAuth URL not found in session or response for client ' . $client->getAttribute('eshop_id')));
+        if ($request->session()->has('access_token') === false) {
+            $eshopResponse = ConnectorHelper::getEshop($client);
+            $baseOAuthUrl = null;
+            if ($eshopResponse->getOauthUrl() !== null) {
+                $baseOAuthUrl = $eshopResponse->getOauthUrl();
+                session(['base_oauth_url' => $baseOAuthUrl]);
+            }
+            if ($baseOAuthUrl === null) {
+                $baseOAuthUrl = session('base_oauth_url');
+            }
+            if ($baseOAuthUrl === null) {
+                throw new ApiRequestFailException(new Exception('Base OAuth URL not found in session or response for client ' . $client->getAttribute('eshop_id')));
+            }
+    
+            $accessToken = AuthorizationHelper::getAccessTokenForSettings($code, $eshopId, $language, $baseOAuthUrl);
+            $request->session()->put('access_token', $accessToken);   
+            $request->session()->put('base_oauth_url', $baseOAuthUrl);
+        } else {
+            $accessToken = $request->session()->get('access_token');
+            $baseOAuthUrl = $request->session()->get('base_oauth_url');
         }
 
-        $accessToken = AuthorizationHelper::getAccessTokenForSettings($code, $eshopId, $language, $baseOAuthUrl);
         $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
         LocaleHelper::setLocale($language);
         if ($checkEshopId !== $client->getAttribute('eshop_id')) {
@@ -111,7 +119,6 @@ class ClientController extends Controller
         return view('settings',
             [
                 'language' => $language,
-                'code' => $code,
                 'eshop_id' => $client->getAttribute('eshop_id'),
                 'infinite_repeat' => $client->getAttribute('settings_infinite_repeat'),
                 'return_to_default' => $client->getAttribute('settings_return_to_default'),
@@ -120,7 +127,7 @@ class ClientController extends Controller
             ]);
     }
 
-    public function saveSettings(string $language, string $eshopId, string $code, Request $request): \Illuminate\Http\RedirectResponse
+    public function saveSettings(string $language, string $eshopId, Request $request): \Illuminate\Http\RedirectResponse
     {
         LocaleHelper::setLocale($language);
         $infiniteRepeat = $request->input('settings_infinite_repeat');
@@ -138,9 +145,9 @@ class ClientController extends Controller
         $templateIncludeResponse = ConnectorHelper::postTemplateInclude($client, $body);
         if ($templateIncludeResponse->getTemplateIncludes() === []) {
             LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));
-            return redirect()->route('client.settings', ['language' => $language, 'eshopId' => $eshopId, 'code' => $code])->with('error', trans('messages.error'));
+            return redirect()->route('client.settings', ['language' => $language, 'eshopId' => $eshopId])->with('error', trans('messages.error'));
         }
-        return redirect()->route('client.settings', ['language' => $language, 'eshopId' => $eshopId, 'code' => $code])->with('success', trans('messages.saved'));
+        return redirect()->route('client.settings', ['language' => $language, 'eshopId' => $eshopId])->with('success', trans('messages.saved'));
     }
 
     public function update(Request $request): Response
