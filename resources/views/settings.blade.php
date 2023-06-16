@@ -6,7 +6,7 @@
     </div>
     <div class="card-body">
         @include('flashMessage')
-        <form method="POST" action="{{ route('client.saveSettings', ['language' => $language, 'code' => $code, 'eshopId' => $eshop_id]) }}">
+        <form method="POST" action="{{ route('client.saveSettings', ['language' => $language, 'eshopId' => $eshop_id]) }}">
         @csrf
         <div class="form-group row mt-4">
             <label for="settings_infinite_repeat" class="col-md-6 col-form-label">{{ __('messages.infinite_repeat') }}:</label>
@@ -74,7 +74,6 @@
         <div class="row mt-4">
             <div class="col-md-12 text-center">
                 <input type="hidden" name="eshop_id" value="{{$eshop_id}}">
-                <input type="hidden" name="code" value="{{$code}}">
                 <button type="submit" class="btn btn-primary">{{ __('messages.save') }}</button>
             </div>
         </div>
