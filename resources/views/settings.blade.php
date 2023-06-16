@@ -2,7 +2,7 @@
 <div class="container">
   <div class="card m-4">
     <div class="card-header text-center font-weight-bold">
-        <h4>{{ __('messages.addon_title') }} - {{ __('messages.settings') }} [{{$eshop_name}}]</h4>
+        <h4>{{ __('messages.addon_title') }} - {{ __('messages.settings') }}</h4>
     </div>
     <div class="card-body">
         @include('flashMessage')
