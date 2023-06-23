@@ -1,0 +1,27 @@
+# htaccess rules for subdomains and aliases
+# to create a new subdomain, create a folder www/subdom/(subdomain name)
+# to create a web for an alias, create a folder www/domains/(whole domain name)
+# for more info and examples: https://kb.wedos.com/cs/webhosting/htaccess/htaccess-na-webhostingu
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # cele domeny (aliasy)
+    RewriteCond %{REQUEST_URI} !^domains/
+    RewriteCond %{REQUEST_URI} !^/domains/
+    RewriteCond %{HTTP_HOST} ^(www\.)?(.*)$
+    RewriteCond %{DOCUMENT_ROOT}/domains/%2 -d
+    RewriteRule (.*) domains/%2/$1 [DPI,L]
+
+    # subdomeny (s nebo bez www na zacatku)
+    RewriteCond %{REQUEST_URI} !^subdom/
+    RewriteCond %{REQUEST_URI} !^/subdom/
+    RewriteCond %{HTTP_HOST} ^(www\.)?(.*)\.([^\.]*)\.([^\.]*)$
+    RewriteCond %{DOCUMENT_ROOT}/subdom/%2 -d
+    RewriteRule (.*) subdom/%2/$1 [DPI,L]
+
+    # Laravel routing rule
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

@@ -1,88 +1,88 @@
-const carouselSettings = document.getElementById('preview-looper-settings');
-let infiniteRepeat = carouselSettings.getAttribute('data-infinite-repeat');
-let returnToDefault = carouselSettings.getAttribute('data-return-to-default');
-let showTime = carouselSettings.getAttribute('data-show-time');
-let imagePrefix;
-if (infiniteRepeat === null) {
-  infiniteRepeat = '0';
+const pw_carousel_settings = document.getElementById('preview-looper-settings');
+let pw_infinite_repeat = pw_carousel_settings.getAttribute('data-infinite-repeat');
+let pw_return_to_default = pw_carousel_settings.getAttribute('data-return-to-default');
+let pw_show_time = pw_carousel_settings.getAttribute('data-show-time');
+let pw_image_prefix;
+if (pw_infinite_repeat === null) {
+  pw_infinite_repeat = '0';
 }
-if (returnToDefault === null) {
-  returnToDefault = '0';
+if (pw_return_to_default === null) {
+  pw_return_to_default = '0';
 }
-if (showTime === null) {
-  showTime = 1000;
+if (pw_show_time === null) {
+  pw_show_time = 1000;
 } else {
-  showTime = parseInt(showTime);
+  pw_show_time = parseInt(pw_show_time);
 }
 
-let globalProducts = [];
-let runningInterval;
+let pw_global_products = [];
+let pw_running_interval;
 
-const products = [];
-const elements = document.getElementsByClassName('p');
+const pw_products = [];
+const pw_elements = document.getElementsByClassName('p');
 (async () => {
-for (let i = 0; i < elements.length; i++) {
-  const element = elements[i];
-  const microDataValue = element.getAttribute('data-micro-identifier');
-  const link = element.querySelector('a').href;
-  let images = await getHrefValues(link);
-  images = removeDuplicates(images);
-  products.push({ id: microDataValue, images: images});
+for (let i = 0; i < pw_elements.length; i++) {
+  const pw_element = pw_elements[i];
+  const microDataValue = pw_element.getAttribute('data-micro-identifier');
+  const pw_link = pw_element.querySelector('a').href;
+  let pw_images = await getHrefValues(pw_link);
+  pw_images = removeDuplicates(pw_images);
+  pw_products.push({ id: microDataValue, images: pw_images});
 
-  element.addEventListener('mouseenter', enter, false);
-  element.addEventListener('mouseleave', leave, false);
+  pw_element.addEventListener('mouseenter', pw_enter, false);
+  pw_element.addEventListener('mouseleave', pw_leave, false);
 
-  const image = element.querySelector('img');
-  image.addEventListener('touchstart', handleTouchStart, false);
-  image.addEventListener('touchmove', handleTouchMove, false);
-    if (images && images.length > 0 && screen.width < 768) {
-      image.classList.add("overlay-on");
-      let icon = document.createElement('div');
-      image.after(icon);
-      icon.classList.add('overlay-container');
-      let innerHtml = '';
-      for (let i = 0; i < images.length; i++) {
+  const pw_image = pw_element.querySelector('img');
+  pw_image.addEventListener('touchstart', handleTouchStart, false);
+  pw_image.addEventListener('touchmove', handleTouchMove, false);
+    if (pw_images && pw_images.length > 0 && screen.width < 768) {
+      pw_image.classList.add("overlay-on");
+      let pw_icon = document.createElement('div');
+      pw_image.after(pw_icon);
+      pw_icon.classList.add('overlay-container');
+      let pw_inner_html = '';
+      for (let i = 0; i < pw_images.length; i++) {
         if (i === 0) {
-          innerHtml = innerHtml + "<svg width='10' height='10' class='circle'><circle cx='5' cy='5' r='4'/></svg>";
+          pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='circle'><circle cx='5' cy='5' r='4'/></svg>";
         } else {
-          innerHtml = innerHtml + "<svg width='10' height='10' class='empty-circle'><circle cx='5' cy='5' r='4'/></svg>";
+          pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='empty-circle'><circle cx='5' cy='5' r='4'/></svg>";
         }
       }
-      icon.innerHTML = innerHtml;
+      pw_icon.innerHTML = pw_inner_html;
     }
 }
-globalProducts = products;
+pw_global_products = pw_products;
 })();
 
 function getHrefValues(url) {
     return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      let images = [];
+      const pw_xhr = new XMLHttpRequest();
+      let pw_images = [];
   
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            const parser = new DOMParser();
-            const htmlDoc = parser.parseFromString(xhr.responseText, 'text/html');
-            const pThumbnailsInner = htmlDoc.querySelector('.p-thumbnails-inner');
-            if (pThumbnailsInner) {
-              const aTags = pThumbnailsInner.querySelectorAll('a');
-              aTags.forEach((a) => {
-                const hrefValue = a.getAttribute('href');
-                  if (hrefValue) {
-                    images.push(hrefValue);
+      pw_xhr.onreadystatechange = function() {
+        if (pw_xhr.readyState === 4) {
+          if (pw_xhr.status === 200) {
+            const pw_parser = new DOMParser();
+            const pw_html_doc = pw_parser.parseFromString(pw_xhr.responseText, 'text/html');
+            const pw_p_thumbnailsInner = pw_html_doc.querySelector('.p-thumbnails-inner');
+            if (pw_p_thumbnailsInner) {
+              const pw_a_tags = pw_p_thumbnailsInner.querySelectorAll('a');
+              pw_a_tags.forEach((a) => {
+                const pw_href_value = a.getAttribute('href');
+                  if (pw_href_value) {
+                    pw_images.push(pw_href_value);
                   }
               });
             }
-            resolve(images);
+            resolve(pw_images);
           } else {
-            reject(xhr.status);
+            reject(pw_xhr.status);
           }
         }
       };
   
-      xhr.open('GET', url, true);
-      xhr.send();
+      pw_xhr.open('GET', url, true);
+      pw_xhr.send();
     });
   }
 
@@ -90,159 +90,159 @@ function getHrefValues(url) {
     return Array.from(new Set(arr));
   }
 
-  function stopLooping(element) {
-    clearInterval(runningInterval);
-    if (returnToDefault === '1' && imagePrefix) {
-      const productElement = element.target;
-      const img = productElement.querySelector('img');
-      const id = productElement.getAttribute('data-micro-identifier');
-      const product = getProduct(id);
-      if (product && product.images.length > 1) {
-        let imageNameDefaultArray = product.images[0].split('/');
-        img.src = imagePrefix + imageNameDefaultArray[imageNameDefaultArray.length - 1];
+  function stopLooping(pw_element) {
+    clearInterval(pw_running_interval);
+    if (pw_return_to_default === '1' && pw_image_prefix) {
+      const pw_product_element = pw_element.target;
+      const pw_img = pw_product_element.querySelector('img');
+      const pw_id = pw_product_element.getAttribute('data-micro-identifier');
+      const pw_product = getProduct(pw_id);
+      if (pw_product && pw_product.images.length > 1) {
+        let pw_image_name_default_array = pw_product.images[0].split('/');
+        pw_img.src = pw_image_prefix + pw_image_name_default_array[pw_image_name_default_array.length - 1];
       }
     }
   }
 
-  function getIndex(product, currentImg) {
-    for (let i = 0; i < product.images.length; i++) {
-      let hrefValueArray = product.images[i].split('/');
-      let value = hrefValueArray[hrefValueArray.length - 1]
-      if (currentImg === value) {
+  function getIndex(pw_product, pw_current_img) {
+    for (let i = 0; i < pw_product.images.length; i++) {
+      let pw_href_value_array = pw_product.images[i].split('/');
+      let value = pw_href_value_array[pw_href_value_array.length - 1]
+      if (pw_current_img === value) {
         return i;
       }
     }
     return 0;
   }
 
-  function getProduct(id) {
-    for (let i = 0; i < globalProducts.length; i++) {
-      if (id === globalProducts[i].id) {
-        return globalProducts[i];
+  function getProduct(pw_id) {
+    for (let i = 0; i < pw_global_products.length; i++) {
+      if (pw_id === pw_global_products[i].id) {
+        return pw_global_products[i];
       }
     }
     return null;
   }
 
-  var startX;
-  var startY;
+  var pw_start_x;
+  var pw_start_y;
 
-  var enter = function(element) {
-    const productElement = element.target;
-    const id = productElement.getAttribute('data-micro-identifier');
-    const img = productElement.querySelector('img');
-    const product = getProduct(id);
-    let currentImg = img.src;
-    imagePrefix = currentImg;
-    let currentImgArray = currentImg.split('/');
-    currentImg = currentImgArray[currentImgArray.length - 1];
-    imagePrefix = imagePrefix.substring(0, imagePrefix.length - currentImg.length);
-    let index = getIndex(product, currentImg);
-    const intervalID = setInterval(() => {
-      index = (index + 1) % product.images.length;
-      if (product.images.length === 0) {
+  var pw_enter = function(pw_element) {
+    const pw_product_element = pw_element.target;
+    const pw_id = pw_product_element.getAttribute('data-micro-identifier');
+    const pw_img = pw_product_element.querySelector('img');
+    const pw_product = getProduct(pw_id);
+    let pw_current_img = pw_img.src;
+    pw_image_prefix = pw_current_img;
+    let pw_current_img_array = pw_current_img.split('/');
+    pw_current_img = pw_current_img_array[pw_current_img_array.length - 1];
+    pw_image_prefix = pw_image_prefix.substring(0, pw_image_prefix.length - pw_current_img.length);
+    let pw_index = getIndex(pw_product, pw_current_img);
+    const pw_interval_iD = setInterval(() => {
+      pw_index = (pw_index + 1) % pw_product.images.length;
+      if (pw_product.images.length === 0) {
         return;
       }
-      imageName = product.images[index];
-      if (imageName === undefined) {
+      pw_image_name = pw_product.images[pw_index];
+      if (pw_image_name === undefined) {
         return;
       }
-      let imageNameArray = imageName.split('/');
-      imageName = imageNameArray[imageNameArray.length - 1];
+      let pw_image_name_array = pw_image_name.split('/');
+      pw_image_name = pw_image_name_array[pw_image_name_array.length - 1];
 
-      if (infiniteRepeat === '0' && index === product.images.length ) {
-        if (returnToDefault === '1') {
-          let imageNameDefault = product.images[0];
-          if (imageNameDefault === undefined) {
+      if (pw_infinite_repeat === '0' && pw_index === pw_product.images.length ) {
+        if (pw_return_to_default === '1') {
+          let pw_image_name_default = pw_product.images[0];
+          if (pw_image_name_default === undefined) {
             return;
           }
-          let imageNameDefaultArray = imageNameDefault.split('/');
-          imageNameDefault = imageNameDefaultArray[imageNameDefaultArray.length - 1];
-          img.src = imagePrefix + imageNameDefault;
+          let pw_image_name_default_array = pw_image_name_default.split('/');
+          pw_image_name_default = pw_image_name_default_array[pw_image_name_default_array.length - 1];
+          pw_img.src = pw_image_prefix + pw_image_name_default;
         }
-        stopLooping(element);
+        stopLooping(pw_element);
       } else {
-        img.src = imagePrefix + imageName;
+        pw_img.src = pw_image_prefix + pw_image_name;
       }
-    }, showTime);
-    runningInterval = intervalID;
+    }, pw_show_time);
+    pw_running_interval = pw_interval_iD;
   };
 
-  var leave = function(element) {
-    stopLooping(element);
+  var pw_leave = function(pw_element) {
+    stopLooping(pw_element);
   }
 
-  function handleTouchStart(event) {
-    const firstTouch = event.touches[0];
-    startX = firstTouch.clientX;
-    startY = firstTouch.clientY;
+  function handleTouchStart(pw_event) {
+    const pw_first_touch = pw_event.touches[0];
+    pw_start_x = pw_first_touch.clientX;
+    pw_start_y = pw_first_touch.clientY;
   }
   
-  function handleTouchMove(element) {
-    if (!startX || !startY) {
+  function handleTouchMove(pw_element) {
+    if (!pw_start_x || !pw_start_y) {
       return;
     }
   
-    const xDiff = startX - element.touches[0].clientX;
-    const yDiff = startY - element.touches[0].clientY;
+    const pw_x_diff = pw_start_x - pw_element.touches[0].clientX;
+    const pw_y_diff = pw_start_y - pw_element.touches[0].clientY;
   
-    if (Math.abs(xDiff) > Math.abs(yDiff)) {
-      const productElement = findParentElementByClassName(element.target, 'p');
-      const id = productElement.getAttribute('data-micro-identifier');
-      const img = productElement.querySelector('img');
-      const product = getProduct(id);
-      let currentImg = img.src;
-      imagePrefix = currentImg;
-      let currentImgArray = currentImg.split('/');
-      currentImg = currentImgArray[currentImgArray.length - 1];
-      imagePrefix = imagePrefix.substring(0, imagePrefix.length - currentImg.length);
-      let index = getIndex(product, currentImg);
-      let initIndex = index;
-      if (xDiff > 0) {
-        if (index === 0) {
-          index = product.images.length - 1;
+    if (Math.abs(pw_x_diff) > Math.abs(pw_y_diff)) {
+      const pw_product_element = findParentElementByClassName(pw_element.target, 'p');
+      const pw_id = pw_product_element.getAttribute('data-micro-identifier');
+      const pw_img = pw_product_element.querySelector('img');
+      const pw_product = getProduct(pw_id);
+      let pw_current_img = pw_img.src;
+      pw_image_prefix = pw_current_img;
+      let pw_current_img_array = pw_current_img.split('/');
+      pw_current_img = pw_current_img_array[pw_current_img_array.length - 1];
+      pw_image_prefix = pw_image_prefix.substring(0, pw_image_prefix.length - pw_current_img.length);
+      let pw_index = getIndex(pw_product, pw_current_img);
+      let pw_init_index = pw_index;
+      if (pw_x_diff > 0) {
+        if (pw_index === 0) {
+          pw_index = pw_product.images.length - 1;
         } else {
-          index = index - 1;
+          pw_index = pw_index - 1;
         }
       } else {
-        index = (index + 1) % product.images.length;
+        pw_index = (pw_index + 1) % pw_product.images.length;
       }
-      if (product.images.length === 0) {
+      if (pw_product.images.length === 0) {
         return;
       }
-      imageName = product.images[index];
-      if (imageName === undefined) {
+      pw_image_name = pw_product.images[pw_index];
+      if (pw_image_name === undefined) {
         return;
       }
-      let imageNameArray = imageName.split('/');
-      imageName = imageNameArray[imageNameArray.length - 1];
-      img.src = imagePrefix + imageName;
+      let pw_image_name_array = pw_image_name.split('/');
+      pw_image_name = pw_image_name_array[pw_image_name_array.length - 1];
+      pw_img.src = pw_image_prefix + pw_image_name;
 
-      const image = element.srcElement;
-      const link = image.parentElement;
-      const svgs = link.querySelectorAll('svg');
-      svgs.forEach((svg, i) => {
-        if (initIndex === i) {
-          svg.classList.remove('circle');
-          svg.classList.add('empty-circle');
+      const pw_image = pw_element.srcElement;
+      const pw_link = pw_image.parentElement;
+      const pw_svgs = pw_link.querySelectorAll('svg');
+      pw_svgs.forEach((pw_svg, i) => {
+        if (pw_init_index === i) {
+          pw_svg.classList.remove('circle');
+          pw_svg.classList.add('empty-circle');
         }
-        if (index === i) {
-          svg.classList.remove('empty-circle');
-          svg.classList.add('circle');
+        if (pw_index === i) {
+          pw_svg.classList.remove('empty-circle');
+          pw_svg.classList.add('circle');
         }
       });
     }
   
-    startX = null;
-    startY = null;
+    pw_start_x = null;
+    pw_start_y = null;
   }
 
-  function findParentElementByClassName(element, className) {
-    if (!element) {
+  function findParentElementByClassName(pw_element, pw_class_name) {
+    if (!pw_element) {
       return null;
     }
-    if (element.classList && element.classList.contains(className)) {
-      return element;
+    if (pw_element.classList && pw_element.classList.contains(pw_class_name)) {
+      return pw_element;
     }
-    return findParentElementByClassName(element.parentElement, className);
+    return findParentElementByClassName(pw_element.parentElement, pw_class_name);
   }

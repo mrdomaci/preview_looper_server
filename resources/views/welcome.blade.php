@@ -5,13 +5,19 @@
             <div class="jumbotron text-center mt-4">
                 <div class="logo-warper">
                     @if ( Config::get('app.locale') == 'cs')
-                        <img class="logo-img" src="{{ url('images/webpage_logo_cs.png') }}" alt="">
+                        <a href="/"><img class="logo-img" src="{{ url('images/webpage_logo_cs.png') }}" alt=""></a>
+                    @elseif ( Config::get('app.locale') == 'en')
+                        <a href="/"><img class="logo-img" src="{{ url('images/webpage_logo_en.png') }}" alt=""></a>
+                    @elseif ( Config::get('app.locale') == 'sk')
+                        <a href="/"><img class="logo-img" src="{{ url('images/webpage_logo_sk.png') }}" alt=""></a>
+                    @elseif ( Config::get('app.locale') == 'hu')
+                        <a href="/"><img class="logo-img" src="{{ url('images/webpage_logo_hu.png') }}" alt=""></a>
                     @else
-                        <h1>{{ __('messages.homepage_title') }}</h1>
+                        <a href="/"><h1>{{ __('messages.homepage_title') }}</h1></a>
                     @endif
                 </div>
             <p>{{ __('messages.homepage_description') }}</p>
-            <a class="btn btn-primary btn-lg mb-4" href="#" role="button">{{ __('messages.homepage_button') }}</a>
+            <a class="btn btn-primary btn-lg mb-4" href="https://doplnky.shoptet.cz/dynamicke-nahledove-obrazky/" role="button">{{ __('messages.homepage_button') }}</a>
         </div>
         <div class="container">
             <div class="row">
