@@ -23,6 +23,7 @@
                 <li class="list-inline-item"><a href="{{ URL::route('homepage.setLocale', array('locale' => 'en')) }}">EN</a></li>
                 @endif
                 @include($footer_link)
+                <li class="list-inline-item"><a href="https://shoptet.cz">shoptet.cz</a></li>
                 <li class="list-inline-item"><a href="">info@slabihoud.cz</a></li>
             </ul>
         </div>
