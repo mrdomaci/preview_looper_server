@@ -18,73 +18,33 @@ if (pw_show_time === null) {
 let pw_global_products = [];
 let pw_running_interval;
 
+const pw_project_id = extractProjectId();
+let pw_guid_string = '';
 const pw_products = [];
+let pw_products_response;
 const pw_elements = document.getElementsByClassName('p');
 (async () => {
-for (let i = 0; i < pw_elements.length; i++) {
-  const pw_element = pw_elements[i];
-  const microDataValue = pw_element.getAttribute('data-micro-identifier');
-  const pw_link = pw_element.querySelector('a').href;
-  let pw_images = await getHrefValues(pw_link);
-  pw_images = removeDuplicates(pw_images);
-  pw_products.push({ id: microDataValue, images: pw_images});
-
-  pw_element.addEventListener('mouseenter', pw_enter, false);
-  pw_element.addEventListener('mouseleave', pw_leave, false);
-
-  const pw_image = pw_element.querySelector('img');
-  pw_image.addEventListener('touchstart', handleTouchStart, false);
-  pw_image.addEventListener('touchmove', handleTouchMove, false);
-    if (pw_images && pw_images.length > 0 && screen.width < 768) {
-      pw_image.classList.add("overlay-on");
-      let pw_icon = document.createElement('div');
-      pw_image.after(pw_icon);
-      pw_icon.classList.add('overlay-container');
-      let pw_inner_html = '';
-      for (let i = 0; i < pw_images.length; i++) {
-        if (i === 0) {
-          pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='circle'><circle cx='5' cy='5' r='4'/></svg>";
-        } else {
-          pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='empty-circle'><circle cx='5' cy='5' r='4'/></svg>";
-        }
-      }
-      pw_icon.innerHTML = pw_inner_html;
+  for (let i = 0; i < pw_elements.length; i++) {
+    const pw_element = pw_elements[i];
+    const microDataValue = pw_element.getAttribute('data-micro-identifier');
+    if (sessionStorage.getItem(microDataValue) === null) {
+      pw_guid_string = pw_guid_string + microDataValue + '|';
     }
-}
-pw_global_products = pw_products;
-})();
-
-function getHrefValues(url) {
-    return new Promise((resolve, reject) => {
-      const pw_xhr = new XMLHttpRequest();
-      let pw_images = [];
-  
-      pw_xhr.onreadystatechange = function() {
-        if (pw_xhr.readyState === 4) {
-          if (pw_xhr.status === 200) {
-            const pw_parser = new DOMParser();
-            const pw_html_doc = pw_parser.parseFromString(pw_xhr.responseText, 'text/html');
-            const pw_p_thumbnailsInner = pw_html_doc.querySelector('.p-thumbnails-inner');
-            if (pw_p_thumbnailsInner) {
-              const pw_a_tags = pw_p_thumbnailsInner.querySelectorAll('a');
-              pw_a_tags.forEach((a) => {
-                const pw_href_value = a.getAttribute('href');
-                  if (pw_href_value) {
-                    pw_images.push(pw_href_value);
-                  }
-              });
-            }
-            resolve(pw_images);
-          } else {
-            reject(pw_xhr.status);
-          }
-        }
-      };
-  
-      pw_xhr.open('GET', url, true);
-      pw_xhr.send();
-    });
   }
+  if (pw_guid_string === '') {
+    await emptyPromise().then(
+      (response) => {
+        initPreviewImages(pw_elements, response);
+      }
+    );
+  } else {
+    await sendGetRequest(pw_project_id, pw_guid_string).then(
+      (response) => {
+        initPreviewImages(pw_elements, response);
+      }
+    );
+  }
+})();
 
   function removeDuplicates(arr) {
     return Array.from(new Set(arr));
@@ -245,4 +205,94 @@ function getHrefValues(url) {
       return pw_element;
     }
     return findParentElementByClassName(pw_element.parentElement, pw_class_name);
+  }
+
+  function sendGetRequest(pw_project_id, pw_guid_string) {
+    return new Promise((resolve, reject) => {
+      let pw_url = 'https://slabihoud.cz/images/' + pw_project_id + '/' + pw_guid_string;
+      const pw_xhr = new XMLHttpRequest();
+      pw_xhr.open('GET', pw_url, true);
+      pw_xhr.onreadystatechange = function () {
+        if (pw_xhr.readyState === 4) {
+          if (pw_xhr.status === 200) {
+            let pw_response = parseJSONToPwProductsResponse(pw_xhr.responseText);
+            resolve(pw_response);
+          } else {
+            console.error('Error:', pw_xhr.status, pw_xhr.statusText);
+            reject(new Error('XHR request failed'));
+          }
+        }
+      };
+      pw_xhr.send();
+    });
+  }
+
+  function emptyPromise() {
+    return new Promise((resolve) => {
+      resolve('');
+    });
+  }
+
+  function extractProjectId() {
+    const pw_head = document.getElementsByTagName('head')[0];
+    const pw_scripts = pw_head.getElementsByTagName('script');
+    let pw_project_id;
+
+    for (let i = 0; i < pw_scripts.length; i++) {
+      const pw_script = pw_scripts[i];
+      if (pw_script.textContent.includes('"projectId":')) {
+        const pw_start_index = pw_script.textContent.indexOf('"projectId":') + 12;
+        const pw_end_index = pw_script.textContent.indexOf(',', pw_start_index);
+        pw_project_id = parseInt(pw_script.textContent.slice(pw_start_index, pw_end_index));
+        break;
+      }
+    }
+
+    return pw_project_id;
+  }
+
+  function parseJSONToPwProductsResponse(jsonData) {
+    try {
+      return JSON.parse(jsonData);
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+      return null;
+    }
+  }
+
+  function initPreviewImages(pw_elements, response) {
+    for (let i = 0; i < pw_elements.length; i++) {
+      const pw_element = pw_elements[i];
+      const microDataValue = pw_element.getAttribute('data-micro-identifier');
+      if (sessionStorage.getItem(microDataValue) === null && response !== '') {
+        sessionStorage.setItem(microDataValue, response[microDataValue]);
+      }
+      let pw_images = sessionStorage.getItem(microDataValue).split(',');
+      pw_images = removeDuplicates(pw_images);
+    
+      pw_products.push({ id: microDataValue, images: pw_images});
+    
+      pw_element.addEventListener('mouseenter', pw_enter, false);
+      pw_element.addEventListener('mouseleave', pw_leave, false);
+    
+      const pw_image = pw_element.querySelector('img');
+      pw_image.addEventListener('touchstart', handleTouchStart, false);
+      pw_image.addEventListener('touchmove', handleTouchMove, false);
+        if (pw_images && pw_images.length > 0 && screen.width < 768) {
+          pw_image.classList.add("overlay-on");
+          let pw_icon = document.createElement('div');
+          pw_image.after(pw_icon);
+          pw_icon.classList.add('overlay-container');
+          let pw_inner_html = '';
+          for (let i = 0; i < pw_images.length; i++) {
+            if (i === 0) {
+              pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='circle'><circle cx='5' cy='5' r='4'/></svg>";
+            } else {
+              pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='empty-circle'><circle cx='5' cy='5' r='4'/></svg>";
+            }
+          }
+          pw_icon.innerHTML = pw_inner_html;
+        }
+    }
+    pw_global_products = pw_products;
   }
