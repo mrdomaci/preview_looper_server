@@ -21,7 +21,7 @@ class ResponseHelper
      */
     public static function getImageResponseArray(Collection $images, Client $client): array
     {
-        $response = ['settings' => ['infinite_repeat' => $client->getAttribute('settings_infinite_repeat'), 'return_to_default' => $client->getAttribute('settings_return_to_default'), 'show_time' => $client->getAttribute('settings_show_time')]];
+        $response = [];
         foreach($images as $image) {
             $product = $image->product;
             $response[$product->getAttribute('guid')][] = sprintf(self::CDN_URL, (string) $client->getAttribute('eshop_id'), $image->getAttribute('name'));
