@@ -4,10 +4,12 @@ namespace App\Console\Commands;
 
 use App\Enums\ClientStatusEnum;
 use App\Helpers\ConnectorHelper;
+use App\Helpers\LoggerHelper;
 use App\Models\Client;
 use App\Models\Image;
 use App\Models\Product;
 use Illuminate\Console\Command;
+use Throwable;
 
 class StoreImagesFromApiCommand extends Command
 {
@@ -32,6 +34,7 @@ class StoreImagesFromApiCommand extends Command
     public function handle()
     {
         $yesterday = now()->subDay();
+        $success = true;
         $clients = Client::where('status', ClientStatusEnum::ACTIVE)->whereDate('last_synced_at', '<=', $yesterday)->get();
         /** @var Client $client */
         foreach ($clients as $client) {
@@ -41,34 +44,44 @@ class StoreImagesFromApiCommand extends Command
             foreach($products as $product) {
                 $productGuid = $product->getAttribute('guid');
                 $productId = $product->getAttribute('id');
-                $imageResponses = ConnectorHelper::getProductImages($client, $productGuid);
-                $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get();
-                foreach ($imageResponses as $imageResponse) {
-                    $this->info('Updating image ' . $imageResponse->getName() . ' for product ' . $productGuid);
-                    $imageExists = false;
-                    foreach ($images as $key => $image) {
-                        if ($image->getAttribute('name') === $imageResponse->getCdnName()) {
-                            unset($images[$key]);
-                            $imageExists = true;
-                            break;
+                try {
+                    $imageResponses = ConnectorHelper::getProductImages($client, $productGuid);
+                    $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get();
+                    foreach ($imageResponses as $imageResponse) {
+                        $this->info('Updating image ' . $imageResponse->getName() . ' for product ' . $productGuid);
+                        $imageExists = false;
+                        foreach ($images as $key => $image) {
+                            if ($image->getAttribute('name') === $imageResponse->getCdnName()) {
+                                unset($images[$key]);
+                                $imageExists = true;
+                                break;
+                            }
                         }
+                        if ($imageExists) {
+                            continue;
+                        }
+                        $image = new Image();
+                        $image->setAttribute('client_id', $clientId);
+                        $image->setAttribute('product_id', $productId);
+                        $image->setAttribute('name', $imageResponse->getCdnName());
+                        $image->save();
                     }
-                    if ($imageExists) {
-                        continue;
+                    foreach ($images as $image) {
+                        Image::destroy($image->getAttribute('id'));
                     }
-                    $image = new Image();
-                    $image->setAttribute('client_id', $clientId);
-                    $image->setAttribute('product_id', $productId);
-                    $image->setAttribute('name', $imageResponse->getCdnName());
-                    $image->save();
-                }
-                foreach ($images as $image) {
-                    Image::destroy($image->getAttribute('id'));
+                } catch (Throwable $t) {
+                    $this->error('Error updating images ' . $t->getMessage());
+                    LoggerHelper::log('Error updating images ' . $t->getMessage());
+                    $success = false;
                 }
             }
             $client->setAttribute('last_synced_at', now());
             $client->save();
         }
-        return Command::SUCCESS;
+        if ($success === true) {
+            return Command::SUCCESS;
+        } else {
+            return Command::FAILURE;
+        }
     }
 }
