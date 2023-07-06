@@ -7,6 +7,7 @@ use App\Exceptions\AddonInstallFailException;
 use App\Exceptions\AddonSettingsSecurityFailException;
 use Exception;
 use Nette\Utils\Json;
+use Throwable;
 
 class AuthorizationHelper
 {
@@ -33,8 +34,11 @@ class AuthorizationHelper
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-type: application/json']);
         $response = curl_exec($curl);
         curl_close($curl);
-
-        $response = Json::decode($response, true);
+        try {
+            $response = Json::decode($response, true);
+        } catch (Throwable $t) {
+            throw new AddonInstallFailException(new Exception('Error in response requesting api access token:' . $t->getMessage() . ' code: ' . $t->getCode() . ' response: ' . (string) $response));
+        }
         if (ArrayHelper::containsKey($response, 'error') === true) {
             throw new AddonInstallFailException(new Exception($response['error'] . ': ' . $response['error_description']));
         }
