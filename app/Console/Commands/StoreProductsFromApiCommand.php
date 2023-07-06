@@ -37,10 +37,10 @@ class StoreProductsFromApiCommand extends Command
     {
         $yesterday = now()->subDay();
         $success = true;
-        $clients = Client::where('status', ClientStatusEnum::ACTIVE)->whereDate('last_synced_at', '<=', $yesterday)->get();
+        $clients = Client::where('status', ClientStatusEnum::ACTIVE)->whereDate('last_synced_at', '>=', $yesterday)->get();
         /** @var Client $client */
         foreach ($clients as $client) {
-            $this->info('Updating products for client ' . $client->getAttribute('eshop_name'));
+            $this->info('Updating products for client id:' . $client->getAttribute('id'));
             $clientId = $client->getAttribute('id');
             
             for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
@@ -83,6 +83,7 @@ class StoreProductsFromApiCommand extends Command
                     $this->error('Error updating products ' . $t->getMessage());
                     LoggerHelper::log('Error updating products ' . $t->getMessage());
                     $success = false;
+                    break;
                 }
             }
         }

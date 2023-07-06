@@ -35,10 +35,10 @@ class StoreImagesFromApiCommand extends Command
     {
         $yesterday = now()->subDay();
         $success = true;
-        $clients = Client::where('status', ClientStatusEnum::ACTIVE)->whereDate('last_synced_at', '<=', $yesterday)->get();
+        $clients = Client::where('status', ClientStatusEnum::ACTIVE)->whereDate('last_synced_at', '>=', $yesterday)->get();
         /** @var Client $client */
         foreach ($clients as $client) {
-            $this->info('Updating images for client ' . $client->getAttribute('eshop_name'));
+            $this->info('Updating images for client id:' . (string)$client->getAttribute('id'));
             $clientId = $client->getAttribute('id');
             $products = Product::where('client_id', $clientId)->where('active', true)->get();
             foreach($products as $product) {
@@ -73,6 +73,7 @@ class StoreImagesFromApiCommand extends Command
                     $this->error('Error updating images ' . $t->getMessage());
                     LoggerHelper::log('Error updating images ' . $t->getMessage());
                     $success = false;
+                    break;
                 }
             }
             $client->setAttribute('last_synced_at', now());
