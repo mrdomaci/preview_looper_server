@@ -33,6 +33,7 @@ class StoreClientsFromApiCommand extends Command
     public function handle()
     {
         $clients = Client::get();
+        $success = true;
         /** @var Client $client */
         foreach ($clients as $client) {
             $this->info('Updating client ' . $client->getAttribute('eshop_name'));
@@ -54,10 +55,15 @@ class StoreClientsFromApiCommand extends Command
                 $this->error('Error updating client ' . $t->getMessage());
                 $client->setAttribute('status', ClientStatusEnum::INACTIVE);
                 LoggerHelper::log('Error updating client ' . $t->getMessage());
+                $success = false;
             }
 
             $client->save();
         }
-        return Command::SUCCESS;
+        if ($success === true) {
+            return Command::SUCCESS;
+        } else {
+            return Command::FAILURE;
+        }
     }
 }
