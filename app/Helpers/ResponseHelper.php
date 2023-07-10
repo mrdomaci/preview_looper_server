@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 class ResponseHelper
 {
     public const MAXIMUM_ITERATIONS = 10000;
-    public const MAXIMUM_ITEMS_PER_PAGE = 50;
+    public const MAXIMUM_ITEMS_PER_PAGE = 20;
     private const CDN_URL = 'https://cdn.myshoptet.com/usr/%s/user/shop/detail/%s';
     /**
      * @param Collection<Image> $images
