@@ -50,6 +50,7 @@ class StoreProductsFromApiCommand extends Command
             
             for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
                 try {
+                    $this->info('Updating products for page ' . $page);
                     $productResponses = ConnectorHelper::getProducts($client, $page);
                     $products = Product::where('client_id', $clientId)->where('active', true)->get();
                     foreach ($productResponses as $productResponse) {
