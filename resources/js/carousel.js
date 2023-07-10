@@ -27,7 +27,7 @@ const pw_elements = document.getElementsByClassName('p');
   for (let i = 0; i < pw_elements.length; i++) {
     const pw_element = pw_elements[i];
     const microDataValue = pw_element.getAttribute('data-micro-identifier');
-    if (sessionStorage.getItem(microDataValue) === null) {
+    if (sessionStorage.getItem('pw_' + microDataValue) === null) {
       pw_guid_string = pw_guid_string + microDataValue + '|';
     }
   }
@@ -264,10 +264,10 @@ const pw_elements = document.getElementsByClassName('p');
     for (let i = 0; i < pw_elements.length; i++) {
       const pw_element = pw_elements[i];
       const microDataValue = pw_element.getAttribute('data-micro-identifier');
-      if (sessionStorage.getItem(microDataValue) === null && response !== '') {
-        sessionStorage.setItem(microDataValue, response[microDataValue]);
+      if (sessionStorage.getItem('pw_' + microDataValue) === null && response !== '' && response[microDataValue] !== undefined) {
+        sessionStorage.setItem('pw_' + microDataValue, response[microDataValue]);
       }
-      let pw_images = sessionStorage.getItem(microDataValue).split(',');
+      let pw_images = sessionStorage.getItem('pw_' + microDataValue).split(',');
       pw_images = removeDuplicates(pw_images);
     
       pw_products.push({ id: microDataValue, images: pw_images});
