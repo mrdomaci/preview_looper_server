@@ -65,7 +65,7 @@ class StoreProductsFromApiCommand extends Command
                         if ($productExists) {
                             continue;
                         }
-                        $product = Product::where('guid', $productResponse->getGuid())->first();
+                        $product = Product::where('client_id', $clientId)->where('guid', $productResponse->getGuid())->first();
                         if ($product === null) {
                             $product = new Product();
                             $product->setAttribute('guid', $productResponse->getGuid());
