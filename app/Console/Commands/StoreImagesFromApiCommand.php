@@ -18,7 +18,7 @@ class StoreImagesFromApiCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'update:images';
+    protected $signature = 'update:images {client_id?}';
 
     /**
      *
