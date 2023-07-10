@@ -16,7 +16,7 @@ class StoreClientsFromApiCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'update:clients';
+    protected $signature = 'update:clients {client_id?}';
 
     /**
      * The console command description.
@@ -32,7 +32,13 @@ class StoreClientsFromApiCommand extends Command
      */
     public function handle()
     {
-        $clients = Client::get();
+        $clientId = $this->argument('client_id');
+        if ($clientId !== null) {
+            $client = Client::where('id', $clientId)->first();
+            $clients = [$client];
+        } else {
+            $clients = Client::get();
+        }
         $success = true;
         /** @var Client $client */
         foreach ($clients as $client) {

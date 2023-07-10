@@ -5,6 +5,8 @@ namespace App\Helpers;
 
 use App\Exceptions\WebhookException;
 use Exception;
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Http;
 use Nette\Utils\Json;
 
 class WebHookHelper
@@ -12,6 +14,7 @@ class WebHookHelper
     public const EVENT_UNINSTALL = 'addon:uninstall';
     public const EVENT_DEACTIVATE = 'addon:suspend';
     public const EVENT_ACTIVATE = 'addon:approve';
+    private const JENKINS_TRIGGER_URL = 'http://slabihoud.cz:8080/generic-webhook-trigger/invoke?token=';
 
     public static function getEshopId(string $eventName): int
     {
@@ -28,5 +31,11 @@ class WebHookHelper
             throw new WebhookException(new Exception('Webhook failed for event: ' . $eventName . ' - missing eshopId key'));
         }
         return (int)$webhook['eshopId'];
+    }
+
+    public static function jenkinsWebhook(int $clientId): Response
+    {
+        $url = self::JENKINS_TRIGGER_URL . env('HASH');
+        return Http::post($url, ['client' => (string) $clientId]);
     }
 }

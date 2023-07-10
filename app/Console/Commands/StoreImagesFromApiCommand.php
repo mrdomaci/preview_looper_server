@@ -35,7 +35,13 @@ class StoreImagesFromApiCommand extends Command
     {
         $yesterday = now()->subDay();
         $success = true;
-        $clients = Client::where('status', ClientStatusEnum::ACTIVE)->whereDate('last_synced_at', '>=', $yesterday)->get();
+        $clientId = $this->argument('client_id');
+        if ($clientId !== null) {
+            $client = Client::where('id', $clientId)->first();
+            $clients = [$client];
+        } else {
+            $clients = Client::where('status', ClientStatusEnum::ACTIVE)->whereDate('last_synced_at', '>=', $yesterday)->get();
+        }
         /** @var Client $client */
         foreach ($clients as $client) {
             $this->info('Updating images for client id:' . (string)$client->getAttribute('id'));
