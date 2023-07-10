@@ -107,7 +107,12 @@ class Response
                 $visibility = $product['visibility'];
             }
             if (ArrayHelper::containsKey($product, 'defaultCategory')) {
-                if (ArrayHelper::isArray($product['defaultCategory']) && ArrayHelper::containsKey($product['defaultCategory'], 'guid') && ArrayHelper::containsKey($product['defaultCategory'], 'name')) {
+                if (ArrayHelper::isArray($product['defaultCategory']) 
+                    && ArrayHelper::containsKey($product['defaultCategory'], 'guid')
+                    && $product['defaultCategory']['guid'] !== null
+                    && ArrayHelper::containsKey($product['defaultCategory'], 'name')
+                    && $product['defaultCategory']['name'] !== null
+                ) {
                     $defaultCategory = new ProductCategory(
                         $product['defaultCategory']['guid'],
                         $product['defaultCategory']['name'],
