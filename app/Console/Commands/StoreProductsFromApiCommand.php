@@ -6,7 +6,6 @@ use App\Enums\ClientStatusEnum;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
-use App\Helpers\TokenHelper;
 use App\Models\Client;
 use App\Models\Product;
 use Illuminate\Console\Command;
@@ -19,7 +18,7 @@ class StoreProductsFromApiCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'update:products';
+    protected $signature = 'update:products {client_id?}';
 
     /**
      * The console command description.
@@ -37,7 +36,13 @@ class StoreProductsFromApiCommand extends Command
     {
         $yesterday = now()->subDay();
         $success = true;
-        $clients = Client::where('status', ClientStatusEnum::ACTIVE)->whereDate('last_synced_at', '>=', $yesterday)->get();
+        $clientId = $this->argument('client_id');
+        if ($clientId !== null) {
+            $client = Client::where('id', $clientId)->first();
+            $clients = [$client];
+        } else {
+            $clients = Client::where('status', ClientStatusEnum::ACTIVE)->whereDate('last_synced_at', '>=', $yesterday)->first();
+        }
         /** @var Client $client */
         foreach ($clients as $client) {
             $this->info('Updating products for client id:' . $client->getAttribute('id'));
