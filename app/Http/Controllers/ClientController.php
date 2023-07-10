@@ -14,12 +14,10 @@ use App\Helpers\NumbersHelper;
 use App\Helpers\ResponseHelper;
 use App\Helpers\WebHookHelper;
 use App\Models\Client;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Throwable;
 
 class ClientController extends Controller
 {
@@ -37,7 +35,12 @@ class ClientController extends Controller
         $eshopUrl = ResponseHelper::getFromResponse($response, 'eshopUrl');
         $contactEmail = ResponseHelper::getFromResponse($response, 'contactEmail');
         
-        Client::updateOrCreate($eshopId, $oAuthAccessToken, $eshopUrl, $contactEmail);
+        $client = Client::updateOrCreate($eshopId, $oAuthAccessToken, $eshopUrl, $contactEmail);
+
+        $webhookResponse = WebHookHelper::jenkinsWebhook($client->getAttribute('id'));
+        if ($webhookResponse->failed()) {
+            LoggerHelper::log('Webhook failed: ' . $webhookResponse->body() . ', Status code: ' . $webhookResponse->status());
+        }
         return Response('ok', 200);
     }
 
@@ -148,49 +151,5 @@ class ClientController extends Controller
             return redirect()->route('client.settings', ['language' => $language, 'eshop_id' => $eshopId])->with('error', trans('messages.error'));
         }
         return redirect()->route('client.settings', ['language' => $language, 'eshop_id' => $eshopId])->with('success', trans('messages.saved'));
-    }
-
-    public function update(Request $request): Response
-    {
-        $hash = $request->input('hash');
-        if ($hash !== env('HASH')) {
-            return Response('Unauthorized', 403);
-        }
-        $client = Client::where('last_synced_at', '<', Carbon::now()->subDays(1))->first();
-        if ($client === null) {
-            return Response('No client to update', 200);
-        }
-        try {
-            $clientResponse = ConnectorHelper::getEshop($client);
-            $client->setAttribute('eshop_name', $clientResponse->getName());
-            $client->setAttribute('url', $clientResponse->getUrl());
-            $client->setAttribute('eshop_category', $clientResponse->getCategory());
-            $client->setAttribute('eshop_subtitle', $clientResponse->getSubtitle());
-            $client->setAttribute('constact_person', $clientResponse->getContactPerson());
-            $client->setAttribute('email', $clientResponse->getEmail());
-            $client->setAttribute('phone', $clientResponse->getPhone());
-            $client->setAttribute('street', $clientResponse->getStreet());
-            $client->setAttribute('city', $clientResponse->getCity());
-            $client->setAttribute('zip', $clientResponse->getZip());
-            $client->setAttribute('country', $clientResponse->getCountry());
-            $client->setAttribute('status', ClientStatusEnum::ACTIVE);
-            $client->setAttribute('last_synced_at', Carbon::now());
-        } catch (Throwable $t) {
-            $client->setAttribute('status', ClientStatusEnum::INACTIVE);
-            LoggerHelper::log('Error updating client ' . $t->getMessage());
-            return Response('Error updating client', 500);
-        }
-
-        $infiniteRepeat = $client->getAttribute('settings_infinite_repeat');
-        $returnToDefault = $client->getAttribute('settings_return_to_default');
-        $showTime = $client->getAttribute('settings_show_time');
-
-        $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($infiniteRepeat, $returnToDefault, $showTime);
-        $templateIncludeResponse = ConnectorHelper::postTemplateInclude($client, $body);
-        if ($templateIncludeResponse->getTemplateIncludes() === []) {
-            LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));
-        }
-        $client->save();
-        return Response('ok', 200);
     }
 }

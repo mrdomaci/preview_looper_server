@@ -108,9 +108,6 @@ class Request
         return $result; 
     }
 
-    /**
-     * @param array<string, string> $query
-     */
     public function setQuery(string $key, string $value): void
     {
         $this->query[$key] = $value;
