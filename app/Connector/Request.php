@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Connector;
 
 use App\Exceptions\ApiRequestFailException;
+use App\Helpers\ResponseHelper;
 use App\Helpers\TokenHelper;
 use App\Models\Client;
 use Exception;
@@ -35,6 +36,7 @@ class Request
         $this->setEndpoint(Product::getEndpoint());
         $this->setQuery(Product::getQuery());
         $this->setPage($page);
+        $this->setItemsPerPage(ResponseHelper::MAXIMUM_ITEMS_PER_PAGE);
         return $this;
     }
 
@@ -121,6 +123,11 @@ class Request
     public function setPage(int $page): void
     {
         $this->setQuery(['page' => (string) $page]);
+    }
+
+    public function setItemsPerPage(int $itemsPerPage): void
+    {
+        $this->setQuery(['itemsPerPage' => (string) $itemsPerPage]);
     }
 
     public function setBody(string $body): void
