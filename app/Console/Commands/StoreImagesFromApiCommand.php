@@ -63,7 +63,7 @@ class StoreImagesFromApiCommand extends Command
                         $image = new Image();
                         $image->setAttribute('client_id', $clientId);
                         $image->setAttribute('product_id', $productId);
-                        $image->setAttribute('name', $imageResponse->getCdnName());
+                        $image->setAttribute('name', $imageResponse->getSeoName());
                         $image->save();
                     }
                     foreach ($images as $image) {
