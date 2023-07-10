@@ -13,7 +13,7 @@ class ResponseHelper
 {
     public const MAXIMUM_ITERATIONS = 10000;
     public const MAXIMUM_ITEMS_PER_PAGE = 50;
-    private const CDN_URL = 'https://cdn.myshoptet.com/usr/%s.myshoptet.com/user/shop/detail/%s';
+    private const CDN_URL = 'https://cdn.myshoptet.com/usr/%s/user/shop/detail/%s';
     /**
      * @param Collection<Image> $images
      * @param Client $client
@@ -24,7 +24,7 @@ class ResponseHelper
         $response = [];
         foreach($images as $image) {
             $product = $image->product;
-            $response[$product->getAttribute('guid')][] = sprintf(self::CDN_URL, (string) $client->getAttribute('eshop_id'), $image->getAttribute('name'));
+            $response[$product->getAttribute('guid')][] = sprintf(self::CDN_URL, (string) $client->getAttribute('eshop_name'), $image->getAttribute('name'));
         }
         return $response;
     }
