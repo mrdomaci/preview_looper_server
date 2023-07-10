@@ -41,7 +41,7 @@ class StoreProductsFromApiCommand extends Command
             $client = Client::where('id', $clientId)->first();
             $clients = [$client];
         } else {
-            $clients = Client::where('status', ClientStatusEnum::ACTIVE)->whereDate('last_synced_at', '>=', $yesterday)->first();
+            $clients = Client::where('status', ClientStatusEnum::ACTIVE)->where('last_synced_at', '>=', $yesterday)->get();
         }
         /** @var Client $client */
         foreach ($clients as $client) {
