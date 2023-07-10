@@ -7,7 +7,6 @@ class TemplateInclude
 {
     public const METHOD = 'POST';
     public const ENDPOINT = '/template-include';
-    public const QUERY = [];
     public string $body = '{
         "data": {
           "snippets": [
@@ -22,14 +21,6 @@ class TemplateInclude
     public static function getEndpoint(): string
     {
         return self::ENDPOINT;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public static function getQuery(): array
-    {
-        return self::QUERY;
     }
 
     public static function getMethod(): string

@@ -34,7 +34,6 @@ class Request
     {
         $this->setMethod(Product::getMethod());
         $this->setEndpoint(Product::getEndpoint());
-        $this->setQuery(Product::getQuery());
         $this->setPage($page);
         $this->setItemsPerPage(ResponseHelper::MAXIMUM_ITEMS_PER_PAGE);
         return $this;
@@ -50,7 +49,6 @@ class Request
     {
         $this->setMethod(ProductImages::getMethod());
         $this->setEndpoint(ProductImages::getEndpoint($guid, $gallery));
-        $this->setQuery(ProductImages::getQuery());
         return $this;
     }
 
@@ -58,7 +56,6 @@ class Request
     {
         $this->setMethod(Eshop::getMethod());
         $this->setEndpoint(Eshop::getEndpoint());
-        $this->setQuery(Eshop::getQuery());
         return $this;
     }
 
@@ -66,7 +63,6 @@ class Request
     {
         $this->setMethod(TemplateInclude::getMethod());
         $this->setEndpoint(TemplateInclude::getEndpoint());
-        $this->setQuery(TemplateInclude::getQuery());
         $this->setBody($body);
         return $this;
     }
@@ -115,19 +111,19 @@ class Request
     /**
      * @param array<string, string> $query
      */
-    public function setQuery(array $query): void
+    public function setQuery(string $key, string $value): void
     {
-        $this->query = $query;
+        $this->query[$key] = $value;
     }
 
     public function setPage(int $page): void
     {
-        $this->setQuery(['page' => (string) $page]);
+        $this->setQuery('page',(string) $page);
     }
 
     public function setItemsPerPage(int $itemsPerPage): void
     {
-        $this->setQuery(['itemsPerPage' => (string) $itemsPerPage]);
+        $this->setQuery('itemsPerPage', (string) $itemsPerPage);
     }
 
     public function setBody(string $body): void
