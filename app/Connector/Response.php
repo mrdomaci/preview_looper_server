@@ -118,6 +118,9 @@ class Response
                 $url = $product['url'];
             }
             if (ArrayHelper::containsKey($product, 'supplier')) {
+                if (ArrayHelper::isArray($product['supplier'])) {
+                    $product['supplier'] = implode(', ', $product['supplier']);
+                }
                 $supplier = $product['supplier'];
             }
             if (ArrayHelper::containsKey($product, 'brand')) {
