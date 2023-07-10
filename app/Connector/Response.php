@@ -109,8 +109,8 @@ class Response
             if (ArrayHelper::containsKey($product, 'defaultCategory')) {
                 if (ArrayHelper::isArray($product['defaultCategory']) && ArrayHelper::containsKey($product['defaultCategory'], 'guid') && ArrayHelper::containsKey($product['defaultCategory'], 'name')) {
                     $defaultCategory = new ProductCategory(
-                        $product['defaultCategory']['guid'],
-                        $product['defaultCategory']['name'],
+                        $product['defaultCategory']['guid'] ?? 'unknown GUID',
+                        $product['defaultCategory']['name'] ?? 'unknown name',
                     );
                 }
             }
