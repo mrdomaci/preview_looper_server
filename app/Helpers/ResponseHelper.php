@@ -24,7 +24,7 @@ class ResponseHelper
         $response = [];
         foreach($images as $image) {
             $product = $image->product;
-            $response[$product->getAttribute('guid')][] = sprintf(self::CDN_URL, (string) $client->getAttribute('eshop_name'), $image->getAttribute('name'));
+            $response[$product->getAttribute('guid')][] = self::getUImageURL((string) $client->getAttribute('eshop_name'), $image->getAttribute('name'));
         }
         return $response;
     }
@@ -64,5 +64,10 @@ class ResponseHelper
             $value = $response[$key];
         }
         return $value;
+    }
+
+    public static function getUImageURL(string $eshopName, string $imageName): string
+    {
+        return sprintf(self::CDN_URL, $eshopName, $imageName);
     }
 }
