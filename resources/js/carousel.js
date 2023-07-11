@@ -269,7 +269,9 @@ const pw_elements = document.getElementsByClassName('p');
       }
       let pw_images = sessionStorage.getItem('pw_' + microDataValue).split(',');
       pw_images = removeDuplicates(pw_images);
-    
+      if (pw_images[0] === 'undefined' || pw_images.length === 1) {
+        continue;
+      }
       pw_products.push({ id: microDataValue, images: pw_images});
     
       pw_element.addEventListener('mouseenter', pw_enter, false);
