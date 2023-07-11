@@ -5,10 +5,12 @@ namespace App\Console\Commands;
 use App\Enums\ClientStatusEnum;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
+use App\Helpers\ResponseHelper;
 use App\Models\Client;
 use App\Models\Image;
 use App\Models\Product;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 use Throwable;
 
 class StoreImagesFromApiCommand extends Command
@@ -45,6 +47,7 @@ class StoreImagesFromApiCommand extends Command
         /** @var Client $client */
         foreach ($clients as $client) {
             $this->info('Updating images for client id:' . (string)$client->getAttribute('id'));
+            $eshopName = $client->getAttribute('eshop_name');
             $clientId = $client->getAttribute('id');
             $products = Product::where('client_id', $clientId)->where('active', true)->get();
             foreach($products as $product) {
@@ -54,6 +57,11 @@ class StoreImagesFromApiCommand extends Command
                     $imageResponses = ConnectorHelper::getProductImages($client, $productGuid);
                     $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get();
                     foreach ($imageResponses as $imageResponse) {
+                        $imageUrl = ResponseHelper::getUImageURL($eshopName, $imageResponse->getName());
+                        $request = Http::get($imageUrl);
+                        if ($request->status() !== 200) {
+                            continue;
+                        }
                         $this->info('Updating image ' . $imageResponse->getName() . ' for product ' . $productGuid);
                         $imageExists = false;
                         foreach ($images as $key => $image) {
