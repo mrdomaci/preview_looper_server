@@ -42,7 +42,6 @@ class StoreClientsFromApiCommand extends Command
         $success = true;
         /** @var Client $client */
         foreach ($clients as $client) {
-            $this->info('Updating client id:' . (string) $client->getAttribute('id'));
             try {
                 $clientResponse = ConnectorHelper::getEshop($client);
                 $client->setAttribute('eshop_name', $clientResponse->getName());
@@ -58,11 +57,15 @@ class StoreClientsFromApiCommand extends Command
                 $client->setAttribute('country', $clientResponse->getCountry());
                 $client->setAttribute('status', ClientStatusEnum::ACTIVE);
                 $client->setAttribute('last_synced_at', now());
+                
+                $this->info('Updating client id:' . (string) $client->getAttribute('id'));
             } catch (Throwable $t) {
-                $this->error('Error updating client ' . $t->getMessage());
-                $client->setAttribute('status', ClientStatusEnum::INACTIVE);
-                LoggerHelper::log('Error updating client ' . $t->getMessage());
-                $success = false;
+                if ($client->getAttribute('status') === ClientStatusEnum::ACTIVE) {
+                    $this->error('Error updating client ' . $t->getMessage());
+                    $client->setAttribute('status', ClientStatusEnum::INACTIVE);
+                    LoggerHelper::log('Error updating client ' . $t->getMessage());
+                    $success = false;
+                }
             }
 
             $client->save();
