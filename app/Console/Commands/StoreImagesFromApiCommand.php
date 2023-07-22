@@ -89,7 +89,7 @@ class StoreImagesFromApiCommand extends AbstractCommand
                                 continue;
                             }
                             $image = new Image();
-                            $image->setAttribute('client_id', $clientId);
+                            $image->setAttribute('client_id', $currentClientId);
                             $image->setAttribute('product_id', $productId);
                             $image->setAttribute('name', $imageResponse->getSeoName());
                             $image->save();
