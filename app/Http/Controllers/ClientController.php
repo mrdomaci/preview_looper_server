@@ -151,6 +151,7 @@ class ClientController extends Controller
         }
         return view('settings',
             [
+                'service_url_path' => $serviceUrlPath,
                 'language' => $language,
                 'eshop_id' => $client->getAttribute('eshop_id'),
                 'infinite_repeat' => $client->getAttribute('settings_infinite_repeat'),
