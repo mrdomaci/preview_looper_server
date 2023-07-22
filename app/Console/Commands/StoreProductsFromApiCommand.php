@@ -2,16 +2,17 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\ClientStatusEnum;
+use App\Enums\ClientServiceStatusEnum;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
-use App\Models\Client;
+use App\Models\ClientService;
 use App\Models\Product;
+use App\Models\Service;
 use Illuminate\Console\Command;
 use Throwable;
 
-class StoreProductsFromApiCommand extends Command
+class StoreProductsFromApiCommand extends AbstractCommand
 {
     /**
      * The name and signature of the console command.
@@ -34,62 +35,76 @@ class StoreProductsFromApiCommand extends Command
      */
     public function handle()
     {
-        $yesterday = now()->subDay();
-        $success = true;
         $clientId = $this->argument('client_id');
-        if ($clientId !== null) {
-            $client = Client::where('id', $clientId)->first();
-            $clients = [$client];
-        } else {
-            $clients = Client::where('status', ClientStatusEnum::ACTIVE)->where('last_synced_at', '>=', $yesterday)->get();
-        }
-        /** @var Client $client */
-        foreach ($clients as $client) {
-            $this->info('Updating products for client id:' . $client->getAttribute('id'));
-            $clientId = $client->getAttribute('id');
-            
-            for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
-                try {
-                    $productResponses = ConnectorHelper::getProducts($client, $page);
-                    $products = Product::where('client_id', $clientId)->where('active', true)->get();
-                    foreach ($productResponses as $productResponse) {
-                        $this->info('Updating product ' . $productResponse->getGuid());
-                        $productExists = false;
-                        foreach ($products as $key => $product) {
-                            if ($product->getAttribute('guid') === $productResponse->getGuid()) {
-                                unset($products[$key]);
-                                $productExists = true;
-                                break;
+        $success = true;
+        $service = Service::find(Service::DYNAMIC_PREVIEW_IMAGES);
+
+        for($i = 0; $i < $this->getMaxIterationCount(); $i++) {
+
+            if ($clientId !== null) {
+                $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
+                    ->where('status', ClientServiceStatusEnum::ACTIVE)
+                    ->where('client_id', $clientId)
+                    ->limit($this->getIterationCount())
+                    ->offset($this->getOffset($i))
+                    ->get();
+            } else {
+                $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
+                    ->where('status', ClientServiceStatusEnum::ACTIVE)
+                    ->limit($this->getIterationCount())
+                    ->offset($this->getOffset($i))
+                    ->get();
+            }
+
+            foreach ($clientServices as $clientService) {
+                $currentClientId = $clientService->getAttribute('client_id');
+                for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
+                    try {
+                        $productResponses = ConnectorHelper::getProducts($clientService, $page);
+                        $products = Product::where('client_id', $currentClientId)->where('active', true)->get();
+                        foreach ($productResponses as $productResponse) {
+                            $this->info('Updating product ' . $productResponse->getGuid());
+                            $productExists = false;
+                            foreach ($products as $key => $product) {
+                                if ($product->getAttribute('guid') === $productResponse->getGuid()) {
+                                    unset($products[$key]);
+                                    $productExists = true;
+                                    break;
+                                }
+                            }
+                            if ($productExists) {
+                                continue;
+                            }
+                            $product = Product::where('client_id', $currentClientId)->where('guid', $productResponse->getGuid())->first();
+                            if ($product === null) {
+                                $product = new Product();
+                                $product->setAttribute('guid', $productResponse->getGuid());
+                                $product->setAttribute('client_id', $currentClientId);
+                                $product->setAttribute('active', true);
+                                $product->save();
+                            } else if ($product->getAttribute('active') === false) {
+                                $product->setAttribute('active', true);
+                                $product->save();
                             }
                         }
-                        if ($productExists) {
-                            continue;
-                        }
-                        $product = Product::where('client_id', $clientId)->where('guid', $productResponse->getGuid())->first();
-                        if ($product === null) {
-                            $product = new Product();
-                            $product->setAttribute('guid', $productResponse->getGuid());
-                            $product->setAttribute('client_id', $clientId);
-                            $product->setAttribute('active', true);
-                            $product->save();
-                        } else if ($product->getAttribute('active') === false) {
-                            $product->setAttribute('active', true);
+                        foreach ($products as $product) {
+                            $product->setAttribute('active', false);
                             $product->save();
                         }
-                    }
-                    foreach ($products as $product) {
-                        $product->setAttribute('active', false);
-                        $product->save();
-                    }
-                    if (count($productResponses) < ResponseHelper::MAXIMUM_ITEMS_PER_PAGE) {
+                        if (count($productResponses) < ResponseHelper::MAXIMUM_ITEMS_PER_PAGE) {
+                            break;
+                        }
+                    } catch (Throwable $t) {
+                        $this->error('Error updating products ' . $t->getMessage());
+                        LoggerHelper::log('Error updating products ' . $t->getMessage());
+                        $success = false;
                         break;
                     }
-                } catch (Throwable $t) {
-                    $this->error('Error updating products ' . $t->getMessage());
-                    LoggerHelper::log('Error updating products ' . $t->getMessage());
-                    $success = false;
-                    break;
                 }
+            }
+
+            if ($clientServices->count() < $this->getIterationCount()) {
+                break;
             }
         }
         if ($success === true) {

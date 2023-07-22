@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\ClientController;
-use App\Http\Controllers\CommandController;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Route;
@@ -18,19 +17,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [HomepageController::class, 'index'])->name('welcome');
-Route::get('/terms', [HomepageController::class, 'terms'])->name('terms');
+Route::get('/plugin/{serviceUrlPath}', [HomepageController::class, 'plugin'])->name('plugin');
+Route::get('/plugin/{serviceUrlPath}/terms', [HomepageController::class, 'terms'])->name('terms');
 
-Route::get('/addon-install', [ClientController::class, 'install'])->name('client.install');
-Route::get('/addon-uninstall', [ClientController::class, 'uninstall'])->name('client.uninstall');
-Route::get('/addon-deactivate', [ClientController::class, 'deactivate'])->name('client.deactivate');
-Route::get('/addon-activate', [ClientController::class, 'activate'])->name('client.activate');
+Route::get('/addon-install/{serviceUrlPath}', [ClientController::class, 'install'])->name('client.install');
+Route::get('/addon-uninstall/{serviceUrlPath}', [ClientController::class, 'uninstall'])->name('client.uninstall');
+Route::get('/addon-deactivate/{serviceUrlPath}', [ClientController::class, 'deactivate'])->name('client.deactivate');
+Route::get('/addon-activate/{serviceUrlPath}', [ClientController::class, 'activate'])->name('client.activate');
 
-Route::get('/client-settings',[ClientController::class, 'settings'])->name('client.settings');
-Route::post('/client-settings/{language}/{eshopId}',[ClientController::class, 'saveSettings'])->name('client.saveSettings');
+Route::get('/client-settings/{serviceUrlPath}',[ClientController::class, 'settings'])->name('client.settings');
+Route::post('/client-settings/{serviceUrlPath}/{language}/{eshopId}',[ClientController::class, 'saveSettings'])->name('client.saveSettings');
 
 Route::get('/locale/{locale}', [HomepageController::class, 'setLocale'])->name('homepage.setLocale');
 
 Route::get('/images/{clientId}/{productIds}', [ImageController::class, 'list'])->name('images.list')->middleware('cors');
-
-Route::get('/update', [ClientController::class, 'update'])->name('client.update');
-Route::get('/deploy', [CommandController::class, 'deploy'])->name('command.deploy');

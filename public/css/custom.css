@@ -111,4 +111,16 @@
   .logo-img {
     width: 40%;
     max-width: 700px;
-}
+  }
+  .active {
+    font-weight: 700;
+  }
+  .logo-plugin {
+    width: 100%;
+    max-width: 700px;
+  }
+
+  .text-justify {
+    text-align: justify;
+  }
+    

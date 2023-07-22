@@ -6,7 +6,7 @@ namespace App\Connector;
 use App\Exceptions\ApiRequestFailException;
 use App\Helpers\ResponseHelper;
 use App\Helpers\TokenHelper;
-use App\Models\Client;
+use App\Models\ClientService;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 
@@ -15,14 +15,14 @@ class Request
     private const API_URL = 'https://api.myshoptet.com/api';
 
     /**
-    * @param Client $client
+    * @param ClientService $clientService
     * @param string $method
     * @param string $endpoint
     * @param array<string, string> $query
     * @param string $body
     */
     public function __construct(
-        private Client $client,
+        private ClientService $clientService,
         private string $method = 'GET',
         private string $endpoint = '/products',
         private array $query = [],
@@ -69,7 +69,7 @@ class Request
 
     public function getToken(): string
     {
-        return $this->client->getAttribute('access_token');
+        return $this->clientService->getAttribute('access_token');
     }
 
     public function getMethod(): string
@@ -134,8 +134,8 @@ class Request
             $response = $this->sendRequest();
         } catch (Exception $e) {
             if ($e->getCode() === 401) {
-                $this->client->setAttribute('access_token', TokenHelper::getApiAccessToken($this->client));
-                $this->client->save();
+                $this->clientService->setAttribute('access_token', TokenHelper::getApiAccessToken($this->clientService));
+                $this->clientService->save();
                 $response = $this->sendRequest();
             } else {
                 throw new ApiRequestFailException(new Exception('API request failed for ' . self::API_URL . $this->endpoint . $this->getQueryAsAString() . ' with status code ' . $e->getCode() . ' and message ' . $e->getMessage()));
@@ -150,7 +150,7 @@ class Request
         $client = new \GuzzleHttp\Client();
         $options = [
             'headers' => [
-                'Shoptet-Access-Token' => $this->client->getAttribute('access_token'),
+                'Shoptet-Access-Token' => $this->clientService->getAttribute('access_token'),
                 'Content-Type' => 'application/vnd.shoptet.v1.0'
                 ]
             ];
