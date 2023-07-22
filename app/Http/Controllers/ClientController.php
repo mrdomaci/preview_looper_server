@@ -183,7 +183,7 @@ class ClientController extends Controller
         $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
         if ($templateIncludeResponse->getTemplateIncludes() === []) {
             LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));
-            return redirect()->route('client.settings', ['language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
+            return redirect()->route('client.settings', ['service_url_path' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
         }
         return redirect()->route('client.settings', ['service_url_path' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', trans('general.saved'));
     }
