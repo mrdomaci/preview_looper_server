@@ -157,7 +157,6 @@ class ClientController extends Controller
                 'infinite_repeat' => $client->getAttribute('settings_infinite_repeat'),
                 'return_to_default' => $client->getAttribute('settings_return_to_default'),
                 'show_time' => $client->getAttribute('settings_show_time'),
-                'footer_link' => 'layouts.terms_link'
             ]);
     }
 
@@ -186,6 +185,6 @@ class ClientController extends Controller
             LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));
             return redirect()->route('client.settings', ['language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
         }
-        return redirect()->route('client.settings', ['language' => $language, 'eshop_id' => $eshopId])->with('success', trans('general.saved'));
+        return redirect()->route('client.settings', ['service_url_path' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', trans('general.saved'));
     }
 }
