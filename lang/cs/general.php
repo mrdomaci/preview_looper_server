@@ -5,6 +5,7 @@ return [
 
 'settings' => 'nastavení',
 'save' => 'Uložit',
+'saved' => 'Uloženo',
 'homepage_button' => 'To chci',
 'homepage_terms' => 'Pravidla použití',
 'error' => 'Nastala chyba, zkuste to prosím znovu později',
