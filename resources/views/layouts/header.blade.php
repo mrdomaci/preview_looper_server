@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{Config::get('app.locale')}}">
 <head>
-    <title>{{ __('messages.addon_title')}} - Slabihoud.cz</title>
+    <title>{{ __('dynamic-preview-images.addon_title')}} - Slabihoud.cz</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="../../css/bootstrap.css">
     <link rel="stylesheet" href="../../css/bootstrap.min.css">

@@ -1,24 +1,24 @@
   const imageData = {
     "product-1": [
-      "/images/product1_1.png",
-      "/images/product1_2.png",
-      "/images/product1_3.png",
-      "/images/product1_4.png",
-      "/images/product1_5.png"
+      "/images/dynamic-preview-images/product1_1.png",
+      "/images/dynamic-preview-images/product1_2.png",
+      "/images/dynamic-preview-images/product1_3.png",
+      "/images/dynamic-preview-images/product1_4.png",
+      "/images/dynamic-preview-images/product1_5.png"
     ],
     "product-2": [
-      "/images/product2_1.png",
-      "/images/product2_2.png",
-      "/images/product2_3.png",
-      "/images/product2_4.png",
-      "/images/product2_5.png"
+      "/images/dynamic-preview-images/product2_1.png",
+      "/images/dynamic-preview-images/product2_2.png",
+      "/images/dynamic-preview-images/product2_3.png",
+      "/images/dynamic-preview-images/product2_4.png",
+      "/images/dynamic-preview-images/product2_5.png"
     ],
     "product-3": [
-      "/images/product3_1.png",
-      "/images/product3_2.png",
-      "/images/product3_3.png",
-      "/images/product3_4.png",
-      "/images/product3_5.png"
+      "/images/dynamic-preview-images/product3_1.png",
+      "/images/dynamic-preview-images/product3_2.png",
+      "/images/dynamic-preview-images/product3_3.png",
+      "/images/dynamic-preview-images/product3_4.png",
+      "/images/dynamic-preview-images/product3_5.png"
     ]
   };
   var getUrl = window.location;

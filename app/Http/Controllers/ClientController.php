@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ClientStatusEnum;
+use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Helpers\ArrayHelper;
 use App\Helpers\AuthorizationHelper;
@@ -14,6 +14,8 @@ use App\Helpers\NumbersHelper;
 use App\Helpers\ResponseHelper;
 use App\Helpers\WebHookHelper;
 use App\Models\Client;
+use App\Models\ClientService;
+use App\Models\Service;
 use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -21,11 +23,16 @@ use Illuminate\Http\Response;
 
 class ClientController extends Controller
 {
-    public function install(Request $request): Response
+    public function install(string $serviceUrlPath, Request $request): Response
     {
         $code = $request->input('code');
         if ($code === NULL) {
             return Response('Bad request', 400);
+        }
+
+        $service = Service::where('url-path', $serviceUrlPath)->first();
+        if ($service === null) {
+            abort(404);
         }
 
         $response = AuthorizationHelper::getResponseForInstall($code);
@@ -35,7 +42,8 @@ class ClientController extends Controller
         $eshopUrl = ResponseHelper::getFromResponse($response, 'eshopUrl');
         $contactEmail = ResponseHelper::getFromResponse($response, 'contactEmail');
         
-        $client = Client::updateOrCreate($eshopId, $oAuthAccessToken, $eshopUrl, $contactEmail);
+        $client = Client::updateOrCreate($eshopId, $eshopUrl, $contactEmail);
+        ClientService::updateOrCreate($client, $service, $oAuthAccessToken);
 
         $webhookResponse = WebHookHelper::jenkinsWebhook($client->getAttribute('id'));
         if ($webhookResponse->failed()) {
@@ -44,27 +52,44 @@ class ClientController extends Controller
         return Response('ok', 200);
     }
 
-    public function deactivate(): Response
+    public function deactivate(string $serviceUrlPath): Response
     {
+        $service = Service::where('url-path', $serviceUrlPath)->first();
+        if ($service === null) {
+            abort(404);
+        }
         $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_DEACTIVATE);
-        Client::updateStatus($eshopId, ClientStatusEnum::INACTIVE);
+        $client = Client::getByEshopId($eshopId);
+
+        ClientService::updateStatus($client, $service, ClientServiceStatusEnum::INACTIVE);
 
         return Response('ok', 200);
     }
 
-    public function uninstall(): Response
+    public function uninstall(string $serviceUrlPath): Response
     {
+        $service = Service::where('url-path', $serviceUrlPath)->first();
+        if ($service === null) {
+            abort(404);
+        }
         $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_UNINSTALL);
-        Client::updateStatus($eshopId, ClientStatusEnum::DELETED);
+        $client = Client::getByEshopId($eshopId);
+
+        ClientService::updateStatus($client, $service, ClientServiceStatusEnum::DELETED);
 
         return Response('ok', 200);
     }
 
-    public function activate(): Response
+    public function activate(string $serviceUrlPath): Response
     {
+        $service = Service::where('url-path', $serviceUrlPath)->first();
+        if ($service === null) {
+            abort(404);
+        }
         $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_UNINSTALL);
-        Client::updateStatus($eshopId, ClientStatusEnum::ACTIVE);
-       
+        $client = Client::getByEshopId($eshopId);
+
+        ClientService::updateStatus($client, $service, ClientServiceStatusEnum::ACTIVE);
         return Response('ok', 200);
     }
 
@@ -85,15 +110,20 @@ class ClientController extends Controller
         return $response['access_token'];
     }
 
-    public function settings(Request $request): View
+    public function settings(string $serviceUrlPath, Request $request): View
     {
+        $service = Service::where('url-path', $serviceUrlPath)->first();
+        if ($service === null) {
+            abort(404);
+        }
         $language = $request->input('language');
         $eshopId = $request->input('eshop_id');
 
         $client = Client::getByEshopId((int) $eshopId);
+        $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $service->getAttribute('id'))->first();
         if ($request->session()->has('access_token') === false) {
             $code = $request->input('code');
-            $eshopResponse = ConnectorHelper::getEshop($client);
+            $eshopResponse = ConnectorHelper::getEshop($clientService);
             $baseOAuthUrl = null;
             if ($eshopResponse->getOauthUrl() !== null) {
                 $baseOAuthUrl = $eshopResponse->getOauthUrl();
@@ -130,8 +160,12 @@ class ClientController extends Controller
             ]);
     }
 
-    public function saveSettings(string $language, string $eshopId, Request $request): \Illuminate\Http\RedirectResponse
+    public function saveSettings(string $serviceUrlPath, string $language, string $eshopId, Request $request): \Illuminate\Http\RedirectResponse
     {
+        $service = Service::where('url-path', $serviceUrlPath)->first();
+        if ($service === null) {
+            abort(404);
+        }
         LocaleHelper::setLocale($language);
         $infiniteRepeat = $request->input('settings_infinite_repeat');
         $returnToDefault = $request->input('settings_return_to_default');
@@ -140,16 +174,17 @@ class ClientController extends Controller
             abort(403);
         }
         $client = Client::getByEshopId((int) $eshopId);
+        $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $service->getAttribute('id'))->first();
         $infiniteRepeat = NumbersHelper::intToBool((int)$infiniteRepeat);
         $returnToDefault = NumbersHelper::intToBool((int)$returnToDefault);
         $showTime = (int)$showTime;
         Client::updateSettings($client, $infiniteRepeat, $returnToDefault, $showTime);
         $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($infiniteRepeat, $returnToDefault, $showTime);
-        $templateIncludeResponse = ConnectorHelper::postTemplateInclude($client, $body);
+        $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
         if ($templateIncludeResponse->getTemplateIncludes() === []) {
             LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));
-            return redirect()->route('client.settings', ['language' => $language, 'eshop_id' => $eshopId])->with('error', trans('messages.error'));
+            return redirect()->route('client.settings', ['language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
         }
-        return redirect()->route('client.settings', ['language' => $language, 'eshop_id' => $eshopId])->with('success', trans('messages.saved'));
+        return redirect()->route('client.settings', ['language' => $language, 'eshop_id' => $eshopId])->with('success', trans('general.saved'));
     }
 }

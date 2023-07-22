@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\LocaleHelper;
+use App\Models\Service;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,7 +14,9 @@ class HomepageController extends Controller
     public function setLocale(string $locale): RedirectResponse
     {
         Session::put('locale', $locale);
-        return redirect()->back();
+        $originalRequestUrl = redirect()->back()->getTargetUrl();
+        $requestUrlWithoutParams = explode('?', $originalRequestUrl)[0];
+        return redirect($requestUrlWithoutParams);
     }
 
     public function index(Request $request): View
@@ -26,10 +29,10 @@ class HomepageController extends Controller
             LocaleHelper::setLocale($locale);
         }
         
-        return View('welcome', ['footer_link' => 'layouts.terms_link']);
+        return View('welcome');
     }
 
-    public function terms(Request $request): View
+    public function plugin(string $serviceUrlPath, Request $request): View
     {
         $locale = $request->input('locale');
         if ($locale === null && Session::has('locale') === false) {
@@ -38,7 +41,29 @@ class HomepageController extends Controller
         if ($locale !== null) {
             LocaleHelper::setLocale($locale);
         }
+
+        $service = Service::where('url-path', $serviceUrlPath)->first();
+        if ($service === null) {
+            abort(404);
+        }
+        return View($service->getAttribute('view-name') . '.index', ['service_url_path' => $serviceUrlPath]);
+    }
+
+    public function terms(string $serviceUrlPath, Request $request): View
+    {
+        $locale = $request->input('locale');
+        if ($locale === null && Session::has('locale') === false) {
+            $locale = 'cs';
+        }
+        if ($locale !== null) {
+            LocaleHelper::setLocale($locale);
+        }
+
+        $service = Service::where('url-path', $serviceUrlPath)->first();
+        if ($service === null) {
+            abort(404);
+        }
         
-        return View('terms', ['footer_link' => 'layouts.homepage_link']);
+        return View($service->getAttribute('view-name') . '.terms', ['service_url_path' => $serviceUrlPath]);
     }
 }

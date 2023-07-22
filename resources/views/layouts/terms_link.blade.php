@@ -1,1 +1,0 @@
-<li class="list-inline-item"><a href="{{ URL::route('terms') }}">{{ __('messages.terms') }}</a></li>
