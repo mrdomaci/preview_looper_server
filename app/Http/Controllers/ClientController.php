@@ -35,7 +35,7 @@ class ClientController extends Controller
             abort(404);
         }
 
-        $response = AuthorizationHelper::getResponseForInstall($code);
+        $response = AuthorizationHelper::getResponseForInstall($code, $serviceUrlPath);
 
         $oAuthAccessToken = ResponseHelper::getAccessToken($response);
         $eshopId = ResponseHelper::getEshopId($response);

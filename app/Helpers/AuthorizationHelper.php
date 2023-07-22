@@ -16,14 +16,14 @@ class AuthorizationHelper
      * @return array<string, int|string>
      * @throws AddonInstallFailException
      */
-    public static function getResponseForInstall(string $code): array
+    public static function getResponseForInstall(string $code, string $serviceUrlPath): array
     {
         $data = [
             'client_id' => env('SHOPTET_CLIENT_ID'),
             'client_secret' => env('SHOPTET_CLIENT_SECRET'), 
             'code' => $code,
             'grant_type' => 'authorization_code',
-            'redirect_uri' => Route('client.install'),
+            'redirect_uri' => Route('client.install', ['serviceUrlPath' => $serviceUrlPath]),
             'scope' => 'api',
         ];
 
