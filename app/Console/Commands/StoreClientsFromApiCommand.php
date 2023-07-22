@@ -87,7 +87,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
                 $client->save();
             }
 
-            if ($clients->count() < $this->getIterationCount()) {
+            if (count($clients) < $this->getIterationCount()) {
                 break;
             }
         }
