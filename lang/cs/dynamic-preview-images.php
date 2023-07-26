@@ -11,7 +11,6 @@ return [
     'show_time_short' => 'Krátký',
     'show_time_long' => 'Dlouhý',
     'show_time_medium' => 'Střední',
-    'homepage_title' => 'Dynamické náhledové obrázky',
     'homepage_description' => 'Dynamické náhledové obrázky je doplněk, který umožňuje zobrazit náhledové obrázky produktu, který zákazníka zajímá.',
     'general_description_1' => 'Při prohlížení produktů je na stránce výpisu měněn náhledový obrázek zboží, na kterém se aktuálně nachází kurzor myši. Díky tomu se nemusí návštěvník proklikávat na detail produktu, ale může si prohlédnout produktové fotografie produktu už přímo ve výpisu produktů.',
     'general_description_2' => 'Mobilní zobrazení umožní pomocí jednoduchých gest zákazníkovi prohlížet obrázky produktu také už přímo ve výpisu zboží.',

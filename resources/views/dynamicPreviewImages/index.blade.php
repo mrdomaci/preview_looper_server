@@ -56,7 +56,7 @@
                     @elseif ( Config::get('app.locale') == 'hu')
                         <img class="logo-img" src="{{ url('images/dynamic-preview-images/webpage_logo_hu.png') }}" alt="">
                     @else
-                        <h1>{{ __('dynamic-preview-images.homepage_title') }}</h1>
+                        <h1>{{ __('dynamic-preview-images.addon_title') }}</h1>
                     @endif
                 </div>
             <p>{{ __('dynamic-preview-images.homepage_description') }}</p>
