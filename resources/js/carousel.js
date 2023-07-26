@@ -234,20 +234,7 @@ const pw_elements = document.getElementsByClassName('p');
   }
 
   function extractProjectId() {
-    const pw_head = document.getElementsByTagName('head')[0];
-    const pw_scripts = pw_head.getElementsByTagName('script');
-    let pw_project_id;
-
-    for (let i = 0; i < pw_scripts.length; i++) {
-      const pw_script = pw_scripts[i];
-      if (pw_script.textContent.includes('"projectId":')) {
-        const pw_start_index = pw_script.textContent.indexOf('"projectId":') + 12;
-        const pw_end_index = pw_script.textContent.indexOf(',', pw_start_index);
-        pw_project_id = parseInt(pw_script.textContent.slice(pw_start_index, pw_end_index));
-        break;
-      }
-    }
-
+    let pw_project_id = getShoptetDataLayer('projectId')
     return pw_project_id;
   }
 
