@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use App\Models\Client;
+use App\Models\ClientSettingsServiceOption;
+use App\Models\Service;
+
 class ConnectorBodyHelper
 {
     private const TEMPLATE_INCLUDES = '{
@@ -10,17 +14,21 @@ class ConnectorBodyHelper
           "snippets": [
             {
               "location": "common-header",
-              "html": "<div id=\'preview-looper-settings\' data-infinite-repeat=\'%s\' data-return-to-default=\'%s\' data-show-time=\'%s\'></div>"
+              "html": "%s"
             }
           ]
         }
       }';
     
-    public static function getStringBodyForTemplateInclude(bool $infiniteRepeat, bool $returnToDefault, int $showTime): string
+    public static function getStringBodyForTemplateInclude(Service $service, Client $client): string
     {
-        $infiniteRepeat = $infiniteRepeat ? '1' : '0';
-        $returnToDefault = $returnToDefault ? '1' : '0';
-        $showTime = (string) $showTime;
-        return sprintf(self::TEMPLATE_INCLUDES, $infiniteRepeat, $returnToDefault, $showTime);
+        $htmlString = "<div id=\'%s\'";
+        $htmlString = sprintf($htmlString, $service->getAttribute('name'));
+        $clientSettingsServiceOptions = ClientSettingsServiceOption::with('settingsService', 'settingsServiceOption')->where('client_id', $client->getAttribute('id'))->get();
+        foreach ($clientSettingsServiceOptions as $clientSettingsServiceOption) {
+            $htmlString .= sprintf(' data-%s=\'%s\'', $clientSettingsServiceOption->settingsService->getAttribute('name'), $clientSettingsServiceOption->settingsServiceOption->getAttribute('value'));
+        }
+        $htmlString .= "</div>";
+        return sprintf(self::TEMPLATE_INCLUDES, $htmlString);
     }
 }

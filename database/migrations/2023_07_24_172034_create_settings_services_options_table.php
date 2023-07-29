@@ -13,8 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('clients', function (Blueprint $table) {
-            $table->string('access_token')->nullable();
+        Schema::create('settings_service_options', function (Blueprint $table) {
+            $table->id();
+            $table->foreignIdFor(\App\Models\SettingsService::class, 'settings_service_id');
+            $table->string('name');
+            $table->string('value');
+            $table->boolean('is_default')->default(false);
         });
     }
 
@@ -25,8 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('clients', function (Blueprint $table) {
-            $table->dropColumn('access_token');
-        });
+        Schema::dropIfExists('settings_service_options');
     }
 };

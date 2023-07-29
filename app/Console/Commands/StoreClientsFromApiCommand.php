@@ -68,7 +68,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
                     $client->setAttribute('url', $clientResponse->getUrl());
                     $client->setAttribute('eshop_category', $clientResponse->getCategory());
                     $client->setAttribute('eshop_subtitle', $clientResponse->getSubtitle());
-                    $client->setAttribute('constact_person', $clientResponse->getContactPerson());
+                    $client->setAttribute('contact_person', $clientResponse->getContactPerson());
                     $client->setAttribute('email', $clientResponse->getEmail());
                     $client->setAttribute('phone', $clientResponse->getPhone());
                     $client->setAttribute('street', $clientResponse->getStreet());
