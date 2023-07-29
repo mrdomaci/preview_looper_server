@@ -19,7 +19,7 @@ class Client extends Model
         'eshop_name',
         'eshop_category',
         'eshop_subtitle',
-        'constact_person',
+        'contact_person',
         'url',
         'email',
         'phone',
@@ -28,9 +28,6 @@ class Client extends Model
         'zip',
         'country',
         'last_synced_at',
-        'settings_infinite_repeat',
-        'settings_return_to_default',
-        'settings_show_time',
     ];
 
     public function images(): HasMany
@@ -81,17 +78,5 @@ class Client extends Model
             }
         }
         return $client;
-    }
-
-    public static function updateSettings(Client $client, bool $infiniteRepeat, bool $returnToDefault, int $showTime): void
-    {
-        $client->settings_infinite_repeat = $infiniteRepeat;
-        $client->settings_return_to_default = $returnToDefault;
-        $client->settings_show_time = $showTime;
-        try {
-            $client->save();
-        } catch (Throwable $t) {
-            throw new DataUpdateFailException($t);
-        }
     }
 }

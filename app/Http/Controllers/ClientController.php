@@ -10,12 +10,14 @@ use App\Helpers\ConnectorBodyHelper;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LocaleHelper;
 use App\Helpers\LoggerHelper;
-use App\Helpers\NumbersHelper;
 use App\Helpers\ResponseHelper;
 use App\Helpers\WebHookHelper;
 use App\Models\Client;
 use App\Models\ClientService;
+use App\Models\ClientSettingsServiceOption;
 use App\Models\Service;
+use App\Models\SettingsService;
+use App\Models\SettingsServiceOption;
 use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -120,6 +122,7 @@ class ClientController extends Controller
         $eshopId = $request->input('eshop_id');
 
         $client = Client::getByEshopId((int) $eshopId);
+        $serviceSettings = SettingsService::where('service_id', $service->getAttribute('id'))->orderBy('sort')->get();
         $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $service->getAttribute('id'))->first();
         if ($request->session()->has('access_token') === false) {
             $code = $request->input('code');
@@ -149,14 +152,12 @@ class ClientController extends Controller
         if ($checkEshopId !== $client->getAttribute('eshop_id')) {
             abort(404);
         }
-        return view('settings',
+        return view($service->getAttribute('view-name') . '.settings',
             [
                 'service_url_path' => $serviceUrlPath,
                 'language' => $language,
-                'eshop_id' => $client->getAttribute('eshop_id'),
-                'infinite_repeat' => $client->getAttribute('settings_infinite_repeat'),
-                'return_to_default' => $client->getAttribute('settings_return_to_default'),
-                'show_time' => $client->getAttribute('settings_show_time'),
+                'client' => $client,
+                'settings_service' => $serviceSettings
             ]);
     }
 
@@ -166,20 +167,20 @@ class ClientController extends Controller
         if ($service === null) {
             abort(404);
         }
-        LocaleHelper::setLocale($language);
-        $infiniteRepeat = $request->input('settings_infinite_repeat');
-        $returnToDefault = $request->input('settings_return_to_default');
-        $showTime = $request->input('settings_show_time');
         if ($eshopId !== $request->input('eshop_id')) {
             abort(403);
         }
         $client = Client::getByEshopId((int) $eshopId);
+        $settingsServices = SettingsService::where('service_id', $service->getAttribute('id'))->get();
+        foreach ($settingsServices as $settingsService) {
+            $selectedOption = $request->input($settingsService->getAttribute('id'));
+            $settingsServiceOption = SettingsServiceOption::where('id', $selectedOption)->first();
+            ClientSettingsServiceOption::updateOrCreate($client, $settingsService, $settingsServiceOption);
+        }
+        LocaleHelper::setLocale($language);
+        $client = Client::getByEshopId((int) $eshopId);
         $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $service->getAttribute('id'))->first();
-        $infiniteRepeat = NumbersHelper::intToBool((int)$infiniteRepeat);
-        $returnToDefault = NumbersHelper::intToBool((int)$returnToDefault);
-        $showTime = (int)$showTime;
-        Client::updateSettings($client, $infiniteRepeat, $returnToDefault, $showTime);
-        $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($infiniteRepeat, $returnToDefault, $showTime);
+        $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($service, $client);
         $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
         if ($templateIncludeResponse->getTemplateIncludes() === []) {
             LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));

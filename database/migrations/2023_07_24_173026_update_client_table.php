@@ -14,7 +14,11 @@ return new class extends Migration
     public function up()
     {
         Schema::table('clients', function (Blueprint $table) {
-            $table->string('access_token')->nullable();
+            $table->dropColumn('settings_infinite_repeat');
+            $table->dropColumn('settings_return_to_default');
+            $table->dropColumn('settings_show_time');
+            $table->renameColumn('constact_person', 'contact_person');
+
         });
     }
 
@@ -26,7 +30,10 @@ return new class extends Migration
     public function down()
     {
         Schema::table('clients', function (Blueprint $table) {
-            $table->dropColumn('access_token');
+            $table->boolean('settings_infinite_repeat')->default(false);
+            $table->boolean('settings_return_to_default')->default(true);
+            $table->integer('settings_show_time')->default(1000);
+            $table->renameColumn('contact_person', 'constact_person');
         });
     }
 };
