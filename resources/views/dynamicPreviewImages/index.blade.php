@@ -2,7 +2,7 @@
 <body>
     <div id="preview-looper-settings" data-infinite-repeat="0" data-return-to-default="0" data-show-time="1500"></div>
     <div class="container">
-        <nav class="navbar navbar-expand-lg">
+        <nav class="navbar navbar-expand-lg bg-light">
             <a class="navbar-brand" href="{{ URL::route('plugin', array('serviceUrlPath' => $service_url_path) ) }}">{{ __('dynamic-preview-images.addon_title') }}</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>

@@ -1,7 +1,7 @@
 @include('layouts.header')
 <body>
     <div class="container">
-        <nav class="navbar navbar-expand-lg">
+        <nav class="navbar navbar-expand-lg bg-light">
             <a class="navbar-brand" href="{{ URL::route('plugin', array('serviceUrlPath' => $service_url_path) ) }}">{{ __('dynamic-preview-images.addon_title') }}</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -40,7 +40,7 @@
                 </ul>
             </div>
         </nav>
-        <h1 class="mb-4">{{ __('general.terms') }}</h1>
+        <h1 class="mb-4 mt-4">{{ __('general.terms') }}</h1>
         <div class="accordion" id="termsAccordion">
             <div class="accordion-item">
                 <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#termsAccordion">

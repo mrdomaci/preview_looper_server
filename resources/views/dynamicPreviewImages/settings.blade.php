@@ -10,8 +10,8 @@
         @csrf
         @foreach ($settings_service as $setting)
             <div class="form-group row mt-4">
-                <label for="settings_{{ $setting->name }}" class="col-md-6 col-form-label">{{ __($setting->name) }}:</label>
-                <div class="col-md-6">
+                <label for="settings_{{ $setting->name }}" class="col-md-md-6 col-md-form-label">{{ __($setting->name) }}:</label>
+                <div class="col-md-md-6">
                     <select class="form-control" name="{{ $setting->id }}" id="{{ $setting->id }}">
                         @foreach ($setting->settingsServicesOptions as $option)
                             <option
@@ -27,7 +27,7 @@
         @endforeach
         </div>
         <div class="row mt-4">
-            <div class="col-md-12 text-center">
+            <div class="col-md-md-12 text-center">
                 <input type="hidden" name="eshop_id" value="{{$client->eshop_id}}">
                 <button type="submit" class="btn btn-primary m-3">{{ __('general.save') }}</button>
             </div>

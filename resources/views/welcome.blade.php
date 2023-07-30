@@ -1,7 +1,7 @@
 @include('layouts.header')
 <body>
     <div class="container">
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg bg-light">
         <a class="navbar-brand" href="{{ URL::route('welcome') }}">Slabihoud.cz</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -39,14 +39,14 @@
     </nav>
 
     <div class="jumbotron">
-        <h1 class="display-4">{{ __('general.introduction')}}</h1>
+        <h1 class="display-4 mt-4">{{ __('general.introduction')}}</h1>
         <p class="lead">{{ __('general.subtitle')}}</p>
         <hr class="my-4">
     </div>
 
    
         <div class="row">
-            <div class="col-3">
+            <div class="col-md-3">
                 <a href="{{ URL::route('plugin', array('serviceUrlPath' => 'dynamic-preview-images')) }}">
                 @if ( Config::get('app.locale') == 'cs')
                     <img class="logo-plugin" src="{{ url('images/dynamic-preview-images/webpage_logo_cs.png') }}" alt="">
@@ -61,7 +61,7 @@
                 @endif
                 </a>
             </div>
-            <div class="col-5">
+            <div class="col-md-5">
                 <a href="{{ URL::route('plugin', array('serviceUrlPath' => 'dynamic-preview-images')) }}"><h2>{{__('dynamic-preview-images.addon_title')}}</h2></a>
                 <p class="text-justify">{{ __('dynamic-preview-images.homepage_description') }}</p>
                 <p class="text-justify">{{ __('dynamic-preview-images.general_description_1') }}</p>
@@ -70,7 +70,7 @@
                     <a class="btn btn-primary btn-lg mb-4" href="https://doplnky.shoptet.cz/dynamicke-nahledove-obrazky/" role="button">{{ __('general.homepage_button') }}</a>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-md-4">
                 <img class="img-fluid p-1" src="{{ url('images/dynamic-preview-images/preview_1.gif') }}" alt="">
                 <img class="img-fluid p-1" src="{{ url('images/dynamic-preview-images/preview_2.gif') }}" alt="">
             </div>
