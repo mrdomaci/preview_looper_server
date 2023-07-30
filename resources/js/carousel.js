@@ -1,7 +1,7 @@
-const pw_carousel_settings = document.getElementById('preview-looper-settings');
-let pw_infinite_repeat = pw_carousel_settings.getAttribute('data-infinite-repeat');
-let pw_return_to_default = pw_carousel_settings.getAttribute('data-return-to-default');
-let pw_show_time = pw_carousel_settings.getAttribute('data-show-time');
+const pw_carousel_settings = document.getElementById('dynamic-preview-images');
+let pw_infinite_repeat = pw_carousel_settings.getAttribute('data-dynamic-preview-images.infinite_repeat');
+let pw_return_to_default = pw_carousel_settings.getAttribute('data-dynamic-preview-images.return_to_default');
+let pw_show_time = pw_carousel_settings.getAttribute('data-dynamic-preview-images.show_time');
 let pw_image_prefix;
 if (pw_infinite_repeat === null) {
   pw_infinite_repeat = '0';
@@ -27,6 +27,9 @@ const pw_elements = document.getElementsByClassName('p');
   for (let i = 0; i < pw_elements.length; i++) {
     const pw_element = pw_elements[i];
     const microDataValue = pw_element.getAttribute('data-micro-identifier');
+    if (microDataValue === null) {
+      continue;
+    }
     if (sessionStorage.getItem('pw_' + microDataValue) === null) {
       pw_guid_string = pw_guid_string + microDataValue + '|';
     }
@@ -251,6 +254,9 @@ const pw_elements = document.getElementsByClassName('p');
     for (let i = 0; i < pw_elements.length; i++) {
       const pw_element = pw_elements[i];
       const microDataValue = pw_element.getAttribute('data-micro-identifier');
+      if (microDataValue === null) {
+        continue;
+      }
       if (sessionStorage.getItem('pw_' + microDataValue) === null && response !== '' && response[microDataValue] !== undefined) {
         sessionStorage.setItem('pw_' + microDataValue, response[microDataValue]);
       }
