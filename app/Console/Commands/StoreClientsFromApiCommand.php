@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\ClientServiceStatusEnum;
-use App\Exceptions\AddonInstallFailException;
+use App\Exceptions\ApiRequestFailException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
 use App\Models\Client;
@@ -79,7 +79,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
                     $client->setAttribute('last_synced_at', now());
                     
                     $this->info('Updating client id:' . (string) $client->getAttribute('id'));
-                } catch (AddonInstallFailException) {
+                } catch (ApiRequestFailException) {
                     $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
                     $clientService->save();
                 } catch (Throwable $t) {
