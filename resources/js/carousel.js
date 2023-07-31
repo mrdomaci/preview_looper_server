@@ -1,14 +1,19 @@
-const pw_carousel_settings = document.getElementById('preview-looper-settings');
-let pw_infinite_repeat = "0";
-let pw_return_to_default = "0";
-let pw_show_time = 1500;
-if (pw_carousel_settings !== null) {
-  pw_infinite_repeat = pw_carousel_settings.getAttribute('data-infinite-repeat');
-  pw_return_to_default = pw_carousel_settings.getAttribute('data-return-to-default');
-  pw_show_time = parseInt(pw_carousel_settings.getAttribute('data-show-time'));
-}
+const pw_carousel_settings = document.getElementById('dynamic-preview-images');
+let pw_infinite_repeat = pw_carousel_settings.getAttribute('data-dynamic-preview-images.infinite_repeat');
+let pw_return_to_default = pw_carousel_settings.getAttribute('data-dynamic-preview-images.return_to_default');
+let pw_show_time = pw_carousel_settings.getAttribute('data-dynamic-preview-images.show_time');
 let pw_image_prefix;
-var pw_template_name = shoptet.design.template.name;
+if (pw_infinite_repeat === null) {
+  pw_infinite_repeat = '0';
+}
+if (pw_return_to_default === null) {
+  pw_return_to_default = '0';
+}
+if (pw_show_time === null) {
+  pw_show_time = 1500;
+} else {
+  pw_show_time = parseInt(pw_show_time);
+}
 
 let pw_global_products = [];
 let pw_running_interval;
