@@ -1,19 +1,24 @@
-const pw_carousel_settings = document.getElementById('dynamic-preview-images');
-let pw_infinite_repeat = pw_carousel_settings.getAttribute('data-dynamic-preview-images.infinite_repeat');
-let pw_return_to_default = pw_carousel_settings.getAttribute('data-dynamic-preview-images.return_to_default');
-let pw_show_time = pw_carousel_settings.getAttribute('data-dynamic-preview-images.show_time');
+const pw_carousel_settings = document.getElementById('preview-looper-settings');
+let pw_infinite_repeat = "0";
+let pw_return_to_default = "0";
+let pw_show_time = 1500;
+if (pw_carousel_settings !== null) {
+  pw_infinite_repeat = pw_carousel_settings.getAttribute('data-infinite-repeat');
+  pw_return_to_default = pw_carousel_settings.getAttribute('data-return-to-default');
+  pw_show_time = parseInt(pw_carousel_settings.getAttribute('data-show-time'));
+}
 let pw_image_prefix;
-if (pw_infinite_repeat === null) {
-  pw_infinite_repeat = '0';
-}
-if (pw_return_to_default === null) {
-  pw_return_to_default = '0';
-}
-if (pw_show_time === null) {
-  pw_show_time = 1500;
-} else {
-  pw_show_time = parseInt(pw_show_time);
-}
+let pw_template_selectors = [
+  {
+    'Soul': [
+      { 'outer-selector': 'product-wrap' },
+      { 'inner-selector': 'pr-list-image' }
+    ]
+  },
+];
+var pw_template_name = shoptet.design.template.name;
+let pw_outer_selector = getOuterSelector(pw_template_name);
+let pw_inner_selector = getInnerSelector(pw_template_name);
 
 let pw_global_products = [];
 let pw_running_interval;
@@ -22,14 +27,11 @@ const pw_project_id = extractProjectId();
 let pw_guid_string = '';
 const pw_products = [];
 let pw_products_response;
-const pw_elements = document.querySelectorAll('[data-micro="product"]');
+const pw_elements = document.getElementsByClassName(pw_outer_selector);
 (async () => {
   for (let i = 0; i < pw_elements.length; i++) {
     const pw_element = pw_elements[i];
     const microDataValue = pw_element.getAttribute('data-micro-identifier');
-    if (microDataValue === null) {
-      continue;
-    }
     if (sessionStorage.getItem('pw_' + microDataValue) === null) {
       pw_guid_string = pw_guid_string + microDataValue + '|';
     }
@@ -254,17 +256,12 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
     for (let i = 0; i < pw_elements.length; i++) {
       const pw_element = pw_elements[i];
       const microDataValue = pw_element.getAttribute('data-micro-identifier');
-      if (microDataValue === null) {
-        continue;
-      }
       if (sessionStorage.getItem('pw_' + microDataValue) === null && response !== '' && response[microDataValue] !== undefined) {
         sessionStorage.setItem('pw_' + microDataValue, response[microDataValue]);
       }
       let pw_images = sessionStorage.getItem('pw_' + microDataValue).split(',');
       pw_images = removeDuplicates(pw_images);
-      if (pw_images[0] === 'undefined' || pw_images.length === 1) {
-        continue;
-      }
+    
       pw_products.push({ id: microDataValue, images: pw_images});
     
       pw_element.addEventListener('mouseenter', pw_enter, false);
@@ -290,4 +287,20 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
         }
     }
     pw_global_products = pw_products;
+  }
+  function getOuterSelector(templateName) {
+    for (let obj of pw_template_selectors) {
+      if (templateName in obj) {
+        return obj.outer-selector;
+      }
+    }
+    return 'p';
+  }
+  function getInnerSelector(templateName) {
+    for (let obj of pw_template_selectors) {
+      if (templateName in obj) {
+        return obj.inner-selector;
+      }
+    }
+    return 'p';
   }
