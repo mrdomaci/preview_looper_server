@@ -79,9 +79,14 @@ class StoreClientsFromApiCommand extends AbstractCommand
                     
                     $this->info('Updating client id:' . (string) $client->getAttribute('id'));
                 } catch (Throwable $t) {
-                    $this->error('Error updating client ' . $t->getMessage());
-                    LoggerHelper::log('Error updating client ' . $t->getMessage());
-                    $success = false;
+                    if ($t->getMessage() === 'Error in response requesting api access token [addon_not_installed]: Addon is not installed') {
+                        $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
+                        $clientService->save();
+                    } else {
+                        $this->error('Error updating client ' . $t->getMessage());
+                        LoggerHelper::log('Error updating client ' . $t->getMessage());
+                        $success = false;
+                    }
                 }
 
                 $client->save();
