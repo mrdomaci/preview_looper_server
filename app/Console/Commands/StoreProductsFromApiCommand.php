@@ -58,10 +58,10 @@ class StoreProductsFromApiCommand extends AbstractCommand
 
             foreach ($clientServices as $clientService) {
                 $currentClientId = $clientService->getAttribute('client_id');
+                $products = Product::where('client_id', $currentClientId)->where('active', true)->get();
                 for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
                     try {
                         $productResponses = ConnectorHelper::getProducts($clientService, $page);
-                        $products = Product::where('client_id', $currentClientId)->where('active', true)->get();
                         foreach ($productResponses as $productResponse) {
                             $this->info('Updating product ' . $productResponse->getGuid());
                             $productExists = false;
@@ -87,10 +87,6 @@ class StoreProductsFromApiCommand extends AbstractCommand
                                 $product->save();
                             }
                         }
-                        foreach ($products as $product) {
-                            $product->setAttribute('active', false);
-                            $product->save();
-                        }
                         if (count($productResponses) < ResponseHelper::MAXIMUM_ITEMS_PER_PAGE) {
                             break;
                         }
@@ -100,6 +96,10 @@ class StoreProductsFromApiCommand extends AbstractCommand
                         $success = false;
                         break;
                     }
+                }
+                foreach ($products as $product) {
+                    $product->setAttribute('active', false);
+                    $product->save();
                 }
             }
 
