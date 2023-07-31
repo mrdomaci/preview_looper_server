@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\ClientServiceStatusEnum;
+use App\Exceptions\AddonInstallFailException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
 use App\Models\Client;
@@ -78,15 +79,13 @@ class StoreClientsFromApiCommand extends AbstractCommand
                     $client->setAttribute('last_synced_at', now());
                     
                     $this->info('Updating client id:' . (string) $client->getAttribute('id'));
+                } catch (AddonInstallFailException) {
+                    $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
+                    $clientService->save();
                 } catch (Throwable $t) {
-                    if ($t->getMessage() === 'Error in response requesting api access token [addon_not_installed]: Addon is not installed') {
-                        $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
-                        $clientService->save();
-                    } else {
-                        $this->error('Error updating client ' . $t->getMessage());
-                        LoggerHelper::log('Error updating client ' . $t->getMessage());
-                        $success = false;
-                    }
+                    $this->error('Error updating client ' . $t->getMessage());
+                    LoggerHelper::log('Error updating client ' . $t->getMessage());
+                    $success = false;
                 }
 
                 $client->save();
