@@ -28,7 +28,7 @@ class ConnectorBodyHelper
         foreach ($clientSettingsServiceOptions as $clientSettingsServiceOption) {
             $htmlString .= sprintf(" data-%s='%s'", $clientSettingsServiceOption->settingsService->getAttribute('name'), $clientSettingsServiceOption->settingsServiceOption->getAttribute('value'));
         }
-        $htmlString .= "<\/div>";
+        $htmlString .= "<//div>";
         return sprintf(self::TEMPLATE_INCLUDES, $htmlString);
     }
 }
