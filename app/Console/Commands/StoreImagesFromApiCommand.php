@@ -71,11 +71,11 @@ class StoreImagesFromApiCommand extends AbstractCommand
                         $imageResponses = ConnectorHelper::getProductImages($clientService, $productGuid);
                         $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get();
                         foreach ($imageResponses as $imageResponse) {
-                            $imageUrl = ResponseHelper::getUImageURL($eshopName, $imageResponse->getName());
-                            $request = Http::get($imageUrl);
-                            if ($request->status() !== 200) {
-                                continue;
-                            }
+                            // $imageUrl = ResponseHelper::getUImageURL($eshopName, $imageResponse->getName());
+                            // $request = Http::get($imageUrl);
+                            // if ($request->status() !== 200) {
+                            //     continue;
+                            // }
                             $this->info('Updating image ' . $imageResponse->getName() . ' for product ' . $productGuid);
                             $imageExists = false;
                             foreach ($images as $key => $image) {
