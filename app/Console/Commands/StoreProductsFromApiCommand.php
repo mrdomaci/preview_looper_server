@@ -62,8 +62,11 @@ class StoreProductsFromApiCommand extends AbstractCommand
                 $products = Product::where('client_id', $currentClientId)->where('active', true)->get();
                 for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
                     try {
-                        $productResponses = ConnectorHelper::getProducts($clientService, $page);
-                        foreach ($productResponses as $productResponse) {
+                        $productListResponse = ConnectorHelper::getProducts($clientService, $page);
+                        if ($productListResponse === null) {
+                            break;
+                        }
+                        foreach ($productListResponse->getProducts() as $productResponse) {
                             $this->info('Updating product ' . $productResponse->getGuid());
                             $productExists = false;
                             foreach ($products as $key => $product) {
@@ -88,7 +91,7 @@ class StoreProductsFromApiCommand extends AbstractCommand
                                 $product->save();
                             }
                         }
-                        if (count($productResponses) < ResponseHelper::MAXIMUM_ITEMS_PER_PAGE) {
+                        if ($productListResponse->getPage() === $productListResponse->getPageCount()) {
                             break;
                         }
                     } catch (ApiRequestFailException) {

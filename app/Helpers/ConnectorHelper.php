@@ -5,18 +5,14 @@ namespace App\Helpers;
 
 use App\Connector\EshopResponse;
 use App\Connector\ProductImageResponse;
-use App\Connector\ProductResponse;
+use App\Connector\ProductListResponse;
 use App\Connector\Request;
 use App\Connector\TemplateIncludeResponse;
-use App\Models\Client;
 use App\Models\ClientService;
 
 class ConnectorHelper
 {
-    /**
-     * @return array<ProductResponse>
-     */
-    public static function getProducts(ClientService $clientService, int $page): array
+    public static function getProducts(ClientService $clientService, int $page): ?ProductListResponse
     {
         $request = new Request($clientService);
         $request->getProducts($page);

@@ -58,15 +58,38 @@ class Response
         );
     }
 
-    /**
-     * @return array<ProductResponse>
-     */
-    public function getProducts(): array
+    public function getProducts(): ?ProductListResponse
     {
-        $result = [];
         if (ArrayHelper::containsKey($this->data, 'products') === false) {
-            return $result;
+            return null;
         }
+        if (ArrayHelper::containsKey($this->data, 'paginator') === false) {
+            return null;
+        }
+
+        if (ArrayHelper::containsKey($this->data['paginator'], 'totalCount') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['paginator'], 'page') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['paginator'], 'pageCount') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['paginator'], 'itemsOnPage') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['paginator'], 'itemsPerPage') === false) {
+            return null;
+        }
+        $productListResponse = new ProductListResponse(
+            $this->data['paginator']['totalCount'],
+            $this->data['paginator']['page'],
+            $this->data['paginator']['pageCount'],
+            $this->data['paginator']['itemsOnPage'],
+            $this->data['paginator']['itemsPerPage'],
+            []
+        );
         foreach ($this->data['products'] as $product) {
             $creationTime = null;
             $changeTime = null;
@@ -136,9 +159,9 @@ class Response
                     );
                 }
             }
-            $result[] = new ProductResponse($guid, $creationTime, $changeTime, $name, $voteAverageScore, $voteCount, $type, $visibility, $defaultCategory, $url, $supplier, $brand);
+            $productListResponse->addProduct(new ProductResponse($guid, $creationTime, $changeTime, $name, $voteAverageScore, $voteCount, $type, $visibility, $defaultCategory, $url, $supplier, $brand));
         }
-        return $result;
+        return $productListResponse;
     }
 
     /**
