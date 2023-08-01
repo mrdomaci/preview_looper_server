@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\ClientServiceStatusEnum;
+use App\Exceptions\ApiRequestFailException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
@@ -97,6 +98,9 @@ class StoreImagesFromApiCommand extends AbstractCommand
                         foreach ($images as $image) {
                             Image::destroy($image->getAttribute('id'));
                         }
+                    } catch (ApiRequestFailException) {
+                        $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
+                        $clientService->save();
                     } catch (Throwable $t) {
                         $this->error('Error updating images ' . $t->getMessage());
                         LoggerHelper::log('Error updating images ' . $t->getMessage());
