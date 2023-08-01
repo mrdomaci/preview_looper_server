@@ -1,7 +1,12 @@
 const pw_carousel_settings = document.getElementById('dynamic-preview-images');
-let pw_infinite_repeat = pw_carousel_settings.getAttribute('data-dynamic-preview-images.infinite_repeat');
-let pw_return_to_default = pw_carousel_settings.getAttribute('data-dynamic-preview-images.return_to_default');
-let pw_show_time = pw_carousel_settings.getAttribute('data-dynamic-preview-images.show_time');
+let pw_infinite_repeat = null;
+let pw_return_to_default = null;
+let pw_show_time = null;
+if (pw_carousel_settings !== null) {
+  pw_infinite_repeat = pw_carousel_settings.getAttribute('data-dynamic-preview-images.infinite_repeat');
+  pw_return_to_default = pw_carousel_settings.getAttribute('data-dynamic-preview-images.return_to_default');
+  pw_show_time = pw_carousel_settings.getAttribute('data-dynamic-preview-images.show_time');
+}
 let pw_image_prefix;
 if (pw_infinite_repeat === null) {
   pw_infinite_repeat = '0';
@@ -260,7 +265,12 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
       if (sessionStorage.getItem('pw_' + microDataValue) === null && response !== '' && response[microDataValue] !== undefined) {
         sessionStorage.setItem('pw_' + microDataValue, response[microDataValue]);
       }
-      let pw_images = sessionStorage.getItem('pw_' + microDataValue).split(',');
+      const pw_session_data = sessionStorage.getItem('pw_' + microDataValue);
+
+      if (pw_session_data === null) {
+        continue;
+      }
+      let pw_images = pw_session_data.split(',');
       pw_images = removeDuplicates(pw_images);
       if (pw_images[0] === 'undefined' || pw_images.length === 1) {
         continue;

@@ -31,7 +31,6 @@ class DeleteProductsApiCommand extends AbstractCommand
      */
     public function handle()
     {
-        $success = true;
         $clientId = $this->argument('client_id');
 
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
@@ -68,10 +67,6 @@ class DeleteProductsApiCommand extends AbstractCommand
                 break;
             }
         }
-        if ($success === true) {
-            return Command::SUCCESS;
-        } else {
-            return Command::FAILURE;
-        }
+        return Command::SUCCESS;
     }
 }
