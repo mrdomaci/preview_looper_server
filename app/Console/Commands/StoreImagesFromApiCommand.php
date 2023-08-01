@@ -101,6 +101,7 @@ class StoreImagesFromApiCommand extends AbstractCommand
                     } catch (ApiRequestFailException) {
                         $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
                         $clientService->save();
+                        break;
                     } catch (Throwable $t) {
                         $this->error('Error updating images ' . $t->getMessage());
                         LoggerHelper::log('Error updating images ' . $t->getMessage());
