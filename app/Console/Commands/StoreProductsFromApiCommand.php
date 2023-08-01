@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\ClientServiceStatusEnum;
+use App\Exceptions\ApiRequestFailException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
@@ -90,6 +91,9 @@ class StoreProductsFromApiCommand extends AbstractCommand
                         if (count($productResponses) < ResponseHelper::MAXIMUM_ITEMS_PER_PAGE) {
                             break;
                         }
+                    } catch (ApiRequestFailException) {
+                        $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
+                        $clientService->save();
                     } catch (Throwable $t) {
                         $this->error('Error updating products ' . $t->getMessage());
                         LoggerHelper::log('Error updating products ' . $t->getMessage());
