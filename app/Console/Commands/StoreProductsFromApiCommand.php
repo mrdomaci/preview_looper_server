@@ -94,6 +94,7 @@ class StoreProductsFromApiCommand extends AbstractCommand
                     } catch (ApiRequestFailException) {
                         $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
                         $clientService->save();
+                        break;
                     } catch (Throwable $t) {
                         $this->error('Error updating products ' . $t->getMessage());
                         LoggerHelper::log('Error updating products ' . $t->getMessage());
