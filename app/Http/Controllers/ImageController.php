@@ -40,7 +40,7 @@ class ImageController extends Controller
             }
         }
         if (count($missingProductGUIDs) > 0) {
-            WebHookHelper::jenkinsWebhookProduct(implode('|', $missingProductGUIDs));
+            WebHookHelper::jenkinsWebhookProduct($client->getAttribute('id'), implode('|', $missingProductGUIDs));
         }
 
         return response()->json($result);
