@@ -2,35 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\DataNotFoundException;
+use App\Enums\ClientServiceStatusEnum;
 use App\Helpers\ResponseHelper;
+use App\Helpers\WebHookHelper;
 use App\Models\Client;
-use App\Models\Image;
+use App\Models\ClientService;
 use App\Models\Product;
+use App\Models\Service;
 use Illuminate\Http\JsonResponse;
 
 class ImageController extends Controller
 {
     public function list(string $clientId, string $productGUIDs): JsonResponse
-    {
-        try {
-            $client = Client::where('eshop_id', (int) $clientId)->first();
-        } catch (\Throwable $e) {
+    { 
+        $client = Client::where('eshop_id', (int) $clientId)->first();
+        if ($client === null) {
             return response()->json(['error' => 'Client not found'], 404);
         }
-        $productGUIDs = explode('|', $productGUIDs);
-        try {
-            $products = Product::select('id')->where('client_id', $client->getAttribute('id'))->whereIn('guid', $productGUIDs)->get();
-            $productIDs = [];
-            foreach ($products->toArray() as $product) {
-                $productIDs[] = (int) $product['id'];
-            }
-            $images = Image::where('client_id', $client->getAttribute('id'))->whereIn('product_id', $productIDs)->get();
-        } catch (\Throwable $e) {
-            throw new DataNotFoundException($e);
+        $clientService =  ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', Service::DYNAMIC_PREVIEW_IMAGES)->where('status', ClientServiceStatusEnum::ACTIVE)->first();
+        if ($clientService === null) {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
-        $imagesResponse = ResponseHelper::getImageResponseArray($images, $client);
+        $productGUIDs = explode('|', $productGUIDs);
+        $missingProductGUIDs = [];
+        $products = Product::where('client_id', $client->getAttribute('id'))->whereIn('guid', $productGUIDs)->get();
+        $result = [];
+        foreach ($products as $product) {
+            $images = $product->images()->get();
+            if (count($images) > 0) {
+                $imageLinks = [];
+                foreach ($images as $image) {
+                    $imageLinks[] = ResponseHelper::getUImageURL($client->getAttribute('eshop_name'), $image->getAttribute('name'));
+                }
+                $result[$product->getAttribute('guid')] = $imageLinks;
+            } else {
+                $missingProductGUIDs[] = $product->getAttribute('guid');
+            }
+        }
+        if (count($missingProductGUIDs) > 0) {
+            WebHookHelper::jenkinsWebhookProduct(implode('|', $missingProductGUIDs));
+        }
 
-        return response()->json($imagesResponse);
+        return response()->json($result);
     }
 }

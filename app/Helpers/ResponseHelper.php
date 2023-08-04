@@ -4,30 +4,13 @@ declare(strict_types=1);
 namespace App\Helpers;
 
 use App\Exceptions\RequestFailException;
-use App\Models\Client;
-use App\Models\Image;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 
 class ResponseHelper
 {
     public const MAXIMUM_ITERATIONS = 10000;
     public const MAXIMUM_ITEMS_PER_PAGE = 20;
     private const CDN_URL = 'https://cdn.myshoptet.com/usr/%s/user/shop/detail/%s';
-    /**
-     * @param Collection<Image> $images
-     * @param Client $client
-     * @return array<int|string, array<int|string, mixed>>
-     */
-    public static function getImageResponseArray(Collection $images, Client $client): array
-    {
-        $response = [];
-        foreach($images as $image) {
-            $product = $image->product;
-            $response[$product->getAttribute('guid')][] = self::getUImageURL((string) $client->getAttribute('eshop_name'), $image->getAttribute('name'));
-        }
-        return $response;
-    }
 
     /**
      * @param array<string, string> $response
