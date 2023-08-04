@@ -6,16 +6,14 @@ use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
-use App\Helpers\ResponseHelper;
 use App\Models\ClientService;
 use App\Models\Image;
 use App\Models\Product;
 use App\Models\Service;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
 use Throwable;
 
-class StoreImagesFromApiCommand extends AbstractCommand
+class StoreImagesByClientFromApiCommand extends AbstractCommand
 {
     /**
      * The name and signature of the console command.
@@ -47,8 +45,6 @@ class StoreImagesFromApiCommand extends AbstractCommand
                 $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
                     ->where('status', ClientServiceStatusEnum::ACTIVE)
                     ->where('client_id', $clientId)
-                    ->limit($this->getIterationCount())
-                    ->offset($this->getOffset($i))
                     ->get();
             } else {
                 $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
@@ -63,7 +59,6 @@ class StoreImagesFromApiCommand extends AbstractCommand
                 $client = $clientService->client()->first();
                 $currentClientId = $client->getAttribute('id');
                 $this->info('Updating images for client id:' . (string)$currentClientId);
-                $eshopName = $client->getAttribute('eshop_name');
                 $products = Product::where('client_id', $currentClientId)->where('active', true)->get();
                 foreach($products as $product) {
                     $productGuid = $product->getAttribute('guid');
@@ -72,11 +67,6 @@ class StoreImagesFromApiCommand extends AbstractCommand
                         $imageResponses = ConnectorHelper::getProductImages($clientService, $productGuid);
                         $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get();
                         foreach ($imageResponses as $imageResponse) {
-                            // $imageUrl = ResponseHelper::getUImageURL($eshopName, $imageResponse->getName());
-                            // $request = Http::get($imageUrl);
-                            // if ($request->status() !== 200) {
-                            //     continue;
-                            // }
                             $this->info('Updating image ' . $imageResponse->getName() . ' for product ' . $productGuid);
                             $imageExists = false;
                             foreach ($images as $key => $image) {

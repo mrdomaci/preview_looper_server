@@ -33,9 +33,14 @@ class WebHookHelper
         return (int)$webhook['eshopId'];
     }
 
-    public static function jenkinsWebhook(int $clientId): Response
+    public static function jenkinsWebhookClient(int $clientId): Response
     {
-        $url = self::JENKINS_TRIGGER_URL . env('HASH');
+        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_CLIENT');
         return Http::post($url, ['client' => (string) $clientId]);
+    }
+    public static function jenkinsWebhookProduct(string $productGUIDs): Response
+    {
+        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_PRODUCT');
+        return Http::post($url, ['guids' => $productGUIDs]);
     }
 }
