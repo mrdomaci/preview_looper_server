@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\ClientServiceStatusEnum;
 use App\Helpers\ConnectorHelper;
+use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\Image;
 use App\Models\Product;
@@ -18,7 +19,7 @@ class StoreImagesByProductFromApiCommand extends AbstractCommand
      *
      * @var string
      */
-    protected $signature = 'update:images:guids {guids?}';
+    protected $signature = 'update:images:guids {client_id?} {guids?}';
 
     /**
      *
@@ -33,31 +34,23 @@ class StoreImagesByProductFromApiCommand extends AbstractCommand
      */
     public function handle()
     {
+        $clientId = $this->argument('client_id');
+        if ($clientId === null) {
+            $this->error('Client ID not set');
+            return Command::FAILURE;
+        }
+        $client = Client::where('id', $clientId)->first();
+        if ($client === null) {
+            $this->error('Client not found');
+            return Command::FAILURE;
+        }
         $productGUIDs = $this->argument('guids');
         if ($productGUIDs === null) {
-            $this->error('Product GUIDs not found');
+            $this->error('Product GUIDs not set');
             return Command::FAILURE;
         }
 
         $service = Service::find(Service::DYNAMIC_PREVIEW_IMAGES);
-        $guids = explode('|', $productGUIDs);
-        $products = Product::whereIn('guid', $guids)->where('active', true)->get();
-        if (count($products) === 0) {
-            $this->error('Products not found');
-            return Command::FAILURE;
-        }
-
-        $clientId = null;
-        foreach ($products as $product) {
-            $client = $product->client()->first();
-            $clientId = $client->getAttribute('id');
-            break;
-        }
-        if ($clientId === null) {
-            $this->error('Client not found');
-            return Command::FAILURE;
-        }
-
         $clientService = ClientService::where('service_id', $service->getAttribute('id'))
             ->where('status', ClientServiceStatusEnum::ACTIVE)
             ->where('client_id', $clientId)
@@ -65,6 +58,13 @@ class StoreImagesByProductFromApiCommand extends AbstractCommand
 
         if ($clientService === null) {
             $this->error('Client service not found');
+            return Command::FAILURE;
+        }
+
+        $guids = explode('|', $productGUIDs);
+        $products = Product::whereIn('guid', $guids)->where('client_id', $client->getAttribute('id'))->where('active', true)->get();
+        if (count($products) === 0) {
+            $this->error('Products not found');
             return Command::FAILURE;
         }
 
