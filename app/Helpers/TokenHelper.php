@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Helpers;
 
 use App\Exceptions\AddonNotInstalledException;
+use App\Exceptions\AddonSuspendedException;
 use App\Exceptions\ApiAccessTokenNotFoundException;
 use App\Exceptions\ApiRequestFailException;
 use App\Models\ClientService;
@@ -25,6 +26,9 @@ class TokenHelper
         if (ArrayHelper::containsKey($response, 'error') === true) {
             if ($response['error'] === 'addon_not_installed') {
                 throw new AddonNotInstalledException('Addon not installed', 401);
+            }
+            if ($response['error'] === 'addon_suspended') {
+                throw new AddonSuspendedException('Addon suspended', 401);
             }
             throw new ApiRequestFailException(new Exception('Error in response requesting api access token [' . $response['error'] . ']: ' . $response['error_description']));
         }
