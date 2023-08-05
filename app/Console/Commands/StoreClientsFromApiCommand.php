@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\AddonNotInstalledException;
+use App\Exceptions\AddonSuspendedException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\WebHookHelper;
 use App\Models\Client;
@@ -58,6 +59,9 @@ class StoreClientsFromApiCommand extends AbstractCommand
                             WebHookHelper::jenkinsWebhookClient($client->getAttribute('id'));
                         }
                     } catch (AddonNotInstalledException $e) {
+                        $clientService->setAttribute('status', ClientServiceStatusEnum::DELETED);
+                        $clientService->save();
+                    } catch (AddonSuspendedException $e) {
                         $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
                         $clientService->save();
                     } catch (Throwable $e) {
