@@ -24,7 +24,7 @@ class TokenHelper
         $response = json_decode($response, TRUE);
         if (ArrayHelper::containsKey($response, 'error') === true) {
             if ($response['error'] === 'addon_not_installed') {
-                throw new AddonNotInstalledException(new Exception('Addon not installed'));
+                throw new AddonNotInstalledException('Addon not installed', 401);
             }
             throw new ApiRequestFailException(new Exception('Error in response requesting api access token [' . $response['error'] . ']: ' . $response['error_description']));
         }
