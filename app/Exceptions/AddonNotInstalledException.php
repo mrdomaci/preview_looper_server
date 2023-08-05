@@ -1,12 +1,8 @@
 <?php
 namespace App\Exceptions;
 
-use Throwable;
+use Exception;
 
-class AddonNotInstalledException extends SlackException
+class AddonNotInstalledException extends Exception
 {
-    public function __construct(Throwable $t)
-    {
-        $this->report($t);
-    }
 }
