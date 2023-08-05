@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Helpers\ConnectorHelper;
+use App\Helpers\WebHookHelper;
 use App\Models\Client;
 use Illuminate\Console\Command;
 use Throwable;
@@ -50,9 +51,15 @@ class StoreClientsFromApiCommand extends AbstractCommand
                 foreach ($clientServices->get() as $clientService) {
                     try {
                         $clientResponse = ConnectorHelper::getEshop($clientService);
+                        $currentStatus = $clientService->getAttribute('status');
                         $clientService->setAttribute('status', ClientServiceStatusEnum::ACTIVE);
+                        $clientService->save();
+                        if ($currentStatus !== ClientServiceStatusEnum::ACTIVE) {
+                            WebHookHelper::jenkinsWebhookClient($client->getAttribute('id'));
+                        }
                     } catch (ApiRequestFailException) {
                         $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
+                        $clientService->save();
                     } catch (Throwable $e) {
                         $this->error($e->getMessage());
                     }
