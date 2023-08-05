@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Helpers\ConnectorHelper;
-use App\Helpers\LoggerHelper;
 use App\Models\Client;
 use Illuminate\Console\Command;
 use Throwable;
@@ -33,7 +32,6 @@ class StoreClientsFromApiCommand extends AbstractCommand
      */
     public function handle()
     {
-        $success = true;
         $clientId = $this->argument('client_id');
 
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
@@ -47,46 +45,36 @@ class StoreClientsFromApiCommand extends AbstractCommand
             }
             /** @var Client $client */
             foreach ($clients as $client) {
-                $update = false;
-                $clientService = null;
+                $clientResponse = null;
                 $clientServices = $client->services();
                 foreach ($clientServices->get() as $clientService) {
-                    if ($clientService->getAttribute('status') === ClientServiceStatusEnum::ACTIVE) {
-                        $update = true;
-                        break;
+                    try {
+                        $clientResponse = ConnectorHelper::getEshop($clientService);
+                        $clientService->setAttribute('status', ClientServiceStatusEnum::ACTIVE);
+                    } catch (ApiRequestFailException) {
+                        $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
+                    } catch (Throwable $e) {
+                        $this->error($e->getMessage());
                     }
                 }
-                if ($update === false) {
-                    continue;
-                }
-                if ($clientService === null) {
+                if ($clientResponse === null) {
                     continue;
                 }
 
-                try {
-                    $clientResponse = ConnectorHelper::getEshop($clientService);
-                    $client->setAttribute('eshop_name', $clientResponse->getName());
-                    $client->setAttribute('url', $clientResponse->getUrl());
-                    $client->setAttribute('eshop_category', $clientResponse->getCategory());
-                    $client->setAttribute('eshop_subtitle', $clientResponse->getSubtitle());
-                    $client->setAttribute('contact_person', $clientResponse->getContactPerson());
-                    $client->setAttribute('email', $clientResponse->getEmail());
-                    $client->setAttribute('phone', $clientResponse->getPhone());
-                    $client->setAttribute('street', $clientResponse->getStreet());
-                    $client->setAttribute('city', $clientResponse->getCity());
-                    $client->setAttribute('zip', $clientResponse->getZip());
-                    $client->setAttribute('country', $clientResponse->getCountry());
-                    $client->setAttribute('last_synced_at', now());
-                    
-                    $this->info('Updating client id:' . (string) $client->getAttribute('id'));
-                } catch (ApiRequestFailException) {
-                    $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
-                    $clientService->save();
-                } catch (Throwable $t) {
-                    $this->error('Error updating client ' . $t->getMessage());
-                    LoggerHelper::log('Error updating client ' . $t->getMessage());
-                    $success = false;
-                }
+                $client->setAttribute('eshop_name', $clientResponse->getName());
+                $client->setAttribute('url', $clientResponse->getUrl());
+                $client->setAttribute('eshop_category', $clientResponse->getCategory());
+                $client->setAttribute('eshop_subtitle', $clientResponse->getSubtitle());
+                $client->setAttribute('contact_person', $clientResponse->getContactPerson());
+                $client->setAttribute('email', $clientResponse->getEmail());
+                $client->setAttribute('phone', $clientResponse->getPhone());
+                $client->setAttribute('street', $clientResponse->getStreet());
+                $client->setAttribute('city', $clientResponse->getCity());
+                $client->setAttribute('zip', $clientResponse->getZip());
+                $client->setAttribute('country', $clientResponse->getCountry());
+                $client->setAttribute('last_synced_at', now());
+                
+                $this->info('Updating client id:' . (string) $client->getAttribute('id'));
 
                 $client->save();
             }
@@ -95,10 +83,6 @@ class StoreClientsFromApiCommand extends AbstractCommand
                 break;
             }
         }
-        if ($success === true) {
-            return Command::SUCCESS;
-        } else {
-            return Command::FAILURE;
-        }
+        return Command::SUCCESS;
     }
 }
