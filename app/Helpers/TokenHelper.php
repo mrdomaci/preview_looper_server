@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\ApiAccessTokenNotFoundException;
 use App\Exceptions\ApiRequestFailException;
 use App\Models\ClientService;
@@ -22,6 +23,9 @@ class TokenHelper
         curl_close($curl);
         $response = json_decode($response, TRUE);
         if (ArrayHelper::containsKey($response, 'error') === true) {
+            if ($response['error'] === 'addon_not_installed') {
+                throw new AddonNotInstalledException(new Exception('Addon not installed'));
+            }
             throw new ApiRequestFailException(new Exception('Error in response requesting api access token [' . $response['error'] . ']: ' . $response['error_description']));
         }
         if (ArrayHelper::containsKey($response, 'access_token') === false) {

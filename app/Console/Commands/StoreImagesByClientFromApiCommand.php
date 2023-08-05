@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\ClientServiceStatusEnum;
-use App\Exceptions\ApiRequestFailException;
+use App\Exceptions\AddonNotInstalledException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
 use App\Models\ClientService;
@@ -88,7 +88,7 @@ class StoreImagesByClientFromApiCommand extends AbstractCommand
                         foreach ($images as $image) {
                             Image::destroy($image->getAttribute('id'));
                         }
-                    } catch (ApiRequestFailException) {
+                    } catch (AddonNotInstalledException) {
                         $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
                         $clientService->save();
                         break;
