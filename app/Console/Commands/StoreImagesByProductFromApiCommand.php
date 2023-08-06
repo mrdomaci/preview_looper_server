@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\ClientServiceStatusEnum;
+use App\Exceptions\ApiRequestNonExistingResourceException;
 use App\Helpers\ConnectorHelper;
 use App\Models\Client;
 use App\Models\ClientService;
@@ -97,6 +98,8 @@ class StoreImagesByProductFromApiCommand extends AbstractCommand
                 foreach ($images as $image) {
                     Image::destroy($image->getAttribute('id'));
                 }
+            } catch (ApiRequestNonExistingResourceException $t) {
+                $this->error('Product ' . $productGuid . ' not found');
             } catch (Throwable $t) {
                 $this->error('Error updating images ' . $t->getMessage());
                 $success = false;
