@@ -2,14 +2,10 @@ const pw_carousel_settings = document.getElementById('dynamic-preview-images');
 let pw_infinite_repeat = null;
 let pw_return_to_default = null;
 let pw_show_time = null;
-let pw_initial_loop = null;
-let pw_apply_to = null;
 if (pw_carousel_settings !== null) {
   pw_infinite_repeat = pw_carousel_settings.getAttribute('data-dynamic-preview-images.infinite_repeat');
   pw_return_to_default = pw_carousel_settings.getAttribute('data-dynamic-preview-images.return_to_default');
   pw_show_time = pw_carousel_settings.getAttribute('data-dynamic-preview-images.show_time');
-  pw_initial_loop = pw_carousel_settings.getAttribute('data-dynamic-preview-images.initial_loop');
-  pw_apply_to = pw_carousel_settings.getAttribute('data-dynamic-preview-images.apply_to');
 }
 let pw_image_prefix;
 if (pw_infinite_repeat === null) {
@@ -22,14 +18,6 @@ if (pw_show_time === null) {
   pw_show_time = 1500;
 } else {
   pw_show_time = parseInt(pw_show_time);
-}
-if (pw_initial_loop === null) {
-  pw_initial_loop = '500';
-} else {
-  pw_initial_loop = parseInt(pw_initial_loop);
-}
-if (pw_apply_to === null) {
-  pw_apply_to = 'all';
 }
 
 let pw_global_products = [];
@@ -74,7 +62,7 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
     clearInterval(pw_running_interval);
     if (pw_return_to_default === '1' && pw_image_prefix) {
       const pw_product_element = pw_element.target;
-      const pw_img = pw_product_element.querySelector('img[data-micro], img[data-micro-image]');
+      const pw_img = pw_product_element.querySelector('img');
       const pw_id = pw_product_element.getAttribute('data-micro-identifier');
       const pw_product = getProduct(pw_id);
       if (pw_product && pw_product.images.length > 1) {
@@ -110,7 +98,7 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
   var pw_enter = function(pw_element) {
     const pw_product_element = pw_element.target;
     const pw_id = pw_product_element.getAttribute('data-micro-identifier');
-    const pw_img = pw_product_element.querySelector('img[data-micro], img[data-micro-image]');
+    const pw_img = pw_product_element.querySelector('img');
     const pw_product = getProduct(pw_id);
     let pw_current_img = pw_img.src;
     pw_image_prefix = pw_current_img;
@@ -118,38 +106,35 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
     pw_current_img = pw_current_img_array[pw_current_img_array.length - 1];
     pw_image_prefix = pw_image_prefix.substring(0, pw_image_prefix.length - pw_current_img.length);
     let pw_index = getIndex(pw_product, pw_current_img);
-    const cycleImages = () => {
+    const pw_interval_iD = setInterval(() => {
       pw_index = (pw_index + 1) % pw_product.images.length;
       if (pw_product.images.length === 0) {
         return;
       }
-      
-      const pw_image_name = pw_product.images[pw_index];
+      pw_image_name = pw_product.images[pw_index];
       if (pw_image_name === undefined) {
         return;
       }
-      
-      const pw_image_name_array = pw_image_name.split('/');
-      const pw_image_filename = pw_image_name_array[pw_image_name_array.length - 1];
-  
-      pw_img.src = pw_image_prefix + pw_image_filename;
-      
-      if (pw_infinite_repeat === '0' && pw_index === pw_product.images.length - 1) {
+      let pw_image_name_array = pw_image_name.split('/');
+      pw_image_name = pw_image_name_array[pw_image_name_array.length - 1];
+
+      if (pw_infinite_repeat === '0' && pw_index === pw_product.images.length ) {
         if (pw_return_to_default === '1') {
-          const pw_image_name_default = pw_product.images[0];
-          if (pw_image_name_default !== undefined) {
-            const pw_image_name_default_array = pw_image_name_default.split('/');
-            const pw_image_default_filename = pw_image_name_default_array[pw_image_name_default_array.length - 1];
-            pw_img.src = pw_image_prefix + pw_image_default_filename;
+          let pw_image_name_default = pw_product.images[0];
+          if (pw_image_name_default === undefined) {
+            return;
           }
+          let pw_image_name_default_array = pw_image_name_default.split('/');
+          pw_image_name_default = pw_image_name_default_array[pw_image_name_default_array.length - 1];
+          pw_img.src = pw_image_prefix + pw_image_name_default;
         }
         stopLooping(pw_element);
+      } else {
+        pw_img.src = pw_image_prefix + pw_image_name;
       }
-    };
-    setTimeout(cycleImages, pw_initial_loop);
-    const pw_interval_id = setInterval(cycleImages, pw_show_time);
-    pw_running_interval = pw_interval_id;
-  };  
+    }, pw_show_time);
+    pw_running_interval = pw_interval_iD;
+  };
 
   var pw_leave = function(pw_element) {
     stopLooping(pw_element);
@@ -172,7 +157,7 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
     if (Math.abs(pw_x_diff) > Math.abs(pw_y_diff)) {
       const pw_product_element = findParentElementByClassName(pw_element.target, 'p');
       const pw_id = pw_product_element.getAttribute('data-micro-identifier');
-      const pw_img = pw_product_element.querySelector('img[data-micro], img[data-micro-image]');
+      const pw_img = pw_product_element.querySelector('img');
       const pw_product = getProduct(pw_id);
       let pw_current_img = pw_img.src;
       pw_image_prefix = pw_current_img;
@@ -230,28 +215,23 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
     return findParentElementByClassName(pw_element.parentElement, pw_class_name);
   }
 
-  async function sendGetRequest(pw_project_id, pw_guid_string) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        let pw_url = 'https://slabihoud.cz/images/' + pw_project_id + '/' + pw_guid_string;
-        const pw_xhr = new XMLHttpRequest();
-        pw_xhr.open('GET', pw_url, true);
-        pw_xhr.onreadystatechange = async function () {
-          if (pw_xhr.readyState === 4) {
-            if (pw_xhr.status === 200) {
-              let pw_response = parseJSONToPwProductsResponse(pw_xhr.responseText);
-              resolve(pw_response);
-            } else {
-              console.error('Error:', pw_xhr.status, pw_xhr.statusText);
-              reject(new Error('XHR request failed'));
-            }
+  function sendGetRequest(pw_project_id, pw_guid_string) {
+    return new Promise((resolve, reject) => {
+      let pw_url = 'https://slabihoud.cz/images/' + pw_project_id + '/' + pw_guid_string;
+      const pw_xhr = new XMLHttpRequest();
+      pw_xhr.open('GET', pw_url, true);
+      pw_xhr.onreadystatechange = function () {
+        if (pw_xhr.readyState === 4) {
+          if (pw_xhr.status === 200) {
+            let pw_response = parseJSONToPwProductsResponse(pw_xhr.responseText);
+            resolve(pw_response);
+          } else {
+            console.error('Error:', pw_xhr.status, pw_xhr.statusText);
+            reject(new Error('XHR request failed'));
           }
-        };
-        pw_xhr.send();
-      } catch (error) {
-        console.error('Error sending XHR request:', error);
-        reject(error);
-      }
+        }
+      };
+      pw_xhr.send();
     });
   }
 
@@ -275,12 +255,20 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
     }
   }
 
-  function initPreviewImages(pw_elements, response) {
+  async function initPreviewImages(pw_elements, response) {
     for (let i = 0; i < pw_elements.length; i++) {
       const pw_element = pw_elements[i];
       const microDataValue = pw_element.getAttribute('data-micro-identifier');
       if (microDataValue === null) {
         continue;
+      }
+      if (response === null) {
+        const link = element.querySelector('a').href;
+        let images = await getHrefValues(link);
+        images = removeDuplicates(images);
+        products.push({ id: microDataValue, images: images});
+      } else {
+
       }
       if (sessionStorage.getItem('pw_' + microDataValue) === null && response !== '' && response[microDataValue] !== undefined) {
         sessionStorage.setItem('pw_' + microDataValue, response[microDataValue]);
@@ -296,13 +284,12 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
         continue;
       }
       pw_products.push({ id: microDataValue, images: pw_images});
-
-      if (pw_apply_to === 'all' || pw_apply_to === 'pc') {
-        pw_element.addEventListener('mouseenter', pw_enter, false);
-        pw_element.addEventListener('mouseleave', pw_leave, false);  
-      }    
-      const pw_image = pw_element.querySelector('img[data-micro], img[data-micro-image]');
-        if (pw_images && pw_images.length > 1 && screen.width < 768 && (pw_apply_to === 'all' || pw_apply_to === 'mobile')) {
+    
+      pw_element.addEventListener('mouseenter', pw_enter, false);
+      pw_element.addEventListener('mouseleave', pw_leave, false);
+    
+      const pw_image = pw_element.querySelector('img');
+        if (pw_images && pw_images.length > 1 && screen.width < 768) {
           pw_image.addEventListener('touchstart', handleTouchStart, false);
           pw_image.addEventListener('touchmove', handleTouchMove, false);
           pw_image.classList.add("overlay-on");
@@ -321,4 +308,40 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
         }
     }
     pw_global_products = pw_products;
+  }
+
+  function getHrefValues(url) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      let images = [];
+  
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(xhr.responseText, 'text/html');
+            const pThumbnailsInner = htmlDoc.querySelector('.p-thumbnails-inner');
+            if (pThumbnailsInner) {
+              const aTags = pThumbnailsInner.querySelectorAll('a');
+              aTags.forEach((a) => {
+                const hrefValue = a.getAttribute('href');
+                  if (hrefValue) {
+                    images.push(hrefValue);
+                  }
+              });
+            }
+            resolve(images);
+          } else {
+            reject(xhr.status);
+          }
+        }
+      };
+  
+      xhr.open('GET', url, true);
+      xhr.send();
+    });
+  }
+
+  function removeDuplicates(arr) {
+    return Array.from(new Set(arr));
   }
