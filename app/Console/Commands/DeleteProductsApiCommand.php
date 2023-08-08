@@ -47,7 +47,7 @@ class DeleteProductsApiCommand extends AbstractCommand
                 $delete = false;
                 $clientService = null;
                 $clientServices = $client->services();
-                foreach ($clientServices->get() as $clientService) {
+                foreach ($clientServices->get(['id', 'status']) as $clientService) {
                     if ($clientService->getAttribute('status') === ClientServiceStatusEnum::INACTIVE) {
                         $delete = true;
                         break;
