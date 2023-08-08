@@ -59,7 +59,7 @@ class StoreProductsFromApiCommand extends AbstractCommand
 
             foreach ($clientServices as $clientService) {
                 $currentClientId = $clientService->getAttribute('client_id');
-                $products = Product::where('client_id', $currentClientId)->where('active', true)->get();
+                $products = Product::where('client_id', $currentClientId)->where('active', true)->get(['id', 'guid', 'active']);
                 for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
                     try {
                         $productListResponse = ConnectorHelper::getProducts($clientService, $page);
@@ -104,6 +104,8 @@ class StoreProductsFromApiCommand extends AbstractCommand
                         $success = false;
                         break;
                     }
+                    $clientService->setAttribute('date_last_synced', now());
+                    $clientService->save();
                 }
                 foreach ($products as $product) {
                     $product->setAttribute('active', false);

@@ -56,7 +56,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
                         $clientService->setAttribute('status', ClientServiceStatusEnum::ACTIVE);
                         $clientService->save();
                         if ($currentStatus !== ClientServiceStatusEnum::ACTIVE) {
-                            WebHookHelper::jenkinsWebhookClient($client->getAttribute('id'));
+                            WebHookHelper::jenkinsWebhookUpdateClient($client->getAttribute('id'));
                         }
                     } catch (AddonNotInstalledException $e) {
                         $clientService->setAttribute('status', ClientServiceStatusEnum::DELETED);

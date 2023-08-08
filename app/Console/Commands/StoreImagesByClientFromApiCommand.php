@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\AddonNotInstalledException;
+use App\Exceptions\ApiRequestNonExistingResourceException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
 use App\Models\ClientService;
@@ -56,16 +57,16 @@ class StoreImagesByClientFromApiCommand extends AbstractCommand
 
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
-                $client = $clientService->client()->first();
+                $client = $clientService->client()->first(['id']);
                 $currentClientId = $client->getAttribute('id');
                 $this->info('Updating images for client id:' . (string)$currentClientId);
-                $products = Product::where('client_id', $currentClientId)->where('active', true)->get();
+                $products = Product::where('client_id', $currentClientId)->where('active', true)->get(['id', 'guid']);
                 foreach($products as $product) {
                     $productGuid = $product->getAttribute('guid');
                     $productId = $product->getAttribute('id');
                     try {
                         $imageResponses = ConnectorHelper::getProductImages($clientService, $productGuid);
-                        $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get();
+                        $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get(['id', 'name']);
                         foreach ($imageResponses as $imageResponse) {
                             $this->info('Updating image ' . $imageResponse->getName() . ' for product ' . $productGuid);
                             $imageExists = false;
@@ -88,6 +89,13 @@ class StoreImagesByClientFromApiCommand extends AbstractCommand
                         foreach ($images as $image) {
                             Image::destroy($image->getAttribute('id'));
                         }
+                    } catch (ApiRequestNonExistingResourceException $t) {
+                        Product::destroy($productId);
+                        $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get(['id', 'name']);
+                        foreach ($images as $image) {
+                            Image::destroy($image->getAttribute('id'));
+                        }
+                        $this->error('Product ' . $productGuid . ' not found');
                     } catch (AddonNotInstalledException) {
                         $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
                         $clientService->save();
@@ -99,7 +107,6 @@ class StoreImagesByClientFromApiCommand extends AbstractCommand
                         break;
                     }
                 }
-                $client->setAttribute('last_synced_at', now());
                 $client->save();
             }
             

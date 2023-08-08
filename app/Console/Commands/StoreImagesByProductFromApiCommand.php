@@ -63,7 +63,7 @@ class StoreImagesByProductFromApiCommand extends AbstractCommand
         }
 
         $guids = explode('|', $productGUIDs);
-        $products = Product::whereIn('guid', $guids)->where('client_id', $client->getAttribute('id'))->where('active', true)->get();
+        $products = Product::whereIn('guid', $guids)->where('client_id', $client->getAttribute('id'))->where('active', true)->get(['id', 'guid']);
         if (count($products) === 0) {
             $this->error('Products not found');
             return Command::FAILURE;
@@ -75,7 +75,7 @@ class StoreImagesByProductFromApiCommand extends AbstractCommand
             $productId = $product->getAttribute('id');
             try {
                 $imageResponses = ConnectorHelper::getProductImages($clientService, $productGuid);
-                $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get();
+                $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get(['id', 'name']);
                 foreach ($imageResponses as $imageResponse) {
                     $this->info('Updating image ' . $imageResponse->getName() . ' for product ' . $productGuid);
                     $imageExists = false;
