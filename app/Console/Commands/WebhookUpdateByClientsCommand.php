@@ -36,7 +36,7 @@ class WebhookUpdateByClientsCommand extends AbstractCommand
         $dateLastSync = now()->subHours(12);
         $service = Service::find(Service::DYNAMIC_PREVIEW_IMAGES);
         try {
-            $clientServices = ClientService::where('service_id', $service->getAttribute('id'))->where('status', ClientServiceStatusEnum::ACTIVE)->where('date_last_sync', '<=', $dateLastSync)->first();
+            $clientServices = ClientService::where('service_id', $service->getAttribute('id'))->where('status', ClientServiceStatusEnum::ACTIVE)->where('date_last_synced', '<=', $dateLastSync)->first();
         } catch (Throwable) {
             $this->info('No clients to update');
             return Command::SUCCESS;
