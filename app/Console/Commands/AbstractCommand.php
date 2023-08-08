@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 
 abstract class AbstractCommand extends Command
 {
-    private const MAXIMUM_ITERATIONS = 1000;
+    private const MAXIMUM_ITERATIONS = 10000;
     private const ITERATION_COUNT = 100;
 
     protected function getMaxIterationCount(): int

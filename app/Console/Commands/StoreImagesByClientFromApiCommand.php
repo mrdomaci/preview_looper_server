@@ -60,52 +60,59 @@ class StoreImagesByClientFromApiCommand extends AbstractCommand
                 $client = $clientService->client()->first(['id']);
                 $currentClientId = $client->getAttribute('id');
                 $this->info('Updating images for client id:' . (string)$currentClientId);
-                $products = Product::where('client_id', $currentClientId)->where('active', true)->get(['id', 'guid']);
-                foreach($products as $product) {
-                    $productGuid = $product->getAttribute('guid');
-                    $productId = $product->getAttribute('id');
-                    try {
-                        $imageResponses = ConnectorHelper::getProductImages($clientService, $productGuid);
-                        $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get(['id', 'name']);
-                        foreach ($imageResponses as $imageResponse) {
-                            $this->info('Updating image ' . $imageResponse->getName() . ' for product ' . $productGuid);
-                            $imageExists = false;
-                            foreach ($images as $key => $image) {
-                                if ($image->getAttribute('name') === $imageResponse->getCdnName()) {
-                                    unset($images[$key]);
-                                    $imageExists = true;
-                                    break;
+                $productOffsetId = 0;
+                for ($j = 0; $j < $this->getMaxIterationCount(); $j++) {
+                    $products = Product::where('client_id', $currentClientId)->where('active', true)->where('id', '>', $productOffsetId)->limit(10)->get(['id', 'guid']);
+                    foreach($products as $product) {
+                        $productGuid = $product->getAttribute('guid');
+                        $productId = $product->getAttribute('id');
+                        $productOffsetId = $productId;
+                        try {
+                            $imageResponses = ConnectorHelper::getProductImages($clientService, $productGuid);
+                            $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get(['id', 'name']);
+                            foreach ($imageResponses as $imageResponse) {
+                                $this->info('Updating image ' . $imageResponse->getName() . ' for product ' . $productGuid);
+                                $imageExists = false;
+                                foreach ($images as $key => $image) {
+                                    if ($image->getAttribute('name') === $imageResponse->getCdnName()) {
+                                        unset($images[$key]);
+                                        $imageExists = true;
+                                        break;
+                                    }
                                 }
+                                if ($imageExists) {
+                                    continue;
+                                }
+                                $image = new Image();
+                                $image->setAttribute('client_id', $currentClientId);
+                                $image->setAttribute('product_id', $productId);
+                                $image->setAttribute('name', $imageResponse->getSeoName());
+                                $image->save();
                             }
-                            if ($imageExists) {
-                                continue;
+                            foreach ($images as $image) {
+                                Image::destroy($image->getAttribute('id'));
                             }
-                            $image = new Image();
-                            $image->setAttribute('client_id', $currentClientId);
-                            $image->setAttribute('product_id', $productId);
-                            $image->setAttribute('name', $imageResponse->getSeoName());
-                            $image->save();
+                        } catch (ApiRequestNonExistingResourceException $t) {
+                            Product::destroy($productId);
+                            $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get(['id', 'name']);
+                            foreach ($images as $image) {
+                                Image::destroy($image->getAttribute('id'));
+                            }
+                            $this->error('Product ' . $productGuid . ' not found');
+                        } catch (AddonNotInstalledException) {
+                            $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
+                            $clientService->save();
+                            break;
+                        } catch (Throwable $t) {
+                            $this->error('Error updating images ' . $t->getMessage());
+                            LoggerHelper::log('Error updating images ' . $t->getMessage());
+                            $success = false;
+                            break;
                         }
-                        foreach ($images as $image) {
-                            Image::destroy($image->getAttribute('id'));
-                        }
-                    } catch (ApiRequestNonExistingResourceException $t) {
-                        Product::destroy($productId);
-                        $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get(['id', 'name']);
-                        foreach ($images as $image) {
-                            Image::destroy($image->getAttribute('id'));
-                        }
-                        $this->error('Product ' . $productGuid . ' not found');
-                    } catch (AddonNotInstalledException) {
-                        $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
-                        $clientService->save();
-                        break;
-                    } catch (Throwable $t) {
-                        $this->error('Error updating images ' . $t->getMessage());
-                        LoggerHelper::log('Error updating images ' . $t->getMessage());
-                        $success = false;
-                        break;
                     }
+                    unset($products);
+                    unset($imageResponses);
+                    unset($images);
                 }
                 $client->save();
             }
