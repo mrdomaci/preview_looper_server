@@ -21,7 +21,8 @@ class ClientService extends Model
         'service_id',
         'oauth_access_token',
         'status',
-        'access_token'
+        'access_token',
+        'country',
     ];
 
     /**
@@ -41,7 +42,7 @@ class ClientService extends Model
         return $this->belongsTo(Service::class);
     }
 
-    public static function updateOrCreate(Client $client, Service $service, string $oAuthAccessToken): ClientService
+    public static function updateOrCreate(Client $client, Service $service, string $oAuthAccessToken, string $country): ClientService
     {
         $clientService = ClientService::where('client_id', $client->getAttribute('id'))
             ->where('service_id', $service->getAttribute('id'))
@@ -53,6 +54,7 @@ class ClientService extends Model
         }
         $clientService->setAttribute('oauth_access_token', $oAuthAccessToken);
         $clientService->setAttribute('status', 'active');
+        $clientService->setAttribute('country', $country);
         $clientService->save();
         return $clientService;
     }

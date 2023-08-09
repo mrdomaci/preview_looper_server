@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\ApiRequestFailException;
-use App\Helpers\ArrayHelper;
 use App\Helpers\AuthorizationHelper;
 use App\Helpers\ConnectorBodyHelper;
 use App\Helpers\ConnectorHelper;
@@ -25,8 +24,9 @@ use Illuminate\Http\Response;
 
 class ClientController extends Controller
 {
-    public function install(string $serviceUrlPath, Request $request): Response
+    public function install(string $country, string $serviceUrlPath, Request $request): Response
     {
+        $country = strtoupper($country);
         $code = $request->input('code');
         if ($code === NULL) {
             return Response('Bad request', 400);
@@ -37,7 +37,7 @@ class ClientController extends Controller
             abort(404);
         }
 
-        $response = AuthorizationHelper::getResponseForInstall($code, $serviceUrlPath);
+        $response = AuthorizationHelper::getResponseForInstall($country, $code, $serviceUrlPath);
 
         $oAuthAccessToken = ResponseHelper::getAccessToken($response);
         $eshopId = ResponseHelper::getEshopId($response);
@@ -45,7 +45,7 @@ class ClientController extends Controller
         $contactEmail = ResponseHelper::getFromResponse($response, 'contactEmail');
         
         $client = Client::updateOrCreate($eshopId, $eshopUrl, $contactEmail);
-        ClientService::updateOrCreate($client, $service, $oAuthAccessToken);
+        ClientService::updateOrCreate($client, $service, $oAuthAccessToken, $country);
 
         $webhookResponse = WebHookHelper::jenkinsWebhookClient($client->getAttribute('id'));
         if ($webhookResponse->failed()) {
@@ -95,25 +95,9 @@ class ClientController extends Controller
         return Response('ok', 200);
     }
 
-    public function getApiAccessToken(Client $client): string
+    public function settings(string $country,  string $serviceUrlPath, Request $request): View
     {
-        $apiAccessTokenUrl = env('SHOPTET_API_ACCESS_TOKEN_URL');
-
-        $OauthAccessToken = $client->getAttribute('oauth_access_token');
-        $curl = curl_init($apiAccessTokenUrl);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $OauthAccessToken]);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-        $response = curl_exec($curl);
-        curl_close($curl);
-        $response = json_decode($response, TRUE);
-        if (ArrayHelper::containsKey($response, 'access_token') === false) {
-            return Response('Bad request', 400);
-        }
-        return $response['access_token'];
-    }
-
-    public function settings(string $serviceUrlPath, Request $request): View
-    {
+        $country = strtoupper($country);
         $service = Service::where('url-path', $serviceUrlPath)->first();
         if ($service === null) {
             abort(404);
@@ -139,7 +123,7 @@ class ClientController extends Controller
                 throw new ApiRequestFailException(new Exception('Base OAuth URL not found in session or response for client ' . $client->getAttribute('eshop_id')));
             }
     
-            $accessToken = AuthorizationHelper::getAccessTokenForSettings($code, $serviceUrlPath, $eshopId, $language, $baseOAuthUrl);
+            $accessToken = AuthorizationHelper::getAccessTokenForSettings($country, $code, $serviceUrlPath, $eshopId, $language, $baseOAuthUrl);
             $request->session()->put('access_token', $accessToken);   
             $request->session()->put('base_oauth_url', $baseOAuthUrl);
         } else {
@@ -154,6 +138,7 @@ class ClientController extends Controller
         }
         return view($service->getAttribute('view-name') . '.settings',
             [
+                'country' => $country,
                 'service_url_path' => $serviceUrlPath,
                 'language' => $language,
                 'client' => $client,
@@ -161,8 +146,9 @@ class ClientController extends Controller
             ]);
     }
 
-    public function saveSettings(string $serviceUrlPath, string $language, string $eshopId, Request $request): \Illuminate\Http\RedirectResponse
+    public function saveSettings(string $country, string $serviceUrlPath, string $language, string $eshopId, Request $request): \Illuminate\Http\RedirectResponse
     {
+        $country = strtoupper($country);
         $service = Service::where('url-path', $serviceUrlPath)->first();
         if ($service === null) {
             abort(404);
@@ -184,8 +170,8 @@ class ClientController extends Controller
         $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
         if ($templateIncludeResponse->getTemplateIncludes() === []) {
             LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));
-            return redirect()->route('client.settings', ['serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
+            return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
         }
-        return redirect()->route('client.settings', ['serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', trans('general.saved'));
+        return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', trans('general.saved'));
     }
 }

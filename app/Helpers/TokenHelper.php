@@ -14,7 +14,12 @@ class TokenHelper
 {
     public static function getApiAccessToken(ClientService $clientService): string
     {
-        $apiAccessTokenUrl = env('SHOPTET_API_ACCESS_TOKEN_URL');
+        $country = $clientService->getAttribute('country');
+        if ($country === 'HU') {
+            $apiAccessTokenUrl = env('SHOPTET_API_ACCESS_TOKEN_URL_HU');
+        } else {
+            $apiAccessTokenUrl = env('SHOPTET_API_ACCESS_TOKEN_URL_CZ');
+        }
 
         $OauthAccessToken = $clientService->getAttribute('oauth_access_token');
         $curl = curl_init($apiAccessTokenUrl);
