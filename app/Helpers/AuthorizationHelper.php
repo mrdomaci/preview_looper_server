@@ -16,18 +16,28 @@ class AuthorizationHelper
      * @return array<string, int|string>
      * @throws AddonInstallFailException
      */
-    public static function getResponseForInstall(string $code, string $serviceUrlPath): array
+    public static function getResponseForInstall(string $country, string $code, string $serviceUrlPath): array
     {
+        if ($country === 'HU') {
+            $clientId = env('SHOPTET_CLIENT_ID_HU');
+            $clientSecret = env('SHOPTET_CLIENT_SECRET_HU');
+            $oauthServerTokenUrl = env('SHOPTET_OAUTH_SERVER_TOKEN_URL_HU');
+        } else {
+            $clientId = env('SHOPTET_CLIENT_ID_CZ');
+            $clientSecret = env('SHOPTET_CLIENT_SECRET_CZ');
+            $oauthServerTokenUrl = env('SHOPTET_OAUTH_SERVER_TOKEN_URL_CZ');
+        }
+
         $data = [
-            'client_id' => env('SHOPTET_CLIENT_ID'),
-            'client_secret' => env('SHOPTET_CLIENT_SECRET'), 
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret, 
             'code' => $code,
             'grant_type' => 'authorization_code',
             'redirect_uri' => Route('client.install', ['serviceUrlPath' => $serviceUrlPath]),
             'scope' => 'api',
         ];
 
-        $curl = curl_init(env('SHOPTET_OAUTH_SERVER_TOKEN_URL'));
+        $curl = curl_init($oauthServerTokenUrl);
         curl_setopt($curl, CURLOPT_POST, TRUE);
         curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
@@ -45,11 +55,18 @@ class AuthorizationHelper
         return $response;
     }
 
-    public static function getAccessTokenForSettings(string $code, string $serviceUrlPath, string $eshopId, string $language, ?string $baseOAuthUrl): string
+    public static function getAccessTokenForSettings(string $country, string $code, string $serviceUrlPath, string $eshopId, string $language, ?string $baseOAuthUrl): string
     {
+        if ($country === 'HU') {
+            $clientId = env('SHOPTET_CLIENT_ID_HU');
+            $clientSecret = env('SHOPTET_CLIENT_SECRET_HU');
+        } else {
+            $clientId = env('SHOPTET_CLIENT_ID_CZ');
+            $clientSecret = env('SHOPTET_CLIENT_SECRET_CZ');
+        }
         $data = [
-            'client_id' => env('SHOPTET_CLIENT_ID'),
-            'client_secret' => env('SHOPTET_CLIENT_SECRET'), 
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret, 
             'code' => $code,
             'grant_type' => 'authorization_code',
             'redirect_uri' => Route('client.settings', ['serviceUrlPath' => $serviceUrlPath]),

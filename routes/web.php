@@ -20,13 +20,13 @@ Route::get('/', [HomepageController::class, 'index'])->name('welcome');
 Route::get('/plugin/{serviceUrlPath}', [HomepageController::class, 'plugin'])->name('plugin');
 Route::get('/plugin/{serviceUrlPath}/terms', [HomepageController::class, 'terms'])->name('terms');
 
-Route::get('/addon-install/{serviceUrlPath}', [ClientController::class, 'install'])->name('client.install');
+Route::get('/addon-install/{country}/{serviceUrlPath}', [ClientController::class, 'install'])->name('client.install');
+Route::get('/client-settings/{country}/{serviceUrlPath}',[ClientController::class, 'settings'])->name('client.settings');
+Route::post('/client-settings/{country}/{serviceUrlPath}/{language}/{eshopId}',[ClientController::class, 'saveSettings'])->name('client.saveSettings');
+
 Route::get('/addon-uninstall/{serviceUrlPath}', [ClientController::class, 'uninstall'])->name('client.uninstall');
 Route::get('/addon-deactivate/{serviceUrlPath}', [ClientController::class, 'deactivate'])->name('client.deactivate');
 Route::get('/addon-activate/{serviceUrlPath}', [ClientController::class, 'activate'])->name('client.activate');
-
-Route::get('/client-settings/{serviceUrlPath}',[ClientController::class, 'settings'])->name('client.settings');
-Route::post('/client-settings/{serviceUrlPath}/{language}/{eshopId}',[ClientController::class, 'saveSettings'])->name('client.saveSettings');
 
 Route::get('/locale/{locale}', [HomepageController::class, 'setLocale'])->name('homepage.setLocale');
 
