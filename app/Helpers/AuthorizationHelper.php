@@ -33,7 +33,7 @@ class AuthorizationHelper
             'client_secret' => $clientSecret, 
             'code' => $code,
             'grant_type' => 'authorization_code',
-            'redirect_uri' => Route('client.install', ['serviceUrlPath' => $serviceUrlPath]),
+            'redirect_uri' => Route('client.install', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath]),
             'scope' => 'api',
         ];
 
@@ -69,7 +69,7 @@ class AuthorizationHelper
             'client_secret' => $clientSecret, 
             'code' => $code,
             'grant_type' => 'authorization_code',
-            'redirect_uri' => Route('client.settings', ['serviceUrlPath' => $serviceUrlPath]),
+            'redirect_uri' => Route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath]),
             'scope' => 'basic_eshop',
         ];
         
