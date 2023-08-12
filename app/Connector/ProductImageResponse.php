@@ -9,7 +9,7 @@ class ProductImageResponse
 {
     public function __construct(
         private string $name,
-        private int $priority,
+        private ?int $priority,
         private string $seoName,
         private string $cdnName,
         private ?string $description,
@@ -22,7 +22,7 @@ class ProductImageResponse
         return $this->name;
     }
 
-    public function getPriority(): int
+    public function getPriority(): ?int
     {
         return $this->priority;
     }
