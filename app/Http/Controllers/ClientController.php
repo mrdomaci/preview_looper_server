@@ -134,8 +134,9 @@ class ClientController extends Controller
         $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
         LocaleHelper::setLocale($language);
         if ($checkEshopId !== $client->getAttribute('eshop_id')) {
-            LoggerHelper::log('Eshop ID mismatch for client ' . $client->getAttribute('id') . ' from DB ' . $client->getAttribute('eshop_id') . ' from API ' . $checkEshopId); 
-            abort(401);
+            LoggerHelper::log('Eshop ID mismatch for client ' . $client->getAttribute('id') . ' from DB ' . $client->getAttribute('eshop_id') . ' from API ' . $checkEshopId);
+            //loosen security for now 
+            //abort(401);
         }
         return view($service->getAttribute('view-name') . '.settings',
             [
