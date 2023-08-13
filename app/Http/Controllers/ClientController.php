@@ -108,27 +108,27 @@ class ClientController extends Controller
         $client = Client::getByEshopId((int) $eshopId);
         $serviceSettings = SettingsService::where('service_id', $service->getAttribute('id'))->orderBy('sort')->get();
         $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $service->getAttribute('id'))->first();
-        if ($request->session()->has('access_token') === false) {
+        if ($request->session()->has($eshopId . '_access_token') === false) {
             $code = $request->input('code');
             $eshopResponse = ConnectorHelper::getEshop($clientService);
             $baseOAuthUrl = null;
             if ($eshopResponse->getOauthUrl() !== null) {
                 $baseOAuthUrl = $eshopResponse->getOauthUrl();
-                session(['base_oauth_url' => $baseOAuthUrl]);
+                session([$eshopId . '_base_oauth_url' => $baseOAuthUrl]);
             }
             if ($baseOAuthUrl === null) {
-                $baseOAuthUrl = session('base_oauth_url');
+                $baseOAuthUrl = session($eshopId . '_base_oauth_url');
             }
             if ($baseOAuthUrl === null) {
                 throw new ApiRequestFailException(new Exception('Base OAuth URL not found in session or response for client ' . $client->getAttribute('eshop_id')));
             }
     
             $accessToken = AuthorizationHelper::getAccessTokenForSettings($country, $code, $serviceUrlPath, $eshopId, $language, $baseOAuthUrl);
-            $request->session()->put('access_token', $accessToken);   
-            $request->session()->put('base_oauth_url', $baseOAuthUrl);
+            $request->session()->put($eshopId . '_access_token', $accessToken);   
+            $request->session()->put($eshopId . '_base_oauth_url', $baseOAuthUrl);
         } else {
-            $accessToken = $request->session()->get('access_token');
-            $baseOAuthUrl = $request->session()->get('base_oauth_url');
+            $accessToken = $request->session()->get($eshopId . '_access_token');
+            $baseOAuthUrl = $request->session()->get($eshopId . '_base_oauth_url');
         }
 
         $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
