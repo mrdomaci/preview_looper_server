@@ -56,13 +56,13 @@ class ClientController extends Controller
 
     public function deactivate(string $serviceUrlPath): Response
     {
+        LoggerHelper::log('deactivated');
         $service = Service::where('url-path', $serviceUrlPath)->first();
         if ($service === null) {
             abort(404);
         }
         $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_DEACTIVATE);
         $client = Client::getByEshopId($eshopId);
-
         ClientService::updateStatus($client, $service, ClientServiceStatusEnum::INACTIVE);
 
         return Response('ok', 200);
@@ -84,6 +84,7 @@ class ClientController extends Controller
 
     public function activate(string $serviceUrlPath): Response
     {
+        LoggerHelper::log('activated');
         $service = Service::where('url-path', $serviceUrlPath)->first();
         if ($service === null) {
             abort(404);
