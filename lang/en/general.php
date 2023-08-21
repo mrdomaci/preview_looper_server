@@ -17,4 +17,7 @@ return [
     'terms_content_header_5' => 'Support and Maintenance',
     'terms_content_header_6' => 'Liability',
     'privacy' => 'Privacy Policy',
+    'sync_now' => 'Sync Now',
+    'synced_scheduled' => 'The synchronization has been added to the queue and will be performed as soon as possible.',
+    'sync_info' => 'Synchronizations of data from the Shoptet API are triggered regularly twice a day. If you want to start synchronization manually, click the button below.'
 ];

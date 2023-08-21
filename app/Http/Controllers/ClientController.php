@@ -21,6 +21,7 @@ use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Throwable;
 
 class ClientController extends Controller
 {
@@ -147,7 +148,8 @@ class ClientController extends Controller
                 'service_url_path' => $serviceUrlPath,
                 'language' => $language,
                 'client' => $client,
-                'settings_service' => $serviceSettings
+                'settings_service' => $serviceSettings,
+                'last_synced' => $clientService->getAttribute('date_last_synced'),
             ]);
     }
 
@@ -178,5 +180,26 @@ class ClientController extends Controller
             return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
         }
         return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', trans('general.saved'));
+    }
+
+    public function sync(string $country, string $serviceUrlPath, string $language, string $eshopId, Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $country = strtoupper($country);
+        $service = Service::where('url-path', $serviceUrlPath)->first();
+        if ($service === null) {
+            abort(404);
+        }
+        if ($eshopId !== $request->input('eshop_id')) {
+            abort(403);
+        }
+        try {
+            $client = Client::getByEshopId((int) $eshopId);
+            WebHookHelper::jenkinsWebhookClient($client->getAttribute('id'));
+        } catch (Throwable $t) {
+            LoggerHelper::log('Webhook failed: ' . $t->getMessage());
+            return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
+        }
+
+        return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', trans('general.synced_scheduled'));
     }
 }
