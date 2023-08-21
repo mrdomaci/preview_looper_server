@@ -56,7 +56,6 @@ class ClientController extends Controller
 
     public function deactivate(string $serviceUrlPath): Response
     {
-        LoggerHelper::log('deactivated');
         $service = Service::where('url-path', $serviceUrlPath)->first();
         if ($service === null) {
             abort(404);
@@ -64,6 +63,7 @@ class ClientController extends Controller
         $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_DEACTIVATE);
         $client = Client::getByEshopId($eshopId);
         ClientService::updateStatus($client, $service, ClientServiceStatusEnum::INACTIVE);
+        LoggerHelper::log('Client ' . $client->getAttribute('id') . ' deactivated');
 
         return Response('ok', 200);
     }
@@ -78,21 +78,23 @@ class ClientController extends Controller
         $client = Client::getByEshopId($eshopId);
 
         ClientService::updateStatus($client, $service, ClientServiceStatusEnum::DELETED);
+        LoggerHelper::log('Client ' . $client->getAttribute('id') . ' uninstalled');
 
         return Response('ok', 200);
     }
 
     public function activate(string $serviceUrlPath): Response
     {
-        LoggerHelper::log('activated');
         $service = Service::where('url-path', $serviceUrlPath)->first();
         if ($service === null) {
             abort(404);
         }
-        $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_UNINSTALL);
+        $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_ACTIVATE);
         $client = Client::getByEshopId($eshopId);
 
         ClientService::updateStatus($client, $service, ClientServiceStatusEnum::ACTIVE);
+        LoggerHelper::log('Client ' . $client->getAttribute('id') . ' activated');
+        WebHookHelper::jenkinsWebhookClient($client->getAttribute('id'));
         return Response('ok', 200);
     }
 
