@@ -23,6 +23,7 @@ Route::get('/plugin/{serviceUrlPath}/terms', [HomepageController::class, 'terms'
 Route::get('/addon-install/{country}/{serviceUrlPath}', [ClientController::class, 'install'])->name('client.install');
 Route::get('/client-settings/{country}/{serviceUrlPath}',[ClientController::class, 'settings'])->name('client.settings');
 Route::post('/client-settings/{country}/{serviceUrlPath}/{language}/{eshopId}',[ClientController::class, 'saveSettings'])->name('client.saveSettings');
+Route::post('/client-sync/{country}/{serviceUrlPath}/{language}/{eshopId}',[ClientController::class, 'sync'])->name('client.sync');
 
 Route::get('/addon-uninstall/{serviceUrlPath}', [ClientController::class, 'uninstall'])->name('client.uninstall');
 Route::get('/addon-deactivate/{serviceUrlPath}', [ClientController::class, 'deactivate'])->name('client.deactivate');
