@@ -75,28 +75,14 @@ class StoreImagesByProductFromApiCommand extends AbstractCommand
             $productId = $product->getAttribute('id');
             try {
                 $imageResponses = ConnectorHelper::getProductImages($clientService, $productGuid);
-                $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get(['id', 'name']);
+                $this->info('Updating images for product ' . $productGuid);
+                Image::where('client_id', $clientId)->where('product_id', $productId)->delete();
                 foreach ($imageResponses as $imageResponse) {
-                    $this->info('Updating image ' . $imageResponse->getName() . ' for product ' . $productGuid);
-                    $imageExists = false;
-                    foreach ($images as $key => $image) {
-                        if ($image->getAttribute('name') === $imageResponse->getCdnName()) {
-                            unset($images[$key]);
-                            $imageExists = true;
-                            break;
-                        }
-                    }
-                    if ($imageExists) {
-                        continue;
-                    }
                     $image = new Image();
                     $image->setAttribute('client_id', $clientId);
                     $image->setAttribute('product_id', $productId);
                     $image->setAttribute('name', $imageResponse->getSeoName());
                     $image->save();
-                }
-                foreach ($images as $image) {
-                    Image::destroy($image->getAttribute('id'));
                 }
             } catch (ApiRequestNonExistingResourceException $t) {
                 $this->error('Product ' . $productGuid . ' not found');
