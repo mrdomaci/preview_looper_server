@@ -32,7 +32,7 @@ class ImageController extends Controller
             if (count($images) > 0) {
                 $imageLinks = [];
                 foreach ($images as $image) {
-                    $imageLinks[] = ResponseHelper::getUImageURL($client->getAttribute('eshop_name'), $image->getAttribute('name'));
+                    $imageLinks[] = $image->getAttribute('name');
                 }
                 $result[$product->getAttribute('guid')] = $imageLinks;
             } else {
