@@ -79,6 +79,7 @@ class StoreImagesByProductFromApiCommand extends AbstractCommand
                 Image::where('client_id', $clientId)->where('product_id', $productId)->delete();
                 foreach ($imageResponses as $imageResponse) {
                     $image = new Image();
+                    $image->setAttribute('hash', hash('sha256', $clientId . $imageResponse->getSeoName() . $productId));
                     $image->setAttribute('client_id', $clientId);
                     $image->setAttribute('product_id', $productId);
                     $image->setAttribute('name', $imageResponse->getSeoName());
