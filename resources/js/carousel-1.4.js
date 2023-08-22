@@ -291,12 +291,6 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
         pw_element.addEventListener('mouseleave', pw_leave, false);  
       }    
       const pw_image = pw_element.querySelector('img[data-micro], img[data-micro-image]');
-      pw_image.setAttribute('data-original-img-source', pw_image.src);
-      pw_image.setAttribute('data-micro-identifier-parent', microDataValue);
-      pw_image.addEventListener('error', function handleError() {
-        removeMissingImage(pw_image.src, pw_image.getAttribute('data-micro-identifier-parent'));
-        pw_image.src = pw_image.getAttribute('data-original-img-source');
-      });
         if (pw_images && pw_images.length > 1 && screen.width < 768 && (pw_apply_to === 'all' || pw_apply_to === 'mobile')) {
           pw_image.addEventListener('touchstart', handleTouchStart, false);
           pw_image.addEventListener('touchmove', handleTouchMove, false);
@@ -316,37 +310,4 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
         }
     }
     pw_global_products = pw_products;
-  }
-
-  function removeMissingImage(pw_missing_source, pw_product_identifier) {
-    let pw_missing_source_array = pw_missing_source.split('/');
-    pw_missing_source = pw_missing_source_array[pw_missing_source_array.length - 1];
-    for (let i = 0; i < pw_global_products.length; i++) {
-      if (pw_global_products[i].id === pw_product_identifier) {
-        for (let j = 0; j < pw_global_products[i].images.length; j++) {
-          if (pw_global_products[i].images[j] === pw_missing_source) {
-            pw_global_products[i].images.splice(j, 1);
-            break;
-          }
-        }
-        break;
-      }
-    }
-    let pw_session_data = sessionStorage.getItem('pw_' + pw_product_identifier);
-    let pw_session_data_array = pw_session_data.split(',');
-    let pw_new_session_data = '';
-    for (let i = 0; i < pw_session_data_array.length; i++) {
-      if (pw_session_data_array[i] === pw_missing_source) {
-        continue;
-      }
-      pw_new_session_data = pw_new_session_data + pw_session_data_array[i]
-      if (i !== pw_session_data_array.length - 1) {
-        pw_new_session_data = pw_new_session_data + ',';
-      }
-    }
-    sessionStorage.setItem('pw_' + pw_product_identifier, pw_new_session_data);
-    let pw_http = new XMLHttpRequest();
-    let pw_url_update='https://slabihoud.cz/update-product/' + pw_project_id + '/' + pw_product_identifier;
-    pw_http.open("GET", pw_url_update);
-    pw_http.send();
   }
