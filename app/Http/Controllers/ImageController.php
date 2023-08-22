@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ClientServiceStatusEnum;
-use App\Helpers\ResponseHelper;
 use App\Helpers\WebHookHelper;
 use App\Models\Client;
 use App\Models\ClientService;
@@ -13,9 +12,9 @@ use Illuminate\Http\JsonResponse;
 
 class ImageController extends Controller
 {
-    public function list(string $clientId, string $productGUIDs): JsonResponse
+    public function list(string $eshopID, string $productGUIDs): JsonResponse
     { 
-        $client = Client::where('eshop_id', (int) $clientId)->first();
+        $client = Client::where('eshop_id', (int) $eshopID)->first();
         if ($client === null) {
             return response()->json(['error' => 'Client not found'], 404);
         }
