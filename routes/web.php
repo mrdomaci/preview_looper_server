@@ -3,6 +3,7 @@
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,4 +32,5 @@ Route::get('/addon-activate/{serviceUrlPath}', [ClientController::class, 'activa
 
 Route::get('/locale/{locale}', [HomepageController::class, 'setLocale'])->name('homepage.setLocale');
 
-Route::get('/images/{clientId}/{productIds}', [ImageController::class, 'list'])->name('images.list')->middleware('cors');
+Route::get('/images/{eshopID}/{productGUIDs}', [ImageController::class, 'list'])->name('images.list')->middleware('cors');
+Route::get('/update-product/{eshopID}/{productGUID}', [ProductController::class, 'update'])->name('product.update')->middleware('cors');
