@@ -81,10 +81,7 @@ class StoreImagesByClientFromApiCommand extends AbstractCommand
                             }
                         } catch (ApiRequestNonExistingResourceException $t) {
                             Product::destroy($productId);
-                            $images = Image::where('client_id', $clientId)->where('product_id', $productId)->get(['id', 'name']);
-                            foreach ($images as $image) {
-                                Image::destroy($image->getAttribute('id'));
-                            }
+                            Image::where('client_id', $clientId)->where('product_id', $productId)->delete();
                             $this->error('Product ' . $productGuid . ' not found');
                         } catch (AddonNotInstalledException) {
                             $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
