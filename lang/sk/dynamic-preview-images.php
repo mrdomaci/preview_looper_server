@@ -47,4 +47,7 @@ return [
     'mobile_version_text' => 'Mobilné zobrazenie umožní prostredníctvom jednoduchých gest zákazníkovi prezerať obrázky produktu už v zozname tovaru.',
     'plugin_settings' => 'Nastavenie',
     'plugin_settings_text' => 'Je možné nastaviť časový interval pre zmenu obrázka, či sa má automatické prezeranie po zobrazení všetkých zastaviť a vrátiť pôvodné pri opustení oblasti kurzorom.',
+    'mobile_icons' => 'Vizualizácia počtu produktových obrázkov na telefóne',
+    'circle_icon' => 'Kruhové ikony',
+    'no_icon' => 'Bez ikon',
 ];

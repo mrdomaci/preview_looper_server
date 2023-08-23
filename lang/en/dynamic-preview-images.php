@@ -47,4 +47,7 @@ return [
     'mobile_version_text' => 'Mobile view allows customers to view product images directly in the product listing using simple gestures.',
     'plugin_settings' => 'Settings',
     'plugin_settings_text' => 'You can set the time interval for changing the image, whether automatic browsing should stop after displaying all images, and whether it should return to the original image when leaving the area with the cursor.',
+    'mobile_icons' => 'Visualization of the number of product images on mobile',
+    'circle_icon' => 'Circular icons',
+    'no_icon' => 'No icons',
 ];
