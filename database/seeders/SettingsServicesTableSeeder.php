@@ -33,6 +33,24 @@ class SettingsServicesTableSeeder extends Seeder
                 'service_id' => 1,
                 'type' => 'select',
             ],
+            [
+                'name' => 'dynamic-preview-images.initial_loop',
+                'sort' => 4,
+                'service_id' => 1,
+                'type' => 'select',
+            ],
+            [
+                'name' => 'dynamic-preview-images.apply_to',
+                'sort' => 5,
+                'service_id' => 1,
+                'type' => 'select',
+            ],
+            [
+                'name' => 'dynamic-preview-images.mobile_icons',
+                'sort' => 6,
+                'service_id' => 1,
+                'type' => 'select',
+            ]
         ]);
     }
 }
