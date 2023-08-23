@@ -10,6 +10,7 @@ if (pw_carousel_settings !== null) {
   pw_show_time = pw_carousel_settings.getAttribute('data-dynamic-preview-images.show_time');
   pw_initial_loop = pw_carousel_settings.getAttribute('data-dynamic-preview-images.initial_loop');
   pw_apply_to = pw_carousel_settings.getAttribute('data-dynamic-preview-images.apply_to');
+  pw_mobile_icons = pw_carousel_settings.getAttribute('data-dynamic-preview-images.mobile_icons');
 }
 let pw_image_prefix;
 if (pw_infinite_repeat === null) {
@@ -30,6 +31,9 @@ if (pw_initial_loop === null) {
 }
 if (pw_apply_to === null) {
   pw_apply_to = 'all';
+}
+if (pw_mobile_icons === null) {
+  pw_mobile_icons = 'circles';
 }
 
 let pw_global_products = [];
@@ -192,17 +196,19 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
 
       const pw_image = pw_element.srcElement;
       const pw_link = pw_image.parentElement;
-      const pw_svgs = pw_link.querySelectorAll('svg');
-      pw_svgs.forEach((pw_svg, i) => {
-        if (pw_init_index === i) {
-          pw_svg.classList.remove('circle');
-          pw_svg.classList.add('empty-circle');
-        }
-        if (pw_index === i) {
-          pw_svg.classList.remove('empty-circle');
-          pw_svg.classList.add('circle');
-        }
-      });
+      if (pw_mobile_icons === 'circles') {
+        const pw_svgs = pw_link.querySelectorAll('svg');
+        pw_svgs.forEach((pw_svg, i) => {
+          if (pw_init_index === i) {
+            pw_svg.classList.remove('pw-circle');
+            pw_svg.classList.add('pw-empty-circle');
+          }
+          if (pw_index === i) {
+            pw_svg.classList.remove('pw-empty-circle');
+            pw_svg.classList.add('pw-circle');
+          }
+        });
+      }
     }
   
     pw_start_x = null;
@@ -303,13 +309,15 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
           pw_image.classList.add("overlay-on");
           let pw_icon = document.createElement('div');
           pw_image.after(pw_icon);
-          pw_icon.classList.add('overlay-container');
+          pw_icon.classList.add('pw-overlay-container');
           let pw_inner_html = '';
           for (let i = 0; i < pw_images.length; i++) {
-            if (i === 0) {
-              pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='circle'><circle cx='5' cy='5' r='4'/></svg>";
-            } else {
-              pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='empty-circle'><circle cx='5' cy='5' r='4'/></svg>";
+            if (pw_mobile_icons === 'circles') {
+              if (i === 0) {
+                pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='pw-circle'><circle cx='5' cy='5' r='4'/></svg>";
+              } else {
+                pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='pw-empty-circle'><circle cx='5' cy='5' r='4'/></svg>";
+              }
             }
           }
           pw_icon.innerHTML = pw_inner_html;
@@ -345,8 +353,10 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
       }
     }
     sessionStorage.setItem('pw_' + pw_product_identifier, pw_new_session_data);
-    let pw_http = new XMLHttpRequest();
-    let pw_url_update='https://slabihoud.cz/update-product/' + pw_project_id + '/' + pw_product_identifier;
-    pw_http.open("GET", pw_url_update);
-    pw_http.send();
+    // if (Math.random() >= 0.99) {
+    //   let pw_http = new XMLHttpRequest();
+    //   let pw_url_update='https://slabihoud.cz/update-product/' + pw_project_id + '/' + pw_product_identifier;
+    //   pw_http.open("GET", pw_url_update);
+    //   pw_http.send();
+    // }
   }
