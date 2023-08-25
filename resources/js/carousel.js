@@ -171,8 +171,7 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
       const pw_product = getProduct(pw_id);
       let pw_current_img = pw_img.src;
       pw_image_prefix = pw_current_img;
-      let pw_current_img_array = pw_current_img.split('/');
-      pw_current_img = pw_current_img_array[pw_current_img_array.length - 1];
+      pw_current_img = getImageName(pw_current_img);
       pw_image_prefix = pw_image_prefix.substring(0, pw_image_prefix.length - pw_current_img.length);
       let pw_index = getIndex(pw_product, pw_current_img);
       let pw_init_index = pw_index;
@@ -208,6 +207,9 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
             pw_svg.classList.add('pw-circle');
           }
         });
+      } else if (pw_mobile_icons === 'numbers') {
+        const pw_number_icon = pw_link.querySelector('b.pw-number-icon');
+        pw_number_icon.innerHTML = (pw_index + 1) + ' / ' + pw_product.images.length;
       }
     }
   
@@ -285,7 +287,10 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
       if (pw_session_data === null) {
         continue;
       }
+      const pw_image = pw_element.querySelector('img[data-micro], img[data-micro-image]');
+      let pw_first_image = getImageName(pw_image.getAttribute('data-src'));
       let pw_images = pw_session_data.split(',');
+      pw_images.unshift(pw_first_image);
       pw_images = removeDuplicates(pw_images);
       if (pw_images[0] === 'undefined' || pw_images.length === 1) {
         continue;
@@ -296,7 +301,6 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
         pw_element.addEventListener('mouseenter', pw_enter, false);
         pw_element.addEventListener('mouseleave', pw_leave, false);  
       }    
-      const pw_image = pw_element.querySelector('img[data-micro], img[data-micro-image]');
       pw_image.setAttribute('data-original-img-source', pw_image.src);
       pw_image.setAttribute('data-micro-identifier-parent', microDataValue);
       pw_image.addEventListener('error', function handleError() {
@@ -311,14 +315,16 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
           pw_image.after(pw_icon);
           pw_icon.classList.add('pw-overlay-container');
           let pw_inner_html = '';
-          for (let i = 0; i < pw_images.length; i++) {
-            if (pw_mobile_icons === 'circles') {
+          if (pw_mobile_icons === 'circles') {
+            for (let i = 0; i < pw_images.length; i++) {
               if (i === 0) {
                 pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='pw-circle'><circle cx='5' cy='5' r='4'/></svg>";
               } else {
                 pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='pw-empty-circle'><circle cx='5' cy='5' r='4'/></svg>";
               }
             }
+          } else if (pw_mobile_icons === 'numbers') {
+            pw_inner_html = pw_inner_html + "<b class='pw-number-icon'>1 / " + pw_images.length + "</b>";
           }
           pw_icon.innerHTML = pw_inner_html;
         }
@@ -359,4 +365,11 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
     //   pw_http.open("GET", pw_url_update);
     //   pw_http.send();
     // }
+  }
+
+  function getImageName(pw_current_img)
+  {
+    let pw_current_img_array = pw_current_img.split('/');
+    let result = pw_current_img_array[pw_current_img_array.length - 1];
+    return result.split('?')[0];
   }
