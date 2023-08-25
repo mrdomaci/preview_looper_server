@@ -60,7 +60,7 @@
                     @endif
                 </div>
             <p>{{ __('dynamic-preview-images.homepage_description') }}</p>
-            <a class="btn btn-primary btn-lg mb-4" href="https://doplnky.shoptet.cz/dynamicke-nahledove-obrazky/" role="button">{{ __('general.homepage_button') }}</a>
+            <a class="btn btn-primary btn-lg mb-4" href="{{ __('dynamic-preview-images.url_addon')}}" role="button">{{ __('general.homepage_button') }}</a>
         </div>
         <div class="container">
             <div class="row">

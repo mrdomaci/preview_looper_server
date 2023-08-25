@@ -51,4 +51,5 @@ return [
     'circle_icon' => 'Circular icons',
     'no_icon' => 'No icons',
     'number_icon' => 'Numerical representation',
+    'url_addon' => 'https://doplnky.shoptet.cz/dynamicke-nahledove-obrazky'
 ];
