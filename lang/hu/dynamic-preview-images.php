@@ -51,4 +51,5 @@ return [
     'circle_icon' => 'Kör alakú ikonok',
     'no_icon' => 'Nincs ikon',
     'number_icon' => 'Numerikus reprezentáció',
+    'url_addon' => 'https://doplnky.shoptet.cz/dynamicke-nahledove-obrazky'
 ];
