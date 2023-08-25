@@ -50,4 +50,5 @@ return [
     'mobile_icons' => 'Visualization of the number of product images on mobile',
     'circle_icon' => 'Circular icons',
     'no_icon' => 'No icons',
+    'number_icon' => 'Numerical representation',
 ];
