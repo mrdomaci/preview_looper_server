@@ -67,7 +67,7 @@
                 <p class="text-justify">{{ __('dynamic-preview-images.general_description_1') }}</p>
                 <p class="text-justify">{{ __('dynamic-preview-images.general_description_2') }}</p>
                 <div class="text-center">
-                    <a class="btn btn-primary btn-lg mb-4" href="https://doplnky.shoptet.cz/dynamicke-nahledove-obrazky/" role="button">{{ __('general.homepage_button') }}</a>
+                    <a class="btn btn-primary btn-lg mb-4" href="{{ __('dynamic-preview-images.url_addon')}}" role="button">{{ __('general.homepage_button') }}</a>
                 </div>
             </div>
             <div class="col-md-4">
