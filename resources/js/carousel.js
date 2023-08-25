@@ -324,7 +324,7 @@ const pw_elements = document.querySelectorAll('[data-micro="product"]');
               }
             }
           } else if (pw_mobile_icons === 'numbers') {
-            pw_inner_html = pw_inner_html + "<b class='pw-number-icon'>1 / " + pw_images.length + "</b>";
+            pw_inner_html = pw_inner_html + "<b class='pw-number-icon flag'>1 / " + pw_images.length + "</b>";
           }
           pw_icon.innerHTML = pw_inner_html;
         }
