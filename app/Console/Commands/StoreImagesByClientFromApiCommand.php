@@ -96,7 +96,6 @@ class StoreImagesByClientFromApiCommand extends AbstractCommand
                     }
                     unset($products);
                     unset($imageResponses);
-                    unset($images);
                 }
                 $client->save();
             }

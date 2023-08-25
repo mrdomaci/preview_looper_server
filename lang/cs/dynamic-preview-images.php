@@ -50,4 +50,5 @@ return [
     'mobile_icons' => 'Vizualizace počtu produktových obrázků na telefonu',
     'circle_icon' => 'Kruhové ikony',
     'no_icon' => 'Bez ikon',
+    'number_icon' => 'Číselný zápis',
 ];
