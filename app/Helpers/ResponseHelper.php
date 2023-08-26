@@ -5,6 +5,7 @@ namespace App\Helpers;
 
 use App\Exceptions\RequestFailException;
 use Exception;
+use Illuminate\Support\Facades\Http;
 
 class ResponseHelper
 {
@@ -53,4 +54,45 @@ class ResponseHelper
     {
         return sprintf(self::CDN_URL, $eshopName, $imageName);
     }
+
+    public static function findTemplateName(string $javascriptCode): ?string
+    {
+        preg_match('/shoptet\.design = \{"template":\{"name":"(.*?)",/', $javascriptCode, $matches);
+        return isset($matches[1]) ? $matches[1] : null;
+    }
+
+    public static function getUrlResponse(string $url): ?string
+    {
+        try {
+            $response = Http::get($url);
+            return $response->body();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public static function extractShoptetScriptFromBody(string $htmlString): ?string
+    {
+        $startTag = '<body';
+        $endTag = '</body>';
+        $scriptTagStart = '<script>var shoptet = shoptet || {};shoptet.abilities = ';
+        
+        // Find the start and end positions of the <body> section
+        $startPos = strpos($htmlString, $startTag);
+        $endPos = strpos($htmlString, $endTag, $startPos);
+    
+        // Extract the content within the <body> section
+        $bodyContent = substr($htmlString, $startPos + strlen($startTag), $endPos - $startPos - strlen($startTag));
+    
+        // Find the start and end positions of the <script> tag within the <body> section
+        $scriptTagStartPos = strpos($bodyContent, $scriptTagStart);
+        $scriptTagEndPos = strpos($bodyContent, '</script>', $scriptTagStartPos);
+    
+        if ($scriptTagStartPos !== false && $scriptTagEndPos !== false) {
+            // Extract the <script> tag content within the <body> section
+            return substr($bodyContent, $scriptTagStartPos + strlen($scriptTagStart), $scriptTagEndPos - $scriptTagStartPos - strlen($scriptTagStart));
+        }
+        
+        return null; // shoptet script not found
+    }    
 }
