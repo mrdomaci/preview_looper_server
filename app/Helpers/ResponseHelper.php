@@ -95,7 +95,11 @@ class ResponseHelper
         $scriptTagEndPos = strpos($bodyContent, '</script>');
     
         if ($scriptTagStartPos !== false && $scriptTagEndPos !== false) {
-            return substr($bodyContent, $scriptTagStartPos + strlen($scriptTagStart), $scriptTagEndPos - $scriptTagStartPos - strlen($scriptTagStart));
+            $scriptTagContent = substr(
+                $bodyContent,
+                $scriptTagStartPos + strlen($scriptTagStart)
+            );
+            return $scriptTagContent;
         }
         
         return null; // shoptet script not found
