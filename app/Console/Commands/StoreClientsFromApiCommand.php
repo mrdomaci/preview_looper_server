@@ -50,7 +50,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
             foreach ($clients as $client) {
                 $clientResponse = null;
                 $clientServices = $client->services();
-                $response = ResponseHelper::getUrlResponse($client->getAttribute('url'));
+                $response = ResponseHelper::getUrlResponse('https://' . $client->getAttribute('url'));
                 $javascriptCode = ResponseHelper::extractShoptetScriptFromBody($response);
                 $templateName = ResponseHelper::findTemplateName($javascriptCode);
                 foreach ($clientServices->get() as $clientService) {
