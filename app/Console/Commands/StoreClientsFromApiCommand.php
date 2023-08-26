@@ -6,6 +6,7 @@ use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\AddonSuspendedException;
 use App\Helpers\ConnectorHelper;
+use App\Helpers\ResponseHelper;
 use App\Helpers\WebHookHelper;
 use App\Models\Client;
 use Illuminate\Console\Command;
@@ -49,6 +50,9 @@ class StoreClientsFromApiCommand extends AbstractCommand
             foreach ($clients as $client) {
                 $clientResponse = null;
                 $clientServices = $client->services();
+                $response = ResponseHelper::getUrlResponse($client->getAttribute('url'));
+                $javascriptCode = ResponseHelper::extractShoptetScriptFromBody($response);
+                $templateName = ResponseHelper::findTemplateName($javascriptCode);
                 foreach ($clientServices->get() as $clientService) {
                     try {
                         $clientResponse = ConnectorHelper::getEshop($clientService);
@@ -83,6 +87,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
                 $client->setAttribute('city', $clientResponse->getCity());
                 $client->setAttribute('zip', $clientResponse->getZip());
                 $client->setAttribute('country', $clientResponse->getCountry());
+                $client->setAttribute('template_name', $templateName);
                 $client->setAttribute('last_synced_at', now());
                 
                 $this->info('Updating client id:' . (string) $client->getAttribute('id'));
