@@ -86,7 +86,7 @@ class ResponseHelper
         $bodyContent = substr($htmlString, $startPos + strlen($startTag), $endPos - $startPos - strlen($startTag));
     
         $scriptTagStartPos = strpos($bodyContent, $scriptTagStart);
-        $scriptTagEndPos = strpos($bodyContent, '</script>', $scriptTagStartPos);
+        $scriptTagEndPos = strpos($bodyContent, '</script>');
     
         if ($scriptTagStartPos !== false && $scriptTagEndPos !== false) {
             return substr($bodyContent, $scriptTagStartPos + strlen($scriptTagStart), $scriptTagEndPos - $scriptTagStartPos - strlen($scriptTagStart));
