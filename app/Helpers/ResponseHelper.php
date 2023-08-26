@@ -77,19 +77,18 @@ class ResponseHelper
         $endTag = '</body>';
         $scriptTagStart = '<script>var shoptet = shoptet || {};shoptet.abilities = ';
         
-        // Find the start and end positions of the <body> section
         $startPos = strpos($htmlString, $startTag);
         $endPos = strpos($htmlString, $endTag, $startPos);
+        if ($startPos === false || $endPos === false) {
+            return null;
+        }
     
-        // Extract the content within the <body> section
         $bodyContent = substr($htmlString, $startPos + strlen($startTag), $endPos - $startPos - strlen($startTag));
     
-        // Find the start and end positions of the <script> tag within the <body> section
         $scriptTagStartPos = strpos($bodyContent, $scriptTagStart);
         $scriptTagEndPos = strpos($bodyContent, '</script>', $scriptTagStartPos);
     
         if ($scriptTagStartPos !== false && $scriptTagEndPos !== false) {
-            // Extract the <script> tag content within the <body> section
             return substr($bodyContent, $scriptTagStartPos + strlen($scriptTagStart), $scriptTagEndPos - $scriptTagStartPos - strlen($scriptTagStart));
         }
         
