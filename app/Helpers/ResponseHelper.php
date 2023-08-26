@@ -55,8 +55,11 @@ class ResponseHelper
         return sprintf(self::CDN_URL, $eshopName, $imageName);
     }
 
-    public static function findTemplateName(string $javascriptCode): ?string
+    public static function findTemplateName(?string $javascriptCode): ?string
     {
+        if ($javascriptCode === null) {
+            return null;
+        }
         preg_match('/shoptet\.design = \{"template":\{"name":"(.*?)",/', $javascriptCode, $matches);
         return isset($matches[1]) ? $matches[1] : null;
     }
@@ -71,8 +74,11 @@ class ResponseHelper
         }
     }
 
-    public static function extractShoptetScriptFromBody(string $htmlString): ?string
+    public static function extractShoptetScriptFromBody(?string $htmlString): ?string
     {
+        if ($htmlString === null) {
+            return null;
+        }
         $startTag = '<body';
         $endTag = '</body>';
         $scriptTagStart = '<script>var shoptet = shoptet || {};shoptet.abilities = ';
