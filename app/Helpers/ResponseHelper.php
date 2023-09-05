@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Http;
 class ResponseHelper
 {
     public const MAXIMUM_ITERATIONS = 10000;
-    public const MAXIMUM_ITEMS_PER_PAGE = 20;
+    public const MAXIMUM_ITEMS_PER_PAGE = 10;
     private const CDN_URL = 'https://cdn.myshoptet.com/usr/%s/user/shop/detail/%s';
 
     /**
