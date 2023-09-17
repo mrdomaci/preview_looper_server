@@ -4,6 +4,7 @@ let pw_return_to_default = null;
 let pw_show_time = null;
 let pw_initial_loop = null;
 let pw_apply_to = null;
+let pw_mobile_icons = null;
 if (pw_carousel_settings !== null) {
   pw_infinite_repeat = pw_carousel_settings.getAttribute('data-dynamic-preview-images.infinite_repeat');
   pw_return_to_default = pw_carousel_settings.getAttribute('data-dynamic-preview-images.return_to_default');
