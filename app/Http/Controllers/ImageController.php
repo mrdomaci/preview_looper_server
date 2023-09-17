@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ClientServiceStatusEnum;
-use App\Helpers\WebHookHelper;
 use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\Product;
@@ -23,7 +22,6 @@ class ImageController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
         $productGUIDs = explode('|', $productGUIDs);
-        $missingProductGUIDs = [];
         $products = Product::where('client_id', $client->getAttribute('id'))->whereIn('guid', $productGUIDs)->get();
         $result = [];
         foreach ($products as $product) {
@@ -34,12 +32,7 @@ class ImageController extends Controller
                     $imageLinks[] = $image->getAttribute('name');
                 }
                 $result[$product->getAttribute('guid')] = $imageLinks;
-            } else {
-                $missingProductGUIDs[] = $product->getAttribute('guid');
             }
-        }
-        if (count($missingProductGUIDs) > 0) {
-            WebHookHelper::jenkinsWebhookProduct($client->getAttribute('id'), implode('|', $missingProductGUIDs));
         }
 
         return response()->json($result);

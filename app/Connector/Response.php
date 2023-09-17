@@ -14,13 +14,13 @@ class Response
 {
     /**
      * @param array<string, mixed> $data
-     * @param array<string, string>|null $errors
+     * @param array<string, string> $errors
      */
     public function __construct(
         private array $data,
-        private ?array $errors = null,
+        private array $errors = [],
     ) {
-        if ($errors !== null) {
+        if ($errors !== []) {
             foreach($errors as $key => $error) {
                 LoggerHelper::log($key);
                 LoggerHelper::log($error);
@@ -283,6 +283,7 @@ class Response
 
     public function isInvalidToken(): bool
     {
+        /** @var array<string, string> $error */
         foreach ($this->errors as $error) {
             if ($error['errorCode'] === 'invalid-token') {
                 return true;
