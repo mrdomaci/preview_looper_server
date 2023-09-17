@@ -18,7 +18,7 @@ class Response
      */
     public function __construct(
         private array $data,
-        private array $errors = [],
+        private ?array $errors = [],
     ) {
         if ($errors !== []) {
             foreach($errors as $key => $error) {
