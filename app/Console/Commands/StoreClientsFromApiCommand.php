@@ -49,7 +49,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
             /** @var Client $client */
             foreach ($clients as $client) {
                 $clientServices = $client->services()->first();
-                if ($clientServices->getAttribute('date_last_synced') <= now()->subHours(12)) {
+                if ($clientServices->getAttribute('date_last_synced') >= now()->subHours(12)) {
                     continue;
                 }
                 $clientResponse = null;

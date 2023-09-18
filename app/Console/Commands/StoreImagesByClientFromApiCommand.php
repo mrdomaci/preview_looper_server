@@ -58,7 +58,7 @@ class StoreImagesByClientFromApiCommand extends AbstractCommand
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
                 $client = $clientService->client()->first(['id']);
-                if ($clientService->getAttribute('date_last_synced') <= now()->subHours(12)) {
+                if ($clientService->getAttribute('date_last_synced') >= now()->subHours(12)) {
                     continue;
                 }
                 $currentClientId = $client->getAttribute('id');
