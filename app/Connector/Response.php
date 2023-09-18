@@ -20,7 +20,7 @@ class Response
         private array $data,
         private ?array $errors = [],
     ) {
-        if ($errors !== []) {
+        if ($errors !== null) {
             foreach($errors as $key => $error) {
                 LoggerHelper::log($key);
                 LoggerHelper::log($error);
