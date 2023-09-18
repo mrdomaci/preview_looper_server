@@ -59,7 +59,7 @@ class StoreProductsFromApiCommand extends AbstractCommand
 
             foreach ($clientServices as $clientService) {
                 $currentClientId = $clientService->getAttribute('client_id');
-                if ($clientService->getAttribute('date_last_synced') <= now()->subHours(12)) {
+                if ($clientService->getAttribute('date_last_synced') >= now()->subHours(12)) {
                     continue;
                 }
                 $products = Product::where('client_id', $currentClientId)->where('active', true)->get(['id', 'guid', 'active']);
