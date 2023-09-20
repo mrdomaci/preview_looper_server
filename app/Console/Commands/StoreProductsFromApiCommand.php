@@ -112,7 +112,6 @@ class StoreProductsFromApiCommand extends AbstractCommand
                     $product->setAttribute('active', false);
                     $product->save();
                 }
-                $clientService->setAttribute('date_last_synced', now());
                 $clientService->save();
             }
 
