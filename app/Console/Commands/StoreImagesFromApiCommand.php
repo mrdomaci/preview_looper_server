@@ -14,7 +14,7 @@ use App\Models\Service;
 use Illuminate\Console\Command;
 use Throwable;
 
-class StoreImagesByClientFromApiCommand extends AbstractCommand
+class StoreImagesFromApiCommand extends AbstractCommand
 {
     /**
      * The name and signature of the console command.
@@ -57,10 +57,15 @@ class StoreImagesByClientFromApiCommand extends AbstractCommand
 
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
-                $client = $clientService->client()->first(['id']);
                 if ($clientService->getAttribute('date_last_synced') >= now()->subHours(12)) {
                     continue;
                 }
+                if ($clientService->getAttribute('update_in_progress') === true) {
+                    continue;
+                }
+                $clientService->setUpdateInProgress(true);
+                $clientService->save();
+                $client = $clientService->client()->first(['id']);
                 $currentClientId = $client->getAttribute('id');
                 $this->info('Updating images for client id:' . (string)$currentClientId);
                 $productOffsetId = 0;
@@ -88,6 +93,7 @@ class StoreImagesByClientFromApiCommand extends AbstractCommand
                             $this->error('Product ' . $productGuid . ' not found');
                         } catch (AddonNotInstalledException) {
                             $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
+                            $clientService->setUpdateInProgress(false);
                             $clientService->save();
                             break;
                         } catch (Throwable $t) {
@@ -101,6 +107,7 @@ class StoreImagesByClientFromApiCommand extends AbstractCommand
                     unset($imageResponses);
                 }
                 $client->save();
+                $clientService->setUpdateInProgress(false);
                 $clientService->setAttribute('date_last_synced', now());
                 $clientService->save();
             }

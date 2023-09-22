@@ -38,11 +38,6 @@ class WebHookHelper
         $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_CLIENT');
         return Http::post($url, ['client' => (string) $clientId]);
     }
-    public static function jenkinsWebhookProduct(int $clientId, string $productGUIDs): Response
-    {
-        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_PRODUCT');
-        return Http::post($url, ['client_id' => (string) $clientId, 'guids' => $productGUIDs]);
-    }
     public static function jenkinsWebhookUpdateClient(int $clientId): Response
     {
         $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_UPDATE');

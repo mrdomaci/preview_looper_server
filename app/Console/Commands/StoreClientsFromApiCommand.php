@@ -39,8 +39,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
 
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             if ($clientId !== null) {
-                $client = Client::where('id', $clientId)->first();
-                $clients = [$client];
+                $clients = Client::where('id', $clientId)->get();
             } else {
                 $clients = Client::limit($this->getIterationCount())
                     ->offset($this->getOffset($i))
@@ -50,6 +49,9 @@ class StoreClientsFromApiCommand extends AbstractCommand
             foreach ($clients as $client) {
                 $clientServices = $client->services()->first();
                 if ($clientServices->getAttribute('date_last_synced') >= now()->subHours(12)) {
+                    continue;
+                }
+                if ($clientServices->getAttribute('update_in_progress') === true) {
                     continue;
                 }
                 $clientResponse = null;

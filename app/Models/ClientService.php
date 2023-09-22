@@ -42,6 +42,16 @@ class ClientService extends Model
         return $this->belongsTo(Service::class);
     }
 
+    public function setUpdateInProgress(bool $updateInProgress): void
+    {
+        $this->setAttribute('update_in_progress', $updateInProgress);
+        try {
+            $this->save();
+        } catch (Throwable $t) {
+            throw new DataUpdateFailException($t);
+        }
+    }
+
     public static function updateOrCreate(Client $client, Service $service, string $oAuthAccessToken, string $country): ClientService
     {
         $clientService = ClientService::where('client_id', $client->getAttribute('id'))
