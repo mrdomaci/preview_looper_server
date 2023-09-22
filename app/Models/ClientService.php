@@ -44,7 +44,7 @@ class ClientService extends Model
 
     public function setUpdateInProgress(bool $updateInProgress): void
     {
-        $this->setAttribute('update_in_progress', $updateInProgress);
+        $this->setAttribute('update_in_process', $updateInProgress);
         try {
             $this->save();
         } catch (Throwable $t) {

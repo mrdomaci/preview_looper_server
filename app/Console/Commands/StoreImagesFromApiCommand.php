@@ -60,7 +60,7 @@ class StoreImagesFromApiCommand extends AbstractCommand
                 if ($clientService->getAttribute('date_last_synced') >= now()->subHours(12)) {
                     continue;
                 }
-                if ($clientService->getAttribute('update_in_progress') === true) {
+                if ($clientService->getAttribute('update_in_process') === true) {
                     continue;
                 }
                 $clientService->setUpdateInProgress(true);

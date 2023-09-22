@@ -51,7 +51,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
                 if ($clientServices->getAttribute('date_last_synced') >= now()->subHours(12)) {
                     continue;
                 }
-                if ($clientServices->getAttribute('update_in_progress') === true) {
+                if ($clientServices->getAttribute('update_in_process') === true) {
                     continue;
                 }
                 $clientResponse = null;
