@@ -62,6 +62,11 @@ class StoreProductsFromApiCommand extends AbstractCommand
                 if ($clientService->getAttribute('date_last_synced') >= now()->subHours(12)) {
                     continue;
                 }
+                if ($clientService->getAttribute('update_in_progress') === true) {
+                    continue;
+                }
+                $clientService->setUpdateInProgress(true);
+                $clientService->save();
                 $products = Product::where('client_id', $currentClientId)->where('active', true)->get(['id', 'guid', 'active']);
                 for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
                     try {
@@ -99,6 +104,7 @@ class StoreProductsFromApiCommand extends AbstractCommand
                         }
                     } catch (ApiRequestFailException) {
                         $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
+                        $clientService->setUpdateInProgress(false);
                         $clientService->save();
                         break;
                     } catch (Throwable $t) {
@@ -112,6 +118,7 @@ class StoreProductsFromApiCommand extends AbstractCommand
                     $product->setAttribute('active', false);
                     $product->save();
                 }
+                $clientService->setUpdateInProgress(false);
                 $clientService->save();
             }
 
