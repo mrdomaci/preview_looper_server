@@ -6,12 +6,14 @@ use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\ApiRequestNonExistingResourceException;
 use App\Helpers\ConnectorHelper;
+use App\Helpers\GeneratorHelper;
 use App\Helpers\LoggerHelper;
 use App\Models\ClientService;
 use App\Models\Image;
 use App\Models\Product;
 use App\Models\Service;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\RateLimiter;
 use Throwable;
 
 class StoreImagesFromApiCommand extends AbstractCommand
@@ -36,6 +38,10 @@ class StoreImagesFromApiCommand extends AbstractCommand
      */
     public function handle()
     {
+        RateLimiter::for('update:images', function () {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(60);
+        });
+
         $clientId = $this->argument('client_id');
         $success = true;
         $service = Service::find(Service::DYNAMIC_PREVIEW_IMAGES);
@@ -72,14 +78,16 @@ class StoreImagesFromApiCommand extends AbstractCommand
                 for ($j = 0; $j < $this->getMaxIterationCount(); $j++) {
                     $products = Product::where('client_id', $currentClientId)->where('active', true)->where('id', '>', $productOffsetId)->limit(10)->get(['id', 'guid']);
                     foreach($products as $product) {
+                        if (!RateLimiter::tooManyAttempts('update:images', 1)) {
+                            sleep(10);
+                        }
                         $productGuid = $product->getAttribute('guid');
                         $productId = $product->getAttribute('id');
                         $productOffsetId = $productId;
                         try {
-                            $imageResponses = ConnectorHelper::getProductImages($clientService, $productGuid);
                             $this->info('Updating images for product ' . $productGuid);
                             Image::where('client_id', $clientId)->where('product_id', $productId)->delete();
-                            foreach ($imageResponses as $imageResponse) {
+                            foreach (GeneratorHelper::fetchProductImages($clientService, $productGuid) as $imageResponse) {
                                 $image = new Image();
                                 $image->setAttribute('hash', hash('sha256', $clientId . $imageResponse->getSeoName() . $productId));
                                 $image->setAttribute('client_id', $currentClientId);
@@ -104,7 +112,6 @@ class StoreImagesFromApiCommand extends AbstractCommand
                         }
                     }
                     unset($products);
-                    unset($imageResponses);
                 }
                 $client->save();
                 $clientService->setUpdateInProgress(false);
