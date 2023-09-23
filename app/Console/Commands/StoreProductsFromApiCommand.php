@@ -5,12 +5,14 @@ namespace App\Console\Commands;
 use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Helpers\ConnectorHelper;
+use App\Helpers\GeneratorHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
 use App\Models\ClientService;
 use App\Models\Product;
 use App\Models\Service;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\RateLimiter;
 use Throwable;
 
 class StoreProductsFromApiCommand extends AbstractCommand
@@ -36,6 +38,10 @@ class StoreProductsFromApiCommand extends AbstractCommand
      */
     public function handle()
     {
+        RateLimiter::for('update:products', function () {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(60);
+        });
+        
         $clientId = $this->argument('client_id');
         $success = true;
         $service = Service::find(Service::DYNAMIC_PREVIEW_IMAGES);
@@ -69,12 +75,15 @@ class StoreProductsFromApiCommand extends AbstractCommand
                 $clientService->save();
                 $products = Product::where('client_id', $currentClientId)->where('active', true)->get(['id', 'guid', 'active']);
                 for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
+                    if (!RateLimiter::tooManyAttempts('update:products', 1)) {
+                        sleep(10);
+                    }
                     try {
                         $productListResponse = ConnectorHelper::getProducts($clientService, $page);
                         if ($productListResponse === null) {
                             break;
                         }
-                        foreach ($productListResponse->getProducts() as $productResponse) {
+                        foreach (GeneratorHelper::fetchProducts($clientService, $page) as $productResponse) {
                             $this->info('Updating product ' . $productResponse->getGuid());
                             $productExists = false;
                             foreach ($products as $key => $product) {
