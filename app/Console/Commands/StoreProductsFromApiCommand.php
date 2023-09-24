@@ -39,7 +39,7 @@ class StoreProductsFromApiCommand extends AbstractCommand
     public function handle()
     {
         RateLimiter::for('update:products', function () {
-            return \Illuminate\Cache\RateLimiting\Limit::perMinute(60);
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(90);
         });
         
         $clientId = $this->argument('client_id');
