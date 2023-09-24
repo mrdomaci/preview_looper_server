@@ -38,7 +38,7 @@ class DeleteProductsApiCommand extends AbstractCommand
                 $client = Client::where('id', $clientId)->first();
                 $clients = [$client];
             } else {
-                $clients = Client::limit($this->getIterationCount())
+                $clients = Client::limit(10)
                     ->offset($this->getOffset($i))
                     ->get();
             }

@@ -39,7 +39,7 @@ class StoreImagesFromApiCommand extends AbstractCommand
     public function handle()
     {
         RateLimiter::for('update:images', function () {
-            return \Illuminate\Cache\RateLimiting\Limit::perMinute(60);
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(90);
         });
 
         $clientId = $this->argument('client_id');
