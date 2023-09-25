@@ -84,6 +84,7 @@ class StoreImagesFromApiCommand extends AbstractCommand
                                 $image->setAttribute('client_id', $currentClientId);
                                 $image->setAttribute('product_id', $productId);
                                 $image->setAttribute('name', $imageResponse->getSeoName());
+                                $image->setAttribute('priority', $imageResponse->getPriority());
                                 $image->save();
                             }
                         } catch (ApiRequestNonExistingResourceException $t) {
