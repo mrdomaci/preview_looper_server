@@ -26,7 +26,7 @@ class Product extends Model
 
     public function images(): HasMany
     {
-        return $this->hasMany(Image::class);
+        return $this->hasMany(Image::class)->orderBy('priority', 'asc');
     }
 
     public function client(): BelongsTo
