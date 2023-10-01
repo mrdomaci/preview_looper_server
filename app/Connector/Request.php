@@ -5,6 +5,7 @@ namespace App\Connector;
 
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestNonExistingResourceException;
+use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ResponseHelper;
 use App\Helpers\TokenHelper;
 use App\Models\ClientService;
@@ -140,6 +141,8 @@ class Request
                 $response = $this->sendRequest();
             } else if ($e->getCode() === 404) {
                 throw new ApiRequestNonExistingResourceException($e->getMessage(), 404);
+            } else if ($e->getCode() === 429) {
+                throw new ApiRequestTooManyRequestsException($e->getMessage(), 429);
             } else {
                 throw new ApiRequestFailException(new Exception('API request failed for ' . self::API_URL . $this->endpoint . $this->getQueryAsAString() . ' with status code ' . $e->getCode() . ' and message ' . $e->getMessage()));
             }
