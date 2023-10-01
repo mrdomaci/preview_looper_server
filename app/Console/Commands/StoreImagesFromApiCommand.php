@@ -57,7 +57,8 @@ class StoreImagesFromApiCommand extends AbstractCommand
 
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
-                if ($clientService->getAttribute('date_last_synced') >= now()->subHours(12)) {
+                if ($clientService->getAttribute('date_last_synced') !== null &&
+                    $clientService->getAttribute('date_last_synced') >= now()->subHours(12)) {
                     continue;
                 }
                 if ($clientService->getAttribute('update_in_process') === true) {

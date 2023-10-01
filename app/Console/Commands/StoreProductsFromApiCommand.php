@@ -60,7 +60,8 @@ class StoreProductsFromApiCommand extends AbstractCommand
 
             foreach ($clientServices as $clientService) {
                 $currentClientId = $clientService->getAttribute('client_id');
-                if ($clientService->getAttribute('date_last_synced') >= now()->subHours(12)) {
+                if ($clientService->getAttribute('date_last_synced') !== null &&
+                    $clientService->getAttribute('date_last_synced') >= now()->subHours(12)) {
                     continue;
                 }
                 if ($clientService->getAttribute('update_in_process') === true) {
