@@ -24,6 +24,9 @@ class ImageController extends Controller
         $productGUIDs = explode('|', $productGUIDs);
         $products = Product::where('client_id', $client->getAttribute('id'))->whereIn('guid', $productGUIDs)->get();
         $result = [];
+        foreach($productGUIDs as $productGUID) {
+            $result[$productGUID] = [];
+        }
         foreach ($products as $product) {
             $images = $product->images()->get();
             if (count($images) > 0) {
