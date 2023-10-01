@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\ApiRequestNonExistingResourceException;
+use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\GeneratorHelper;
 use App\Helpers\LoggerHelper;
 use App\Models\ClientService;
@@ -72,7 +73,8 @@ class StoreImagesFromApiCommand extends AbstractCommand
                 $productOffsetId = 0;
                 for ($j = 0; $j < $this->getMaxIterationCount(); $j++) {
                     $products = Product::where('client_id', $currentClientId)->where('active', true)->where('id', '>', $productOffsetId)->limit(10)->get(['id', 'guid']);
-                    foreach($products as $product) {
+                    for($k = 0; $k < count($products); $k++) {
+                        $product = $products[$k];
                         $productGuid = $product->getAttribute('guid');
                         $productId = $product->getAttribute('id');
                         $productOffsetId = $productId;
@@ -97,6 +99,10 @@ class StoreImagesFromApiCommand extends AbstractCommand
                             $clientService->setUpdateInProgress(false);
                             $clientService->save();
                             break;
+                        } catch (ApiRequestTooManyRequestsException) {
+                            sleep(10);
+                            $k--;
+                            continue;
                         } catch (Throwable $t) {
                             $this->error('Error updating images ' . $t->getMessage());
                             LoggerHelper::log('Error updating images ' . $t->getMessage());
