@@ -52,6 +52,7 @@ class BackupInstallApiCommand extends AbstractCommand
                         ->save();
                     
                     WebHookHelper::jenkinsWebhookClient($client->getAttribute('id'));
+                    $this->info('Client ' . (string) $client->getAttribute('id') . ' webhooked to be updated');
                 }
                 $clientServiceId = $clientService->getAttribute('id');
             }
