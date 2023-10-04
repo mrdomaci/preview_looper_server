@@ -36,10 +36,11 @@ class BackupInstallApiCommand extends AbstractCommand
      */
     public function handle()
     {
+        $clientServiceId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = ClientService::where('status', ClientServiceStatusEnum::ACTIVE)
+                ->where('id', '>', $clientServiceId)
                 ->limit($this->getIterationCount())
-                ->offset($this->getOffset($i))
                 ->get();
             foreach($clientServices as $clientService) {
                 $client = $clientService->client()->first();
@@ -49,8 +50,10 @@ class BackupInstallApiCommand extends AbstractCommand
                         ->setAttribute('date_last_synced', null)
                         ->setAttribute('update_in_process', false)
                         ->save();
+                    
                     WebHookHelper::jenkinsWebhookClient($client->getAttribute('id'));
                 }
+                $clientServiceId = $clientService->getAttribute('id');
             }
             if (count($clientServices) < $this->getIterationCount()) {
                 break;
