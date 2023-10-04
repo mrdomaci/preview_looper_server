@@ -3,15 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Enums\ClientServiceStatusEnum;
-use App\Exceptions\AddonNotInstalledException;
-use App\Exceptions\AddonSuspendedException;
-use App\Helpers\ConnectorHelper;
-use App\Helpers\ResponseHelper;
 use App\Helpers\WebHookHelper;
-use App\Models\Client;
 use App\Models\ClientService;
 use Illuminate\Console\Command;
-use Throwable;
 
 class BackupInstallApiCommand extends AbstractCommand
 {
