@@ -8,6 +8,7 @@ use App\Models\ClientService;
 use App\Models\Product;
 use App\Models\Service;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class ImageController extends Controller
 {
@@ -35,6 +36,45 @@ class ImageController extends Controller
                     $imageLinks[] = $image->getAttribute('name');
                 }
                 $result[$product->getAttribute('guid')] = $imageLinks;
+            }
+        }
+
+        return response()->json($result);
+    }
+
+    public function all(string $eshopID, string $moduloCheck): JsonResponse
+    {
+        if ((int)$eshopID%11 !== (int)$moduloCheck) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+        $client = Client::where('eshop_id', (int) $eshopID)->first();
+        if ($client === null) {
+            return response()->json(['error' => 'Client not found'], 404);
+        }
+        $clientId = $client->getAttribute('id');
+        $clientService =  ClientService::where('client_id', $clientId)->where('service_id', Service::DYNAMIC_PREVIEW_IMAGES)->where('status', ClientServiceStatusEnum::ACTIVE)->first();
+        if ($clientService === null) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+        $lastProductId = 0;
+        $result = [];
+        for ($i = 0; $i < 1000; $i++) {
+            $products = DB::table('products AS p')
+                ->join('images AS i', function ($join) use ($clientId) {
+                    $join->on('i.product_id', '=', 'p.id')
+                        ->where('p.client_id', '=', $clientId);
+                })
+                ->where('p.id', '>', $lastProductId)
+                ->select('p.guid', 'p.id' , 'i.name')
+                ->limit(100)
+                ->get();
+
+            foreach ($products as $product) {
+                $result[$product->guid][] = $product->name;
+                $lastProductId = $product->id;
+            } 
+            if (count($products) < 100) {
+                break;
             }
         }
 
