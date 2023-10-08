@@ -44,7 +44,11 @@
                     <label>{{ __('general.last_synced_at')}}:</label>
                 </div>
                 <div class="col-md-6">
-                    <label>{{ $last_synced }}</label>
+                    @if ($update_in_process === true)
+                        <label>{{ __('general.sync_in_progress') }}</label>
+                    @else
+                        <label>{{ $last_synced }}</label>
+                    @endif
                 </div>
             </div>
             <div class="row mt-4">
