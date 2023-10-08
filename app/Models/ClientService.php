@@ -65,6 +65,8 @@ class ClientService extends Model
         $clientService->setAttribute('oauth_access_token', $oAuthAccessToken);
         $clientService->setAttribute('status', 'active');
         $clientService->setAttribute('country', $country);
+        $clientService->setAttribute('update_in_process', false);
+        $clientService->setAttribute('date_last_synced', null);
         $clientService->save();
         return $clientService;
     }

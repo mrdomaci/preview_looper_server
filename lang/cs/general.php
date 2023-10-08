@@ -19,6 +19,7 @@ return [
     'privacy' => 'Ochrana osobních údajů',
     'last_synced_at' => 'Poslední synchronizace',
     'sync_now' => 'Synchronizovat nyní',
+    'sync_in_progress' => 'Synchronizace právě probíhá',
     'synced_scheduled' => 'Synchronizace byla přidána do fronty a bude provedena v nejbližší možné době',
     'sync_info' => 'Synchronizace jsou dat z Shoptet API jsou spouštěny pravidelně dvakrát denně. Pokud chcete synchronizaci spustit ručně, klikněte na tlačítko níže.',    
 ];
