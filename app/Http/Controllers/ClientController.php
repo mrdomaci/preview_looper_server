@@ -150,6 +150,7 @@ class ClientController extends Controller
                 'client' => $client,
                 'settings_service' => $serviceSettings,
                 'last_synced' => $clientService->getAttribute('date_last_synced'),
+                'update_in_process' => $clientService->getAttribute('update_in_process'),
             ]);
     }
 
@@ -194,6 +195,12 @@ class ClientController extends Controller
         }
         try {
             $client = Client::getByEshopId((int) $eshopId);
+            $clientServices = $client->services()->get();
+            foreach ($clientServices as $clientService) {
+                $clientService->setAttribute('date_last_synced', null);
+                $clientService->setAttribute('update_in_process', false);
+                $clientService->save();
+            }
             WebHookHelper::jenkinsWebhookClient($client->getAttribute('id'));
         } catch (Throwable $t) {
             LoggerHelper::log('Webhook failed: ' . $t->getMessage());

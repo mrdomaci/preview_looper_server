@@ -16,8 +16,10 @@ return [
     'terms_content_header_4' => 'Működési paraméterek',
     'terms_content_header_5' => 'Támogatás és Karbantartás',
     'terms_content_header_6' => 'Felelősség',
-    'privacy' => 'Adatvédelmi irányelvek',
+    'privacy' => 'Személyes adatok védelme',
+    'last_synced_at' => 'Utolsó szinkronizálás',
     'sync_now' => 'Szinkronizálás most',
-    'synced_scheduled' => 'A szinkronizációt a várólistához hozzáadták, és a lehető leghamarabb elvégzik.',
-    'sync_info' => 'A Shoptet API-ból származó adatok szinkronizálását rendszeresen naponta kétszer indítják el. Ha kézi szinkronizációt szeretne indítani, kattintson az alábbi gombra.',
+    'sync_in_progress' => 'Szinkronizáció folyamatban',
+    'synced_scheduled' => 'A szinkronizálást hozzáadtuk a sorhoz, és a lehető leghamarabb el fogjuk végezni',
+    'sync_info' => 'A Shoptet API-ból származó adatok szinkronizálása naponta kétszer automatikusan indítódik. Ha kézzel szeretné indítani a szinkronizációt, kattintson az alábbi gombra.',
 ];

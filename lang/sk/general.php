@@ -17,7 +17,9 @@ return [
     'terms_content_header_5' => 'Podpora a údržba',
     'terms_content_header_6' => 'Zodpovednosť',
     'privacy' => 'Ochrana osobných údajov',
+    'last_synced_at' => 'Posledná synchronizácia',
     'sync_now' => 'Synchronizovať teraz',
+    'sync_in_progress' => 'Synchronizácia práve prebieha',
     'synced_scheduled' => 'Synchronizácia bola pridaná do frontu a bude vykonaná v najbližšej možnej dobe',
-    'sync_info' => 'Synchronizácia údajov z Shoptet API prebieha pravidelne dvakrát denne. Ak chcete spustiť synchronizáciu manuálne, kliknite na tlačidlo nižšie.',
+    'sync_info' => 'Synchronizácie údajov z Shoptet API sa spúšťajú pravidelne dvakrát denne. Ak chcete synchronizáciu spustiť manuálne, kliknite na tlačidlo nižšie.',    
 ];
