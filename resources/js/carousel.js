@@ -254,7 +254,7 @@ function findParentElementByClassName(pw_element, pw_class_name) {
 async function sendGetRequest(pw_project_id) {
   return new Promise(async (resolve, reject) => {
     try {
-      let pw_url = 'https://slabihoud.cz/allimages/' + pw_project_id + '/' + stringToIntModulo11(pw_project_id);
+      let pw_url = 'https://slabihoud.cz/images/' + pw_project_id + '/' + stringToIntModulo11(pw_project_id);
       const pw_xhr = new XMLHttpRequest();
       pw_xhr.open('GET', pw_url, true);
       pw_xhr.onreadystatechange = async function () {
