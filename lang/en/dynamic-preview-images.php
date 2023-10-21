@@ -35,7 +35,7 @@ return [
     'terms_content_subheader_61' => 'The Provider bears sole responsibility for defects in the Addon.',
     'terms_content_subheader_62' => 'The Provider is also responsible for any damage or other harm arising from a breach of its obligations resulting from the provision of the Addon to the User or any contract concluded between the Provider and the User regarding the Addon.',
     'terms_content_subheader_63' => 'The User acknowledges that Shoptet is not responsible for any legal or factual defects in the Addon, nor for any damage or other harm arising from a breach of the Provider\'s obligations arising from the Agreement or these terms and conditions. Shoptet is not responsible for the availability level of the Addon, its current or future compatibility, or the conformity of the description of the Addon\'s functionalities with its actual functionalities.',
-    'terms_content_subheader_64' => 'For the purpose of asserting rights from defective performance, the Provider provides the following contact information: info@dynamickenahledoveobrazky.cz',
+    'terms_content_subheader_64' => 'For the purpose of asserting rights from defective performance, the Provider provides the following contact information: info@slabihoud.cz',
     'terms_content_11' => 'Addon - a solution through which Shoptet can be connected to external services.',
     'terms_content_12' => 'Product Page - the Addon\'s website - https://doplnky.shoptet.cz/dynamicke-nahledove-obrazky/',
     'terms_content_13' => 'Shoptet - Shoptet, a.s., with registered office at Dvořeckého 628/8, Břevnov, 169 00 Prague 6, ID: 28935675, registered with the Municipal Court in Prague under file number B 25395',

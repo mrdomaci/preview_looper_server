@@ -35,7 +35,7 @@ return [
     'terms_content_subheader_61' => 'Za všetky vady Doplnku nesie plnú zodpovednosť výlučne Poskytovateľ.',
     'terms_content_subheader_62' => 'Poskytovateľ zodpovedá aj za akékoľvek škody alebo iné ujmy spôsobené v dôsledku porušenia jeho záväzkov vyplývajúcich z poskytovania Doplnku Užívateľovi alebo akéhokoľvek zmluvy, ktorá medzi Poskytovateľom a Užívateľom bola uzavretá týkajúco sa Doplnku.',
     'terms_content_subheader_63' => 'Užívateľ berie na vedomie, že Shoptet nezodpovedá za žiadne právne ani faktické chyby Doplnku, rovnako ako nezodpovedá za akékoľvek škody alebo iné ujmy spôsobené v dôsledku porušenia záväzkov Poskytovateľa vyplývajúcich zo Zmluvy alebo týchto obchodných podmienok. Shoptet nezodpovedá ani za úroveň dostupnosti Doplnku, jeho aktuálne alebo budúce kompatibility, ani za zhodu popisu funkcionalít Doplnku so skutočnými funkcionalitami Doplnku.',
-    'terms_content_subheader_64' => 'Pre účely uplatnenia práv zo závady plnenia Poskytovateľ uvádza nasledujúce kontaktné údaje: info@dynamickenahledoveobrazky.cz',
+    'terms_content_subheader_64' => 'Pre účely uplatnenia práv zo závady plnenia Poskytovateľ uvádza nasledujúce kontaktné údaje: info@slabihoud.cz',
     'terms_content_11' => 'Doplnok - riešenie, prostredníctvom ktorého je možné prepojiť Shoptet s externými službami',
     'terms_content_12' => 'Stránka Doplnku - internetová stránka Doplňku - https://doplnky.shoptet.cz/dynamicke-nahledove-obrazky/',
     'terms_content_13' => 'Shoptet - spoločnosť Shoptet, a.s., so sídlom Dvořeckého 628/8, Břevnov, 169 00 Praha 6, IČ: 28935675, zapísaná u Mestského súdu v Prahe pod spisovou značkou B 25395',
