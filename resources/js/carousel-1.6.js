@@ -1,11 +1,11 @@
 const pw_carousel_settings = document.getElementById('dynamic-preview-images');
-let pw_infinite_repeat = '0';
-let pw_return_to_default ='0';
-let pw_show_time = 1500;
-let pw_initial_loop = 500;
-let pw_apply_to = 'all';
-let pw_mobile_icons = 'circles';
-if (pw_carousel_settings) {
+let pw_infinite_repeat = null;
+let pw_return_to_default = null;
+let pw_show_time = null;
+let pw_initial_loop = null;
+let pw_apply_to = null;
+let pw_mobile_icons = null;
+if (pw_carousel_settings !== null) {
   pw_infinite_repeat = pw_carousel_settings.getAttribute('data-dynamic-preview-images.infinite_repeat');
   pw_return_to_default = pw_carousel_settings.getAttribute('data-dynamic-preview-images.return_to_default');
   pw_show_time = pw_carousel_settings.getAttribute('data-dynamic-preview-images.show_time');
@@ -14,6 +14,29 @@ if (pw_carousel_settings) {
   pw_mobile_icons = pw_carousel_settings.getAttribute('data-dynamic-preview-images.mobile_icons');
 }
 let pw_image_prefix;
+if (pw_infinite_repeat === null) {
+  pw_infinite_repeat = '0';
+}
+if (pw_return_to_default === null) {
+  pw_return_to_default = '0';
+}
+if (pw_show_time === null) {
+  pw_show_time = 1500;
+} else {
+  pw_show_time = parseInt(pw_show_time);
+}
+if (pw_initial_loop === null) {
+  pw_initial_loop = '500';
+} else {
+  pw_initial_loop = parseInt(pw_initial_loop);
+}
+if (pw_apply_to === null) {
+  pw_apply_to = 'all';
+}
+if (pw_mobile_icons === null) {
+  pw_mobile_icons = 'circles';
+}
+
 let pw_global_products = [];
 let pw_running_interval;
 
@@ -21,27 +44,27 @@ const pw_project_id = getShoptetDataLayer('projectId');
 const pw_products = [];
 let pw_products_response;
 const pw_elements = document.querySelectorAll('[data-micro="product"]');
-if (pw_elements.length > 0) {
-  let pw_should_request = true;
-  (async () => {
-    if (sessionStorage.getItem('pw_data_updated_at') === null) {
-      pw_should_request = true;
-    } else if (sessionStorage.getItem('pw_data_updated_at') < new Date().getTime() - 1000 * 60 * 60 * 24) {
-      pw_should_request = true;
-    } else {
+let pw_should_request = true;
+(async () => {
+  for (let i = 0; i < pw_elements.length; i++) {
+    const pw_element = pw_elements[i];
+    const pw_micro_data_value = pw_element.getAttribute('data-micro-identifier');
+    if (pw_micro_data_value === null) {
+      continue;
+    }
+    if (sessionStorage.getItem('pw_' + pw_micro_data_value) !== null) {
       pw_should_request = false;
     }
-    if (pw_should_request) {
-      clearLocalStorage();
-      sessionStorage.setItem('pw_data_updated_at', new Date().getTime());
-      await sendGetRequest(pw_project_id).then(
-        (response) => {
-          initPreviewImages(pw_elements, response);
-        }
-      )
-    }
-  })()
-}
+  }
+  if (pw_should_request) {
+    await sendGetRequest(pw_project_id).then(
+      (response) => {
+        initPreviewImages(pw_elements, response);
+      }
+    );
+  }
+})();
+
 checkForNewProducts();
 
 function checkForNewProducts() {
@@ -78,7 +101,7 @@ function removeDuplicates(arr) {
 
 function stopLooping(pw_element) {
   clearInterval(pw_running_interval);
-  //pw_running_interval = null;
+  pw_running_interval = null;
   if (pw_return_to_default === '1' && pw_image_prefix) {
     const pw_product_element = pw_element.target;
     const pw_img = pw_product_element.querySelector('img[data-micro], img[data-micro-image]');
@@ -148,7 +171,7 @@ var pw_enter = function(pw_element) {
   setTimeout(cycleImages, pw_initial_loop);
   const pw_interval_id = setInterval(cycleImages, pw_show_time);
   pw_running_interval = pw_interval_id;
-}; 
+};  
 
 var pw_leave = function(pw_element) {
   stopLooping(pw_element);
@@ -200,7 +223,7 @@ function handleTouchMove(pw_element) {
 
     const pw_image = pw_element.srcElement;
     const pw_link = pw_image.parentElement;
-    if (isCircles()) {
+    if (pw_mobile_icons === 'circles') {
       const pw_svgs = pw_link.querySelectorAll('svg');
       pw_svgs.forEach((pw_svg, i) => {
         if (pw_init_index === i) {
@@ -212,7 +235,7 @@ function handleTouchMove(pw_element) {
           pw_svg.classList.add('pw-circle');
         }
       });
-    } else if (isNumbers()) {
+    } else if (pw_mobile_icons === 'numbers') {
       const pw_number_icon = pw_link.querySelector('b.pw-number-icon');
       pw_number_icon.innerHTML = (pw_index + 1) + ' / ' + pw_product.images.length;
     }
@@ -282,44 +305,45 @@ function parseJSONToPwProductsResponse(jsonData) {
 
 function initPreviewImages(pw_elements, response) {
   for (const [index, value] of Object.entries(response)) {
-    localStorage.setItem('pw_' + index, value);
+    if (sessionStorage.getItem('pw_' + index) === null) {
+      sessionStorage.setItem('pw_' + index, value);
+    }
   }
   for (let i = 0; i < pw_elements.length; i++) {
-    let pw_skip = false;
     const pw_element = pw_elements[i];
     pw_element.setAttribute('data-pw-init', true);
     const microDataValue = pw_element.getAttribute('data-micro-identifier');
     if (microDataValue === null) {
       continue;
     }
-    const pw_local_storage_data = localStorage.getItem('pw_' + microDataValue);
+    const pw_session_data = sessionStorage.getItem('pw_' + microDataValue);
 
-    if (pw_local_storage_data === null) {
+    if (pw_session_data === null) {
       continue;
     }
     const pw_image = pw_element.querySelector('img[data-micro], img[data-micro-image]');
-    let pw_images = pw_local_storage_data.split(',');
-    let pw_first_image = getImageName(pw_image.getAttribute('data-src'));
-    pw_images.unshift(pw_first_image);
+    let pw_images = pw_session_data.split(',');
+    if (pw_images && pw_images.length > 1 && screen.width < 768 && (pw_apply_to === 'all' || pw_apply_to === 'mobile')) {
+        let pw_first_image = getImageName(pw_image.getAttribute('data-src'));
+        pw_images.unshift(pw_first_image);
+    }
     pw_images = removeDuplicates(pw_images);
     if (pw_images[0] === 'undefined' || pw_images.length === 1) {
       continue;
     }
     pw_products.push({ id: microDataValue, images: pw_images});
 
-    if (isPc()) {
+    if (pw_apply_to === 'all' || pw_apply_to === 'pc') {
       pw_element.addEventListener('mouseenter', pw_enter, false);
-      pw_element.addEventListener('mouseleave', pw_leave, false); 
-    }
+      pw_element.addEventListener('mouseleave', pw_leave, false);  
+    }    
+    pw_image.setAttribute('data-original-img-source', pw_image.src);
     pw_image.setAttribute('data-micro-identifier-parent', microDataValue);
     pw_image.addEventListener('error', function handleError() {
       removeMissingImage(pw_image.src, pw_image.getAttribute('data-micro-identifier-parent'));
-      pw_skip = true;
+      pw_image.src = pw_image.getAttribute('data-original-img-source');
     });
-    if (pw_skip) {
-      continue;
-    }
-    if (isMobile(pw_images)) {
+    if (pw_images && pw_images.length > 1 && screen.width < 768 && (pw_apply_to === 'all' || pw_apply_to === 'mobile')) {
       pw_image.addEventListener('touchstart', handleTouchStart, false);
       pw_image.addEventListener('touchmove', handleTouchMove, false);
       pw_image.classList.add("overlay-on");
@@ -327,7 +351,7 @@ function initPreviewImages(pw_elements, response) {
       pw_image.after(pw_icon);
       pw_icon.classList.add('pw-overlay-container');
       let pw_inner_html = '';
-      if (isCircles()) {
+      if (pw_mobile_icons === 'circles') {
         for (let i = 0; i < pw_images.length; i++) {
           if (i === 0) {
             pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='pw-circle'><circle cx='5' cy='5' r='4'/></svg>";
@@ -335,7 +359,7 @@ function initPreviewImages(pw_elements, response) {
             pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='pw-empty-circle'><circle cx='5' cy='5' r='4'/></svg>";
           }
         }
-      } else if (isNumbers()) {
+      } else if (pw_mobile_icons === 'numbers') {
         pw_inner_html = pw_inner_html + "<b class='pw-number-icon flag'>1 / " + pw_images.length + "</b>";
       }
       pw_icon.innerHTML = pw_inner_html;
@@ -358,19 +382,19 @@ function removeMissingImage(pw_missing_source, pw_product_identifier) {
       break;
     }
   }
-  let pw_local_storage_data = localStorage.getItem('pw_' + pw_product_identifier);
-  let pw_local_storage_data_array = pw_local_storage_data.split(',');
-  let pw_new_local_storage_data = '';
-  for (let i = 0; i < pw_local_storage_data_array.length; i++) {
-    if (pw_local_storage_data_array[i] === pw_missing_source) {
+  let pw_session_data = sessionStorage.getItem('pw_' + pw_product_identifier);
+  let pw_session_data_array = pw_session_data.split(',');
+  let pw_new_session_data = '';
+  for (let i = 0; i < pw_session_data_array.length; i++) {
+    if (pw_session_data_array[i] === pw_missing_source) {
       continue;
     }
-    pw_new_local_storage_data = pw_new_local_storage_data + pw_local_storage_data_array[i];
-    if (i !== pw_local_storage_data_array.length - 1) {
-      pw_new_local_storage_data = pw_new_local_storage_data + ',';
+    pw_new_session_data = pw_new_session_data + pw_session_data_array[i]
+    if (i !== pw_session_data_array.length - 1) {
+      pw_new_session_data = pw_new_session_data + ',';
     }
   }
-  localStorage.setItem('pw_' + pw_product_identifier, pw_new_local_storage_data);
+  sessionStorage.setItem('pw_' + pw_product_identifier, pw_new_session_data);
 }
 
 function getImageName(pw_current_img)
@@ -393,32 +417,6 @@ function firstImageReturn()
           pw_img.src = pw_initial_image;
         }
       }
-    }
-  }
-}
-
-function isMobile(pw_images)
-{
-  return pw_images && pw_images.length > 1 && screen.width < 768 && (pw_apply_to === 'all' || pw_apply_to === 'mobile');
-}
-
-function isPc() {
-  return pw_apply_to === 'all' || pw_apply_to === 'pc';
-}
-
-function isCircles() {
-  return pw_mobile_icons === 'circles';
-}
-
-function isNumbers() {
-  return pw_mobile_icons === 'numbers';
-}
-
-function clearLocalStorage() {
-  for (let i = 0; i < localStorage.length; i++) {
-    const pw_key = localStorage.key(i);
-    if (pw_key.startsWith('pw_')) {
-      localStorage.removeItem(pw_key);
     }
   }
 }
