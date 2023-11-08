@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Connector\ProductFilter;
 use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
@@ -71,13 +72,14 @@ class StoreProductsFromApiCommand extends AbstractCommand
                 $clientService->setUpdateInProgress(true);
                 $clientService->save();
                 $products = Product::where('client_id', $currentClientId)->where('active', true)->get(['id', 'guid', 'active']);
+                $productFilter = new ProductFilter('visibility', 'visible');
                 for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
                     try {
-                        $productListResponse = ConnectorHelper::getProducts($clientService, $page);
+                        $productListResponse = ConnectorHelper::getProducts($clientService, $page, $productFilter);
                         if ($productListResponse === null) {
                             break;
                         }
-                        foreach (GeneratorHelper::fetchProducts($clientService, $page) as $productResponse) {
+                        foreach (GeneratorHelper::fetchProducts($clientService, $productFilter, $page) as $productResponse) {
                             $this->info('Updating product ' . $productResponse->getGuid());
                             $productExists = false;
                             foreach ($products as $key => $product) {
