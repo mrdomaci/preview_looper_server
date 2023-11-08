@@ -25,6 +25,7 @@ class CacheHelper
                         ->where('p.client_id', '=', $clientId);
                 })
                 ->where('p.id', '>', $lastProductId)
+                ->andWhere('p.active', '=', 1)
                 ->select('p.guid', 'p.id' , 'i.name')
                 ->limit(100)
                 ->get();

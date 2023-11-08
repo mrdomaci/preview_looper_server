@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use App\Connector\ProductFilter;
 use App\Connector\ProductImageResponse;
 use App\Connector\ProductResponse;
 use App\Models\ClientService;
@@ -25,8 +26,8 @@ class GeneratorHelper
      * @param int $page
      * @return iterable<ProductResponse>
      */
-    public static function fetchProducts(ClientService $clientService, int $page): iterable {
-        $products = ConnectorHelper::getProducts($clientService, $page);
+    public static function fetchProducts(ClientService $clientService, ?ProductFilter $productFilter, int $page): iterable {
+        $products = ConnectorHelper::getProducts($clientService, $page, $productFilter);
         if ($products === null) {
             return;
         }
