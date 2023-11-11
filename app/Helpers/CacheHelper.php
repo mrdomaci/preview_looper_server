@@ -27,14 +27,15 @@ class CacheHelper
                 ->where('p.id', '>', $lastProductId)
                 ->where('p.active', '=', 1)
                 ->select('p.guid', 'p.id' , 'i.name')
-                ->limit(100)
+                ->limit(10000)
+                ->orderBy('p.id')
                 ->get();
 
             foreach ($products as $product) {
                 $result[$product->guid][] = $product->name;
                 $lastProductId = $product->id;
             } 
-            if (count($products) < 100) {
+            if (count($products) < 10000) {
                 break;
             }
         }
