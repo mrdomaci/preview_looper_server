@@ -29,6 +29,7 @@ class CacheHelper
                 ->select('p.guid', 'p.id' , 'i.name')
                 ->limit(10000)
                 ->orderBy('p.id')
+                ->orderBy('i.priority', 'ASC')
                 ->get();
 
             foreach ($products as $product) {
