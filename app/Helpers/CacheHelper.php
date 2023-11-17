@@ -20,11 +20,11 @@ class CacheHelper
         $result = [];
         for ($i = 0; $i < 1000; $i++) {
             $products = DB::table('products AS p')
-                ->join('images AS i', function ($join) use ($clientId) {
-                    $join->on('i.product_id', '=', 'p.id')
-                        ->where('p.client_id', '=', $clientId);
+                ->join('images AS i', function ($join) {
+                    $join->on('i.product_id', '=', 'p.id');
                 })
                 ->where('p.id', '>', $lastProductId)
+                ->where('p.client_id', '=', $clientId)
                 ->where('p.active', '=', 1)
                 ->select('p.guid', 'p.id' , 'i.name')
                 ->limit(10000)
@@ -33,9 +33,12 @@ class CacheHelper
                 ->get();
 
             foreach ($products as $product) {
+                if (!isset($result[$product->guid])) {
+                    $result[$product->guid] = [];
+                }
                 $result[$product->guid][] = $product->name;
                 $lastProductId = $product->id;
-            } 
+            }
             if (count($products) < 10000) {
                 break;
             }
