@@ -48,9 +48,11 @@ class ClientController extends Controller
         $client = Client::updateOrCreate($eshopId, $eshopUrl, $contactEmail);
         ClientService::updateOrCreate($client, $service, $oAuthAccessToken, $country);
 
-        $webhookResponse = WebHookHelper::jenkinsWebhookClient($client->getAttribute('id'));
-        if ($webhookResponse->failed()) {
-            LoggerHelper::log('Webhook failed: ' . $webhookResponse->body() . ', Status code: ' . $webhookResponse->status());
+        if ($service->isDynamicPreviewImages()) {
+            $webhookResponse = WebHookHelper::jenkinsWebhookClient($client->getAttribute('id'));
+            if ($webhookResponse->failed()) {
+                LoggerHelper::log('Webhook failed: ' . $webhookResponse->body() . ', Status code: ' . $webhookResponse->status());
+            }
         }
         return Response('ok', 200);
     }
