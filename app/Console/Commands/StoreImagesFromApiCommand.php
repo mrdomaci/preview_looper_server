@@ -83,7 +83,11 @@ class StoreImagesFromApiCommand extends AbstractCommand
                             Image::where('client_id', $clientId)->where('product_id', $productId)->delete();
                             foreach (GeneratorHelper::fetchProductImages($clientService, $productGuid) as $imageResponse) {
                                 $image = new Image();
-                                $image->setAttribute('hash', hash('sha256', $clientId . $imageResponse->getSeoName() . $productId));
+                                $hash = $clientId . '-' . $productId;
+                                if ($imageResponse->getPriority() !== null) {
+                                    $hash .= '-' . $imageResponse->getPriority();
+                                }
+                                $image->setAttribute('hash', $hash);
                                 $image->setAttribute('client_id', $currentClientId);
                                 $image->setAttribute('product_id', $productId);
                                 $image->setAttribute('name', $imageResponse->getSeoName());
