@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Helpers;
 
 use App\Models\Client;
+use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,28 +19,25 @@ class CacheHelper
         $clientId = $client->getAttribute('id');
         $lastProductId = 0;
         $result = [];
-        for ($i = 0; $i < 1000; $i++) {
-            $products = DB::table('products AS p')
-                ->join('images AS i', function ($join) {
-                    $join->on('i.product_id', '=', 'p.id');
-                })
-                ->where('p.id', '>', $lastProductId)
-                ->where('p.client_id', '=', $clientId)
-                ->where('p.active', '=', 1)
-                ->select('p.guid', 'p.id' , 'i.name')
-                ->limit(10000)
-                ->orderBy('p.id')
-                ->orderBy('i.priority', 'ASC')
+        for ($i = 0; $i < 10000; $i++) {
+            $products = Product::where('client_id', $clientId)
+                ->where('id', '>', $lastProductId)
+                ->where('active', 1)
+                ->limit(1000)
                 ->get();
 
             foreach ($products as $product) {
-                if (!isset($result[$product->guid])) {
-                    $result[$product->guid] = [];
+                $productImages = $product->images()->orderBy('priority', 'ASC')->get();
+                $guid = $product->getAttribute('guid');
+                foreach ($productImages as $productImage) {
+                    if (!isset($result[$guid])) {
+                        $result[$guid] = [];
+                    }
+                    $result[$guid][] = $productImage->getAttribute('name');
                 }
-                $result[$product->guid][] = $product->name;
-                $lastProductId = $product->id;
+                $lastProductId = $product->getAttribute('id');
             }
-            if (count($products) < 10000) {
+            if (count($products) < 1000) {
                 break;
             }
         }
