@@ -39,21 +39,11 @@ class StoreCachedResponseCommand extends AbstractCommand
                     ->get();
             }
             foreach ($clients as $client) {
-                $update = false;
-                $clientServices = $client->services()->first();
-                if ($clientServices->getAttribute('update_in_process') === true) {
-                    continue;
-                }
-                foreach ($clientServices->get() as $clientService) {
-                    if($clientService->getAttribute('status') === ClientServiceStatusEnum::ACTIVE) {
-                        $update = true;
-                    }
-                }
-                if ($update === false) {
-                    continue;
-                }
                 CacheHelper::imageResponse($client);
                 $this->info('Client ' . $client->getAttribute('id') . ' updated');
+            }
+            if (count($clients) < $this->getIterationCount()) {
+                break;
             }
         }
         return Command::SUCCESS;
