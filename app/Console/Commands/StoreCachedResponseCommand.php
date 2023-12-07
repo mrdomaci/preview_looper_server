@@ -41,10 +41,6 @@ class StoreCachedResponseCommand extends AbstractCommand
             foreach ($clients as $client) {
                 $update = false;
                 $clientServices = $client->services()->first();
-                if ($clientServices->getAttribute('date_last_synced') !== null &&
-                    $clientServices->getAttribute('date_last_synced') >= now()->subHours(12)) {
-                    continue;
-                }
                 if ($clientServices->getAttribute('update_in_process') === true) {
                     continue;
                 }
