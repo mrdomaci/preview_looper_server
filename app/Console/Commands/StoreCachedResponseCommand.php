@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\ClientServiceStatusEnum;
 use App\Helpers\CacheHelper;
 use App\Models\Client;
 use Illuminate\Console\Command;
@@ -39,25 +38,11 @@ class StoreCachedResponseCommand extends AbstractCommand
                     ->get();
             }
             foreach ($clients as $client) {
-                $update = false;
-                $clientServices = $client->services()->first();
-                if ($clientServices->getAttribute('date_last_synced') !== null &&
-                    $clientServices->getAttribute('date_last_synced') >= now()->subHours(12)) {
-                    continue;
-                }
-                if ($clientServices->getAttribute('update_in_process') === true) {
-                    continue;
-                }
-                foreach ($clientServices->get() as $clientService) {
-                    if($clientService->getAttribute('status') === ClientServiceStatusEnum::ACTIVE) {
-                        $update = true;
-                    }
-                }
-                if ($update === false) {
-                    continue;
-                }
                 CacheHelper::imageResponse($client);
                 $this->info('Client ' . $client->getAttribute('id') . ' updated');
+            }
+            if (count($clients) < $this->getIterationCount()) {
+                break;
             }
         }
         return Command::SUCCESS;
