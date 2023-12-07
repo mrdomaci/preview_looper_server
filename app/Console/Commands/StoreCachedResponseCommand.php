@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\ClientServiceStatusEnum;
 use App\Helpers\CacheHelper;
 use App\Models\Client;
 use Illuminate\Console\Command;
