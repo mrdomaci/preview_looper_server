@@ -45,6 +45,7 @@ class Request
     {
         $this->setMethod(Product::getMethod());
         $this->setEndpoint(Product::getEndpoint($guid));
+        $this->setQuery('include', 'images');
         return $this;
     }
 
