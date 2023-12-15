@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Connector\ProductDetailResponse;
 use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\ApiRequestNonExistingResourceException;
@@ -82,7 +83,12 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
                         try {
                             $this->info('Updating details for product ' . $productGuid);
                             Image::where('client_id', $clientId)->where('product_id', $productId)->delete();
+                            /** @var ?ProductDetailResponse $productDetailResponse */
                             $productDetailResponse = GeneratorHelper::fetchProductDetail($clientService, $productGuid);
+                            if ($productDetailResponse === null) {
+                                $this->info('Product ' . $productGuid . ' not found');
+                                continue;
+                            }
                             $product->setAttribute('name', $productDetailResponse->getName());
                             $product->setAttribute('perex', $productDetailResponse->getPerex());
                             $product->setAttribute('category', $productDetailResponse->getDefaultCategory()?->getName());
