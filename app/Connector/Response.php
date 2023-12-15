@@ -265,6 +265,10 @@ class Response
         }
 
         foreach ($this->data['variants'] as $variant) {
+            $availaility = null;
+            if ($variant['availability'] !== null) {
+                $availaility = $variant['availability']['name'];
+            }
             $productVariantResponse = new ProductVariantResponse(
                 $variant['code'],
                 $variant['ean'],
@@ -282,7 +286,7 @@ class Response
                 $variant['currencyCode'],
                 (float) $variant['actionPrice'],
                 (float) $variant['commonPrice'],
-                $variant['availability'],
+                $availaility,
             );
             $productDetailResponse->addVariant($productVariantResponse);
         }
