@@ -7,8 +7,10 @@ use App\Exceptions\ApiResponsePaginatorFailException;
 use App\Helpers\ArrayHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
+use App\Helpers\StringHelper;
 use DateTime;
 use Exception;
+use Nette\Utils\Strings;
 
 class Response
 {
@@ -253,7 +255,7 @@ class Response
         foreach ($this->data['images'] as $image) {
             $productImageResponse = new ProductImageResponse(
                 $image['name'],
-                $image['priority'],
+                $image['priority'] ? (int) $image['priority'] : null,
                 $image['seoName'],
                 $image['cdnName'],
                 $image['description'],
@@ -266,20 +268,20 @@ class Response
             $productVariantResponse = new ProductVariantResponse(
                 $variant['code'],
                 $variant['ean'],
-                $variant['stock'],
+                (float) $variant['stock'],
                 $variant['unit'],
-                $variant['weight'],
-                $variant['width'],
-                $variant['height'],
-                $variant['depth'],
-                $variant['visible'],
-                $variant['amountDecimalPlaces'],
-                $variant['price'],
-                $variant['includingVat'],
-                $variant['vatRate'],
+                (float) $variant['weight'],
+                (float) $variant['width'],
+                (float) $variant['height'],
+                (float) $variant['depth'],
+                StringHelper::getBool($variant['visible']),
+                (int) $variant['amountDecimalPlaces'],
+                (float) $variant['price'],
+                StringHelper::getBool($variant['includingVat']),
+                (float) $variant['vatRate'],
                 $variant['currencyCode'],
-                $variant['actionPrice'],
-                $variant['commonPrice'],
+                (float) $variant['actionPrice'],
+                (float) $variant['commonPrice'],
                 $variant['availability'],
             );
             $productDetailResponse->addVariant($productVariantResponse);
