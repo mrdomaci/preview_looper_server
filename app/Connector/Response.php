@@ -164,6 +164,129 @@ class Response
         return $productListResponse;
     }
 
+    public function getProductDetails(): ?ProductDetailResponse
+    {
+        $creationTime = null;
+        $changeTime = null;
+        $name = null;
+        $voteAverageScore = null;
+        $voteCount = null;
+        $type = null;
+        $visibility = null;
+        $defaultCategory = null;
+        $url = null;
+        $supplier = null;
+        $brand = null;
+        $perex = null;
+
+        if (ArrayHelper::containsKey($this->data, 'guid') === false) {
+            return null;
+        } else {
+            $guid = $this->data['guid'];
+        }
+        if (ArrayHelper::containsKey($this->data, 'creationTime') && $this->data['creationTime'] !== null) {
+            $creationTime = new DateTime($this->data['creationTime']);
+        }
+        if (ArrayHelper::containsKey($this->data, 'changeTime') && $this->data['changeTime'] !== null) {
+            $changeTime = new DateTime($this->data['changeTime']);
+        }
+        if (ArrayHelper::containsKey($this->data, 'name')) {
+            $name = $this->data['name'];
+        }
+        if (ArrayHelper::containsKey($this->data, 'voteAverageScore') && $this->data['voteAverageScore'] !== null) {
+            $voteAverageScore = (float) $this->data['voteAverageScore'];
+        }
+        if (ArrayHelper::containsKey($this->data, 'voteCount')) {
+            $voteCount = $this->data['voteCount'];
+        }
+        if (ArrayHelper::containsKey($this->data, 'type')) {
+            $type = $this->data['type'];
+        }
+        if (ArrayHelper::containsKey($this->data, 'visibility')) {
+            $visibility = $this->data['visibility'];
+        }
+        if (ArrayHelper::containsKey($this->data, 'defaultCategory')) {
+            if (ArrayHelper::isArray($this->data['defaultCategory']) 
+                && ArrayHelper::containsKey($this->data['defaultCategory'], 'guid')
+                && $this->data['defaultCategory']['guid'] !== null
+                && ArrayHelper::containsKey($this->data['defaultCategory'], 'name')
+                && $this->data['defaultCategory']['name'] !== null
+            ) {
+                $defaultCategory = new ProductCategory(
+                    $this->data['defaultCategory']['guid'],
+                    $this->data['defaultCategory']['name'],
+                );
+            }
+        }
+        if (ArrayHelper::containsKey($this->data, 'url')) {
+            $url = $this->data['url'];
+        }
+        if (ArrayHelper::containsKey($this->data, 'supplier')) {
+            if (ArrayHelper::isArray($this->data['supplier'])) {
+                $this->data['supplier'] = implode(', ', $this->data['supplier']);
+            }
+            $supplier = $this->data['supplier'];
+        }
+        if (ArrayHelper::containsKey($this->data, 'brand')) {
+            if (ArrayHelper::isArray($this->data['brand']) &&  ArrayHelper::containsKey($this->data['brand'], 'guid') && ArrayHelper::containsKey($this->data['brand'], 'name')) {
+                $brand = new ProductBrand(
+                    $this->data['brand']['guid'],
+                    $this->data['brand']['name'],
+                );
+            }
+        }
+
+        if (ArrayHelper::containsKey($this->data, 'shortDescription')) {
+            $perex = $this->data['shortDescription'];
+        }
+
+        if (ArrayHelper::containsKey($this->data, 'images') === false) {
+            return null;
+        }
+
+        if (ArrayHelper::containsKey($this->data, 'variants') === false) {
+            return null;
+        }
+
+        $productDetailResponse = new ProductDetailResponse($guid, $creationTime, $changeTime, $name, $voteAverageScore, $voteCount, $type, $visibility, $defaultCategory, $url, $supplier, $brand, $perex);
+
+        foreach ($this->data['images'] as $image) {
+            $productImageResponse = new ProductImageResponse(
+                $image['name'],
+                $image['priority'],
+                $image['seoName'],
+                $image['cdnName'],
+                $image['description'],
+                $image['changeTime'],
+            );
+            $productDetailResponse->addImage($productImageResponse);
+        }
+
+        foreach ($this->data['variants'] as $variant) {
+            $productVariantResponse = new ProductVariantResponse(
+                $variant['code'],
+                $variant['ean'],
+                $variant['stock'],
+                $variant['unit'],
+                $variant['weight'],
+                $variant['width'],
+                $variant['height'],
+                $variant['depth'],
+                $variant['visible'],
+                $variant['amountDecimalPlaces'],
+                $variant['price'],
+                $variant['includingVat'],
+                $variant['vatRate'],
+                $variant['currencyCode'],
+                $variant['actionPrice'],
+                $variant['commonPrice'],
+                $variant['availability'],
+            );
+            $productDetailResponse->addVariant($productVariantResponse);
+        }
+        return $productDetailResponse;
+    }
+
     /**
      * @return array<ProductImageResponse>
      */

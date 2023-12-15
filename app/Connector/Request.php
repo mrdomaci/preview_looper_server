@@ -41,6 +41,13 @@ class Request
         return $this;
     }
 
+    public function getProductDetail(string $guid): Request
+    {
+        $this->setMethod(Product::getMethod());
+        $this->setEndpoint(Product::getEndpoint($guid));
+        return $this;
+    }
+
     public function addFilterProducts(ProductFilter $productFilter): Request
     {
         $this->query[$productFilter->getKey()] = $productFilter->getValue();

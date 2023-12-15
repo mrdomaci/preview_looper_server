@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Helpers;
 
 use App\Connector\EshopResponse;
+use App\Connector\ProductDetailResponse;
 use App\Connector\ProductFilter;
 use App\Connector\ProductImageResponse;
 use App\Connector\ProductListResponse;
@@ -22,6 +23,14 @@ class ConnectorHelper
         }
         $response = $request->send();
         return $response->getProducts();
+    }
+
+    public static function getProductDetail(ClientService $clientService, string $productGuid): ?ProductDetailResponse
+    {
+        $request = new Request($clientService);
+        $request->getProductDetail($productGuid);
+        $response = $request->send();
+        return $response->getProductDetails();
     }
 
     /**

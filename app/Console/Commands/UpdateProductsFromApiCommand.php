@@ -13,24 +13,25 @@ use App\Helpers\ResponseHelper;
 use App\Models\ClientService;
 use App\Models\Product;
 use App\Models\Service;
+use DateTime;
 use Illuminate\Console\Command;
 use Throwable;
 
-class StoreProductsFromApiCommand extends AbstractCommand
+class UpdateProductsFromApiCommand extends AbstractCommand
 {
-    /**
+/**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'update:products {client_id?}';
+    protected $signature = 'update:changed:products {client_id?}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Store products from API';
+    protected $description = 'Store changed products from API';
 
     /**
      * Execute the console command.
@@ -44,7 +45,6 @@ class StoreProductsFromApiCommand extends AbstractCommand
         $service = Service::find(Service::DYNAMIC_PREVIEW_IMAGES);
 
         for($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-
             if ($clientId !== null) {
                 $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
                     ->where('status', ClientServiceStatusEnum::ACTIVE)
@@ -71,8 +71,9 @@ class StoreProductsFromApiCommand extends AbstractCommand
                 }
                 $clientService->setUpdateInProgress(true);
                 $clientService->save();
+                $dateLastSynced = new DateTime($clientService->getAttribute('date_last_synced'));
                 $products = Product::where('client_id', $currentClientId)->where('active', true)->get(['id', 'guid', 'active']);
-                $productFilter = new ProductFilter('visibility', 'visible');
+                $productFilter = new ProductFilter('changeTimeFrom', $dateLastSynced->format('Y-m-d') . 'T' . $dateLastSynced->format('H:i:s') . '+0100');
                 for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
                     try {
                         $productListResponse = ConnectorHelper::getProducts($clientService, $page, $productFilter);
@@ -92,12 +93,13 @@ class StoreProductsFromApiCommand extends AbstractCommand
                                 $product = new Product();
                                 $product->setAttribute('guid', $productResponse->getGuid());
                                 $product->setAttribute('client_id', $currentClientId);
-                                $product->setAttribute('active', true);
-                                $product->save();
-                            } else if ($product->getAttribute('active') === false) {
-                                $product->setAttribute('active', true);
-                                $product->save();
                             }
+                            $product->setAttribute('active', true);
+                            $product->setAttribute('name', $productResponse->getName());
+                            $product->setAttribute('url', $productResponse->getUrl());
+                            $product->setAttribute('producer', $productResponse->getBrand()?->getName());
+                            $product->setAttribute('category', $productResponse->getDefaultCategory()?->getName());
+                            $product->save();
                         }
                         if ($productListResponse->getPage() === $productListResponse->getPageCount()) {
                             break;

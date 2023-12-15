@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use App\Connector\ProductDetailResponse;
 use App\Connector\ProductFilter;
 use App\Connector\ProductImageResponse;
 use App\Connector\ProductResponse;
@@ -19,6 +20,15 @@ class GeneratorHelper
         foreach (ConnectorHelper::getProductImages($clientService, $productGuid) as $item) {
             yield $item;
         }
+    }
+
+    /**
+     * @param ClientService $clientService
+     * @param string $productGuid
+     * @return ?ProductDetailResponse
+     */
+    public static function fetchProductDetail(ClientService $clientService, string $productGuid): ?ProductDetailResponse {
+        return ConnectorHelper::getProductDetail($clientService, $productGuid);
     }
 
     /**

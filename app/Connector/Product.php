@@ -7,10 +7,13 @@ class Product
 {
     public const METHOD = 'GET';
     public const ENDPOINT = '/products';
-    public const QUERY = [];
+    public const QUERY = ['include' => 'images'];
 
-    public static function getEndpoint(): string
+    public static function getEndpoint(?string $guid = null): string
     {
+        if ($guid !== null) {
+            return self::ENDPOINT . '/' . $guid;
+        }
         return self::ENDPOINT;
     }
 
