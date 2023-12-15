@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('process', function (Blueprint $table) {
-            //
+        Schema::table('', function (Blueprint $table) {
+            $table->dropColumn('update_in_process');
         });
     }
 };
