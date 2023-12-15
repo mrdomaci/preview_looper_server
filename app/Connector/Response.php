@@ -257,7 +257,7 @@ class Response
                 $image['seoName'],
                 $image['cdnName'],
                 $image['description'],
-                $image['changeTime'],
+                new DateTime($image['changeTime']),
             );
             $productDetailResponse->addImage($productImageResponse);
         }
