@@ -290,6 +290,7 @@ class Response
             );
             $productDetailResponse->addVariant($productVariantResponse);
         }
+        dd($productDetailResponse);
         return $productDetailResponse;
     }
 
