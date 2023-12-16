@@ -95,6 +95,7 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
                             $product->setAttribute('producer', $productDetailResponse->getBrand()?->getName());
                             $product->setAttribute('url', $productDetailResponse->getUrl());
                             $product->setAttribute('price', PriceHelper::getUnfiedPriceString($productDetailResponse->getVariants()));
+                            $product->save();
 
                             foreach ($productDetailResponse->getImages() as $imageResponse) {
                                 $image = new Image();

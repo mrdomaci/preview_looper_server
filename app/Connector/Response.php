@@ -154,9 +154,9 @@ class Response
                 $supplier = $product['supplier'];
             }
             if (ArrayHelper::containsKey($product, 'brand')) {
-                if (ArrayHelper::isArray($product['brand']) &&  ArrayHelper::containsKey($product['brand'], 'guid') && ArrayHelper::containsKey($product['brand'], 'name')) {
+                if (ArrayHelper::isArray($product['brand']) &&  ArrayHelper::containsKey($product['brand'], 'code') && ArrayHelper::containsKey($product['brand'], 'name')) {
                     $brand = new ProductBrand(
-                        $product['brand']['guid'],
+                        $product['brand']['code'],
                         $product['brand']['name'],
                     );
                 }
@@ -290,7 +290,6 @@ class Response
             );
             $productDetailResponse->addVariant($productVariantResponse);
         }
-        dd($productDetailResponse);
         return $productDetailResponse;
     }
 
