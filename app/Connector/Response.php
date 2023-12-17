@@ -230,9 +230,9 @@ class Response
             $supplier = $this->data['supplier'];
         }
         if (ArrayHelper::containsKey($this->data, 'brand')) {
-            if (ArrayHelper::isArray($this->data['brand']) &&  ArrayHelper::containsKey($this->data['brand'], 'guid') && ArrayHelper::containsKey($this->data['brand'], 'name')) {
+            if (ArrayHelper::isArray($this->data['brand']) &&  ArrayHelper::containsKey($this->data['brand'], 'code') && ArrayHelper::containsKey($this->data['brand'], 'name')) {
                 $brand = new ProductBrand(
-                    $this->data['brand']['guid'],
+                    $this->data['brand']['code'],
                     $this->data['brand']['name'],
                 );
             }
