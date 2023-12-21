@@ -14,6 +14,7 @@ use App\Helpers\WebHookHelper;
 use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\ClientSettingsServiceOption;
+use App\Models\OrderStatus;
 use App\Models\Service;
 use App\Models\SettingsService;
 use App\Models\SettingsServiceOption;
@@ -144,6 +145,10 @@ class ClientController extends Controller
             //loosen security for now 
             //abort(401);
         }
+
+        $orderStatuses = OrderStatus::where('client_id', $client->getAttribute('id'))->get();
+        $clientSettings = ClientSettingsServiceOption::where('client_id', $client->getAttribute('id'))->get();
+
         return view($service->getAttribute('view-name') . '.settings',
             [
                 'country' => $country,
@@ -153,6 +158,8 @@ class ClientController extends Controller
                 'settings_service' => $serviceSettings,
                 'last_synced' => $clientService->getAttribute('date_last_synced'),
                 'update_in_process' => $clientService->getAttribute('update_in_process'),
+                'order_statuses' => $orderStatuses,
+                'client_settings' => $clientSettings
             ]);
     }
 
@@ -169,18 +176,46 @@ class ClientController extends Controller
         $client = Client::getByEshopId((int) $eshopId);
         $settingsServices = SettingsService::where('service_id', $service->getAttribute('id'))->get();
         foreach ($settingsServices as $settingsService) {
+            $value = null;
             $selectedOption = $request->input($settingsService->getAttribute('id'));
             $settingsServiceOption = SettingsServiceOption::where('id', $selectedOption)->first();
-            ClientSettingsServiceOption::updateOrCreate($client, $settingsService, $settingsServiceOption);
+            if ($settingsServiceOption === null) {
+                if ($selectedOption !== '-') {
+                    $selectedOption = (int) $selectedOption;
+                } else {
+                    $selectedOption = null;
+                }
+                $settingsServiceOption = new SettingsServiceOption(
+                    [
+                        'name' => 'default',
+                        'value' => null,
+                        'settings_service_id' => $selectedOption,
+                    ]
+                );
+            }
+
+            if ($request->input($settingsService->getAttribute('id') . '_value') !== null) {
+                $value = $request->input($settingsService->getAttribute('id') . '_value');
+            }
+            ClientSettingsServiceOption::updateOrCreate($client, $settingsService, $settingsServiceOption, $value);
         }
         LocaleHelper::setLocale($language);
-        $client = Client::getByEshopId((int) $eshopId);
         $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $service->getAttribute('id'))->first();
-        $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($service, $client);
-        $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
-        if ($templateIncludeResponse->getTemplateIncludes() === []) {
-            LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));
-            return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
+        if ($service->getAttribute('id') === ClientService::DYNAMIC_PREVIEW_LOOPER) {
+            $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($service, $client);
+            $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
+            if ($templateIncludeResponse->getTemplateIncludes() === []) {
+                LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));
+                return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
+            }
+        }
+        if ($service->getAttribute('id') === ClientService::ORDER_STATUS) {
+            try {
+                WebHookHelper::jenkinsWebhookGenerateOrderStatusImages($client->getAttribute('id'));
+            } catch (Throwable $t) {
+                LoggerHelper::log('Webhook generate order status images failed: ' . $t->getMessage());
+                return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
+            }
         }
         return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', trans('general.saved'));
     }
