@@ -6,20 +6,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Order extends Model
+class OrderStatus extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'client_id',
-        'guid',
-        'code',
-        'status',
-    ];
-
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'foreign_id',
+        'name',
+        'system',
+        'order',
+        'mark_as_paid',
+        'color',
+        'background_color',
+        'change_order_items',
+        'stock_claim_resolved',
     ];
 
     public function client(): BelongsTo

@@ -12,6 +12,7 @@ class Service extends Model
 
     public $timestamps = false;
     public const DYNAMIC_PREVIEW_IMAGES = 1;
+    public const ORDER_STATUS = 2;
 
     protected $fillable = [
         'name',

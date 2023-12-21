@@ -69,6 +69,13 @@ class Request
         return $this;
     }
 
+    public function getOrderStatuses(): Request
+    {
+        $this->setMethod(OrderStatus::getMethod());
+        $this->setEndpoint(OrderStatus::getEndpoint());
+        return $this;
+    }
+
     public function postTemplateInclude(string $body): Request
     {
         $this->setMethod(TemplateInclude::getMethod());
