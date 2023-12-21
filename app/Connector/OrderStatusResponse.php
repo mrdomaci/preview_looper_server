@@ -10,13 +10,13 @@ class OrderStatusResponse
     public function __construct(
         private int $id,
         private string $name,
-        private bool $system,
-        private int $order,
-        private bool $markAsPaid,
-        private string $color,
-        private string $backgroundColor,
-        private bool $changeOrderItems,
-        private bool $stockClaimResolved,
+        private ?bool $system,
+        private ?int $order,
+        private ?bool $markAsPaid,
+        private ?string $color,
+        private ?string $backgroundColor,
+        private ?bool $changeOrderItems,
+        private ?bool $stockClaimResolved,
     ) {
     }
 
@@ -30,37 +30,37 @@ class OrderStatusResponse
         return $this->name;
     }
 
-    public function isSystem(): bool
+    public function isSystem(): ?bool
     {
         return $this->system;
     }
 
-    public function getOrder(): int
+    public function getOrder(): ?int
     {
         return $this->order;
     }
 
-    public function isMarkAsPaid(): bool
+    public function isMarkAsPaid(): ?bool
     {
         return $this->markAsPaid;
     }
 
-    public function getColor(): string
+    public function getColor(): ?string
     {
         return $this->color;
     }
 
-    public function getBackgroundColor(): string
+    public function getBackgroundColor(): ?string
     {
         return $this->backgroundColor;
     }
 
-    public function isChangeOrderItems(): bool
+    public function isChangeOrderItems(): ?bool
     {
         return $this->changeOrderItems;
     }
 
-    public function isStockClaimResolved(): bool
+    public function isStockClaimResolved(): ?bool
     {
         return $this->stockClaimResolved;
     }
