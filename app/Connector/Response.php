@@ -387,7 +387,7 @@ class Response
         if (ArrayHelper::containsKey($this->data, 'statuses') === true) {
             foreach ($this->data['statuses'] as $orderStatus) {
                 if (ArrayHelper::containsKey($orderStatus, 'id') === true) {
-                    $id = $orderStatus['id'];
+                    $id = (string) $orderStatus['id'];
                 } else {
                     continue;
                 }
