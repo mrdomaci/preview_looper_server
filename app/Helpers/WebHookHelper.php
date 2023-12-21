@@ -43,4 +43,10 @@ class WebHookHelper
         $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_UPDATE');
         return Http::post($url, ['client' => (string) $clientId]);
     }
+
+    public static function jenkinsWebhookGenerateOrderStatusImages(int $clientId): Response
+    {
+        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_ORDER_STATUS_IMAGES');
+        return Http::post($url, ['client' => (string) $clientId]);
+    }
 }
