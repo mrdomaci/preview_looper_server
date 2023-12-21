@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace App\Connector;
 
-use DateTime;
-
 class OrderStatusResponse
 {
     public function __construct(
