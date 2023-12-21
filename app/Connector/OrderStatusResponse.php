@@ -8,7 +8,7 @@ use DateTime;
 class OrderStatusResponse
 {
     public function __construct(
-        private int $id,
+        private string $id,
         private string $name,
         private ?bool $system,
         private ?int $order,
@@ -20,7 +20,7 @@ class OrderStatusResponse
     ) {
     }
 
-    public function getId(): int
+    public function getId(): string
     {
         return $this->id;
     }
