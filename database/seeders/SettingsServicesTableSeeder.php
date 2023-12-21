@@ -56,6 +56,55 @@ class SettingsServicesTableSeeder extends Seeder
                 'sort' => 6,
                 'service_id' => 1,
                 'type' => 'select',
+            ],
+            [
+                'id' => 7,
+                'name' => 'order-status.new',
+                'sort' => 1,
+                'service_id' => 2,
+                'type' => 'value',
+            ],
+            [
+                'id' => 8,
+                'name' => 'order-status.accepted',
+                'sort' => 2,
+                'service_id' => 2,
+                'type' => 'value',
+            ],
+            [
+                'id' => 9,
+                'name' => 'order-status.in_progress',
+                'sort' => 3,
+                'service_id' => 2,
+                'type' => 'value',
+            ],
+            [
+                'id' => 10,
+                'name' => 'order-status.cancelled',
+                'sort' => 4,
+                'service_id' => 2,
+                'type' => 'value',
+            ],
+            [
+                'id' => 11,
+                'name' => 'order-status.shipped',
+                'sort' => 5,
+                'service_id' => 2,
+                'type' => 'value',
+            ],
+            [
+                'id' => 12,
+                'name' => 'order-status.ready_for_pickup',
+                'sort' => 6,
+                'service_id' => 2,
+                'type' => 'value',
+            ],
+            [
+                'id' => 13,
+                'name' => 'order-status.done',
+                'sort' => 7,
+                'service_id' => 2,
+                'type' => 'value',
             ]
         ]);
     }

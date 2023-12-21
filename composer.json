@@ -8,6 +8,7 @@
         "php": "^8.0.2",
         "alek13/slack": "^2.2",
         "doctrine/dbal": "^3.6",
+        "gregwar/image": "^2.1",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^3.0",
