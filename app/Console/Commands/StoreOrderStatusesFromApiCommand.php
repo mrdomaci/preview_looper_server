@@ -78,7 +78,7 @@ class StoreOrderStatusesFromApiCommand extends AbstractCommand
                         if ($orderStatus === null) {
                             $orderStatus = new OrderStatus();
                             $orderStatus->setAttribute('client_id', $currentClientId);
-                            $orderStatus->setAttribute('foreign_id', $orderStatusResponse->getId());
+                            $orderStatus->setAttribute('foreign_id', (string) $orderStatusResponse->getId());
                             $orderStatus->setAttribute('name', $orderStatusResponse->getName());
                             $orderStatus->setAttribute('system', $orderStatusResponse->isSystem());
                             $orderStatus->setAttribute('order', $orderStatusResponse->getOrder());
