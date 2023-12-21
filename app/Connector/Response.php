@@ -7,10 +7,8 @@ use App\Exceptions\ApiResponsePaginatorFailException;
 use App\Helpers\ArrayHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
-use App\Helpers\StringHelper;
 use DateTime;
 use Exception;
-use Nette\Utils\Strings;
 
 class Response
 {
@@ -381,6 +379,72 @@ class Response
             }
         }
         return new EshopResponse($name, $title, $category, $subtitle, $ehopUrl, $contactPerson, $email, $phone, $street, $city, $zip, $country, $vatNumber, $oauthUrl);
+    }
+
+    public function getOrderStatuses(): OrderStatusListResponse
+    {
+        $orderStatuses = [];
+        if (ArrayHelper::containsKey($this->data, 'statuses') === true) {
+            foreach ($this->data['statuses'] as $orderStatus) {
+                if (ArrayHelper::containsKey($orderStatus, 'id') === true) {
+                    $id = $orderStatus['id'];
+                } else {
+                    continue;
+                }
+                if (ArrayHelper::containsKey($orderStatus, 'name') === true) {
+                    $name = $orderStatus['name'];
+                } else {
+                    continue;
+                }
+                if (ArrayHelper::containsKey($orderStatus, 'system') === true) {
+                    $system = $orderStatus['system'];
+                } else {
+                    $system = false;
+                }
+                if (ArrayHelper::containsKey($orderStatus, 'order') === true) {
+                    $order = $orderStatus['order'];
+                } else {
+                    $order = 99;
+                }
+                if (ArrayHelper::containsKey($orderStatus, 'markAsPaid') === true) {
+                    $markAsPaid = $orderStatus['markAsPaid'];
+                } else {
+                    $markAsPaid = false;
+                }
+                if (ArrayHelper::containsKey($orderStatus, 'color') === true) {
+                    $color = $orderStatus['color'];
+                } else {
+                    $color = null;
+                }
+                if (ArrayHelper::containsKey($orderStatus, 'backgroundColor') === true) {
+                    $backgroundColor = $orderStatus['backgroundColor'];
+                } else {
+                    $backgroundColor = null;
+                }
+                if (ArrayHelper::containsKey($orderStatus, 'changeOrderItems') === true) {
+                    $changeOrderItems = $orderStatus['changeOrderItems'];
+                } else {
+                    $changeOrderItems = false;
+                }
+                if (ArrayHelper::containsKey($orderStatus, 'stockClaimResolved') === true) {
+                    $stockClaimResolved = $orderStatus['stockClaimResolved'];
+                } else {
+                    $stockClaimResolved = false;
+                }
+                $orderStatuses[] = new OrderStatusResponse(
+                    $id,
+                    $name,
+                    $system,
+                    $order,
+                    $markAsPaid,
+                    $color,
+                    $backgroundColor,
+                    $changeOrderItems,
+                    $stockClaimResolved
+                );
+            }
+        }
+        return new OrderStatusListResponse($orderStatuses);
     }
 
     public function postTemplateIncluded(): TemplateIncludeResponse

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Helpers;
 
 use App\Connector\EshopResponse;
+use App\Connector\OrderStatusListResponse;
 use App\Connector\ProductDetailResponse;
 use App\Connector\ProductFilter;
 use App\Connector\ProductImageResponse;
@@ -50,6 +51,14 @@ class ConnectorHelper
         $request->getEshop();
         $response = $request->send();
         return $response->getEshop();
+    }
+
+    public static function getOrderSatuses(ClientService $clientService): OrderStatusListResponse
+    {
+        $request = new Request($clientService);
+        $request->getOrderStatuses();
+        $response = $request->send();
+        return $response->getOrderStatuses();
     }
 
     public static function postTemplateInclude(ClientService $clientService, string $body): TemplateIncludeResponse

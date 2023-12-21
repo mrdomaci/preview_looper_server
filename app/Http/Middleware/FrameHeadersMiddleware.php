@@ -17,7 +17,7 @@ class FrameHeadersMiddleware
     public function handle(Request $request, Closure $next)
     {
         $response = $next($request);
-        $response->header('X-Frame-Options', 'ALLOW FROM https://myshoptet.com/');
+        //$response->header('X-Frame-Options', 'ALLOW FROM https://myshoptet.com/');
         return $response;
     }
 }
