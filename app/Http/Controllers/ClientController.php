@@ -203,7 +203,7 @@ class ClientController extends Controller
         }
         LocaleHelper::setLocale($language);
         $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $serviceId)->first();
-        if ($service->getAttribute('id') === ClientService::DYNAMIC_PREVIEW_LOOPER) {
+        if ($serviceId === ClientService::DYNAMIC_PREVIEW_LOOPER) {
             $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($service, $client);
             $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
             if ($templateIncludeResponse->getTemplateIncludes() === []) {
