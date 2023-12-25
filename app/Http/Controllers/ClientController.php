@@ -115,7 +115,7 @@ class ClientController extends Controller
         $client = Client::getByEshopId((int) $eshopId);
         $serviceSettings = SettingsService::where('service_id', $service->getAttribute('id'))->orderBy('sort')->get();
         $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $service->getAttribute('id'))->first();
-        if ($request->session()->has($eshopId . '_access_token') === false) {
+        if ($request->session()->has($eshopId . '_' . $service->getAttribute('id') . '_access_token') === false) {
             $code = $request->input('code');
             $eshopResponse = ConnectorHelper::getEshop($clientService);
             $baseOAuthUrl = null;
