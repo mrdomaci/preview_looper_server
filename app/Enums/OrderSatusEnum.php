@@ -1,17 +1,19 @@
 <?php
 namespace App\Enums;
 
-enum OrderSatusEnum:string {
-    case NEW = 'new';
-    case ACCEPTED = 'accepted';
-    case IN_PROGRESS = 'in_progress';
-    case CANCELLED = 'cancelled';
-    case SHIPPED = 'shipped';
-    case READY_FOR_PICKUP = 'ready_for_pickup';
-    case DONE = 'done';
+use App\Models\SettingsService;
 
-    public static function getIcon(string $status): string {
-        return match ($status) {
+enum OrderSatusEnum:string {
+    case NEW = 'order-status.new';
+    case ACCEPTED = 'order-status.accepted';
+    case IN_PROGRESS = 'order-status.in_progress';
+    case CANCELLED = 'order-status.cancelled';
+    case SHIPPED = 'order-status.shipped';
+    case READY_FOR_PICKUP = 'order-status.ready_for_pickup';
+    case DONE = 'order-status.done';
+
+    public static function getIcon(SettingsService $settingsService): string {
+        return match ($settingsService->getAttribute('name')) {
             self::NEW->value => 'plus.png',
             self::ACCEPTED->value => 'inbox.png',
             self::IN_PROGRESS->value => 'gears.png',

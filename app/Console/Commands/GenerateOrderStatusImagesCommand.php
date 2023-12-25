@@ -44,6 +44,9 @@ class GenerateOrderStatusImagesCommand extends AbstractCommand
                     ->whereIn('settings_service_id', [7,8,9,10,11,12,13])
                     ->get();
                 foreach ($clientSettingsServiceOptions as $clientSettingsServiceOption) {
+                    if ($clientSettingsServiceOption->getAttribute('settings_service_option_id') === null) {
+                        continue;
+                    }
                     $result = ImageHelper::orderStatus($client, $clientSettingsServiceOption);
                     if ($result === false) {
                         $this->error('Client ' . $client->getAttribute('id') . ' order icon generation failed for ' . $clientSettingsServiceOption->getAttribute('settings_service_id'));
