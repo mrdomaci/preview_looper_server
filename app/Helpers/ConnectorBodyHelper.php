@@ -24,7 +24,7 @@ class ConnectorBodyHelper
     {
         $htmlString = "<div id='%s'";
         $htmlString = sprintf($htmlString, $service->getAttribute('name'));
-        $clientSettingsServiceOptions = ClientSettingsServiceOption::with('settingsService', 'settingsServiceOption')->where('client_id', $client->getAttribute('id'))->get();
+        $clientSettingsServiceOptions = ClientSettingsServiceOption::with('settingsService', 'settingsServiceOption')->where('client_id', $client->getAttribute('id'))->where('service_id', Service::DYNAMIC_PREVIEW_IMAGES)->get();
         foreach ($clientSettingsServiceOptions as $clientSettingsServiceOption) {
             $htmlString .= sprintf(" data-%s='%s'", $clientSettingsServiceOption->settingsService->getAttribute('name'), $clientSettingsServiceOption->settingsServiceOption->getAttribute('value'));
         }
