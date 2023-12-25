@@ -251,13 +251,17 @@ class Response
         $productDetailResponse = new ProductDetailResponse($guid, $creationTime, $changeTime, $name, $voteAverageScore, $voteCount, $type, $visibility, $defaultCategory, $url, $supplier, $brand, $perex);
 
         foreach ($this->data['images'] as $image) {
+            $changeTime = null;
+            if (ArrayHelper::containsKey($image, 'changeTime') && $image['changeTime'] !== null) {
+                $changeTime = new DateTime($image['changeTime']);
+            }
             $productImageResponse = new ProductImageResponse(
                 $image['name'],
                 $image['priority'] ? (int) $image['priority'] : null,
                 $image['seoName'],
                 $image['cdnName'],
                 $image['description'],
-                new DateTime($image['changeTime']),
+                $changeTime,
             );
             $productDetailResponse->addImage($productImageResponse);
         }
