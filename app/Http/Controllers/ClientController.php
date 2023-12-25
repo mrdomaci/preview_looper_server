@@ -131,11 +131,11 @@ class ClientController extends Controller
             }
     
             $accessToken = AuthorizationHelper::getAccessTokenForSettings($country, $code, $serviceUrlPath, $eshopId, $language, $baseOAuthUrl);
-            $request->session()->put($eshopId . '_access_token', $accessToken);   
-            $request->session()->put($eshopId . '_base_oauth_url', $baseOAuthUrl);
+            $request->session()->put($eshopId . '_' . $service->getAttribute('id') . '_access_token', $accessToken);   
+            $request->session()->put($eshopId . '_' . $service->getAttribute('id') . '_base_oauth_url', $baseOAuthUrl);
         } else {
-            $accessToken = $request->session()->get($eshopId . '_access_token');
-            $baseOAuthUrl = $request->session()->get($eshopId . '_base_oauth_url');
+            $accessToken = $request->session()->get($eshopId . '_' . $service->getAttribute('id') . '_access_token');
+            $baseOAuthUrl = $request->session()->get($eshopId . '_' . $service->getAttribute('id') . '_base_oauth_url');
         }
 
         $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
