@@ -6,6 +6,7 @@ use App\Enums\OrderSatusEnum;
 use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\Order;
+use App\Models\SettingsService;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
@@ -32,8 +33,8 @@ class FileController extends Controller
         } catch (Throwable) {
             abort(404);
         }
-        
-        $filePath = storage_path('app/images/order-status/' . $client->getAttribute('id') . '_' . OrderSatusEnum::getIcon($order->getAttribute('status')));
+        $settingsService = SettingsService::where('service_id', ClientService::ORDER_STATUS)->where('name', 'order-status.' . $order->getAttribute('status'))->firstOrFail();
+        $filePath = storage_path('app/images/order-status/' . $client->getAttribute('id') . '_' . OrderSatusEnum::getIcon($settingsService));
 
         if (!file_exists($filePath)) {
             abort(404); // File not found
