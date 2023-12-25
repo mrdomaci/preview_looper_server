@@ -106,6 +106,7 @@ class ClientController extends Controller
     {
         $country = strtoupper($country);
         $service = Service::where('url-path', $serviceUrlPath)->first();
+        $serviceId = $service->getAttribute('id');
         if ($service === null) {
             abort(404);
         }
@@ -113,29 +114,29 @@ class ClientController extends Controller
         $eshopId = $request->input('eshop_id');
 
         $client = Client::getByEshopId((int) $eshopId);
-        $serviceSettings = SettingsService::where('service_id', $service->getAttribute('id'))->orderBy('sort')->get();
-        $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $service->getAttribute('id'))->first();
-        if ($request->session()->has($eshopId . '_' . $service->getAttribute('id') . '_access_token') === false) {
+        $serviceSettings = SettingsService::where('service_id', $serviceId)->orderBy('sort')->get();
+        $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $serviceId)->first();
+        if ($request->session()->has($eshopId . '_' . $serviceId . '_access_token') === false) {
             $code = $request->input('code');
             $eshopResponse = ConnectorHelper::getEshop($clientService);
             $baseOAuthUrl = null;
             if ($eshopResponse->getOauthUrl() !== null) {
                 $baseOAuthUrl = $eshopResponse->getOauthUrl();
-                session([$eshopId . '_base_oauth_url' => $baseOAuthUrl]);
+                session([$eshopId . '_' . $serviceId . '_base_oauth_url' => $baseOAuthUrl]);
             }
             if ($baseOAuthUrl === null) {
-                $baseOAuthUrl = session($eshopId . '_base_oauth_url');
+                $baseOAuthUrl = session($eshopId . '_' . $serviceId . '_base_oauth_url');
             }
             if ($baseOAuthUrl === null) {
                 throw new ApiRequestFailException(new Exception('Base OAuth URL not found in session or response for client ' . $client->getAttribute('eshop_id')));
             }
     
             $accessToken = AuthorizationHelper::getAccessTokenForSettings($country, $code, $serviceUrlPath, $eshopId, $language, $baseOAuthUrl);
-            $request->session()->put($eshopId . '_' . $service->getAttribute('id') . '_access_token', $accessToken);   
-            $request->session()->put($eshopId . '_' . $service->getAttribute('id') . '_base_oauth_url', $baseOAuthUrl);
+            $request->session()->put($eshopId . '_' . $serviceId . '_access_token', $accessToken);   
+            $request->session()->put($eshopId . '_' . $serviceId . '_base_oauth_url', $baseOAuthUrl);
         } else {
-            $accessToken = $request->session()->get($eshopId . '_' . $service->getAttribute('id') . '_access_token');
-            $baseOAuthUrl = $request->session()->get($eshopId . '_' . $service->getAttribute('id') . '_base_oauth_url');
+            $accessToken = $request->session()->get($eshopId . '_' . $serviceId . '_access_token');
+            $baseOAuthUrl = $request->session()->get($eshopId . '_' . $serviceId . '_base_oauth_url');
         }
 
         $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
@@ -173,8 +174,9 @@ class ClientController extends Controller
         if ($eshopId !== $request->input('eshop_id')) {
             abort(403);
         }
+        $serviceId = $service->getAttribute('id');
         $client = Client::getByEshopId((int) $eshopId);
-        $settingsServices = SettingsService::where('service_id', $service->getAttribute('id'))->get();
+        $settingsServices = SettingsService::where('service_id', $serviceId)->get();
         foreach ($settingsServices as $settingsService) {
             $value = null;
             $selectedOption = $request->input($settingsService->getAttribute('id'));
@@ -200,7 +202,7 @@ class ClientController extends Controller
             ClientSettingsServiceOption::updateOrCreate($client, $settingsService, $settingsServiceOption, $value);
         }
         LocaleHelper::setLocale($language);
-        $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $service->getAttribute('id'))->first();
+        $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $serviceId)->first();
         if ($service->getAttribute('id') === ClientService::DYNAMIC_PREVIEW_LOOPER) {
             $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($service, $client);
             $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
@@ -209,7 +211,7 @@ class ClientController extends Controller
                 return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
             }
         }
-        if ($service->getAttribute('id') === ClientService::ORDER_STATUS) {
+        if ($serviceId === ClientService::ORDER_STATUS) {
             try {
                 WebHookHelper::jenkinsWebhookGenerateOrderStatusImages($client->getAttribute('id'));
             } catch (Throwable $t) {
