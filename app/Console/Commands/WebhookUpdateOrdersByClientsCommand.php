@@ -34,7 +34,7 @@ class WebhookUpdateOrdersByClientsCommand extends AbstractCommand
     public function handle()
     {
         $dateLastSync = now()->subHours(2);
-        $service = Service::find(Service::DYNAMIC_PREVIEW_IMAGES);
+        $service = Service::find(Service::ORDER_STATUS);
         try {
             $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
                                 ->where('status', ClientServiceStatusEnum::ACTIVE)
@@ -43,16 +43,16 @@ class WebhookUpdateOrdersByClientsCommand extends AbstractCommand
                                 ->where('service_id', Service::ORDER_STATUS)
                                 ->first();
         } catch (Throwable) {
-            $this->info('No clients to update');
+            $this->info('No orders to update');
             return Command::SUCCESS;
         }
         if ($clientServices === null) {
-            $this->info('No clients to update');
+            $this->info('No orders to update');
             return Command::SUCCESS;
         }
         $client = Client::find($clientServices->getAttribute('client_id'));
         WebHookHelper::jenkinsWebhookUpdateOrders($client->getAttribute('id'));
-        $this->info('Client ' . (string) $client->getAttribute('id') . ' webhooked to be updated');
+        $this->info('Client ' . (string) $client->getAttribute('id') . ' webhooked to be orders updated');
         return Command::SUCCESS;
     }
 }
