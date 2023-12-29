@@ -15,14 +15,14 @@ enum OrderSatusEnum:string {
 
     public static function getIcon(SettingsService $settingsService): string {
         return match ($settingsService->getAttribute('name')) {
-            self::NEW->value => 'plus.png',
-            self::ACCEPTED->value => 'inbox.png',
-            self::IN_PROGRESS->value => 'gears.png',
-            self::CANCELLED->value => 'stop.png',
-            self::SHIPPED->value => 'fast-truck.png',
-            self::READY_FOR_PICKUP->value => 'two-people-carry-box.png',
-            self::DONE->value => 'check.png',
-            default => 'plus.png',
+            self::NEW->value => 'plus.gif',
+            self::ACCEPTED->value => 'inbox.gif',
+            self::IN_PROGRESS->value => 'gears.gif',
+            self::CANCELLED->value => 'stop.gif',
+            self::SHIPPED->value => 'fast-truck.gif',
+            self::READY_FOR_PICKUP->value => 'two-people-carry-box.gif',
+            self::DONE->value => 'check.gif',
+            default => 'plus.gif',
         };
     }
 }

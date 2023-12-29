@@ -46,7 +46,7 @@ class FileController extends Controller
             },
             200,
             [
-                'Content-Type' => 'image/png',
+                'Content-Type' => 'image/gif',
                 'Content-Disposition' => 'inline; filename="' . $fileName . '"',
                 'Content-Length' => filesize($filePath),
             ]
