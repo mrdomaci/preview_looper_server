@@ -29,8 +29,8 @@ class ImageHelper
                     ->fill($background)
                     ->merge(Image::open('storage/app/images/icons/' . $icon), 22, 47, 256, 256)
                     ->write('public/fonts/Ubuntu/Ubuntu-Regular.ttf', $header, 150, 46, 26, 0, $textColor, 'center')
-                    ->setFallback('storage/app/images/icons/plus.png')
-                    ->save('storage/app/images/order-status/' . $client->getAttribute('id') . '_' . $icon, 'png', 100);
+                    ->setFallback('storage/app/images/icons/plus.gif')
+                    ->save('storage/app/images/order-status/' . $client->getAttribute('id') . '_' . $icon, 'gif', 100);
         if ($image === false) {
             return false;
         }

@@ -12,7 +12,7 @@
             <div class="col-md-12">
                 <blockquote class="blockquote text-center">
                     <p class="mb-0">&lt;div style=&quot;text-align: center;&quot;&gt;
-                        &lt;img src=&quot;https://slabihoud.cz/order-status/{{ $eshop_id }}/#ORDER_CODE#.png&quot; alt=&quot;order status icon&quot; style=&quot;max-width: 100%; height: auto; display: block; margin: 0 auto;&quot;&gt;
+                        &lt;img src=&quot;https://slabihoud.cz/order-status/{{ $eshop_id }}/#ORDER_CODE#&quot; alt=&quot;order status icon&quot; style=&quot;max-width: 100%; height: auto; display: block; margin: 0 auto;&quot;&gt;
                     &lt;/div&gt;</p>
                 </blockquote>
             </div>
