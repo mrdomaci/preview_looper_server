@@ -12,7 +12,7 @@ class DateTimeHelper
         $dateTimeString = $dateTime->format('Y-m-d');
         $dateTimeString .= 'T';
         $dateTimeString .= $dateTime->format('H:i:s');
-        $dateTimeString .= '%2B0100';
+        $dateTimeString .= '%2B0200';
         return $dateTimeString;
     }
 }
