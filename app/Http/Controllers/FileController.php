@@ -26,10 +26,8 @@ class FileController extends Controller
             abort(403);
         }
 
-        $code = explode('.', $fileName)[0];
-
         try {
-            $order = Order::where('client_id', (int) $client->getAttribute('id'))->where('code', $code)->firstOrFail();
+            $order = Order::where('client_id', (int) $client->getAttribute('id'))->where('code', $fileName)->firstOrFail();
         } catch (Throwable) {
             abort(404);
         }
