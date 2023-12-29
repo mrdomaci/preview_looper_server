@@ -5,6 +5,21 @@
         <h4>{{ __('order-status.addon_title') }} - {{ __('general.settings') }}</h4>
     </div>
     <div class="card-body">
+        <div class="form-group row mt-4">
+            <div class="col-md-12 mb-4">
+                <label>{{ __('order-status.code_info')}}</label>
+            </div>
+            <div class="col-md-12">
+                <blockquote class="blockquote text-center">
+                    <p class="mb-0">&lt;div style=&quot;text-align: center;&quot;&gt;
+                        &lt;img src=&quot;https://slabihoud.cz/order-status/{{ $eshop_id }}/#ORDER_CODE#.png&quot; alt=&quot;order status icon&quot; style=&quot;max-width: 100%; height: auto; display: block; margin: 0 auto;&quot;&gt;
+                    &lt;/div&gt;</p>
+                </blockquote>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="card-body">
         @include('flashMessage')
         <form method="POST" action="{{ route('client.saveSettings', ['country' => $country, 'serviceUrlPath' => $service_url_path, 'language' => $language, 'eshopId' => $client->eshop_id]) }}">
         @csrf
@@ -64,11 +79,9 @@
         </div>
       </form>
       <div class="card-body">
-        <form method="POST" action="{{ route('client.sync', ['country' => $country, 'serviceUrlPath' => $service_url_path, 'language' => $language, 'eshopId' => $client->eshop_id]) }}">
-            @csrf
             <div class="form-group row mt-4">
                 <div class="col-md-12 mb-4">
-                    <label>{{ __('general.sync_info')}}</label>
+                    <label>{{ __('order-status.sync_info')}}</label>
                 </div>
                 <div class="col-md-6">
                     <label>{{ __('general.last_synced_at')}}:</label>
@@ -81,14 +94,7 @@
                     @endif
                 </div>
             </div>
-            <div class="row mt-4">
-                <div class="col-md-12 text-center">
-                    <input type="hidden" name="eshop_id" value="{{$client->eshop_id}}">
-                    <button type="submit" class="btn btn-secondary m-3">{{ __('general.sync_now') }}</button>
-                </div>
-            </div>
-        </form>
-      </div>
+        </div>
     </div>
   </div>
 </div>

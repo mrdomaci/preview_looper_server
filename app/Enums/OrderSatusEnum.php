@@ -11,6 +11,7 @@ enum OrderSatusEnum:string {
     case SHIPPED = 'order-status.shipped';
     case READY_FOR_PICKUP = 'order-status.ready_for_pickup';
     case DONE = 'order-status.done';
+    case UNKNOWN = 'order-status.unknown';
 
     public static function getIcon(SettingsService $settingsService): string {
         return match ($settingsService->getAttribute('name')) {

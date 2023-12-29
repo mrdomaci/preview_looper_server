@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="{{Config::get('app.locale')}}">
 <head>
-    <title>{{ __('dynamic-preview-images.addon_title')}} - Slabihoud.cz</title>
+    @if (isset($title))
+        <?php $title = $title ?>
+        <title>{{ __($title . '.addon_title')}} - Slabihoud.cz</title>
+    @else
+        <title>Slabihoud.cz</title>
+    @endif
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="../../css/bootstrap.css">
     <link rel="stylesheet" href="../../css/bootstrap.min.css">

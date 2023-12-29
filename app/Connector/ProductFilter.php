@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Connector;
 
+use App\Helpers\DateTimeHelper;
 use DateTime;
 
 class ProductFilter
@@ -51,10 +52,7 @@ class ProductFilter
     public function getValue(): string
     {
         if ($this->value instanceof DateTime) {
-            $result = $this->value->format('Y-m-d');
-            $result .= 'T';
-            $result .= $this->value->format('H:i:s');
-            $result .= '+0100';
+            $result = DateTimeHelper::getDateTimeString($this->value);
         } else {
             $result = $this->value;
         }

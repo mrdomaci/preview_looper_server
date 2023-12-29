@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Helpers;
 
 use App\Connector\EshopResponse;
+use App\Connector\OrderListResponse;
 use App\Connector\OrderStatusListResponse;
 use App\Connector\ProductDetailResponse;
 use App\Connector\ProductFilter;
@@ -12,6 +13,7 @@ use App\Connector\ProductListResponse;
 use App\Connector\Request;
 use App\Connector\TemplateIncludeResponse;
 use App\Models\ClientService;
+use DateTime;
 
 class ConnectorHelper
 {
@@ -59,6 +61,14 @@ class ConnectorHelper
         $request->getOrderStatuses();
         $response = $request->send();
         return $response->getOrderStatuses();
+    }
+
+    public static function getOrders(ClientService $clientService, int $page, ?DateTime $dateLastSynced): ?OrderListResponse
+    {
+        $request = new Request($clientService);
+        $request->getOrders($page, $dateLastSynced);
+        $response = $request->send();
+        return $response->getOrders();
     }
 
     public static function postTemplateInclude(ClientService $clientService, string $body): TemplateIncludeResponse

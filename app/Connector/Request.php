@@ -9,6 +9,7 @@ use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ResponseHelper;
 use App\Helpers\TokenHelper;
 use App\Models\ClientService;
+use DateTime;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 
@@ -73,6 +74,15 @@ class Request
     {
         $this->setMethod(OrderStatus::getMethod());
         $this->setEndpoint(OrderStatus::getEndpoint());
+        return $this;
+    }
+
+    public function getOrders(int $page, ?DateTime $dateLastSynced): Request
+    {
+        $this->setMethod(Order::getMethod());
+        $this->setEndpoint(Order::getEndpoint($dateLastSynced));
+        $this->setPage($page);
+        $this->setItemsPerPage(ResponseHelper::MAXIMUM_ITEMS_PER_PAGE);
         return $this;
     }
 

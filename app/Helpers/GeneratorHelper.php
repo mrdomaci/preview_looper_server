@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use App\Connector\OrderResponse;
 use App\Connector\OrderStatusResponse;
 use App\Connector\ProductDetailResponse;
 use App\Connector\ProductFilter;
 use App\Connector\ProductImageResponse;
 use App\Connector\ProductResponse;
 use App\Models\ClientService;
+use DateTime;
 
 class GeneratorHelper
 {
@@ -53,6 +55,22 @@ class GeneratorHelper
      */
     public static function fetchOrderStatuses(ClientService $clientService): iterable {
         foreach (ConnectorHelper::getOrderSatuses($clientService)->getOrderStatuses() as $item) {
+            yield $item;
+        }
+    }
+
+    /**
+     * @param ClientService $clientService
+     * @param DateTime|null $changeFrom
+     * @param int $page
+     * @return iterable<OrderResponse>
+     */
+    public static function fetchOrders(ClientService $clientService, int $page, ?DateTime $changeFrom = null): iterable {
+        $orders = ConnectorHelper::getOrders($clientService, $page, $changeFrom);
+        if ($orders === null) {
+            return;
+        }
+        foreach ($orders->getOrders() as $item) {
             yield $item;
         }
     }
