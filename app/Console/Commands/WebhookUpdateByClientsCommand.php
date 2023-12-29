@@ -38,7 +38,10 @@ class WebhookUpdateByClientsCommand extends AbstractCommand
         try {
             $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
                                 ->where('status', ClientServiceStatusEnum::ACTIVE)
-                                ->where('date_last_synced', '<=', $dateLastSync)
+                                ->where(function ($query) use ($dateLastSync) {
+                                    $query->where('date_last_synced', '<=', $dateLastSync)
+                                        ->orWhereNull('date_last_synced');
+                                })
                                 ->where('update_in_process', '=', 0)
                                 ->where('service_id', Service::DYNAMIC_PREVIEW_IMAGES)
                                 ->first();

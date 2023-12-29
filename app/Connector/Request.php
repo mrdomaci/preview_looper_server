@@ -6,6 +6,7 @@ namespace App\Connector;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestNonExistingResourceException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
+use App\Helpers\DateTimeHelper;
 use App\Helpers\ResponseHelper;
 use App\Helpers\TokenHelper;
 use App\Models\ClientService;
@@ -80,7 +81,10 @@ class Request
     public function getOrders(int $page, ?DateTime $dateLastSynced): Request
     {
         $this->setMethod(Order::getMethod());
-        $this->setEndpoint(Order::getEndpoint($dateLastSynced));
+        $this->setEndpoint(Order::getEndpoint());
+        if ($dateLastSynced !== null) {
+            $this->setQuery('changeTimeFrom', DateTimeHelper::getDateTimeString($dateLastSynced));
+        }
         $this->setPage($page);
         $this->setItemsPerPage(ResponseHelper::MAXIMUM_ITEMS_PER_PAGE);
         return $this;

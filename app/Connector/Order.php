@@ -12,12 +12,8 @@ class Order
     public const ENDPOINT = '/orders';
     public const QUERY = [];
 
-    public static function getEndpoint(?DateTime $changeFrom = null): string
+    public static function getEndpoint(): string
     {
-        if ($changeFrom !== null) {
-            $filter = DateTimeHelper::getDateTimeString($changeFrom);
-            return self::ENDPOINT . '/?changeTimeFrom=' . $filter;
-        }
         return self::ENDPOINT;
     }
 
