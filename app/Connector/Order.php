@@ -3,9 +3,6 @@ declare(strict_types=1);
 
 namespace App\Connector;
 
-use App\Helpers\DateTimeHelper;
-use DateTime;
-
 class Order
 {
     public const METHOD = 'GET';
