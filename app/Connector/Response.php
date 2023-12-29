@@ -164,6 +164,190 @@ class Response
         return $productListResponse;
     }
 
+    public function getOrders(): ?OrderListResponse
+    {
+        if (ArrayHelper::containsKey($this->data, 'orders') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data, 'paginator') === false) {
+            return null;
+        }
+
+        if (ArrayHelper::containsKey($this->data['paginator'], 'totalCount') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['paginator'], 'page') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['paginator'], 'pageCount') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['paginator'], 'itemsOnPage') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['paginator'], 'itemsPerPage') === false) {
+            return null;
+        }
+        $orderListResponse = new OrderListResponse(
+            $this->data['paginator']['totalCount'],
+            $this->data['paginator']['page'],
+            $this->data['paginator']['pageCount'],
+            $this->data['paginator']['itemsOnPage'],
+            $this->data['paginator']['itemsPerPage'],
+            []
+        );
+        foreach ($this->data['orders'] as $order) {
+            $code = null;
+            $guid = null;
+            $creationTime = null;
+            $changeTime = null;
+            $fullName = null;
+            $company = null;
+            $email = null;
+            $phone = null;
+            $remark = null;
+            $cashDeskOrder = null;
+            $customerGuid = null;
+            $paid = null;
+            $foreignStatusId = null;
+            $source = null;
+            $price = null;
+            $paymentMethod = null;
+            $shipping = null;
+            $adminUrl = null;
+
+            if (ArrayHelper::containsKey($order, 'code') === false) {
+                continue;
+            } else {
+                $code = $order['code'];
+            }
+
+            if (ArrayHelper::containsKey($order, 'guid') === false) {
+                continue;
+            } else {
+                $guid = $order['guid'];
+            }
+
+            if (ArrayHelper::containsKey($order, 'creationTime') && $order['creationTime'] !== null) {
+                $creationTime = new DateTime($order['creationTime']);
+            }
+
+            if (ArrayHelper::containsKey($order, 'changeTime') && $order['changeTime'] !== null) {
+                $changeTime = new DateTime($order['changeTime']);
+            }
+
+            if (ArrayHelper::containsKey($order, 'fullName')) {
+                $fullName = $order['fullName'];
+            }
+
+            if (ArrayHelper::containsKey($order, 'company')) {
+                $company = $order['company'];
+            }
+
+            if (ArrayHelper::containsKey($order, 'email')) {
+                $email = $order['email'];
+            }
+
+            if (ArrayHelper::containsKey($order, 'phone')) {
+                $phone = $order['phone'];
+            }
+
+            if (ArrayHelper::containsKey($order, 'remark')) {
+                $remark = $order['remark'];
+            }
+
+            if (ArrayHelper::containsKey($order, 'cashDeskOrder')) {
+                $cashDeskOrder = $order['cashDeskOrder'];
+            } else {
+                $cashDeskOrder = false;
+            }
+
+            if (ArrayHelper::containsKey($order, 'customerGuid')) {
+                $customerGuid = $order['customerGuid'];
+            }
+
+            if (ArrayHelper::containsKey($order, 'paid')) {
+                if ($order['paid'] === null) {
+                    $paid = false;
+                } else {
+                    $paid = $order['paid'];
+                }
+            } else {
+                $paid = false;
+            }
+
+            if (ArrayHelper::containsKey($order, 'status')) {
+                if (ArrayHelper::isArray($order['status'])) {
+                    $foreignStatusId = (string) $order['status']['id'];
+                }
+            }
+
+            if (ArrayHelper::containsKey($order, 'source')) {
+                if (ArrayHelper::isArray($order['source'])) {
+                    $source = (string) $order['source']['id'];
+                }
+            }
+
+            if (ArrayHelper::containsKey($order, 'price')) {
+                if (ArrayHelper::isArray($order['price'])) {
+                    $price = new OrderPriceResponse(
+                        (float) $order['price']['vat'],
+                        (float) $order['price']['toPay'],
+                        $order['price']['currencyCode'],
+                        (float) $order['price']['withVat'],
+                        (float) $order['price']['withoutVat'],
+                        (float) $order['price']['exchangeRate'],
+                    );
+                }
+            }
+
+            if (ArrayHelper::containsKey($order, 'paymentMethod')) {
+                if (ArrayHelper::isArray($order['paymentMethod'])) {
+                    $paymentMethod = new OrderPaymentMethodResponse(
+                        $order['paymentMethod']['guid'],
+                        $order['paymentMethod']['name'],
+                    );
+                }
+            }
+
+            if (ArrayHelper::containsKey($order, 'shipping')) {
+                if (ArrayHelper::isArray($order['shipping'])) {
+                    $shipping = new OrderShippingResponse(
+                        $order['shipping']['guid'],
+                        $order['shipping']['name'],
+                    );
+                }
+            }
+
+            if (ArrayHelper::containsKey($order, 'adminUrl')) {
+                $adminUrl = $order['adminUrl'];
+            }
+
+            $orderListResponse->addOrder(new OrderResponse(
+                (string) $code,
+                $guid,
+                $creationTime,
+                $changeTime,
+                $fullName,
+                $company,
+                $email,
+                $phone,
+                $remark,
+                $cashDeskOrder,
+                $customerGuid,
+                $paid,
+                $foreignStatusId,
+                $source,
+                $price,
+                $paymentMethod,
+                $shipping,
+                $adminUrl,
+            ));
+        }
+        return $orderListResponse;
+    }
+
+
     public function getProductDetails(): ?ProductDetailResponse
     {
         $creationTime = null;
