@@ -102,7 +102,7 @@ class ClientController extends Controller
         return Response('ok', 200);
     }
 
-    public function settings(string $country,  string $serviceUrlPath, Request $request): View
+    public function settings(string $country, string $serviceUrlPath, Request $request): View
     {
         $country = strtoupper($country);
         $service = Service::where('url-path', $serviceUrlPath)->first();
@@ -160,7 +160,9 @@ class ClientController extends Controller
                 'last_synced' => $clientService->getAttribute('date_last_synced'),
                 'update_in_process' => $clientService->getAttribute('update_in_process'),
                 'order_statuses' => $orderStatuses,
-                'client_settings' => $clientSettings
+                'client_settings' => $clientSettings,
+                'title' => $service->getAttribute('name'),
+                'eshop_id' => $eshopId,
             ]);
     }
 

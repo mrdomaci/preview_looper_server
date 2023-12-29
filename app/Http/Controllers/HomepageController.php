@@ -46,7 +46,7 @@ class HomepageController extends Controller
         if ($service === null) {
             abort(404);
         }
-        return View($service->getAttribute('view-name') . '.index', ['service_url_path' => $serviceUrlPath]);
+        return View($service->getAttribute('view-name') . '.index', ['service_url_path' => $serviceUrlPath, 'title' => $service->getAttribute('name')]);
     }
 
     public function terms(string $serviceUrlPath, Request $request): View
@@ -64,6 +64,6 @@ class HomepageController extends Controller
             abort(404);
         }
         
-        return View($service->getAttribute('view-name') . '.terms', ['service_url_path' => $serviceUrlPath]);
+        return View($service->getAttribute('view-name') . '.terms', ['service_url_path' => $serviceUrlPath, 'title' => $service->getAttribute('name')]);
     }
 }

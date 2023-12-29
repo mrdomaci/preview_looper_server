@@ -33,7 +33,7 @@ class FileController extends Controller
         } catch (Throwable) {
             abort(404);
         }
-        $settingsService = SettingsService::where('service_id', ClientService::ORDER_STATUS)->where('name', 'order-status.' . $order->getAttribute('status'))->firstOrFail();
+        $settingsService = SettingsService::where('service_id', ClientService::ORDER_STATUS)->where('name', $order->getAttribute('status'))->firstOrFail();
         $filePath = storage_path('app/images/order-status/' . $client->getAttribute('id') . '_' . OrderSatusEnum::getIcon($settingsService));
 
         if (!file_exists($filePath)) {
