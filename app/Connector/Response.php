@@ -366,6 +366,12 @@ class Response
             if (ArrayHelper::containsKey($item, 'amount') === false) {
                 continue;
             }
+            if ($item['productGuid'] === null) {
+                continue;
+            }
+            if ($item['amount'] === null) {
+                continue;
+            }
             $orderDetailResponse = new OrderDetailResponse(
                 $item['productGuid'],
                 (float) $item['amount'],
