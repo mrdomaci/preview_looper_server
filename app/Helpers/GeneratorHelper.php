@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use App\Connector\OrderDetailResponse;
 use App\Connector\OrderResponse;
 use App\Connector\OrderStatusResponse;
 use App\Connector\ProductDetailResponse;
@@ -71,6 +72,21 @@ class GeneratorHelper
             return;
         }
         foreach ($orders->getOrders() as $item) {
+            yield $item;
+        }
+    }
+
+    /**
+     * @param ClientService $clientService
+     * @param string $code
+     * @return iterable<OrderDetailResponse>
+     */
+    public static function fetchOrderDetail(ClientService $clientService, string $code): iterable {
+        $orderDetail = ConnectorHelper::getOrderDetail($clientService, $code);
+        if ($orderDetail === null) {
+            return;
+        }
+        foreach ($orderDetail->getProducts() as $item) {
             yield $item;
         }
     }
