@@ -141,7 +141,10 @@ class StoreOrdersFromApiCommand extends AbstractCommand
 
                             foreach (GeneratorHelper::fetchOrderDetail($clientService, $orderResponse->getCode()) as $orderDetailResponse) {
                                 $product = Product::where('client_id', $currentClientId)->where('guid', $orderDetailResponse->getProductGuid())->first();
-                                for ($j = 0; $j <= (int) $orderDetailResponse->getAmount(); $j++) {
+                                for ($j = 1; $j <= (int) $orderDetailResponse->getAmount(); $j++) {
+                                    $orderProducts = OrderProduct::where('client_id', $currentClientId)->where('order_guid', $orderResponse->getGuid())->where('product_guid', $orderDetailResponse->getProductGuid())->get();
+                                    $orderProducts->delete();
+                                    
                                     $orderProduct = new OrderProduct();
                                     $orderProduct->setAttribute('client_id', $currentClientId);
                                     $orderProduct->setAttribute('order_id', $order->getAttribute('id'));
