@@ -13,7 +13,9 @@ use App\Helpers\ResponseHelper;
 use App\Models\ClientService;
 use App\Models\ClientSettingsServiceOption;
 use App\Models\Order;
+use App\Models\OrderProduct;
 use App\Models\OrderStatus;
+use App\Models\Product;
 use App\Models\Service;
 use App\Models\SettingsService;
 use Illuminate\Console\Command;
@@ -136,6 +138,21 @@ class StoreOrdersFromApiCommand extends AbstractCommand
                             $order->setAttribute('shipping', $orderResponse->getShipping()?->getGuid());
                             $order->setAttribute('admin_url', $orderResponse->getAdminUrl());
                             $order->save();
+
+                            foreach (GeneratorHelper::fetchOrderDetail($clientService, $orderResponse->getCode()) as $orderDetailResponse) {
+                                $product = Product::where('client_id', $currentClientId)->where('guid', $orderDetailResponse->getProductGuid())->first();
+                                for ($j = 0; $j <= (int) $orderDetailResponse->getAmount(); $j++) {
+                                    $orderProduct = new OrderProduct();
+                                    $orderProduct->setAttribute('client_id', $currentClientId);
+                                    $orderProduct->setAttribute('order_id', $order->getAttribute('id'));
+                                    $orderProduct->setAttribute('order_guid', $orderResponse->getGuid());
+                                    $orderProduct->setAttribute('product_guid', $orderDetailResponse->getProductGuid());
+                                    if ($product !== null) {
+                                        $orderProduct->setAttribute('product_id', $product->getAttribute('id'));
+                                    }
+                                    $orderProduct->save();
+                                }
+                            }
                         }
                         if ($orderListResponse->getPage() === $orderListResponse->getPageCount()) {
                             break;

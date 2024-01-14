@@ -347,6 +347,34 @@ class Response
         return $orderListResponse;
     }
 
+    public function getOrderDetails(): ?OrderDetailListResponse
+    {
+        if (ArrayHelper::containsKey($this->data, 'order') === false) {
+            return null;
+        }
+
+        $orderDetailListResponse = new OrderDetailListResponse();
+
+        if (ArrayHelper::containsKey($this->data['order'], 'items') === false) {
+            return null;
+        }
+
+        foreach ($this->data['order']['items'] as $item) {
+            if (ArrayHelper::containsKey($item, 'productGuid') === false) {
+                continue;
+            }
+            if (ArrayHelper::containsKey($item, 'amount') === false) {
+                continue;
+            }
+            $orderDetailResponse = new OrderDetailResponse(
+                $item['productGuid'],
+                (float) $item['amount'],
+            );
+            $orderDetailListResponse->addProduct($orderDetailResponse);
+        }
+
+        return $orderDetailListResponse;
+    }
 
     public function getProductDetails(): ?ProductDetailResponse
     {
