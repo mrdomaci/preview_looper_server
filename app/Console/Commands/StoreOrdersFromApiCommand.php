@@ -46,7 +46,7 @@ class StoreOrdersFromApiCommand extends AbstractCommand
     {        
         $clientId = $this->argument('client_id');
         $success = true;
-        $service = Service::find(Service::ORDER_STATUS);
+        $service = Service::find(Service::UPSELL);
         $serviceId = (int) $service->getAttribute('id');
         $dateNow = new \DateTime();
         $this->info('Updating orders');

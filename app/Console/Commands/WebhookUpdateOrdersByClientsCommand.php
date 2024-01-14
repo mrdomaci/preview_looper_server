@@ -34,7 +34,7 @@ class WebhookUpdateOrdersByClientsCommand extends AbstractCommand
     public function handle()
     {
         $dateLastSync = now()->subHours(2);
-        $service = Service::find(Service::ORDER_STATUS);
+        $service = Service::find(Service::UPSELL);
         try {
             $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
                                 ->where('status', ClientServiceStatusEnum::ACTIVE)
@@ -43,7 +43,7 @@ class WebhookUpdateOrdersByClientsCommand extends AbstractCommand
                                         ->orWhereNull('date_last_synced');
                                 })
                                 ->where('update_in_process', '=', 0)
-                                ->where('service_id', Service::ORDER_STATUS)
+                                ->where('service_id', Service::UPSELL)
                                 ->first();
         } catch (Throwable) {
             $this->info('No orders to update');

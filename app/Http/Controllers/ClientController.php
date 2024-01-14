@@ -205,7 +205,7 @@ class ClientController extends Controller
         }
         LocaleHelper::setLocale($language);
         $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $serviceId)->first();
-        if ($serviceId === ClientService::DYNAMIC_PREVIEW_LOOPER) {
+        if ($serviceId === Service::DYNAMIC_PREVIEW_IMAGES) {
             $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($service, $client);
             $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
             if ($templateIncludeResponse->getTemplateIncludes() === []) {
@@ -213,7 +213,7 @@ class ClientController extends Controller
                 return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
             }
         }
-        if ($serviceId === ClientService::ORDER_STATUS) {
+        if ($serviceId === Service::UPSELL) {
             try {
                 WebHookHelper::jenkinsWebhookGenerateOrderStatusImages($client->getAttribute('id'));
             } catch (Throwable $t) {
