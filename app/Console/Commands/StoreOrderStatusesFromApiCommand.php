@@ -39,7 +39,7 @@ class StoreOrderStatusesFromApiCommand extends AbstractCommand
     {        
         $clientId = $this->argument('client_id');
         $success = true;
-        $service = Service::find(Service::ORDER_STATUS);
+        $service = Service::find(Service::UPSELL);
 
         for($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             if ($clientId !== null) {

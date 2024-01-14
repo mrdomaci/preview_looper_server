@@ -14,9 +14,6 @@ class ClientService extends Model
 {
     use HasFactory;
 
-    public const DYNAMIC_PREVIEW_LOOPER = 1;
-    public const ORDER_STATUS = 2;
-
     public $timestamps = true;
 
     protected $fillable = [

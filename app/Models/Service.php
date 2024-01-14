@@ -12,7 +12,7 @@ class Service extends Model
 
     public $timestamps = false;
     public const DYNAMIC_PREVIEW_IMAGES = 1;
-    public const ORDER_STATUS = 2;
+    public const UPSELL = 2;
 
     protected $fillable = [
         'name',
@@ -29,5 +29,10 @@ class Service extends Model
     public function isDynamicPreviewImages(): bool
     {
         return $this->id === self::DYNAMIC_PREVIEW_IMAGES;
+    }
+
+    public function isUpsell(): bool
+    {
+        return $this->id === self::UPSELL;
     }
 }
