@@ -80,7 +80,7 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
                 for ($j = 0; $j < $this->getMaxIterationCount(); $j++) {
                     $products = $this->productRepository->getProductsPastId($client, $productOffsetId);
                     for($k = 0; $k < count($products); $k++) {
-                        $product = $products[$k]['one'];
+                        $product = $products[$k];
                         $productGuid = $product->getAttribute('guid');
                         $productId = $product->getAttribute('id');
                         $productOffsetId = $productId;
