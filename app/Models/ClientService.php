@@ -44,8 +44,8 @@ class ClientService extends Model
 
     public function setUpdateInProgress(bool $updateInProgress, ?bool $setDateLastSynced = false): void
     {
-        $this->setAttribute('update_in_process', $setDateLastSynced);
-        if ($updateInProgress === true) {
+        $this->setAttribute('update_in_process', $updateInProgress);
+        if ($setDateLastSynced === true) {
             $this->setAttribute('date_last_synced', now());
         }
         try {
