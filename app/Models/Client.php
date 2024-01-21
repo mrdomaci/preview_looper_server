@@ -45,6 +45,26 @@ class Client extends Model
         return $this->hasMany(ClientService::class);
     }
 
+    public function dynamicPreviewImages(): ?ClientService
+    {
+        foreach ($this->services()->get() as $service) {
+            if ($service->service()->first()->isDynamicPreviewImages()) {
+                return $service;
+            }
+        }
+        return null;
+    }
+
+    public function upsell(): ?ClientService
+    {
+        foreach ($this->services()->get() as $service) {
+            if ($service->service()->first()->isUpsell()) {
+                return $service;
+            }
+        }
+        return null;
+    }
+
     public static function getByEshopId(int $eshopId): Client
     {
         $client = Client::where('eshop_id', $eshopId)->first();

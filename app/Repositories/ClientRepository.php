@@ -47,4 +47,8 @@ class ClientRepository {
         $client->setAttribute('last_synced_at', now());
         $client->save();
     }
+
+    public function getByEshopId(int $eshopID): ?Client {
+        return Client::where('eshop_id', $eshopID)->first();
+    }
 }

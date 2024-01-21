@@ -50,7 +50,6 @@ class StoreClientsFromApiCommand extends AbstractCommand
         }
 
         $lastClientId = 0;
-        $dateLastSync = now()->subHours(24);
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientId,
@@ -60,7 +59,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
             );
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
-                if ($this->clientServiceBusiness->isForbidenToUpdate($clientService, $dateLastSync)) {
+                if ($this->clientServiceBusiness->isForbidenToUpdate($clientService)) {
                     continue;
                 }
                 try {
