@@ -2,18 +2,18 @@
 
 namespace App\Console\Commands;
 
+use App\Businesses\ClientServiceBusiness;
 use App\Connector\ProductDetailResponse;
-use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\ApiRequestNonExistingResourceException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\GeneratorHelper;
 use App\Helpers\LoggerHelper;
-use App\Helpers\PriceHelper;
 use App\Models\ClientService;
-use App\Models\Image;
-use App\Models\Product;
 use App\Models\Service;
+use App\Repositories\ClientServiceRepository;
+use App\Repositories\ImageRepository;
+use App\Repositories\ProductRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -32,6 +32,16 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
      */
     protected $description = 'Store product details from API';
 
+    public function __construct(
+        private readonly ClientServiceRepository $clientServiceRepository,
+        private readonly ClientServiceBusiness $clientServiceBusiness,
+        private readonly ProductRepository $productRepository,
+        private readonly ImageRepository $imageRepository
+    )
+    {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      *
@@ -41,83 +51,60 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
     {
         $clientId = $this->argument('client_id');
         $success = true;
-        $service = Service::find(Service::DYNAMIC_PREVIEW_IMAGES);
-
+        if ($clientId !== null) {
+            $clientId = (int) $clientId;
+        }
+        $lastClientServiceId = 0;
+        $dateLastSync = now()->subHours(12);
         for($i = 0; $i < $this->getMaxIterationCount(); $i++) {
 
-            if ($clientId !== null) {
-                $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
-                    ->where('status', ClientServiceStatusEnum::ACTIVE)
-                    ->where('client_id', $clientId)
-                    ->get();
-            } else {
-                $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
-                    ->where('status', ClientServiceStatusEnum::ACTIVE)
-                    ->limit($this->getIterationCount())
-                    ->offset($this->getOffset($i))
-                    ->get();
-            }
+            $clientServices = $this->clientServiceRepository->getActive(
+                $lastClientServiceId,
+                Service::getDynamicPreviewImages(),
+                $clientId,
+                $this->getIterationCount(),
+            );
 
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
-                if ($clientService->getAttribute('date_last_synced') !== null &&
-                    $clientService->getAttribute('date_last_synced') >= now()->subHours(12)) {
+                $lastClientServiceId = $clientService->getAttribute('id');
+                if ($this->clientServiceBusiness->isForbidenToUpdate($clientService, $dateLastSync) === true) {
                     continue;
                 }
-                if ($clientService->getAttribute('update_in_process') === true) {
-                    continue;
-                }
+
                 $clientService->setUpdateInProgress(true);
-                $clientService->save();
-                $client = $clientService->client()->first(['id']);
-                $currentClientId = $client->getAttribute('id');
-                $this->info('Updating images for client id:' . (string)$currentClientId);
+
+                $client = $clientService->client()->first();
+                $this->info('Updating images for client id:' . $client->getAttribute('id'));
                 $productOffsetId = 0;
                 for ($j = 0; $j < $this->getMaxIterationCount(); $j++) {
-                    $products = Product::where('client_id', $currentClientId)->where('active', true)->where('id', '>', $productOffsetId)->limit(10)->get(['id', 'guid']);
+                    $products = $this->productRepository->getProductsPastId($client, $productOffsetId);
                     for($k = 0; $k < count($products); $k++) {
-                        $product = $products[$k];
+                        $product = $products[$k]['one'];
                         $productGuid = $product->getAttribute('guid');
                         $productId = $product->getAttribute('id');
                         $productOffsetId = $productId;
                         try {
                             $this->info('Updating details for product ' . $productGuid);
-                            Image::where('client_id', $clientId)->where('product_id', $productId)->delete();
+                            $this->imageRepository->deleteByClientAndProduct($client, $product);
                             /** @var ?ProductDetailResponse $productDetailResponse */
                             $productDetailResponse = GeneratorHelper::fetchProductDetail($clientService, $productGuid);
                             if ($productDetailResponse === null) {
                                 $this->info('Product ' . $productGuid . ' not found');
                                 continue;
                             }
-                            $product->setAttribute('name', $productDetailResponse->getName());
-                            $product->setAttribute('perex', $productDetailResponse->getPerex());
-                            $product->setAttribute('category', $productDetailResponse->getDefaultCategory()?->getName());
-                            $product->setAttribute('producer', $productDetailResponse->getBrand()?->getName());
-                            $product->setAttribute('url', $productDetailResponse->getUrl());
-                            $product->setAttribute('price', PriceHelper::getUnfiedPriceString($productDetailResponse->getVariants()));
-                            $product->save();
+                            $this->productRepository->updateDetailFromResponse($product, $productDetailResponse);
 
                             foreach ($productDetailResponse->getImages() as $imageResponse) {
-                                $image = new Image();
-                                $hash = $clientId . '-' . $productId;
-                                if ($imageResponse->getPriority() !== null) {
-                                    $hash .= '-' . $imageResponse->getPriority();
-                                }
-                                $image->setAttribute('hash', $hash);
-                                $image->setAttribute('client_id', $currentClientId);
-                                $image->setAttribute('product_id', $productId);
-                                $image->setAttribute('name', $imageResponse->getSeoName());
-                                $image->setAttribute('priority', $imageResponse->getPriority());
-                                $image->save();
+                                $this->imageRepository->createOrUpdateFromResponse($imageResponse, $client, $product);
                             }
                         } catch (ApiRequestNonExistingResourceException $t) {
-                            Product::destroy($productId);
-                            Image::where('client_id', $clientId)->where('product_id', $productId)->delete();
+                            $this->productRepository->deleteByClient($client);
+                            $this->imageRepository->deleteByClient($client);
                             $this->error('Product ' . $productGuid . ' not found');
                         } catch (AddonNotInstalledException) {
-                            $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
-                            $clientService->setUpdateInProgress(false);
-                            $clientService->save();
+                            $clientService->setStatusInactive();
+                            $success = false;
                             break;
                         } catch (ApiRequestTooManyRequestsException) {
                             sleep(10);
@@ -131,11 +118,12 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
                         }
                     }
                     unset($products);
+                    if ($success === false) {
+                        break;
+                    }
                 }
                 $client->save();
-                $clientService->setUpdateInProgress(false);
-                $clientService->setAttribute('date_last_synced', now());
-                $clientService->save();
+                $clientService->setUpdateInProgress(false, true);
             }
             
             if ($clientServices->count() < $this->getIterationCount()) {

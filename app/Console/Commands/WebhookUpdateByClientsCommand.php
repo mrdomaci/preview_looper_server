@@ -2,11 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\ClientServiceStatusEnum;
 use App\Helpers\WebHookHelper;
-use App\Models\Client;
-use App\Models\ClientService;
 use App\Models\Service;
+use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -26,6 +24,13 @@ class WebhookUpdateByClientsCommand extends AbstractCommand
      */
     protected $description = 'Update clients by webhook';
 
+    public function __construct(
+        private readonly ClientServiceRepository $clientServiceRepository,
+    )
+    {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      *
@@ -34,28 +39,18 @@ class WebhookUpdateByClientsCommand extends AbstractCommand
     public function handle()
     {
         $dateLastSync = now()->subHours(12);
-        $service = Service::find(Service::DYNAMIC_PREVIEW_IMAGES);
         try {
-            $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
-                                ->where('status', ClientServiceStatusEnum::ACTIVE)
-                                ->where(function ($query) use ($dateLastSync) {
-                                    $query->where('date_last_synced', '<=', $dateLastSync)
-                                        ->orWhereNull('date_last_synced');
-                                })
-                                ->where('update_in_process', '=', 0)
-                                ->where('service_id', Service::DYNAMIC_PREVIEW_IMAGES)
-                                ->first();
+            $clientService = $this->clientServiceRepository->getNextForUpdate(Service::getDynamicPreviewImages(), $dateLastSync);
         } catch (Throwable) {
             $this->info('No clients to update');
             return Command::SUCCESS;
         }
-        if ($clientServices === null) {
+        if ($clientService === null) {
             $this->info('No clients to update');
             return Command::SUCCESS;
         }
-        $client = Client::find($clientServices->getAttribute('client_id'));
-        WebHookHelper::jenkinsWebhookUpdateClient($client->getAttribute('id'));
-        $this->info('Client ' . (string) $client->getAttribute('id') . ' webhooked to be updated');
+        WebHookHelper::jenkinsWebhookUpdateClient($clientService->getAttribute('client_id'));
+        $this->info('Client ' . (string) $clientService->getAttribute('client_id') . ' webhooked to be updated');
         return Command::SUCCESS;
     }
 }

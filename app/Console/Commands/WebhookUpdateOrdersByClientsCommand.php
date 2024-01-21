@@ -7,6 +7,7 @@ use App\Helpers\WebHookHelper;
 use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\Service;
+use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -26,6 +27,13 @@ class WebhookUpdateOrdersByClientsCommand extends AbstractCommand
      */
     protected $description = 'Update orders by webhook';
 
+    public function __construct(
+        private readonly ClientServiceRepository $clientServiceRepository,
+    )
+    {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      *
@@ -34,28 +42,18 @@ class WebhookUpdateOrdersByClientsCommand extends AbstractCommand
     public function handle()
     {
         $dateLastSync = now()->subHours(2);
-        $service = Service::find(Service::UPSELL);
         try {
-            $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
-                                ->where('status', ClientServiceStatusEnum::ACTIVE)
-                                ->where(function ($query) use ($dateLastSync) {
-                                    $query->where('date_last_synced', '<=', $dateLastSync)
-                                        ->orWhereNull('date_last_synced');
-                                })
-                                ->where('update_in_process', '=', 0)
-                                ->where('service_id', Service::UPSELL)
-                                ->first();
+            $clientService = $this->clientServiceRepository->getNextForUpdate(Service::getUpsell(), $dateLastSync);
         } catch (Throwable) {
             $this->info('No orders to update');
             return Command::SUCCESS;
         }
-        if ($clientServices === null) {
+        if ($clientService === null) {
             $this->info('No orders to update');
             return Command::SUCCESS;
         }
-        $client = Client::find($clientServices->getAttribute('client_id'));
-        WebHookHelper::jenkinsWebhookUpdateOrders($client->getAttribute('id'));
-        $this->info('Client ' . (string) $client->getAttribute('id') . ' webhooked to be orders updated');
+        WebHookHelper::jenkinsWebhookUpdateOrders($clientService->getAttribute('client_id'));
+        $this->info('Client ' . (string) $clientService->getAttribute('client_id') . ' webhooked to be orders updated');
         return Command::SUCCESS;
     }
 }

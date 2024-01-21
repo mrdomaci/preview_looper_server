@@ -2,17 +2,17 @@
 
 namespace App\Console\Commands;
 
+use App\Businesses\ClientServiceBusiness;
 use App\Connector\ProductFilter;
-use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\GeneratorHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
-use App\Models\ClientService;
-use App\Models\Product;
 use App\Models\Service;
+use App\Repositories\ClientServiceRepository;
+use App\Repositories\ProductRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -32,6 +32,15 @@ class StoreProductsFromApiCommand extends AbstractCommand
      */
     protected $description = 'Store products from API';
 
+    public function __construct(
+        private readonly ClientServiceRepository $clientServiceRepository,
+        private readonly ClientServiceBusiness $clientServiceBusiness,
+        private readonly ProductRepository $productRepository,
+    )
+    {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      *
@@ -40,38 +49,30 @@ class StoreProductsFromApiCommand extends AbstractCommand
     public function handle()
     {        
         $clientId = $this->argument('client_id');
+        if ($clientId !== null) {
+            $clientId = (int) $clientId;
+        }
         $success = true;
-        $service = Service::find(Service::DYNAMIC_PREVIEW_IMAGES);
 
+        $lastClientServiceId = 0;
+        $dateLastSync = now()->subHours(12);
         for($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-
-            if ($clientId !== null) {
-                $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
-                    ->where('status', ClientServiceStatusEnum::ACTIVE)
-                    ->where('client_id', $clientId)
-                    ->limit($this->getIterationCount())
-                    ->offset($this->getOffset($i))
-                    ->get();
-            } else {
-                $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
-                    ->where('status', ClientServiceStatusEnum::ACTIVE)
-                    ->limit($this->getIterationCount())
-                    ->offset($this->getOffset($i))
-                    ->get();
-            }
+            $clientServices = $this->clientServiceRepository->getActive(
+                $lastClientServiceId,
+                Service::getDynamicPreviewImages(),
+                $clientId,
+                $this->getIterationCount(),
+            );
 
             foreach ($clientServices as $clientService) {
-                $currentClientId = $clientService->getAttribute('client_id');
-                if ($clientService->getAttribute('date_last_synced') !== null &&
-                    $clientService->getAttribute('date_last_synced') >= now()->subHours(12)) {
-                    continue;
-                }
-                if ($clientService->getAttribute('update_in_process') === true) {
+                $lastClientServiceId = $clientService->getAttribute('id');
+                if ($this->clientServiceBusiness->isForbidenToUpdate($clientService, $dateLastSync) === true) {
                     continue;
                 }
                 $clientService->setUpdateInProgress(true);
-                $clientService->save();
-                $products = Product::where('client_id', $currentClientId)->where('active', true)->get(['id', 'guid', 'active']);
+                $client = $clientService->client()->first();
+
+                $products = $this->productRepository->getActivesByClient($client);
                 $productFilter = new ProductFilter('visibility', 'visible');
                 for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
                     try {
@@ -81,31 +82,16 @@ class StoreProductsFromApiCommand extends AbstractCommand
                         }
                         foreach (GeneratorHelper::fetchProducts($clientService, $productFilter, $page) as $productResponse) {
                             $this->info('Updating product ' . $productResponse->getGuid());
-                            foreach ($products as $key => $product) {
-                                if ($product->getAttribute('guid') === $productResponse->getGuid()) {
-                                    unset($products[$key]);
-                                    break;
-                                }
-                            }
-                            $product = Product::where('client_id', $currentClientId)->where('guid', $productResponse->getGuid())->first();
-                            if ($product === null) {
-                                $product = new Product();
-                                $product->setAttribute('guid', $productResponse->getGuid());
-                                $product->setAttribute('client_id', $currentClientId);
-                                $product->setAttribute('active', true);
-                                $product->save();
-                            } else if ($product->getAttribute('active') === false) {
-                                $product->setAttribute('active', true);
-                                $product->save();
-                            }
+                            $products = $products->filter(function ($product) use ($productResponse) {
+                                return $product->getAttribute('guid') !== $productResponse->getGuid();
+                            });
+                            $this->productRepository->createOrUpdateFromResponse($client, $productResponse);
                         }
                         if ($productListResponse->getPage() === $productListResponse->getPageCount()) {
                             break;
                         }
                     } catch (ApiRequestFailException) {
-                        $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
-                        $clientService->setUpdateInProgress(false);
-                        $clientService->save();
+                        $clientService->setStatusInactive();
                         break;
                     } catch (ApiRequestTooManyRequestsException) {
                         sleep(10);
@@ -118,12 +104,8 @@ class StoreProductsFromApiCommand extends AbstractCommand
                         break;
                     }
                 }
-                foreach ($products as $product) {
-                    $product->setAttribute('active', false);
-                    $product->save();
-                }
+                $this->productRepository->deleteCollection($products);
                 $clientService->setUpdateInProgress(false);
-                $clientService->save();
             }
 
             if ($clientServices->count() < $this->getIterationCount()) {

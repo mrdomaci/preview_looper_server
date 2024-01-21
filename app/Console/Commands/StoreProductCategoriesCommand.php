@@ -2,19 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Connector\OrderStatusResponse;
-use App\Enums\ClientServiceStatusEnum;
-use App\Exceptions\ApiRequestFailException;
-use App\Exceptions\ApiRequestTooManyRequestsException;
-use App\Helpers\GeneratorHelper;
-use App\Helpers\LoggerHelper;
-use App\Models\Category;
 use App\Models\ClientService;
-use App\Models\OrderStatus;
-use App\Models\Product;
 use App\Models\Service;
+use App\Repositories\ClientServiceRepository;
+use App\Repositories\ProductRepository;
 use Illuminate\Console\Command;
-use Throwable;
 
 class StoreProductCategoriesCommand extends AbstractCommand
 {
@@ -32,6 +24,14 @@ class StoreProductCategoriesCommand extends AbstractCommand
      */
     protected $description = 'Store product categories from products';
 
+    public function __construct(
+        private readonly ClientServiceRepository $clientServiceRepository,
+        private readonly ProductRepository $productRepository
+        )
+    {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      *
@@ -40,44 +40,29 @@ class StoreProductCategoriesCommand extends AbstractCommand
     public function handle()
     {        
         $clientId = $this->argument('client_id');
-        $service = Service::find(Service::UPSELL);
-
+        if ($clientId !== null) {
+            $clientId = (int) $clientId;
+        }
+        
+        $lastClientServiceId = 0;
         for($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-            if ($clientId !== null) {
-                $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
-                    ->where('status', ClientServiceStatusEnum::ACTIVE)
-                    ->where('client_id', $clientId)
-                    ->limit($this->getIterationCount())
-                    ->offset($this->getOffset($i))
-                    ->get();
-            } else {
-                $clientServices = ClientService::where('service_id', $service->getAttribute('id'))
-                    ->where('status', ClientServiceStatusEnum::ACTIVE)
-                    ->limit($this->getIterationCount())
-                    ->offset($this->getOffset($i))
-                    ->get();
-            }
+            $clientServices = $this->clientServiceRepository->getActive(
+                $lastClientServiceId,
+                Service::getUpsell(),
+                $clientId,
+                $this->getIterationCount(),
+            );
 
+            /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
-                $currentClientId = $clientService->getAttribute('client_id');
-                $clientService->setUpdateInProgress(true);
-                $clientService->save();
+                $lastClientServiceId = $clientService->getAttribute('id');
+                $client = $clientService->client()->first();
 
                 $lastProductId = 0;
                 for($j = 0; $j < $this->getMaxIterationCount(); $j++) {
-                    $products = Product::where('client_id', $currentClientId)
-                        ->where('active', true)
-                        ->where('id', '>', $lastProductId)
-                        ->get();
-
-                    foreach($products as $product) {
+                    foreach($this->productRepository->getProductsPastId($client, $lastProductId) as $product) {
                         $lastProductId = $product->getAttribute('id');
-                        $categoryName = $product->getAttribute('category');
-                        if ($categoryName !== null) {
-                            $category = Category::createOrUpdate($currentClientId, $categoryName);
-                            $product->setAttribute('category_id', $category->getAttribute('id'));
-                            $product->save();
-                        }
+                        $this->productRepository->setProductCategory($product);
                     }
                 }
             }

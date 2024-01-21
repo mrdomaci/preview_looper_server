@@ -35,4 +35,14 @@ class Service extends Model
     {
         return $this->id === self::UPSELL;
     }
+
+    public static function getDynamicPreviewImages(): self
+    {
+        return self::find(self::DYNAMIC_PREVIEW_IMAGES);
+    }
+
+    public static function getUpsell(): self
+    {
+        return self::find(self::UPSELL);
+    }
 }

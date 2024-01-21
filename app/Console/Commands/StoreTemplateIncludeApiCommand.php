@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\ClientServiceStatusEnum;
 use App\Helpers\ConnectorBodyHelper;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
 use App\Models\ClientService;
+use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -26,6 +26,13 @@ class StoreTemplateIncludeApiCommand extends AbstractCommand
      */
     protected $description = 'Store template includes to API';
 
+    public function __construct(
+        private readonly ClientServiceRepository $clientServiceRepository,
+    )
+    {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      *
@@ -34,11 +41,14 @@ class StoreTemplateIncludeApiCommand extends AbstractCommand
     public function handle()
     {
         $success = true;
+        $lastClientServiceId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-            $clientServices = ClientService::where('status', ClientServiceStatusEnum::ACTIVE)
-                ->limit($this->getIterationCount())
-                ->offset($this->getOffset($i))
-                ->get();
+            $clientServices = $this->clientServiceRepository->getActive(
+                $lastClientServiceId,
+                null,
+                null,
+                $this->getIterationCount(),
+            );
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
                 $client = $clientService->client()->first();

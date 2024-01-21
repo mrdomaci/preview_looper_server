@@ -55,15 +55,6 @@ class ResponseHelper
         return sprintf(self::CDN_URL, $eshopName, $imageName);
     }
 
-    public static function findTemplateName(?string $javascriptCode): ?string
-    {
-        if ($javascriptCode === null) {
-            return null;
-        }
-        preg_match('/shoptet\.design = \{"template":\{"name":"(.*?)",/', $javascriptCode, $matches);
-        return isset($matches[1]) ? $matches[1] : null;
-    }
-
     public static function getUrlResponse(string $url): ?string
     {
         try {
