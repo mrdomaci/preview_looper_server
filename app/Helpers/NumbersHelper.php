@@ -23,4 +23,9 @@ class NumbersHelper
         }
         throw new NumbersException(new Exception('Invalid integer value: ' . $int . ' for conversion to boolean'));
     }
+
+    public static function isModuloCheck(int $value, int $modulo): bool
+    {
+        return $value%11 === $modulo;
+    }
 }

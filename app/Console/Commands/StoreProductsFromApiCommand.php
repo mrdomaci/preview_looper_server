@@ -55,7 +55,6 @@ class StoreProductsFromApiCommand extends AbstractCommand
         $success = true;
 
         $lastClientServiceId = 0;
-        $dateLastSync = now()->subHours(12);
         for($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
@@ -66,7 +65,7 @@ class StoreProductsFromApiCommand extends AbstractCommand
 
             foreach ($clientServices as $clientService) {
                 $lastClientServiceId = $clientService->getAttribute('id');
-                if ($this->clientServiceBusiness->isForbidenToUpdate($clientService, $dateLastSync) === true) {
+                if ($this->clientServiceBusiness->isForbidenToUpdate($clientService) === true) {
                     continue;
                 }
                 $clientService->setUpdateInProgress(true);

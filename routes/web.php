@@ -1,9 +1,9 @@
 <?php
 
 use App\Http\Controllers\ClientController;
-use App\Http\Controllers\FileController;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,4 +33,4 @@ Route::get('/addon-activate/{serviceUrlPath}', [ClientController::class, 'activa
 Route::get('/locale/{locale}', [HomepageController::class, 'setLocale'])->name('homepage.setLocale');
 
 Route::get('/images/{eshopID}/{moduloCheck}', [ImageController::class, 'all'])->name('images.all')->middleware('cors');
-Route::get('/order-status/{eshopID}/{fileName}', [FileController::class, 'orderStatus'])->middleware('cors');
+Route::get('/products/{ehsopID}/{moduloCheck}', [ProductController::class, 'recommend'])->name('products.all')->middleware('cors');
