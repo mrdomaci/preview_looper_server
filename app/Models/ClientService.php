@@ -42,14 +42,32 @@ class ClientService extends Model
         return $this->belongsTo(Service::class);
     }
 
-    public function setUpdateInProgress(bool $updateInProgress): void
+    public function setUpdateInProgress(bool $updateInProgress, ?bool $setDateLastSynced = false): void
     {
-        $this->setAttribute('update_in_process', $updateInProgress);
+        $this->setAttribute('update_in_process', $setDateLastSynced);
+        if ($updateInProgress === true) {
+            $this->setAttribute('date_last_synced', now());
+        }
         try {
             $this->save();
         } catch (Throwable $t) {
             throw new DataUpdateFailException($t);
         }
+    }
+
+    public function setStatusDeleted(): void {
+        $this->setAttribute('status', ClientServiceStatusEnum::DELETED);
+        $this->save();
+    }
+
+    public function setStatusInactive(): void {
+        $this->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
+        $this->save();
+    }
+
+    public function setStatusActive(): void {
+        $this->setAttribute('status', ClientServiceStatusEnum::ACTIVE);
+        $this->save();
     }
 
     public static function updateOrCreate(Client $client, Service $service, string $oAuthAccessToken, string $country): ClientService

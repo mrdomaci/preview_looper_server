@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\ClientServiceStatusEnum;
+use App\Businesses\ClientServiceBusiness;
 use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\AddonSuspendedException;
 use App\Helpers\ConnectorHelper;
-use App\Helpers\ResponseHelper;
-use App\Helpers\WebHookHelper;
-use App\Models\Client;
+use App\Models\ClientService;
+use App\Repositories\ClientRepository;
+use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -28,6 +28,15 @@ class StoreClientsFromApiCommand extends AbstractCommand
      */
     protected $description = 'Store clients from API';
 
+    public function __construct(
+        private readonly ClientServiceRepository $clientServiceRepository,
+        private readonly ClientServiceBusiness $clientServiceBusiness,
+        private readonly ClientRepository $clientRepository,
+    )
+    {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      *
@@ -36,73 +45,39 @@ class StoreClientsFromApiCommand extends AbstractCommand
     public function handle()
     {
         $clientId = $this->argument('client_id');
+        if ($clientId !== null) {
+            $clientId = (int) $clientId;
+        }
 
+        $lastClientId = 0;
+        $dateLastSync = now()->subHours(24);
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-            if ($clientId !== null) {
-                $clients = Client::where('id', $clientId)->get();
-            } else {
-                $clients = Client::limit($this->getIterationCount())
-                    ->offset($this->getOffset($i))
-                    ->get();
-            }
-            /** @var Client $client */
-            foreach ($clients as $client) {
-                $clientServices = $client->services()->first();
-                if ($clientServices->getAttribute('date_last_synced') !== null &&
-                    $clientServices->getAttribute('date_last_synced') >= now()->subHours(12)) {
+            $clientServices = $this->clientServiceRepository->getActive(
+                $lastClientId,
+                null,
+                $clientId,
+                $this->getIterationCount(),
+            );
+            /** @var ClientService $clientService */
+            foreach ($clientServices as $clientService) {
+                if ($this->clientServiceBusiness->isForbidenToUpdate($clientService, $dateLastSync)) {
                     continue;
                 }
-                if ($clientServices->getAttribute('update_in_process') === true) {
-                    continue;
+                try {
+                    $this->clientRepository->updateFromResponse($clientService, ConnectorHelper::getEshop($clientService));
+                    $this->info('Updating client id:' . (string) $clientService->getAttribute('client_id'));
+                } catch (AddonNotInstalledException $e) {
+                    $clientService->setStatusDeleted();
+                } catch (AddonSuspendedException $e) {
+                    $clientService->setStatusInactive();
+                } catch (Throwable $e) {
+                    $this->error($e->getMessage());
+                } finally {
+                    $lastClientId = $clientService->getAttribute('id');
                 }
-                $clientResponse = null;
-                $clientServices = $client->services();
-                $response = ResponseHelper::getUrlResponse($client->getAttribute('url'));
-                $javascriptCode = ResponseHelper::extractShoptetScriptFromBody($response);
-                $templateName = ResponseHelper::findTemplateName($javascriptCode);
-                foreach ($clientServices->get() as $clientService) {
-                    try {
-                        $clientResponse = ConnectorHelper::getEshop($clientService);
-                        $currentStatus = $clientService->getAttribute('status');
-                        $clientService->setAttribute('status', ClientServiceStatusEnum::ACTIVE);
-                        $clientService->save();
-                        if ($currentStatus !== ClientServiceStatusEnum::ACTIVE) {
-                            WebHookHelper::jenkinsWebhookUpdateClient($client->getAttribute('id'));
-                        }
-                    } catch (AddonNotInstalledException $e) {
-                        $clientService->setAttribute('status', ClientServiceStatusEnum::DELETED);
-                        $clientService->save();
-                    } catch (AddonSuspendedException $e) {
-                        $clientService->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
-                        $clientService->save();
-                    } catch (Throwable $e) {
-                        $this->error($e->getMessage());
-                    }
-                }
-                if ($clientResponse === null) {
-                    continue;
-                }
-
-                $client->setAttribute('eshop_name', $clientResponse->getName());
-                $client->setAttribute('url', $clientResponse->getUrl());
-                $client->setAttribute('eshop_category', $clientResponse->getCategory());
-                $client->setAttribute('eshop_subtitle', $clientResponse->getSubtitle());
-                $client->setAttribute('contact_person', $clientResponse->getContactPerson());
-                $client->setAttribute('email', $clientResponse->getEmail());
-                $client->setAttribute('phone', $clientResponse->getPhone());
-                $client->setAttribute('street', $clientResponse->getStreet());
-                $client->setAttribute('city', $clientResponse->getCity());
-                $client->setAttribute('zip', $clientResponse->getZip());
-                $client->setAttribute('country', $clientResponse->getCountry());
-                $client->setAttribute('template_name', $templateName);
-                $client->setAttribute('last_synced_at', now());
-                
-                $this->info('Updating client id:' . (string) $client->getAttribute('id'));
-
-                $client->save();
             }
 
-            if (count($clients) < $this->getIterationCount()) {
+            if (count($clientServices) < $this->getIterationCount()) {
                 break;
             }
         }

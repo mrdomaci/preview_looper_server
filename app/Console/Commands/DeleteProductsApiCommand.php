@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\ClientServiceStatusEnum;
+use App\Businesses\ClientServiceBusiness;
 use App\Models\Client;
-use App\Models\Image;
-use App\Models\Product;
+use App\Repositories\ClientRepository;
+use App\Repositories\ImageRepository;
+use App\Repositories\ProductRepository;
 use Illuminate\Console\Command;
 
 class DeleteProductsApiCommand extends AbstractCommand
@@ -24,6 +25,16 @@ class DeleteProductsApiCommand extends AbstractCommand
      */
     protected $description = 'Delete products for inactive clients';
 
+    public function __construct(
+        private readonly ClientRepository $clientRepository,
+        private readonly ClientServiceBusiness $clientServiceBusiness,
+        private readonly ProductRepository $productRepository,
+        private readonly ImageRepository $imageRepository
+    )
+    {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      *
@@ -32,35 +43,22 @@ class DeleteProductsApiCommand extends AbstractCommand
     public function handle()
     {
         $clientId = $this->argument('client_id');
+        if ($clientId !== null) {
+            $clientId = (int) $clientId;
+        }
 
+        $lastClientId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-            if ($clientId !== null) {
-                $client = Client::where('id', $clientId)->first();
-                $clients = [$client];
-            } else {
-                $clients = Client::limit(10)
-                    ->offset($this->getOffset($i))
-                    ->get();
-            }
+            $clients = $this->clientRepository->getClients($lastClientId, $clientId);
             /** @var Client $client */
             foreach ($clients as $client) {
-                $delete = false;
-                $clientService = null;
-                $clientServices = $client->services();
-                foreach ($clientServices->get(['id', 'status']) as $clientService) {
-                    if ($clientService->getAttribute('status') === ClientServiceStatusEnum::INACTIVE) {
-                        $delete = true;
-                        break;
-                    }
-                }
-                if ($delete === false) {
+                $shouldDelete = !$this->clientServiceBusiness->hasActiveService($client);
+                if ($shouldDelete === true) {
                     continue;
                 }
-                if ($clientService === null) {
-                    continue;
-                }
-                Product::where('client_id', $client->getAttribute('id'))->delete();
-                Image::where('client_id', $client->getAttribute('id'))->delete();
+                $this->productRepository->deleteByClient($client);
+                $this->imageRepository->deleteByClient($client);
+                $lastClientId = $client->getAttribute('id');
             }
 
             if (count($clients) < $this->getIterationCount()) {

@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Helpers\CacheHelper;
-use App\Models\Client;
+use App\Models\ClientService;
+use App\Models\Service;
+use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 
 class StoreCachedResponseCommand extends AbstractCommand
@@ -21,6 +23,13 @@ class StoreCachedResponseCommand extends AbstractCommand
      */
     protected $description = 'Store cached response';
 
+    public function __construct(
+        private readonly ClientServiceRepository $clientServiceRepository,
+    )
+    {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      *
@@ -29,19 +38,25 @@ class StoreCachedResponseCommand extends AbstractCommand
     public function handle()
     {
         $clientId = $this->argument('client_id');
+        if ($clientId !== null) {
+            $clientId = (int) $clientId;
+        }
+        $lastClientServiceId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-            if ($clientId !== null) {
-                $clients = Client::where('id', $clientId)->get();
-            } else {
-                $clients = Client::limit($this->getIterationCount())
-                    ->offset($this->getOffset($i))
-                    ->get();
-            }
-            foreach ($clients as $client) {
+            $clientServices = $this->clientServiceRepository->getActive(
+                $lastClientServiceId,
+                Service::getDynamicPreviewImages(),
+                $clientId,
+                $this->getIterationCount(),
+            );
+            /** @var ClientService $clientService  */
+            foreach ($clientServices as $clientService) {
+                $client = $clientService->client()->first();
                 CacheHelper::imageResponse($client);
+                $lastClientServiceId = $clientService->getAttribute('id');
                 $this->info('Client ' . $client->getAttribute('id') . ' updated');
             }
-            if (count($clients) < $this->getIterationCount()) {
+            if (count($clientServices) < $this->getIterationCount()) {
                 break;
             }
         }

@@ -40,26 +40,27 @@ class StoreProductCategoriesCommand extends AbstractCommand
     public function handle()
     {        
         $clientId = $this->argument('client_id');
-        if ($clientId === null) {
+        if ($clientId !== null) {
             $clientId = (int) $clientId;
         }
-
+        
+        $lastClientServiceId = 0;
         for($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-            $clientServices = $this->clientServiceRepository->getActiveClientServices(
+            $clientServices = $this->clientServiceRepository->getActive(
+                $lastClientServiceId,
                 Service::getUpsell(),
                 $clientId,
                 $this->getIterationCount(),
-                $this->getOffset($i)
             );
 
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
-                $currentClientId = $clientService->getAttribute('client_id');
-                $clientService->setUpdateInProgress(true);
+                $lastClientServiceId = $clientService->getAttribute('id');
+                $client = $clientService->client()->first();
 
                 $lastProductId = 0;
                 for($j = 0; $j < $this->getMaxIterationCount(); $j++) {
-                    foreach($this->productRepository->getProductsPastId($currentClientId, $lastProductId) as $product) {
+                    foreach($this->productRepository->getProductsPastId($client, $lastProductId) as $product) {
                         $lastProductId = $product->getAttribute('id');
                         $this->productRepository->setProductCategory($product);
                     }
