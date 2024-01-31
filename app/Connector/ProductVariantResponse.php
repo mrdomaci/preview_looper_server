@@ -23,6 +23,9 @@ class ProductVariantResponse
         private ?float $actionPrice,
         private ?float $commonPrice,
         private ?string $availability,
+        private string $name,
+        private ?string $availabilityId,
+        private ?string $image,
     ) {
     }
 
@@ -109,5 +112,20 @@ class ProductVariantResponse
     public function getAvailability(): ?string
     {
         return $this->availability;
+    }
+
+    public function getAvailabilityId(): ?string
+    {
+        return $this->availabilityId;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
     }
 }
