@@ -492,9 +492,23 @@ class Response
         $productDetailResponse->setImageUrl($imageUrl);
 
         foreach ($this->data['variants'] as $variant) {
-            $availaility = null;
-            if ($variant['availability'] !== null) {
-                $availaility = $variant['availability']['name'];
+            $availability = null;
+            $availabilityId = null;
+            if (ArrayHelper::containsKey($variant, 'availabilityWhenSoldOut') === true) {
+                if ($variant['availabilityWhenSoldOut'] !== null) {
+                    $availability = $variant['availabilityWhenSoldOut']['name'];
+                    $availabilityId = (string) $variant['availabilityWhenSoldOut']['id'];
+                }
+            }
+            if (ArrayHelper::containsKey($variant, 'availability') === true) {
+                if ($variant['availability'] !== null) {
+                    $availability = $variant['availability']['name'];
+                    $availabilityId = (string) $variant['availability']['id'];
+                }
+            }
+            $variantName = $name;
+            if (ArrayHelper::containsKey($variant, 'name')) {
+                $variantName .= ' ' . $variant['name'];
             }
             $productVariantResponse = new ProductVariantResponse(
                 $variant['code'],
@@ -513,7 +527,10 @@ class Response
                 $variant['currencyCode'],
                 (float) $variant['actionPrice'],
                 (float) $variant['commonPrice'],
-                $availaility,
+                $availability,
+                $variantName,
+                $availabilityId,
+                $variant['image'],
             );
             $productDetailResponse->addVariant($productVariantResponse);
         }

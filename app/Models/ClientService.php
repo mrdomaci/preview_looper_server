@@ -46,10 +46,10 @@ class ClientService extends Model
     public function setUpdateInProgress(bool $updateInProgress, ?SyncEnum $sync = null): void
     {
         $this->setAttribute('update_in_process', $updateInProgress);
-        if ($sync->isOrder()) {
+        if ($sync !== null && $sync->isOrder()) {
             $this->setAttribute('orders_last_synced_at', now());
         }
-        if ($sync->isProduct()) {
+        if ($sync !== null && $sync->isProduct()) {
             $this->setAttribute('products_last_synced_at', now());
         }
         try {

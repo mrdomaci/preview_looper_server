@@ -124,10 +124,15 @@ class ProductRepository {
         if ($productVariant === null) {
             $productVariant = Product::clone($product);
         }
+        $productVariant->setAttribute('name', $variant->getName());
         $productVariant->setAttribute('code', $variant->getCode());
         $productVariant->setAttribute('active', true);
         $productVariant->setAttribute('availability', $variant->getAvailability());
+        $productVariant->setAttribute('availability_id', $variant->getAvailabilityId());
+        $productVariant->setAttribute('stock', $variant->getStock());
+        $productVariant->setAttribute('unit', $variant->getUnit());
         $productVariant->setAttribute('price', Currency::formatPrice((string)$variant->getPrice(), $variant->getCurrencyCode()));
+        $productVariant->setAttribute('image_url', $variant->getImage());
         $productVariant->save();
     }
 
