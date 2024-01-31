@@ -60,7 +60,7 @@ class StoreProductCategoriesCommand extends AbstractCommand
 
                 $lastProductId = 0;
                 for($j = 0; $j < $this->getMaxIterationCount(); $j++) {
-                    foreach($this->productRepository->getProductsPastId($client, $lastProductId) as $product) {
+                    foreach($this->productRepository->getPastId($client, $lastProductId) as $product) {
                         $lastProductId = $product->getAttribute('id');
                         $this->productRepository->setProductCategory($product);
                     }

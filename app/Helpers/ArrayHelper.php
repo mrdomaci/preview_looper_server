@@ -29,4 +29,16 @@ class ArrayHelper
     {
         return is_array($value);
     }
+
+    /**
+     * @param array<int,int> $array
+     * @return array<int,int>
+     */
+    public static function sort(array $array): array
+    {
+        $keys = array_keys($array);
+        rsort($array);
+        $array = array_combine($keys, $array);
+        return $array;
+    }
 }

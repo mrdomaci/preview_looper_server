@@ -7,6 +7,7 @@ use DateTime;
 
 class ProductDetailResponse
 {
+    private ?string $imageUrl = null;
     /**
      * @param array<ProductImageResponse> $images
      * @param array<ProductVariantResponse> $variants
@@ -118,5 +119,15 @@ class ProductDetailResponse
     public function addVariant(ProductVariantResponse $variant): void
     {
         $this->variants[] = $variant;
+    }
+
+    public function setImageUrl(string $imageUrl): void
+    {
+        $this->imageUrl = $imageUrl;
+    }
+
+    public function getImageUrl(): ?string
+    {
+        return $this->imageUrl;
     }
 }

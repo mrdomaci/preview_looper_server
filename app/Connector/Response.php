@@ -468,6 +468,8 @@ class Response
 
         $productDetailResponse = new ProductDetailResponse($guid, $creationTime, $changeTime, $name, $voteAverageScore, $voteCount, $type, $visibility, $defaultCategory, $url, $supplier, $brand, $perex);
 
+        $lowesPriority = 1000000;
+        $imageUrl = null;
         foreach ($this->data['images'] as $image) {
             $productImageResponse = new ProductImageResponse(
                 $image['name'],
@@ -477,8 +479,13 @@ class Response
                 $image['description'],
                 new DateTime($image['changeTime']),
             );
+            if ($productImageResponse->getPriority() < $lowesPriority) {
+                $lowesPriority = $productImageResponse->getPriority();
+                $imageUrl = $productImageResponse->getCdnName();
+            }
             $productDetailResponse->addImage($productImageResponse);
         }
+        $productDetailResponse->setImageUrl($imageUrl);
 
         foreach ($this->data['variants'] as $variant) {
             $availaility = null;

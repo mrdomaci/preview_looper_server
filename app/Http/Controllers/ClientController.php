@@ -150,6 +150,13 @@ class ClientController extends Controller
         $orderStatuses = OrderStatus::where('client_id', $client->getAttribute('id'))->get();
         $clientSettings = ClientSettingsServiceOption::where('client_id', $client->getAttribute('id'))->get();
 
+        $dateLastSynced = null;
+        if ($service->isDynamicPreviewImages()) {
+            $dateLastSynced = $clientService->getAttribute('products_last_synced_at');
+        } else if ($service->isUpsell()) {
+            $dateLastSynced = $clientService->getAttribute('orders_last_synced_at');
+        }
+
         return view($service->getAttribute('view-name') . '.settings',
             [
                 'country' => $country,
@@ -157,7 +164,7 @@ class ClientController extends Controller
                 'language' => $language,
                 'client' => $client,
                 'settings_service' => $serviceSettings,
-                'last_synced' => $clientService->getAttribute('date_last_synced'),
+                'last_synced' => $dateLastSynced,
                 'update_in_process' => $clientService->getAttribute('update_in_process'),
                 'order_statuses' => $orderStatuses,
                 'client_settings' => $clientSettings,
@@ -238,7 +245,6 @@ class ClientController extends Controller
             $client = Client::getByEshopId((int) $eshopId);
             $clientServices = $client->services()->get();
             foreach ($clientServices as $clientService) {
-                $clientService->setAttribute('date_last_synced', null);
                 $clientService->setAttribute('update_in_process', false);
                 $clientService->save();
             }

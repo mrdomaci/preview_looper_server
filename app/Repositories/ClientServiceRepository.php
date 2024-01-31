@@ -33,13 +33,23 @@ class ClientServiceRepository {
     }
 
     public function getNextForUpdate(Service $service, DateTime $dateLastSync): ?ClientService {
-        return ClientService::where('service_id', $service->getAttribute('id'))
+        $q = ClientService::where('service_id', $service->getAttribute('id'))
         ->where('status', ClientServiceStatusEnum::ACTIVE)
-        ->where(function ($query) use ($dateLastSync) {
-            $query->where('date_last_synced', '<=', $dateLastSync)
-                ->orWhereNull('date_last_synced');
-        })
-        ->where('update_in_process', '=', 0)
-        ->first();
+        ->where('update_in_process', '=', 0);
+
+        if ($service->isDynamicPreviewImages()) {
+            $q->where(function ($query) use ($dateLastSync) {
+                $query->where('products_last_synced_at', '<=', $dateLastSync)
+                    ->orWhereNull('products_last_synced_at');
+            });
+        }
+        if ($service->isUpsell()) {
+            $q->where(function ($query) use ($dateLastSync) {
+                $query->where('orders_last_synced_at', '<=', $dateLastSync)
+                    ->orWhereNull('orders_last_synced_at');
+            });
+        }
+
+        return $q->first();
     }
 }

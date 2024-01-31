@@ -20,14 +20,8 @@ class ClientServiceBusiness {
         return $isActive;
     }
 
-    public function isForbidenToUpdate(ClientService $clientService, ?DateTime $dateLastSynced = null): bool {
+    public function isForbidenToUpdate(ClientService $clientService): bool {
         if ($clientService->getAttribute('update_in_process') === true) {
-            return true;
-        }
-        if ($dateLastSynced === null) {
-            return false;
-        }
-        if ($clientService->getAttribute('date_last_synced') >= $dateLastSynced) {
             return true;
         }
         return false;
