@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Helpers;
 
 use App\Connector\ProductVariantResponse;
+use App\Models\Currency;
 
 class PriceHelper
 {
@@ -37,10 +38,12 @@ class PriceHelper
             return null;
         }
 
-        if ($lowestPrice === $highestPrice) {
-            return $lowestPrice . ' ' . $currency;
+        $price = (string) $lowestPrice;
+
+        if ($lowestPrice !== $highestPrice) {
+            $price = $lowestPrice . ' - ' . $highestPrice;
         }
 
-        return $lowestPrice . ' - ' . $highestPrice . ' ' . $currency;
+        return Currency::formatPrice($price, $currency);
     }
 }

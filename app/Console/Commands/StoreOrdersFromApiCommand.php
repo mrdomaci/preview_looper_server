@@ -4,12 +4,14 @@ namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
 use App\Connector\OrderResponse;
+use App\Enums\SyncEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\GeneratorHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
+use App\Models\ClientService;
 use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\OrderProductRepository;
@@ -57,7 +59,6 @@ class StoreOrdersFromApiCommand extends AbstractCommand
         $success = true;
         $this->info('Updating orders');
         $lastClientServiceId = 0;
-        $dateLastSync = now()->subHours(12);
         for($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
@@ -66,29 +67,30 @@ class StoreOrdersFromApiCommand extends AbstractCommand
                 $this->getIterationCount(),
             );
 
+            /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
                 $lastClientServiceId = $clientService->getAttribute('id');
-                if ($this->clientServiceBusiness->isForbidenToUpdate($clientService, $dateLastSync)) {
+                if ($this->clientServiceBusiness->isForbidenToUpdate($clientService)) {
                     continue;
                 }
 
                 $clientService->setUpdateInProgress(true);
                 $client = $clientService->client()->first();
 
-                $dateLastSynced = $clientService->getAttribute('date_last_synced');
+                $ordersLastSynced = $clientService->getAttribute('orders_last_synce_at');
 
-                if ($dateLastSynced !== null) {
-                    $dateLastSynced = new \DateTime($dateLastSynced);
+                if ($ordersLastSynced !== null) {
+                    $ordersLastSynced = new \DateTime($ordersLastSynced);
                 }
 
                 for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) {
                     try {
-                        $orderListResponse = ConnectorHelper::getOrders($clientService, $page, $dateLastSynced);
+                        $orderListResponse = ConnectorHelper::getOrders($clientService, $page, $ordersLastSynced);
                         if ($orderListResponse === null) {
                             break;
                         }
                         /** @var OrderResponse $orderResponse */
-                        foreach (GeneratorHelper::fetchOrders($clientService, $page, $dateLastSynced) as $orderResponse) {
+                        foreach (GeneratorHelper::fetchOrders($clientService, $page, $ordersLastSynced) as $orderResponse) {
                             $this->info('Updating order ' . $orderResponse->getGuid());
 
                             $order = $this->orderRepository->createOrUpdate($orderResponse, $client);
@@ -113,7 +115,7 @@ class StoreOrdersFromApiCommand extends AbstractCommand
                         break;
                     }
                 }
-                $clientService->setUpdateInProgress(false, true);
+                $clientService->setUpdateInProgress(false, SyncEnum::ORDER);
             }
 
             if ($clientServices->count() < $this->getIterationCount()) {

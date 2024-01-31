@@ -33,4 +33,19 @@ class Product extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    public static function clone(Product $product): self
+    {
+        $clone = new Product();
+        $clone->setAttribute('client_id', $product->getAttribute('client_id'));
+        $clone->setAttribute('guid', $product->getAttribute('guid'));
+        $clone->setAttribute('active', $product->getAttribute('active'));
+        $clone->setAttribute('created_at', $product->getAttribute('created_at'));
+        $clone->setAttribute('updated_at', $product->getAttribute('updated_at'));
+        $clone->setAttribute('parent_product_id', $product->getAttribute('id'));
+        $clone->setAttribute('code', $product->getAttribute('code'));
+        $clone->save();
+
+        return $clone;
+    }
 }

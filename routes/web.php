@@ -33,4 +33,4 @@ Route::get('/addon-activate/{serviceUrlPath}', [ClientController::class, 'activa
 Route::get('/locale/{locale}', [HomepageController::class, 'setLocale'])->name('homepage.setLocale');
 
 Route::get('/images/{eshopID}/{moduloCheck}', [ImageController::class, 'all'])->name('images.all')->middleware('cors');
-Route::get('/products/{ehsopID}/{moduloCheck}', [ProductController::class, 'recommend'])->name('products.all')->middleware('cors');
+Route::get('/products/{ehsopID}/{moduloCheck}/{guids}', [ProductController::class, 'recommend'])->name('products.all')->middleware('cors');

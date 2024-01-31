@@ -14,8 +14,14 @@ class OrderProductRepository {
     
     public function createOrUpdate(OrderResponse $orderResponse, OrderDetailResponse $orderDetailResponse, Client $client, Order $order): void
     {
-        $product = Product::where('client_id', $client->getAttribute('id'))->where('guid', $orderDetailResponse->getProductGuid())->first();
-        OrderProduct::where('client_id', $client->getAttribute('id'))->where('order_guid', $orderResponse->getGuid())->where('product_guid', $orderDetailResponse->getProductGuid())->delete();
+        $product = Product::where('client_id', $client->getAttribute('id'))
+                    ->where('guid', $orderDetailResponse->getProductGuid())
+                    ->where('parent_product_id', null)
+                    ->first();
+        OrderProduct::where('client_id', $client->getAttribute('id'))
+            ->where('order_guid', $orderResponse->getGuid())
+            ->where('product_guid', $orderDetailResponse->getProductGuid())
+            ->delete();
         for ($j = 1; $j <= (int) $orderDetailResponse->getAmount(); $j++) {
             $orderProduct = new OrderProduct();
             $orderProduct->setAttribute('client_id', $client->getAttribute('id'));

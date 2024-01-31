@@ -4,12 +4,14 @@ namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
 use App\Connector\ProductDetailResponse;
+use App\Enums\SyncEnum;
 use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\ApiRequestNonExistingResourceException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\GeneratorHelper;
 use App\Helpers\LoggerHelper;
 use App\Models\ClientService;
+use App\Models\Product;
 use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\ImageRepository;
@@ -55,7 +57,6 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
             $clientId = (int) $clientId;
         }
         $lastClientServiceId = 0;
-        $dateLastSync = now()->subHours(12);
         for($i = 0; $i < $this->getMaxIterationCount(); $i++) {
 
             $clientServices = $this->clientServiceRepository->getActive(
@@ -68,7 +69,7 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
                 $lastClientServiceId = $clientService->getAttribute('id');
-                if ($this->clientServiceBusiness->isForbidenToUpdate($clientService, $dateLastSync) === true) {
+                if ($this->clientServiceBusiness->isForbidenToUpdate($clientService) === true) {
                     continue;
                 }
 
@@ -78,8 +79,9 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
                 $this->info('Updating images for client id:' . $client->getAttribute('id'));
                 $productOffsetId = 0;
                 for ($j = 0; $j < $this->getMaxIterationCount(); $j++) {
-                    $products = $this->productRepository->getProductsPastId($client, $productOffsetId);
+                    $products = $this->productRepository->getPastId($client, $productOffsetId);
                     for($k = 0; $k < count($products); $k++) {
+                        /** @var Product $product */
                         $product = $products[$k];
                         $productGuid = $product->getAttribute('guid');
                         $productId = $product->getAttribute('id');
@@ -94,6 +96,11 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
                                 continue;
                             }
                             $this->productRepository->updateDetailFromResponse($product, $productDetailResponse);
+
+                            //Product::where('parent_product_id', $product->getAttribute('id'))->update(['active' => false]);
+                            foreach ($productDetailResponse->getVariants() as $variantResponse) {
+                                $this->productRepository->createOrUpdateVariantFromResponse($variantResponse, $product);
+                            }
 
                             foreach ($productDetailResponse->getImages() as $imageResponse) {
                                 $this->imageRepository->createOrUpdateFromResponse($imageResponse, $client, $product);
@@ -123,7 +130,7 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
                     }
                 }
                 $client->save();
-                $clientService->setUpdateInProgress(false, true);
+                $clientService->setUpdateInProgress(false, SyncEnum::PRODUCT);
             }
             
             if ($clientServices->count() < $this->getIterationCount()) {

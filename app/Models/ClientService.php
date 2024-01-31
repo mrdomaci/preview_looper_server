@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ClientServiceStatusEnum;
+use App\Enums\SyncEnum;
 use App\Exceptions\DataNotFoundException;
 use App\Exceptions\DataUpdateFailException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -42,11 +43,14 @@ class ClientService extends Model
         return $this->belongsTo(Service::class);
     }
 
-    public function setUpdateInProgress(bool $updateInProgress, ?bool $setDateLastSynced = false): void
+    public function setUpdateInProgress(bool $updateInProgress, ?SyncEnum $sync = null): void
     {
         $this->setAttribute('update_in_process', $updateInProgress);
-        if ($setDateLastSynced === true) {
-            $this->setAttribute('date_last_synced', now());
+        if ($sync->isOrder()) {
+            $this->setAttribute('orders_last_synced_at', now());
+        }
+        if ($sync->isProduct()) {
+            $this->setAttribute('products_last_synced_at', now());
         }
         try {
             $this->save();
@@ -84,7 +88,6 @@ class ClientService extends Model
         $clientService->setAttribute('status', 'active');
         $clientService->setAttribute('country', $country);
         $clientService->setAttribute('update_in_process', false);
-        $clientService->setAttribute('date_last_synced', null);
         $clientService->save();
         return $clientService;
     }

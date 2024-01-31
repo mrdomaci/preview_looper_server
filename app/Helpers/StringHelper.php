@@ -15,4 +15,9 @@ class StringHelper
             default => false,
         };
     }
+
+    public static function upper(string $value): string
+    {
+        return mb_strtoupper($value);
+    }
 }
