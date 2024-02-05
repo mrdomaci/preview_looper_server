@@ -30,14 +30,12 @@ class ProductRepository {
     }
 
     /**
-     * @param Client $client
      * @param array<int> $ids
      * @param int $iterationCount
      * @return Collection<Product>
      */
-    public function getInIds(Client $client, array $ids, int $iterationCount = 4): Collection {
-        return Product::where('client_id', $client->getAttribute('id'))
-        ->where('active', true)
+    public function getParentsInIds(array $ids, int $iterationCount = 4): Collection {
+        return Product::where('active', true)
         ->where('parent_product_id', null)
         ->whereIn('id', $ids)
         ->take($iterationCount)

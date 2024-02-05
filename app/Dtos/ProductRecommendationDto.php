@@ -10,6 +10,8 @@ class ProductRecommendationDto {
         private string $url,
         private string $imageUrl,
         private string $availability,
+        private string $code,
+        private string $unit,
     ) {
     }
     public function getName(): string {
@@ -32,6 +34,14 @@ class ProductRecommendationDto {
         return $this->availability;
     }
 
+    public function getCode(): string {
+        return $this->code;
+    }
+
+    public function getUnit(): string {
+        return $this->unit;
+    }
+
     /**
      * @return array<string, string>
      */
@@ -42,6 +52,8 @@ class ProductRecommendationDto {
             'url' => $this->getUrl(),
             'imageUrl' => $this->getImageUrl(),
             'availability' => $this->getAvailability(),
+            'code' => $this->getCode(),
+            'unit' => $this->getUnit(),
         ];
     }
 }
