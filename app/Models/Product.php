@@ -34,6 +34,25 @@ class Product extends Model
         return $this->belongsTo(Client::class);
     }
 
+    public function stockedChild(): ?Product
+    {
+        $stockedChildren = Product::where('parent_product_id', $this->getAttribute('id'))
+            ->where('active', true)
+            ->where('stock', '>', 0)
+            ->get();
+        if ($stockedChildren->isEmpty()) {
+            return null;
+        }
+        $childWithHighestStock = null;
+        $highestStock = 0;
+        foreach ($stockedChildren as $stockedChild) {
+            if ($stockedChild->getAttribute('stock') > $highestStock) {
+                $childWithHighestStock = $stockedChild;
+            }
+        }
+        return $childWithHighestStock;
+    }
+
     public static function clone(Product $product): self
     {
         $clone = new Product();
