@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\ClientSettingsServiceOption;
 use App\Models\Service;
 use App\Models\SettingsService;
+use App\Models\SettingsServiceOption;
 
 class ConnectorBodyHelper
 {
@@ -31,7 +32,11 @@ class ConnectorBodyHelper
             if ($clientSettingsServiceOption === null) {
                 continue;
             }
-            $htmlString .= sprintf(" data-%s='%s'", $settingsService->getAttribute('name'), $clientSettingsServiceOption->getAttribute('value'));
+            $settingsServiceOption = SettingsServiceOption::where('id', $clientSettingsServiceOption->getAttribute('settings_service_option_id'))->first();
+            if ($settingsServiceOption === null) {
+                continue;
+            }
+            $htmlString .= sprintf(" data-%s='%s'", $settingsService->getAttribute('name'), $settingsServiceOption->getAttribute('value'));
         }
         $htmlString .= "></div>";
         return sprintf(self::TEMPLATE_INCLUDES, $htmlString);
