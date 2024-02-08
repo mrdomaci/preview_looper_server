@@ -51,6 +51,7 @@ class StoreTemplateIncludeApiCommand extends AbstractCommand
             );
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
+                $lastClientServiceId = $clientService->getAttribute('id');
                 $client = $clientService->client()->first();
                 $service = $clientService->service()->first();
                 try {
