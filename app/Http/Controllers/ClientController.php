@@ -220,14 +220,6 @@ class ClientController extends Controller
                 return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
             }
         }
-        if ($serviceId === Service::UPSELL) {
-            try {
-                WebHookHelper::jenkinsWebhookGenerateOrderStatusImages($client->getAttribute('id'));
-            } catch (Throwable $t) {
-                LoggerHelper::log('Webhook generate order status images failed: ' . $t->getMessage());
-                return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
-            }
-        }
         return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', trans('general.saved'));
     }
 
