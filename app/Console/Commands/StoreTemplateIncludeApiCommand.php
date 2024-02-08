@@ -53,6 +53,7 @@ class StoreTemplateIncludeApiCommand extends AbstractCommand
             foreach ($clientServices as $clientService) {
                 $lastClientServiceId = $clientService->getAttribute('id');
                 $client = $clientService->client()->first();
+                $this->info('Updating templates for client ' . $client->getAttribute('id'));
                 $service = $clientService->service()->first();
                 try {
                     $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($service, $client);
