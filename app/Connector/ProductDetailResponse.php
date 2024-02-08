@@ -121,7 +121,7 @@ class ProductDetailResponse
         $this->variants[] = $variant;
     }
 
-    public function setImageUrl(string $imageUrl): void
+    public function setImageUrl(?string $imageUrl): void
     {
         $this->imageUrl = $imageUrl;
     }
