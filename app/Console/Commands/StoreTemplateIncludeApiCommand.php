@@ -57,6 +57,7 @@ class StoreTemplateIncludeApiCommand extends AbstractCommand
                 $service = $clientService->service()->first();
                 try {
                     $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($service, $client);
+                    $this->info('Template include body: ' . $body);
                     $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
                     if ($templateIncludeResponse->getTemplateIncludes() === []) {
                         LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));
