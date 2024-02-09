@@ -59,12 +59,10 @@ class StoreClientsFromApiCommand extends AbstractCommand
             );
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
-                if ($this->clientServiceBusiness->isForbidenToUpdate($clientService)) {
-                    continue;
-                }
                 try {
                     $this->clientRepository->updateFromResponse($clientService, ConnectorHelper::getEshop($clientService));
                     $this->info('Updating client id:' . (string) $clientService->getAttribute('client_id'));
+                    $clientService->setUpdateInProgress(false);
                 } catch (AddonNotInstalledException $e) {
                     $clientService->setStatusDeleted();
                 } catch (AddonSuspendedException $e) {
