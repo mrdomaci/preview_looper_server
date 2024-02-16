@@ -128,7 +128,7 @@
                     @if ($update_in_process === 1)
                         <label>{{ __('general.sync_in_progress') }}</label>
                     @else
-                        <label>{{ $last_synced }}</label>
+                        <label>{{ \Carbon\Carbon::parse($last_synced)->format('d.m.Y') }}</label>
                     @endif
                 </div>
             </div>
