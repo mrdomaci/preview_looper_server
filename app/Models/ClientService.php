@@ -81,12 +81,18 @@ class ClientService extends Model
 
     public function getOrdersLastSyncedAt(): ?DateTime
     {
-        return $this->getAttribute('orders_last_synced_at');
+        if ($this->getAttribute('orders_last_synced_at') === null) {
+            return null;
+        }
+        return new DateTime($this->getAttribute('orders_last_synced_at'));
     }
 
     public function getProductsLastSyncedAt(): ?DateTime
     {
-        return $this->getAttribute('products_last_synced_at');
+        if ($this->getAttribute('products_last_synced_at') === null) {
+            return null;
+        }
+        return new DateTime($this->getAttribute('products_last_synced_at'));
     }
 
     public function isUpdateInProgress(): bool

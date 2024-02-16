@@ -47,12 +47,12 @@ class Product extends Model
 
     public function getCreatedAt(): DateTime
     {
-        return $this->getAttribute('created_at');
+        return new DateTime($this->getAttribute('created_at'));
     }
 
     public function getUpdatedAt(): DateTime
     {
-        return $this->getAttribute('updated_at');
+        return new DateTime($this->getAttribute('updated_at'));
     }
 
     public function getName(): ?string
