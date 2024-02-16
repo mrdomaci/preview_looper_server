@@ -67,4 +67,13 @@ class SettingsService extends Model
     {
         return $this->hasMany(ClientSettingsServiceOption::class);
     }
+
+    public function getValue(Client $client): ?string
+    {
+        $clientSettingsServiceOption = ClientSettingsServiceOption::where('client_id', $client->getId())->where('settings_service_id', $this->getAttribute('id'))->first();
+        if ($clientSettingsServiceOption === null) {
+            return null;
+        }
+        return $clientSettingsServiceOption->getAttribute('value');
+    }
 }
