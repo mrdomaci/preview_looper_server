@@ -58,7 +58,7 @@ class Order extends Model
 
     public function getGuid(): string
     {
-        return $this->getGuid();
+        return $this->getAttribute('guid');
     }
 
     public function getCode(): string

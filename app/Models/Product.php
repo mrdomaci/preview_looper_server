@@ -37,7 +37,7 @@ class Product extends Model
 
     public function getGuid(): string
     {
-        return $this->getGuid();
+        return $this->getAttribute('guid');
     }
 
     public function isActive(): bool
