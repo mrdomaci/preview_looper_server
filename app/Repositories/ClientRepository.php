@@ -5,11 +5,21 @@ namespace App\Repositories;
 
 use App\Connector\EshopResponse;
 use App\Enums\ClientServiceStatusEnum;
+use App\Exceptions\DataNotFoundException;
 use App\Models\Client;
 use App\Models\ClientService;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 
 class ClientRepository {
+
+    public function get(int $id): Client {
+        $client = Client::find($id);
+        if ($client === null) {
+            throw new DataNotFoundException(new Exception('Client not found'));
+        }
+        return $client;
+    }
     /**
      * @param int $lastClientId
      * @param int|null $clientId
@@ -48,7 +58,15 @@ class ClientRepository {
         $client->save();
     }
 
-    public function getByEshopId(int $eshopID): ?Client {
+    public function findByEshopId(int $eshopID): ?Client {
+        return Client::where('eshop_id', $eshopID)->first();
+    }
+
+    public function getByEshopId(int $eshopID): Client {
+        $client = $this->findByEshopId($eshopID);
+        if ($client === null) {
+            throw new DataNotFoundException(new Exception('Client not found'));
+        }
         return Client::where('eshop_id', $eshopID)->first();
     }
 }

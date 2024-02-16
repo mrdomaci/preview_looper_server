@@ -15,20 +15,23 @@ class Category extends Model
         'name',
     ];
 
+    public function getId(): int
+    {
+        return $this->getAttribute('id');
+    }
+
+    public function getClientId(): int
+    {
+        return $this->getAttribute('client_id');
+    }
+
+    public function getName(): string
+    {
+        return $this->getAttribute('name');
+    }
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
-    }
-
-    public static function createOrUpdate(int $clientId, string $name): Category
-    {
-        $category = Category::where('client_id', $clientId)->where('name', $name)->first();
-        if ($category === NULL) {
-            $category = Category::create([
-                'client_id' => $clientId,
-                'name' => $name,
-            ]);
-        }
-        return $category;
     }
 }

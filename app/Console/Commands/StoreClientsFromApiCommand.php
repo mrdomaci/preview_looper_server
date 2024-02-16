@@ -30,7 +30,6 @@ class StoreClientsFromApiCommand extends AbstractCommand
 
     public function __construct(
         private readonly ClientServiceRepository $clientServiceRepository,
-        private readonly ClientServiceBusiness $clientServiceBusiness,
         private readonly ClientRepository $clientRepository,
     )
     {
@@ -61,7 +60,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
             foreach ($clientServices as $clientService) {
                 try {
                     $this->clientRepository->updateFromResponse($clientService, ConnectorHelper::getEshop($clientService));
-                    $this->info('Updating client id:' . (string) $clientService->getAttribute('client_id'));
+                    $this->info('Updating client id:' . (string) $clientService->getClientId());
                     $clientService->setUpdateInProgress(false);
                 } catch (AddonNotInstalledException $e) {
                     $clientService->setStatusDeleted();
@@ -70,7 +69,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
                 } catch (Throwable $e) {
                     $this->error($e->getMessage());
                 } finally {
-                    $lastClientId = $clientService->getAttribute('id');
+                    $lastClientId = $clientService->getId();
                 }
             }
 

@@ -107,7 +107,7 @@ class Request
 
     public function getToken(): string
     {
-        return $this->clientService->getAttribute('access_token');
+        return $this->clientService->getAccessToken();
     }
 
     public function getMethod(): string
@@ -192,7 +192,7 @@ class Request
         $client = new \GuzzleHttp\Client();
         $options = [
             'headers' => [
-                'Shoptet-Access-Token' => $this->clientService->getAttribute('access_token'),
+                'Shoptet-Access-Token' => $this->clientService->getAccessToken(),
                 'Content-Type' => 'application/vnd.shoptet.v1.0'
                 ]
             ];

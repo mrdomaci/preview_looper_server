@@ -19,6 +19,31 @@ class ClientSettingsServiceOption extends Model
         'value',
     ];
 
+    public function getId(): int
+    {
+        return $this->getAttribute('id');
+    }
+
+    public function getClientId(): int
+    {
+        return $this->getAttribute('client_id');
+    }
+
+    public function getSettingsServiceId(): int
+    {
+        return $this->getAttribute('settings_service_id');
+    }
+
+    public function getSettingsServiceOptionId(): int
+    {
+        return $this->getAttribute('settings_service_option_id');
+    }
+
+    public function getValue(): string
+    {
+        return $this->getAttribute('value');
+    }
+
     public function settingsService(): BelongsTo
     {
         return $this->belongsTo(SettingsService::class);
@@ -31,19 +56,17 @@ class ClientSettingsServiceOption extends Model
 
     public static function updateOrCreate(Client $client, SettingsService $settingsService, ?SettingsServiceOption $settingsServiceOption, ?string $value): ClientSettingsServiceOption
     {
-        $clientSettingsServiceOption = ClientSettingsServiceOption::where('client_id', $client->getAttribute('id'))->where('settings_service_id', $settingsService->getAttribute('id'))->first();
+        $clientSettingsServiceOption = ClientSettingsServiceOption::where('client_id', $client->getId())->where('settings_service_id', $settingsService->getId())->first();
         if ($clientSettingsServiceOption === null) {
             $clientSettingsServiceOption = new ClientSettingsServiceOption();
-            $clientSettingsServiceOption->setAttribute('client_id', $client->getAttribute('id'));
-            $clientSettingsServiceOption->setAttribute('settings_service_id', $settingsService->getAttribute('id'));
+            $clientSettingsServiceOption->setAttribute('client_id', $client->getId());
+            $clientSettingsServiceOption->setAttribute('settings_service_id', $settingsService->getId());
         }
-        if ($settingsServiceOption === null) {
-            $settingsServiceOption = null;
-        } else {
+        if ($settingsServiceOption !== null) {
             if ($settingsServiceOption->getAttribute('id') !== null) {
-                $settingsServiceOption = $settingsServiceOption->getAttribute('id');
+                $settingsServiceOption = $settingsServiceOption->getId();
             } else {
-                $settingsServiceOption = $settingsServiceOption->getAttribute('settings_service_id');
+                $settingsServiceOption = $settingsServiceOption->getSettingsServiceId();
             }
         }
 

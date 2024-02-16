@@ -3,6 +3,7 @@
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\ProductCategoryRecommendationController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,9 @@ Route::get('/addon-install/{country}/{serviceUrlPath}', [ClientController::class
 Route::get('/client-settings/{country}/{serviceUrlPath}',[ClientController::class, 'settings'])->name('client.settings');
 Route::post('/client-settings/{country}/{serviceUrlPath}/{language}/{eshopId}',[ClientController::class, 'saveSettings'])->name('client.saveSettings');
 Route::post('/client-sync/{country}/{serviceUrlPath}/{language}/{eshopId}',[ClientController::class, 'sync'])->name('client.sync');
+Route::get('/products/{clientId}/{name}', [ProductController::class, 'getData'])->name('products.getData');
+Route::post('/recommendation/{country}/{serviceUrlPath}/{language}/{eshopId}', [ProductCategoryRecommendationController::class, 'add'])->name('recommendation.add');
+Route::delete('/recommendation/{country}/{serviceUrlPath}/{language}/{eshopId}', [ProductCategoryRecommendationController::class, 'delete'])->name('recommendation.delete');
 
 Route::get('/addon-uninstall/{serviceUrlPath}', [ClientController::class, 'uninstall'])->name('client.uninstall');
 Route::get('/addon-deactivate/{serviceUrlPath}', [ClientController::class, 'deactivate'])->name('client.deactivate');

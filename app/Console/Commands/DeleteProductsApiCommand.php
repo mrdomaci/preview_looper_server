@@ -58,7 +58,7 @@ class DeleteProductsApiCommand extends AbstractCommand
                 }
                 $this->productRepository->deleteByClient($client);
                 $this->imageRepository->deleteByClient($client);
-                $lastClientId = $client->getAttribute('id');
+                $lastClientId = $client->getId();
             }
 
             if (count($clients) < $this->getIterationCount()) {

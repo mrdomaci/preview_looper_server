@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,6 +25,100 @@ class Product extends Model
         'updated_at' => 'datetime',
     ];
 
+    public function getId(): int
+    {
+        return $this->getAttribute('id');
+    }
+
+    public function getClientId(): int
+    {
+        return $this->getAttribute('client_id');
+    }
+
+    public function getGuid(): string
+    {
+        return $this->getGuid();
+    }
+
+    public function isActive(): bool
+    {
+        return $this->getAttribute('active');
+    }
+
+    public function getCreatedAt(): DateTime
+    {
+        return $this->getAttribute('created_at');
+    }
+
+    public function getUpdatedAt(): DateTime
+    {
+        return $this->getAttribute('updated_at');
+    }
+
+    public function getName(): ?string
+    {
+        return $this->getAttribute('name');
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->getAttribute('description');
+    }
+
+    public function getProducer(): ?string
+    {
+        return $this->getAttribute('producer');
+    }
+
+    public function getPrice(): ?string
+    {
+        return $this->getAttribute('price');
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->getAttribute('url');
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->getAttribute('code');
+    }
+
+    public function getParentProduct(): ?Product
+    {
+        return $this->belongsTo(Product::class, 'parent_product_id')->first();
+    }
+
+    public function getAvailability(): ?string
+    {
+        return $this->getAttribute('availability');
+    }
+
+    public function getAvailabilityId(): ?string
+    {
+        return $this->getAttribute('availability_id');
+    }
+
+    public function getImageUrl(): ?string
+    {
+        return $this->getAttribute('image_url');
+    }
+
+    public function getUnit(): ?string
+    {
+        return $this->getAttribute('unit');
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category()->first();
+    }
+
+    public function getStock(): ?int
+    {
+        return $this->getAttribute('stock');
+    }
     public function images(): HasMany
     {
         return $this->hasMany(Image::class)->orderBy('priority', 'asc');
@@ -34,35 +129,21 @@ class Product extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function stockedChild(): ?Product
+    public function category(): BelongsTo
     {
-        $stockedChildren = Product::where('parent_product_id', $this->getAttribute('id'))
-            ->where('active', true)
-            ->where('stock', '>', 0)
-            ->get();
-        if ($stockedChildren->isEmpty()) {
-            return null;
-        }
-        $childWithHighestStock = null;
-        $highestStock = 0;
-        foreach ($stockedChildren as $stockedChild) {
-            if ($stockedChild->getAttribute('stock') > $highestStock) {
-                $childWithHighestStock = $stockedChild;
-            }
-        }
-        return $childWithHighestStock;
+        return $this->belongsTo(Category::class);
     }
 
     public static function clone(Product $product): self
     {
         $clone = new Product();
-        $clone->setAttribute('client_id', $product->getAttribute('client_id'));
-        $clone->setAttribute('guid', $product->getAttribute('guid'));
-        $clone->setAttribute('active', $product->getAttribute('active'));
-        $clone->setAttribute('created_at', $product->getAttribute('created_at'));
-        $clone->setAttribute('updated_at', $product->getAttribute('updated_at'));
-        $clone->setAttribute('parent_product_id', $product->getAttribute('id'));
-        $clone->setAttribute('code', $product->getAttribute('code'));
+        $clone->setAttribute('client_id', $product->getClientId());
+        $clone->setAttribute('guid', $product->getGuid());
+        $clone->setAttribute('active', $product->isActive());
+        $clone->setAttribute('created_at', $product->getCreatedAt());
+        $clone->setAttribute('updated_at', $product->getUpdatedAt());
+        $clone->setAttribute('parent_product_id', $product->getId());
+        $clone->setAttribute('code', $product->getCode());
         $clone->save();
 
         return $clone;

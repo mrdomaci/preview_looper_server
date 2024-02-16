@@ -59,8 +59,15 @@ class SettingsServicesTableSeeder extends Seeder
             ],
             [
                 'id' => 7,
-                'name' => 'upsell.category-recommendation',
+                'name' => 'upsell.amount',
                 'sort' => 1,
+                'service_id' => 2,
+                'type' => 'select',
+            ],
+            [
+                'id' => 8,
+                'name' => 'upsell.title',
+                'sort' => 2,
                 'service_id' => 2,
                 'type' => 'value',
             ],

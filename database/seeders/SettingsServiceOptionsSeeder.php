@@ -141,6 +141,62 @@ class SettingsServiceOptionsSeeder extends Seeder
                 'value' => 'numbers',
                 'is_default' => 0,
             ],
+            [
+                'id' => 51,
+                'settings_service_id' => 7,
+                'name' => 'upsell.one',
+                'value' => '1',
+                'is_default' => 0,
+            ],
+            [
+                'id' => 52,
+                'settings_service_id' => 7,
+                'name' => 'upsell.two',
+                'value' => '2',
+                'is_default' => 0,
+            ],
+            [
+                'id' => 53,
+                'settings_service_id' => 7,
+                'name' => 'upsell.three',
+                'value' => '3',
+                'is_default' => 0,
+            ],
+            [
+                'id' => 54,
+                'settings_service_id' => 7,
+                'name' => 'upsell.four',
+                'value' => '4',
+                'is_default' => 1,
+            ],
+            [
+                'id' => 55,
+                'settings_service_id' => 7,
+                'name' => 'upsell.five',
+                'value' => '5',
+                'is_default' => 0,
+            ],
+            [
+                'id' => 56,
+                'settings_service_id' => 7,
+                'name' => 'upsell.six',
+                'value' => '6',
+                'is_default' => 0,
+            ],
+            [
+                'id' => 57,
+                'settings_service_id' => 7,
+                'name' => 'upsell.seven',
+                'value' => '7',
+                'is_default' => 0,
+            ],
+            [
+                'id' => 58,
+                'settings_service_id' => 7,
+                'name' => 'upsell.eight',
+                'value' => '8',
+                'is_default' => 0,
+            ],
         ]);
     }
 }

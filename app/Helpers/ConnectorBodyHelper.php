@@ -25,18 +25,18 @@ class ConnectorBodyHelper
     public static function getStringBodyForTemplateInclude(Service $service, Client $client): string
     {
         $htmlString = "<div id='%s'";
-        $htmlString = sprintf($htmlString, $service->getAttribute('name'));
-        $clientSettingsService = SettingsService::where('service_id', $service->getAttribute('id'))->get();
+        $htmlString = sprintf($htmlString, $service->getName());
+        $clientSettingsService = SettingsService::where('service_id', $service->getId())->get();
         foreach ($clientSettingsService as $settingsService) {
-            $clientSettingsServiceOption = ClientSettingsServiceOption::where('client_id', $client->getAttribute('id'))->where('settings_service_id', $settingsService->getAttribute('id'))->first();
+            $clientSettingsServiceOption = ClientSettingsServiceOption::where('client_id', $client->getId())->where('settings_service_id', $settingsService->getId())->first();
             if ($clientSettingsServiceOption === null) {
                 continue;
             }
-            $settingsServiceOption = SettingsServiceOption::where('id', $clientSettingsServiceOption->getAttribute('settings_service_option_id'))->first();
+            $settingsServiceOption = SettingsServiceOption::where('id', $clientSettingsServiceOption->getSettingsServiceOptionId())->first();
             if ($settingsServiceOption === null) {
                 continue;
             }
-            $htmlString .= sprintf(" data-%s='%s'", $settingsService->getAttribute('name'), $settingsServiceOption->getAttribute('value'));
+            $htmlString .= sprintf(" data-%s='%s'", $settingsService->getName(), $settingsServiceOption->getValue());
         }
         $htmlString .= "></div>";
         return sprintf(self::TEMPLATE_INCLUDES, $htmlString);

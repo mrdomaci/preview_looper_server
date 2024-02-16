@@ -53,8 +53,8 @@ class StoreCachedResponseCommand extends AbstractCommand
             foreach ($clientServices as $clientService) {
                 $client = $clientService->client()->first();
                 CacheHelper::imageResponse($client);
-                $lastClientServiceId = $clientService->getAttribute('id');
-                $this->info('Client ' . $client->getAttribute('id') . ' updated');
+                $lastClientServiceId = $clientService->getId();
+                $this->info('Client ' . $client->getId() . ' updated');
             }
             if (count($clientServices) < $this->getIterationCount()) {
                 break;

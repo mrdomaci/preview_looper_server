@@ -18,6 +18,21 @@ class Currency extends Model
         'format',
     ];
 
+    public function getSymbol(): string
+    {
+        return $this->getAttribute('symbol');
+    }
+
+    public function getCode(): string
+    {
+        return $this->getAttribute('code');
+    }
+
+    public function getFormat(): string
+    {
+        return $this->getAttribute('format');
+    }
+
     public static function formatPrice(string $value, string $currencyCode): string
     {
         $currency = self::where('code', StringHelper::upper($currencyCode))->first();
@@ -25,7 +40,7 @@ class Currency extends Model
             return $value . ' ' . $currencyCode;
         }
 
-        return str_replace('{price}', $value, $currency->getAttribute('format'));
+        return str_replace('{price}', $value, $currency->getFormat());
     }
 
 }

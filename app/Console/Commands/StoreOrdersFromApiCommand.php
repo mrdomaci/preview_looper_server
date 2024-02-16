@@ -69,7 +69,7 @@ class StoreOrdersFromApiCommand extends AbstractCommand
 
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
-                $lastClientServiceId = $clientService->getAttribute('id');
+                $lastClientServiceId = $clientService->getId();
                 if ($this->clientServiceBusiness->isForbidenToUpdate($clientService)) {
                     continue;
                 }
@@ -77,11 +77,7 @@ class StoreOrdersFromApiCommand extends AbstractCommand
                 $clientService->setUpdateInProgress(true);
                 $client = $clientService->client()->first();
 
-                $ordersLastSynced = $clientService->getAttribute('orders_last_synce_at');
-
-                if ($ordersLastSynced !== null) {
-                    $ordersLastSynced = new \DateTime($ordersLastSynced);
-                }
+                $ordersLastSynced = $clientService->getOrdersLastSyncedAt();
 
                 for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) {
                     try {

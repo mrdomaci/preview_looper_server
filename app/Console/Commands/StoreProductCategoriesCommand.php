@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\ClientService;
 use App\Models\Service;
+use App\Repositories\CategoryRepository;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Console\Command;
@@ -26,7 +27,8 @@ class StoreProductCategoriesCommand extends AbstractCommand
 
     public function __construct(
         private readonly ClientServiceRepository $clientServiceRepository,
-        private readonly ProductRepository $productRepository
+        private readonly ProductRepository $productRepository,
+        private readonly CategoryRepository $categoryRepository,
         )
     {
         parent::__construct();
@@ -55,14 +57,15 @@ class StoreProductCategoriesCommand extends AbstractCommand
 
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
-                $lastClientServiceId = $clientService->getAttribute('id');
+                $lastClientServiceId = $clientService->getId();
                 $client = $clientService->client()->first();
 
                 $lastProductId = 0;
                 for($j = 0; $j < $this->getMaxIterationCount(); $j++) {
                     foreach($this->productRepository->getPastId($client, $lastProductId) as $product) {
-                        $lastProductId = $product->getAttribute('id');
-                        $this->productRepository->setProductCategory($product);
+                        $lastProductId = $product->getId();
+                        $category = $this->categoryRepository->createOrUpdate($client, $product->getCategory());
+                        $this->productRepository->setProductCategory($product, $category);
                     }
                 }
             }

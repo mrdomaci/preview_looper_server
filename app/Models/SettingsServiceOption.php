@@ -16,7 +16,33 @@ class SettingsServiceOption extends Model
         'name',
         'value',
         'settings_service_id',
+        'is_default'
     ];
+
+    public function getId(): int
+    {
+        return $this->getAttribute('id');
+    }
+
+    public function getName(): string
+    {
+        return $this->getAttribute('name');
+    }
+
+    public function getValue(): string
+    {
+        return $this->getAttribute('value');
+    }
+
+    public function getSettingsServiceId(): int
+    {
+        return $this->getAttribute('settings_service_id');
+    }
+
+    public function isDefault(): bool
+    {
+        return $this->getAttribute('is_default');
+    }
 
     public function settingsService(): BelongsTo
     {
@@ -25,10 +51,10 @@ class SettingsServiceOption extends Model
 
     public function isSelected(Client $client): bool
     {
-        $clientSettingsServiceOption = ClientSettingsServiceOption::where('client_id', $client->getAttribute('id'))->where('settings_service_id', $this->getAttribute('settings_service_id'))->first();
-        if ($clientSettingsServiceOption === null && $this->getAttribute('is_default') === 1) {
+        $clientSettingsServiceOption = ClientSettingsServiceOption::where('client_id', $client->getId())->where('settings_service_id', $this->getSettingsServiceId())->first();
+        if ($clientSettingsServiceOption === null && $this->isdefault()) {
             return true;
-        } else if ($clientSettingsServiceOption !== null && $clientSettingsServiceOption->getAttribute('settings_service_option_id') === $this->getAttribute('id')) {
+        } else if ($clientSettingsServiceOption !== null && $clientSettingsServiceOption->getSettingsServiceOptionId() === $this->getId()) {
             return true;
         }
         return false;

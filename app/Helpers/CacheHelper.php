@@ -15,7 +15,7 @@ class CacheHelper
      */
     public static function imageResponse(Client $client): bool
     {
-        $clientId = $client->getAttribute('id');
+        $clientId = $client->getId();
         $lastProductId = 0;
         $result = [];
         for ($i = 0; $i < 10000; $i++) {
@@ -27,14 +27,14 @@ class CacheHelper
 
             foreach ($products as $product) {
                 $productImages = $product->images()->orderBy('priority', 'ASC')->get();
-                $guid = $product->getAttribute('guid');
+                $guid = $product->getGuid();
                 foreach ($productImages as $productImage) {
                     if (!isset($result[$guid])) {
                         $result[$guid] = [];
                     }
-                    $result[$guid][] = $productImage->getAttribute('name');
+                    $result[$guid][] = $productImage->getName();
                 }
-                $lastProductId = $product->getAttribute('id');
+                $lastProductId = $product->getId();
             }
             if (count($products) < 1000) {
                 break;

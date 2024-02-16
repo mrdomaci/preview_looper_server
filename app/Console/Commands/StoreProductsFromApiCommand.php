@@ -10,10 +10,12 @@ use App\Helpers\ConnectorHelper;
 use App\Helpers\GeneratorHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
+use App\Models\Product;
 use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 use Throwable;
 
 class StoreProductsFromApiCommand extends AbstractCommand
@@ -64,13 +66,14 @@ class StoreProductsFromApiCommand extends AbstractCommand
             );
 
             foreach ($clientServices as $clientService) {
-                $lastClientServiceId = $clientService->getAttribute('id');
+                $lastClientServiceId = $clientService->getId();
                 if ($this->clientServiceBusiness->isForbidenToUpdate($clientService) === true) {
                     continue;
                 }
                 $clientService->setUpdateInProgress(true);
                 $client = $clientService->client()->first();
 
+                /** @var Collection<Product> $products */
                 $products = $this->productRepository->getActivesByClient($client);
                 $productFilter = new ProductFilter('visibility', 'visible');
                 for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
@@ -82,7 +85,8 @@ class StoreProductsFromApiCommand extends AbstractCommand
                         foreach (GeneratorHelper::fetchProducts($clientService, $productFilter, $page) as $productResponse) {
                             $this->info('Updating product ' . $productResponse->getGuid());
                             $products = $products->filter(function ($product) use ($productResponse) {
-                                return $product->getAttribute('guid') !== $productResponse->getGuid();
+                                /** @var Product $product */
+                                return $product->getGuid() !== $productResponse->getGuid();
                             });
                             $this->productRepository->createOrUpdateFromResponse($client, $productResponse);
                         }

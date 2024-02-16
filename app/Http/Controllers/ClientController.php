@@ -14,10 +14,11 @@ use App\Helpers\WebHookHelper;
 use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\ClientSettingsServiceOption;
-use App\Models\OrderStatus;
 use App\Models\Service;
 use App\Models\SettingsService;
 use App\Models\SettingsServiceOption;
+use App\Repositories\CategoryRepository;
+use App\Repositories\ClientRepository;
 use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -26,6 +27,10 @@ use Throwable;
 
 class ClientController extends Controller
 {
+    public function __construct(
+        private readonly CategoryRepository $categoryRepository,
+        private readonly ClientRepository $clientRepository,
+    ) {}
     public function install(string $country, string $serviceUrlPath, Request $request): Response
     {
         $country = strtoupper($country);
@@ -50,7 +55,7 @@ class ClientController extends Controller
         ClientService::updateOrCreate($client, $service, $oAuthAccessToken, $country);
 
         if ($service->isDynamicPreviewImages()) {
-            $webhookResponse = WebHookHelper::jenkinsWebhookClient($client->getAttribute('id'));
+            $webhookResponse = WebHookHelper::jenkinsWebhookClient($client->getId());
             if ($webhookResponse->failed()) {
                 LoggerHelper::log('Webhook failed: ' . $webhookResponse->body() . ', Status code: ' . $webhookResponse->status());
             }
@@ -65,9 +70,9 @@ class ClientController extends Controller
             abort(404);
         }
         $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_DEACTIVATE);
-        $client = Client::getByEshopId($eshopId);
+        $client = $this->clientRepository->getByEshopId($eshopId);
         ClientService::updateStatus($client, $service, ClientServiceStatusEnum::INACTIVE);
-        LoggerHelper::log('Client ' . $client->getAttribute('id') . ' deactivated');
+        LoggerHelper::log('Client ' . $client->getId() . ' deactivated');
 
         return Response('ok', 200);
     }
@@ -79,10 +84,10 @@ class ClientController extends Controller
             abort(404);
         }
         $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_UNINSTALL);
-        $client = Client::getByEshopId($eshopId);
+        $client = $this->clientRepository->getByEshopId($eshopId);
 
         ClientService::updateStatus($client, $service, ClientServiceStatusEnum::DELETED);
-        LoggerHelper::log('Client ' . $client->getAttribute('id') . ' uninstalled');
+        LoggerHelper::log('Client ' . $client->getId() . ' uninstalled');
 
         return Response('ok', 200);
     }
@@ -94,11 +99,11 @@ class ClientController extends Controller
             abort(404);
         }
         $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_ACTIVATE);
-        $client = Client::getByEshopId($eshopId);
+        $client = $this->clientRepository->getByEshopId($eshopId);
 
         ClientService::updateStatus($client, $service, ClientServiceStatusEnum::ACTIVE);
-        LoggerHelper::log('Client ' . $client->getAttribute('id') . ' activated');
-        WebHookHelper::jenkinsWebhookClient($client->getAttribute('id'));
+        LoggerHelper::log('Client ' . $client->getId() . ' activated');
+        WebHookHelper::jenkinsWebhookClient($client->getId());
         return Response('ok', 200);
     }
 
@@ -106,16 +111,16 @@ class ClientController extends Controller
     {
         $country = strtoupper($country);
         $service = Service::where('url-path', $serviceUrlPath)->first();
-        $serviceId = $service->getAttribute('id');
+        $serviceId = $service->getId();
         if ($service === null) {
             abort(404);
         }
         $language = $request->input('language');
         $eshopId = $request->input('eshop_id');
 
-        $client = Client::getByEshopId((int) $eshopId);
+        $client = $this->clientRepository->getByEshopId((int) $eshopId);
         $serviceSettings = SettingsService::where('service_id', $serviceId)->orderBy('sort')->get();
-        $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $serviceId)->first();
+        $clientService = ClientService::where('client_id', $client->getId())->where('service_id', $serviceId)->first();
         if ($request->session()->has($eshopId . '_' . $serviceId . '_access_token') === false) {
             $code = $request->input('code');
             $eshopResponse = ConnectorHelper::getEshop($clientService);
@@ -128,7 +133,7 @@ class ClientController extends Controller
                 $baseOAuthUrl = session($eshopId . '_' . $serviceId . '_base_oauth_url');
             }
             if ($baseOAuthUrl === null) {
-                throw new ApiRequestFailException(new Exception('Base OAuth URL not found in session or response for client ' . $client->getAttribute('eshop_id')));
+                throw new ApiRequestFailException(new Exception('Base OAuth URL not found in session or response for client ' . $client->getEshopId()));
             }
     
             $accessToken = AuthorizationHelper::getAccessTokenForSettings($country, $code, $serviceUrlPath, $eshopId, $language, $baseOAuthUrl);
@@ -141,23 +146,24 @@ class ClientController extends Controller
 
         $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
         LocaleHelper::setLocale($language);
-        if ($checkEshopId !== $client->getAttribute('eshop_id')) {
-            LoggerHelper::log('Eshop ID mismatch for client ' . $client->getAttribute('id') . ' from DB ' . $client->getAttribute('eshop_id') . ' from API ' . $checkEshopId);
+        if ($checkEshopId !== $client->getEshopId()) {
+            LoggerHelper::log('Eshop ID mismatch for client ' . $client->getId() . ' from DB ' . $client->getEshopId() . ' from API ' . $checkEshopId);
             //loosen security for now 
             //abort(401);
         }
 
-        $orderStatuses = OrderStatus::where('client_id', $client->getAttribute('id'))->get();
-        $clientSettings = ClientSettingsServiceOption::where('client_id', $client->getAttribute('id'))->get();
+        $clientSettings = ClientSettingsServiceOption::where('client_id', $client->getId())->get();
+        $categories = $this->categoryRepository->getAllForClient($client);
+        $productCategoryRecommendations = $client->productCategoryRecommendations();
 
         $dateLastSynced = null;
         if ($service->isDynamicPreviewImages()) {
-            $dateLastSynced = $clientService->getAttribute('products_last_synced_at');
+            $dateLastSynced = $clientService->getProductsLastSyncedAt();
         } else if ($service->isUpsell()) {
-            $dateLastSynced = $clientService->getAttribute('orders_last_synced_at');
+            $dateLastSynced = $clientService->getOrdersLastSyncedAt();
         }
 
-        return view($service->getAttribute('view-name') . '.settings',
+        return view($service->getViewName() . '.settings',
             [
                 'country' => $country,
                 'service_url_path' => $serviceUrlPath,
@@ -165,11 +171,12 @@ class ClientController extends Controller
                 'client' => $client,
                 'settings_service' => $serviceSettings,
                 'last_synced' => $dateLastSynced,
-                'update_in_process' => $clientService->getAttribute('update_in_process'),
-                'order_statuses' => $orderStatuses,
+                'update_in_process' => $clientService->isUpdateInProgress(),
                 'client_settings' => $clientSettings,
-                'title' => $service->getAttribute('name'),
+                'title' => $service->getName(),
                 'eshop_id' => $eshopId,
+                'categories' => $categories,
+                'product_category_recommendations' => $productCategoryRecommendations,
             ]);
     }
 
@@ -183,12 +190,12 @@ class ClientController extends Controller
         if ($eshopId !== $request->input('eshop_id')) {
             abort(403);
         }
-        $serviceId = $service->getAttribute('id');
-        $client = Client::getByEshopId((int) $eshopId);
+        $serviceId = $service->getId();
+        $client = $this->clientRepository->getByEshopId((int) $eshopId);
         $settingsServices = SettingsService::where('service_id', $serviceId)->get();
         foreach ($settingsServices as $settingsService) {
             $value = null;
-            $selectedOption = $request->input($settingsService->getAttribute('id'));
+            $selectedOption = $request->input((string) $settingsService->getId());
             $settingsServiceOption = SettingsServiceOption::where('id', $selectedOption)->first();
             if ($settingsServiceOption === null) {
                 if ($selectedOption !== '-') {
@@ -205,18 +212,18 @@ class ClientController extends Controller
                 );
             }
 
-            if ($request->input($settingsService->getAttribute('id') . '_value') !== null) {
-                $value = $request->input($settingsService->getAttribute('id') . '_value');
+            if ($request->input($settingsService->getId() . '_value') !== null) {
+                $value = $request->input($settingsService->getId() . '_value');
             }
             ClientSettingsServiceOption::updateOrCreate($client, $settingsService, $settingsServiceOption, $value);
         }
         LocaleHelper::setLocale($language);
-        $clientService = ClientService::where('client_id', $client->getAttribute('id'))->where('service_id', $serviceId)->first();
+        $clientService = ClientService::where('client_id', $client->getId())->where('service_id', $serviceId)->first();
         if ($serviceId === Service::DYNAMIC_PREVIEW_IMAGES) {
             $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($service, $client);
             $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
             if ($templateIncludeResponse->getTemplateIncludes() === []) {
-                LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));
+                LoggerHelper::log('Template include failed for client ' . $client->getEshopId());
                 return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
             }
         }
@@ -234,13 +241,13 @@ class ClientController extends Controller
             abort(403);
         }
         try {
-            $client = Client::getByEshopId((int) $eshopId);
+            $client = $this->clientRepository->getByEshopId((int) $eshopId);
             $clientServices = $client->services()->get();
             foreach ($clientServices as $clientService) {
                 $clientService->setAttribute('update_in_process', false);
                 $clientService->save();
             }
-            WebHookHelper::jenkinsWebhookClient($client->getAttribute('id'));
+            WebHookHelper::jenkinsWebhookClient($client->getId());
         } catch (Throwable $t) {
             LoggerHelper::log('Webhook failed: ' . $t->getMessage());
             return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
