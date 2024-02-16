@@ -6,6 +6,7 @@ use App\Helpers\FileHelper;
 use App\Helpers\NumbersHelper;
 use App\Repositories\ClientRepository;
 use Illuminate\Http\JsonResponse;
+use Throwable;
 
 class ImageController extends Controller
 {
@@ -18,8 +19,9 @@ class ImageController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $client = $this->clientRepository->getByEshopId((int) $eshopID);
-        if ($client === null) {
+        try {
+            $client = $this->clientRepository->getByEshopId((int) $eshopID);
+        } catch (Throwable) {
             return response()->json(['error' => 'Client not found'], 404);
         }
         $clientService =  $client->dynamicPreviewImages();

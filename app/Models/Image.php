@@ -18,6 +18,25 @@ class Image extends Model
         'name',
     ];
 
+    public function getId(): int
+    {
+        return $this->getAttribute('id');
+    }
+
+    public function getClientId(): int
+    {
+        return $this->getAttribute('client_id');
+    }
+
+    public function getProductId(): int
+    {
+        return $this->getAttribute('product_id');
+    }
+
+    public function getName(): string
+    {
+        return $this->getAttribute('name');
+    }
 
     public function client(): BelongsTo
     {

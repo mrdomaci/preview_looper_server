@@ -11,25 +11,25 @@ use App\Models\Product;
 class ImageRepository {
     public function deleteByClient(Client $client): void
     {
-        Image::where('client_id', $client->getAttribute('id'))->delete();
+        Image::where('client_id', $client->getId())->delete();
     }
 
     public function deleteByClientAndProduct(Client $client, Product $product): void
     {
-        Image::where('client_id', $client->getAttribute('id'))
-            ->where('product_id', $product->getAttribute('id'))->delete();
+        Image::where('client_id', $client->getId())
+            ->where('product_id', $product->getId())->delete();
     }
 
     public function createOrUpdateFromResponse(ProductImageResponse $productImageResponse, Client $client, Product $product): void
     {
         $image = new Image();
-        $hash = $client->getAttribute('id') . '-' . $product->getAttribute('id');
+        $hash = $client->getId() . '-' . $product->getId();
         if ($productImageResponse->getPriority() !== null) {
             $hash .= '-' . $productImageResponse->getPriority();
         }
         $image->setAttribute('hash', $hash);
-        $image->setAttribute('client_id', $client->getAttribute('id'));
-        $image->setAttribute('product_id', $product->getAttribute('id'));
+        $image->setAttribute('client_id', $client->getId());
+        $image->setAttribute('product_id', $product->getId());
         $image->setAttribute('name', $productImageResponse->getSeoName());
         $image->setAttribute('priority', $productImageResponse->getPriority());
         $image->save();

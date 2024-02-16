@@ -13,7 +13,7 @@ class ClientServiceBusiness {
         $isActive = false;
         $clientServices = $client->services();
         foreach ($clientServices->get(['id', 'status']) as $clientService) {
-            if ($clientService->getAttribute('status') === ClientServiceStatusEnum::ACTIVE) {
+            if ($clientService->getStatus() === ClientServiceStatusEnum::ACTIVE) {
                 $isActive = true;
             }
         }
@@ -21,7 +21,7 @@ class ClientServiceBusiness {
     }
 
     public function isForbidenToUpdate(ClientService $clientService): bool {
-        if ($clientService->getAttribute('update_in_process') === true) {
+        if ($clientService->isUpdateInProgress() === true) {
             return true;
         }
         return false;

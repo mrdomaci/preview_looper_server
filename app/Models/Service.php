@@ -21,6 +21,31 @@ class Service extends Model
         'view-name',
     ];
 
+    public function getId(): int
+    {
+        return $this->getAttribute('id');
+    }
+
+    public function getName(): string
+    {
+        return $this->getAttribute('name');
+    }
+
+    public function getHash(): string
+    {
+        return $this->getAttribute('hash');
+    }
+
+    public function getUrlPath(): string
+    {
+        return $this->getAttribute('url-path');
+    }
+
+    public function getViewName(): string
+    {
+        return $this->getAttribute('view-name');
+    }
+
     public function clients(): HasMany
     {
         return $this->hasMany(Client::class);

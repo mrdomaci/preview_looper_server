@@ -68,7 +68,7 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
 
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
-                $lastClientServiceId = $clientService->getAttribute('id');
+                $lastClientServiceId = $clientService->getId();
                 if ($this->clientServiceBusiness->isForbidenToUpdate($clientService) === true) {
                     continue;
                 }
@@ -76,15 +76,15 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
                 $clientService->setUpdateInProgress(true);
 
                 $client = $clientService->client()->first();
-                $this->info('Updating images for client id:' . $client->getAttribute('id'));
+                $this->info('Updating images for client id:' . $client->getId());
                 $productOffsetId = 0;
                 for ($j = 0; $j < $this->getMaxIterationCount(); $j++) {
                     $products = $this->productRepository->getPastId($client, $productOffsetId);
                     for($k = 0; $k < count($products); $k++) {
                         /** @var Product $product */
                         $product = $products[$k];
-                        $productGuid = $product->getAttribute('guid');
-                        $productId = $product->getAttribute('id');
+                        $productGuid = $product->getGuid();
+                        $productId = $product->getId();
                         $productOffsetId = $productId;
                         try {
                             $this->info('Updating details for product ' . $productGuid);
@@ -97,7 +97,6 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
                             }
                             $this->productRepository->updateDetailFromResponse($product, $productDetailResponse);
 
-                            //Product::where('parent_product_id', $product->getAttribute('id'))->update(['active' => false]);
                             foreach ($productDetailResponse->getVariants() as $variantResponse) {
                                 $this->productRepository->createOrUpdateVariantFromResponse($variantResponse, $product);
                             }

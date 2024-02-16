@@ -10,7 +10,7 @@ class FileHelper
 {
     public static function clientImagesResponse(Client $client): string
     {
-        $clientId = $client->getAttribute('id');
+        $clientId = $client->getId();
         $filename = '/cache/' . $clientId . '_response.json';
         $fileContents = Storage::get($filename);
         if ($fileContents === null) {

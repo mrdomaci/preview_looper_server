@@ -9,13 +9,14 @@ use App\Models\Product;
 use App\Repositories\ClientRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
+use Throwable;
 
 class ProductController extends Controller
 {
     public function __construct(
         private readonly ClientRepository $clientRepository,
-        private readonly ProductRecommendationBusiness $productRecommendationBusiness,
         private readonly ProductBusiness $productBusiness,
+        private readonly ProductRecommendationBusiness $productRecommendationBusiness,
         )
     {
     }
@@ -25,26 +26,32 @@ class ProductController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $client = $this->clientRepository->getByEshopId((int) $eshopID);
-        if ($client === null) {
+        try {
+            $client = $this->clientRepository->getByEshopId((int) $eshopID);
+        } catch (Throwable) {
             return response()->json(['error' => 'Client not found'], 404);
         }
-        $clientService =  $client->dynamicPreviewImages();
+
+        $clientService =  $client->upsell();
         if ($clientService === null) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         /** @var Collection<Product> $products */
-        $products = $this->productBusiness->getProductsByGuids($client, $guids);
+        $products = $this->productBusiness->getByGuids($client, $guids);
 
         if ($products->isEmpty()) {
             return response()->json([]);
         }
 
-        $productRecommendations = $this->productRecommendationBusiness->getForProductCategoryRecommendation($products);
-        $productRecommendations = $this->productRecommendationBusiness->getForOrders($products, $productRecommendations);
-        $productRecommendations = $this->productRecommendationBusiness->formatResponse($productRecommendations);
+        $productRecommendations = $this->productRecommendationBusiness->recommend($products, $client);
 
         return response()->json($productRecommendations);
+    }
+
+    public function getData(int $clientId, string $name): Collection
+    {
+        $client = $this->clientRepository->get($clientId);
+        return $this->productBusiness->getByName($client, $name);
     }
 }

@@ -11,12 +11,12 @@ class OrderRepository {
     
     public function createOrUpdate(OrderResponse $orderResponse, Client $client): Order
     {
-        $order = Order::where('client_id', $client->getAttribute('id'))->where('guid', $orderResponse->getGuid())->first();
+        $order = Order::where('client_id', $client->getId())->where('guid', $orderResponse->getGuid())->first();
         if ($order === null) {
             $order = new Order();
         }
      
-        $order->setAttribute('client_id', $client->getAttribute('id'));
+        $order->setAttribute('client_id', $client->getId());
         $order->setAttribute('guid', $orderResponse->getGuid());
         $order->setAttribute('code', $orderResponse->getCode());
         $order->setAttribute('created_at', $orderResponse->getCreationTime());

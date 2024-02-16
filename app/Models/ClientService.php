@@ -6,6 +6,7 @@ use App\Enums\ClientServiceStatusEnum;
 use App\Enums\SyncEnum;
 use App\Exceptions\DataNotFoundException;
 use App\Exceptions\DataUpdateFailException;
+use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -43,6 +44,56 @@ class ClientService extends Model
         return $this->belongsTo(Service::class);
     }
 
+    public function getId(): int
+    {
+        return $this->getAttribute('id');
+    }
+
+    public function getClientId(): int
+    {
+        return $this->getAttribute('client_id');
+    }
+
+    public function getServiceId(): int
+    {
+        return $this->getAttribute('service_id');
+    }
+
+    public function getOAuthAccessToken(): string
+    {
+        return $this->getAttribute('oauth_access_token');
+    }
+
+    public function getStatus(): ClientServiceStatusEnum
+    {
+        return $this->getAttribute('status');
+    }
+
+    public function getCountry(): ?string
+    {
+        return $this->getAttribute('country');
+    }
+
+    public function getAccessToken(): ?string
+    {
+        return $this->getAttribute('access_token');
+    }
+
+    public function getOrdersLastSyncedAt(): ?DateTime
+    {
+        return $this->getAttribute('orders_last_synced_at');
+    }
+
+    public function getProductsLastSyncedAt(): ?DateTime
+    {
+        return $this->getAttribute('products_last_synced_at');
+    }
+
+    public function isUpdateInProgress(): bool
+    {
+        return $this->getAttribute('update_in_process');
+    }
+
     public function setUpdateInProgress(bool $updateInProgress, ?SyncEnum $sync = null): void
     {
         $this->setAttribute('update_in_process', $updateInProgress);
@@ -76,13 +127,13 @@ class ClientService extends Model
 
     public static function updateOrCreate(Client $client, Service $service, string $oAuthAccessToken, string $country): ClientService
     {
-        $clientService = ClientService::where('client_id', $client->getAttribute('id'))
-            ->where('service_id', $service->getAttribute('id'))
+        $clientService = ClientService::where('client_id', $client->getId())
+            ->where('service_id', $service->getId())
             ->first();
         if ($clientService === null) {
             $clientService = new ClientService();
-            $clientService->setAttribute('client_id', $client->getAttribute('id'));
-            $clientService->setAttribute('service_id', $service->getAttribute('id'));
+            $clientService->setAttribute('client_id', $client->getId());
+            $clientService->setAttribute('service_id', $service->getId());
         }
         $clientService->setAttribute('oauth_access_token', $oAuthAccessToken);
         $clientService->setAttribute('status', 'active');
@@ -94,11 +145,11 @@ class ClientService extends Model
 
     public static function updateStatus(Client $client, Service $service, ClientServiceStatusEnum $status): void
     {
-        $clientService = ClientService::where('client_id', $client->getAttribute('id'))
-        ->where('service_id', $service->getAttribute('id'))
+        $clientService = ClientService::where('client_id', $client->getId())
+        ->where('service_id', $service->getId())
         ->first();
         if ($clientService === null) {
-            throw new DataNotFoundException(new \Exception('ClientService not found for client ' . $client->getAttribute('id') . ' and service ' . $service->getAttribute('id')));
+            throw new DataNotFoundException(new \Exception('ClientService not found for client ' . $client->getId() . ' and service ' . $service->getId()));
         }
         $clientService->setAttribute('status', $status);
         try {

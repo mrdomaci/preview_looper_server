@@ -51,16 +51,16 @@ class StoreTemplateIncludeApiCommand extends AbstractCommand
             );
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
-                $lastClientServiceId = $clientService->getAttribute('id');
+                $lastClientServiceId = $clientService->getId();
                 $client = $clientService->client()->first();
-                $this->info('Updating templates for client ' . $client->getAttribute('id'));
+                $this->info('Updating templates for client ' . $client->getId());
                 $service = $clientService->service()->first();
                 try {
                     $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($service, $client);
                     $this->info('Template include body: ' . $body);
                     $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
                     if ($templateIncludeResponse->getTemplateIncludes() === []) {
-                        LoggerHelper::log('Template include failed for client ' . $client->getAttribute('eshop_id'));
+                        LoggerHelper::log('Template include failed for client ' . $client->getEshopId());
                     }
                 } catch (Throwable $t) {
                     $this->error('Error updating client ' . $t->getMessage());

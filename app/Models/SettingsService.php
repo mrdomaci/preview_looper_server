@@ -11,6 +11,8 @@ class SettingsService extends Model
 {
     use HasFactory;
 
+    public const UPSELL_MAX_RESULTS = 7;
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -21,6 +23,36 @@ class SettingsService extends Model
         'is_default',
     ];
 
+    public function getId(): int
+    {
+        return $this->getAttribute('id');
+    }
+
+    public function getName(): string
+    {
+        return $this->getAttribute('name');
+    }
+
+    public function getSort(): int
+    {
+        return $this->getAttribute('sort');
+    }
+
+    public function getServiceId(): int
+    {
+        return $this->getAttribute('service_id');
+    }
+
+    public function getType(): string
+    {
+        return $this->getAttribute('type');
+    }
+
+    public function isDefault(): bool
+    {
+        return $this->getAttribute('is_default');
+    }
+
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
@@ -29,5 +61,10 @@ class SettingsService extends Model
     public function settingsServicesOptions(): HasMany
     {
         return $this->hasMany(SettingsServiceOption::class);
+    }
+
+    public function clientSettingsServiceOptions(): HasMany
+    {
+        return $this->hasMany(ClientSettingsServiceOption::class);
     }
 }

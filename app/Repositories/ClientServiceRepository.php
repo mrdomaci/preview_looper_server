@@ -21,7 +21,7 @@ class ClientServiceRepository {
         $query = ClientService::where('status', ClientServiceStatusEnum::ACTIVE)
             ->where('id', '>', $lastId);
         if ($service !== null) {
-            $query->where('service_id', $service->getAttribute('id'));
+            $query->where('service_id', $service->getId());
         }
 
         if ($clientId !== null) {
@@ -33,7 +33,7 @@ class ClientServiceRepository {
     }
 
     public function getNextForUpdate(Service $service, DateTime $dateLastSync): ?ClientService {
-        $q = ClientService::where('service_id', $service->getAttribute('id'))
+        $q = ClientService::where('service_id', $service->getId())
         ->where('status', ClientServiceStatusEnum::ACTIVE)
         ->where('update_in_process', '=', 0);
 
