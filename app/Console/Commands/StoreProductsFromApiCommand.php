@@ -85,8 +85,7 @@ class StoreProductsFromApiCommand extends AbstractCommand
                         foreach (GeneratorHelper::fetchProducts($clientService, $productFilter, $page) as $productResponse) {
                             $this->info('Updating product ' . $productResponse->getGuid());
                             $products = $products->filter(function ($product) use ($productResponse) {
-                                /** @var Product $product */
-                                return $product->getGuid() !== $productResponse->getGuid();
+                                return $product->getAttribute('guid') !== $productResponse->getGuid();
                             });
                             $this->productRepository->createOrUpdateFromResponse($client, $productResponse);
                         }
