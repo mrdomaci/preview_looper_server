@@ -98,7 +98,7 @@ class Client extends Model
 
     public function getLastSyncedAt(): DateTime
     {
-        return $this->getAttribute('last_synced_at');
+        return new DateTime($this->getAttribute('last_synced_at'));
     }
 
     public function images(): HasMany
