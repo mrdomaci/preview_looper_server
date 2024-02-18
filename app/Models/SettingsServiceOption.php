@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Helpers\NumbersHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -44,7 +43,7 @@ class SettingsServiceOption extends Model
 
     public function isDefault(): bool
     {
-        return NumbersHelper::intToBool($this->getAttribute('is_default'));
+        return (bool) $this->getAttribute('is_default');
     }
 
     public function settingsService(): BelongsTo
