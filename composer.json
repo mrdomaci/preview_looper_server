@@ -25,6 +25,7 @@
         "nunomaduro/larastan": "^2.3",
         "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "^9.5.10",
+        "slevomat/coding-standard": "^8.14",
         "spatie/laravel-ignition": "^1.0"
     },
     "autoload": {
@@ -52,7 +53,15 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
-        ]
+        ],
+        "check-coding-style": [
+            "phpcs --standard=phpcs_ruleset.xml"
+        ],
+        "ccs": ["@check-coding-style"],
+        "fix-coding-style": [
+            "phpcbf --standard=phpcs_ruleset.xml"
+        ],
+        "fcs": ["@fix-coding-style"]
     },
     "extra": {
         "laravel": {
@@ -64,7 +73,8 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
-            "pestphp/pest-plugin": true
+            "pestphp/pest-plugin": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
     "minimum-stability": "dev",
