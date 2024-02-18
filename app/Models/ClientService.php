@@ -8,6 +8,7 @@ use App\Enums\ClientServiceStatusEnum;
 use App\Enums\SyncEnum;
 use App\Exceptions\DataNotFoundException;
 use App\Exceptions\DataUpdateFailException;
+use App\Helpers\NumbersHelper;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -95,9 +96,9 @@ class ClientService extends Model
         return new DateTime($this->getAttribute('products_last_synced_at'));
     }
 
-    public function isUpdateInProgress(): bool
+    public function isUpdateInProcess(): bool
     {
-        return $this->getAttribute('update_in_process');
+        return NumbersHelper::intToBool($this->getAttribute('update_in_process'));
     }
 
     public function setUpdateInProgress(bool $updateInProgress, ?SyncEnum $sync = null): void

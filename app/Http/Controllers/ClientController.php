@@ -175,7 +175,7 @@ class ClientController extends Controller
                 'client' => $client,
                 'settings_service' => $serviceSettings,
                 'last_synced' => $dateLastSynced,
-                'update_in_process' => $clientService->isUpdateInProgress(),
+                'update_in_process' => $clientService->isUpdateInProcess(),
                 'client_settings' => $clientSettings,
                 'title' => $service->getName(),
                 'eshop_id' => $eshopId,

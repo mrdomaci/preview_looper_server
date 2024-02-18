@@ -24,7 +24,7 @@ class ClientServiceBusiness
 
     public function isForbidenToUpdate(ClientService $clientService): bool
     {
-        if ($clientService->isUpdateInProgress() === true) {
+        if ($clientService->isUpdateInProcess() === true) {
             return true;
         }
         return false;

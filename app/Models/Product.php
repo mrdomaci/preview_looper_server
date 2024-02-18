@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Helpers\NumbersHelper;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -44,7 +45,7 @@ class Product extends Model
 
     public function isActive(): bool
     {
-        return $this->getAttribute('active');
+        return NumbersHelper::intToBool($this->getAttribute('active'));
     }
 
     public function getCreatedAt(): DateTime
@@ -110,6 +111,11 @@ class Product extends Model
     public function getUnit(): ?string
     {
         return $this->getAttribute('unit');
+    }
+
+    function getCategoryName(): ?string
+    {
+        return $this->getAttribute('category');
     }
 
     public function getCategory(): ?Category

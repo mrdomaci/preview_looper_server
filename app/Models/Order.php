@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Helpers\NumbersHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -100,7 +101,7 @@ class Order extends Model
 
     public function getCashDeskOrder(): bool
     {
-        return $this->getAttribute('cashDeskOrder');
+        return NumbersHelper::intToBool($this->getAttribute('cashDeskOrder'));
     }
 
     public function getCustomerGuid(): ?string
@@ -110,7 +111,7 @@ class Order extends Model
 
     public function isPaid(): bool
     {
-        return $this->getAttribute('paid');
+        return NumbersHelper::intToBool($this->getAttribute('paid'));
     }
 
     public function getForeignStatusId(): string
