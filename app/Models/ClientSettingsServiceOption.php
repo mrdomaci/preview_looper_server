@@ -31,19 +31,39 @@ class ClientSettingsServiceOption extends Model
         return $this->getAttribute('client_id');
     }
 
+    public function setClient(Client $client): self
+    {
+        return $this->setAttribute('client_id', $client->getId());
+    }
+
     public function getSettingsServiceId(): int
     {
         return $this->getAttribute('settings_service_id');
     }
 
-    public function getSettingsServiceOptionId(): int
+    public function setSettingsService(SettingsService $settingsService): self
+    {
+        return $this->setAttribute('settings_service_id', $settingsService->getId());
+    }
+
+    public function getSettingsServiceOptionId(): ?int
     {
         return $this->getAttribute('settings_service_option_id');
     }
 
-    public function getValue(): string
+    public function setSettingsServiceOption(?SettingsServiceOption $settingsServiceOption): self
+    {
+        return $this->setAttribute('settings_service_option_id', $settingsServiceOption->getId());
+    }
+
+    public function getValue(): ?string
     {
         return $this->getAttribute('value');
+    }
+
+    public function setValue(?string $value): self
+    {
+        return $this->setAttribute('value', $value);
     }
 
     public function settingsService(): BelongsTo

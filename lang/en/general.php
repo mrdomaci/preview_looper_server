@@ -25,4 +25,5 @@ return [
     'sync_in_progress' => 'Synchronization in progress',
     'synced_scheduled' => 'Synchronization has been added to the queue and will be performed as soon as possible',
     'sync_info' => 'Synchronization of data from the Shoptet API is triggered regularly twice a day. If you want to start synchronization manually, click the button below.',
+    'not_synced_yet' => 'Not synced yet'
 ];

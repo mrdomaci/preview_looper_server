@@ -35,9 +35,19 @@ class SettingsService extends Model
         return $this->getAttribute('name');
     }
 
+    public function setName(string $name): self
+    {
+        return $this->setAttribute('name', $name);
+    }
+
     public function getSort(): int
     {
         return $this->getAttribute('sort');
+    }
+
+    public function setSort(int $sort): self
+    {
+        return $this->setAttribute('sort', $sort);
     }
 
     public function getServiceId(): int
@@ -45,14 +55,29 @@ class SettingsService extends Model
         return $this->getAttribute('service_id');
     }
 
+    public function setService(Service $service): self
+    {
+        return $this->setAttribute('service_id', $service->getId());
+    }
+
     public function getType(): string
     {
         return $this->getAttribute('type');
     }
 
+    public function setType(string $type): self
+    {
+        return $this->setAttribute('type', $type);
+    }
+
     public function isDefault(): bool
     {
         return (bool) $this->getAttribute('is_default');
+    }
+
+    public function setIsDefault(bool $isDefault): self
+    {
+        return $this->setAttribute('is_default', $isDefault);
     }
 
     public function service(): BelongsTo

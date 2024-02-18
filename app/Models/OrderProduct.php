@@ -32,9 +32,19 @@ class OrderProduct extends Model
         return $this->getAttribute('client_id');
     }
 
+    public function setClient(Client $client): self
+    {
+        return $this->setAttribute('client_id', $client->getId());
+    }
+
     public function getOrderId(): int
     {
         return $this->getAttribute('order_id');
+    }
+
+    public function setOrder(Order $order): self
+    {
+        return $this->setAttribute('order_id', $order->getId());
     }
 
     public function getOrderGuid(): string
@@ -42,14 +52,32 @@ class OrderProduct extends Model
         return $this->getAttribute('order_guid');
     }
 
-    public function getProductId(): int
+    public function setOrderGuid(string $orderGuid): self
+    {
+        return $this->setAttribute('order_guid', $orderGuid);
+    }
+
+    public function getProductId(): ?int
     {
         return $this->getAttribute('product_id');
+    }
+
+    public function setProduct(?Product $product): self
+    {
+        if ($product === null) {
+            return $this->setAttribute('product_id', null);
+        }
+        return $this->setAttribute('product_id', $product->getId());
     }
 
     public function getProductGuid(): string
     {
         return $this->getAttribute('product_guid');
+    }
+
+    public function setProductGuid(string $productGuid): self
+    {
+        return $this->setAttribute('product_guid', $productGuid);
     }
 
     public function order(): BelongsTo

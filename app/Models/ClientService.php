@@ -54,9 +54,19 @@ class ClientService extends Model
         return $this->getAttribute('client_id');
     }
 
+    public function setClient(Client $client): self
+    {
+        return $this->setAttribute('client_id', $client->getId());
+    }
+
     public function getServiceId(): int
     {
         return $this->getAttribute('service_id');
+    }
+
+    public function setService(Service $service): self
+    {
+        return $this->setAttribute('service_id', $service->getId());
     }
 
     public function getOAuthAccessToken(): string
@@ -64,9 +74,19 @@ class ClientService extends Model
         return $this->getAttribute('oauth_access_token');
     }
 
+    public function setOAuthAccessToken(string $oAuthAccessToken): self
+    {
+        return $this->setAttribute('oauth_access_token', $oAuthAccessToken);
+    }
+
     public function getStatus(): ClientServiceStatusEnum
     {
         return $this->getAttribute('status');
+    }
+
+    public function setStatus(ClientServiceStatusEnum $status): self
+    {
+        return $this->setAttribute('status', $status);
     }
 
     public function getCountry(): ?string
@@ -74,9 +94,19 @@ class ClientService extends Model
         return $this->getAttribute('country');
     }
 
+    public function setCountry(?string $country): self
+    {
+        return $this->setAttribute('country', $country);
+    }
+
     public function getAccessToken(): ?string
     {
         return $this->getAttribute('access_token');
+    }
+
+    public function setAccessToken(?string $accessToken): self
+    {
+        return $this->setAttribute('access_token', $accessToken);
     }
 
     public function getOrdersLastSyncedAt(): ?DateTime
@@ -87,12 +117,22 @@ class ClientService extends Model
         return new DateTime($this->getAttribute('orders_last_synced_at'));
     }
 
+    public function setOrdersLastSyncedAt(?DateTime $ordersLastSyncedAt): self
+    {
+        return $this->setAttribute('orders_last_synced_at', $ordersLastSyncedAt);
+    }
+
     public function getProductsLastSyncedAt(): ?DateTime
     {
         if ($this->getAttribute('products_last_synced_at') === null) {
             return null;
         }
         return new DateTime($this->getAttribute('products_last_synced_at'));
+    }
+
+    public function setProductsLastSyncedAt(?DateTime $productsLastSyncedAt): self
+    {
+        return $this->setAttribute('products_last_synced_at', $productsLastSyncedAt);
     }
 
     public function isUpdateInProcess(): bool

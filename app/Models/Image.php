@@ -30,14 +30,29 @@ class Image extends Model
         return $this->getAttribute('client_id');
     }
 
+    public function setClient(Client $client): self
+    {
+        return $this->setAttribute('client_id', $client->getId());
+    }
+
     public function getProductId(): int
     {
         return $this->getAttribute('product_id');
     }
 
+    public function setProduct(Product $product): self
+    {
+        return $this->setAttribute('product_id', $product->getId());
+    }
+
     public function getName(): string
     {
         return $this->getAttribute('name');
+    }
+
+    public function setName(string $name): self
+    {
+        return $this->setAttribute('name', $name);
     }
 
     public function client(): BelongsTo

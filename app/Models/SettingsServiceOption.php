@@ -31,9 +31,19 @@ class SettingsServiceOption extends Model
         return $this->getAttribute('name');
     }
 
+    public function setName(string $name): self
+    {
+        return $this->setAttribute('name', $name);
+    }
+
     public function getValue(): string
     {
         return $this->getAttribute('value');
+    }
+
+    public function setValue(string $value): self
+    {
+        return $this->setAttribute('value', $value);
     }
 
     public function getSettingsServiceId(): int
@@ -41,9 +51,19 @@ class SettingsServiceOption extends Model
         return $this->getAttribute('settings_service_id');
     }
 
+    public function setSettingsService(SettingsService $settingsService): self
+    {
+        return $this->setAttribute('settings_service_id', $settingsService->getId());
+    }
+
     public function isDefault(): bool
     {
         return (bool) $this->getAttribute('is_default');
+    }
+
+    public function setIsDefault(bool $isDefault): self
+    {
+        return $this->setAttribute('is_default', $isDefault);
     }
 
     public function settingsService(): BelongsTo

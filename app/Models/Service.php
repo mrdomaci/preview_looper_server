@@ -33,9 +33,19 @@ class Service extends Model
         return $this->getAttribute('name');
     }
 
+    public function setName(string $name): self
+    {
+        return $this->setAttribute('name', $name);
+    }
+
     public function getHash(): string
     {
         return $this->getAttribute('hash');
+    }
+
+    public function setHash(string $hash): self
+    {
+        return $this->setAttribute('hash', $hash);
     }
 
     public function getUrlPath(): string
@@ -43,9 +53,19 @@ class Service extends Model
         return $this->getAttribute('url-path');
     }
 
+    public function setUrlPath(string $urlPath): self
+    {
+        return $this->setAttribute('url-path', $urlPath);
+    }
+
     public function getViewName(): string
     {
         return $this->getAttribute('view-name');
+    }
+
+    public function setViewName(string $viewName): self
+    {
+        return $this->setAttribute('view-name', $viewName);
     }
 
     public function clients(): HasMany
