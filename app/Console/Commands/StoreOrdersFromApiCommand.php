@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
@@ -40,8 +42,7 @@ class StoreOrdersFromApiCommand extends AbstractCommand
         private readonly ClientServiceBusiness $clientServiceBusiness,
         private readonly OrderRepository $orderRepository,
         private readonly OrderProductRepository $orderProductRepository,
-    )
-    {
+    ) {
         parent::__construct();
     }
 
@@ -51,7 +52,7 @@ class StoreOrdersFromApiCommand extends AbstractCommand
      * @return int
      */
     public function handle()
-    {        
+    {
         $clientId = $this->argument('client_id');
         if ($clientId !== null) {
             $clientId = (int) $clientId;
@@ -59,7 +60,7 @@ class StoreOrdersFromApiCommand extends AbstractCommand
         $success = true;
         $this->info('Updating orders');
         $lastClientServiceId = 0;
-        for($i = 0; $i < $this->getMaxIterationCount(); $i++) {
+        for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
                 Service::getUpsell(),

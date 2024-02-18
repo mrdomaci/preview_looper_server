@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Repositories;
@@ -7,7 +8,8 @@ use App\Connector\OrderResponse;
 use App\Models\Client;
 use App\Models\Order;
 
-class OrderRepository {
+class OrderRepository
+{
     
     public function createOrUpdate(OrderResponse $orderResponse, Client $client): Order
     {

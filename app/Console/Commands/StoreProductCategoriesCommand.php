@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Models\ClientService;
@@ -29,8 +31,7 @@ class StoreProductCategoriesCommand extends AbstractCommand
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly ProductRepository $productRepository,
         private readonly CategoryRepository $categoryRepository,
-        )
-    {
+    ) {
         parent::__construct();
     }
 
@@ -40,14 +41,14 @@ class StoreProductCategoriesCommand extends AbstractCommand
      * @return int
      */
     public function handle()
-    {        
+    {
         $clientId = $this->argument('client_id');
         if ($clientId !== null) {
             $clientId = (int) $clientId;
         }
         
         $lastClientServiceId = 0;
-        for($i = 0; $i < $this->getMaxIterationCount(); $i++) {
+        for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
                 Service::getUpsell(),
@@ -61,8 +62,8 @@ class StoreProductCategoriesCommand extends AbstractCommand
                 $client = $clientService->client()->first();
 
                 $lastProductId = 0;
-                for($j = 0; $j < $this->getMaxIterationCount(); $j++) {
-                    foreach($this->productRepository->getPastId($client, $lastProductId) as $product) {
+                for ($j = 0; $j < $this->getMaxIterationCount(); $j++) {
+                    foreach ($this->productRepository->getPastId($client, $lastProductId) as $product) {
                         $lastProductId = $product->getId();
                         $category = $this->categoryRepository->createOrUpdate($client, $product->getCategory());
                         $this->productRepository->setProductCategory($product, $category);

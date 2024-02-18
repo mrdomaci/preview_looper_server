@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -16,8 +18,6 @@ class FrameHeadersMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $response = $next($request);
-        //$response->header('X-Frame-Options', 'ALLOW FROM https://myshoptet.com/');
-        return $response;
+        return $next($request);
     }
 }

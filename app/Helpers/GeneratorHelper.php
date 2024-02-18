@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Helpers;
@@ -20,7 +21,8 @@ class GeneratorHelper
      * @param string $productGuid
      * @return iterable<ProductImageResponse>
      */
-    public static function fetchProductImages(ClientService $clientService, string $productGuid): iterable {
+    public static function fetchProductImages(ClientService $clientService, string $productGuid): iterable
+    {
         foreach (ConnectorHelper::getProductImages($clientService, $productGuid) as $item) {
             yield $item;
         }
@@ -31,7 +33,8 @@ class GeneratorHelper
      * @param string $productGuid
      * @return ?ProductDetailResponse
      */
-    public static function fetchProductDetail(ClientService $clientService, string $productGuid): ?ProductDetailResponse {
+    public static function fetchProductDetail(ClientService $clientService, string $productGuid): ?ProductDetailResponse
+    {
         return ConnectorHelper::getProductDetail($clientService, $productGuid);
     }
 
@@ -40,7 +43,8 @@ class GeneratorHelper
      * @param int $page
      * @return iterable<ProductResponse>
      */
-    public static function fetchProducts(ClientService $clientService, ?ProductFilter $productFilter, int $page): iterable {
+    public static function fetchProducts(ClientService $clientService, ?ProductFilter $productFilter, int $page): iterable
+    {
         $products = ConnectorHelper::getProducts($clientService, $page, $productFilter);
         if ($products === null) {
             return;
@@ -54,7 +58,8 @@ class GeneratorHelper
      * @param ClientService $clientService
      * @return iterable<OrderStatusResponse>
      */
-    public static function fetchOrderStatuses(ClientService $clientService): iterable {
+    public static function fetchOrderStatuses(ClientService $clientService): iterable
+    {
         foreach (ConnectorHelper::getOrderSatuses($clientService)->getOrderStatuses() as $item) {
             yield $item;
         }
@@ -66,7 +71,8 @@ class GeneratorHelper
      * @param int $page
      * @return iterable<OrderResponse>
      */
-    public static function fetchOrders(ClientService $clientService, int $page, ?DateTime $changeFrom = null): iterable {
+    public static function fetchOrders(ClientService $clientService, int $page, ?DateTime $changeFrom = null): iterable
+    {
         $orders = ConnectorHelper::getOrders($clientService, $page, $changeFrom);
         if ($orders === null) {
             return;
@@ -81,7 +87,8 @@ class GeneratorHelper
      * @param string $code
      * @return iterable<OrderDetailResponse>
      */
-    public static function fetchOrderDetail(ClientService $clientService, string $code): iterable {
+    public static function fetchOrderDetail(ClientService $clientService, string $code): iterable
+    {
         $orderDetail = ConnectorHelper::getOrderDetail($clientService, $code);
         if ($orderDetail === null) {
             return;

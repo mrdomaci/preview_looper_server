@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 return [
     'addon_title' => 'Dinamikus előnézeti képek',
     'infinite_repeat' => 'Előnézeti képek végtelenített ismétlése',

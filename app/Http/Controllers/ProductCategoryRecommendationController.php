@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Repositories\CategoryRepository;
@@ -16,7 +18,8 @@ class ProductCategoryRecommendationController extends Controller
         private readonly CategoryRepository $categoryRepository,
         private readonly ProductRepository $productRepository,
         private readonly ProductCategoryRecommendationRepository $productCategoryRecommendationRepository
-    ) {}
+    ) {
+    }
     public function add(string $country, string $serviceUrlPath, string $language, string $eshopId, Request $request): \Illuminate\Http\RedirectResponse
     {
         $client = $this->clientRepository->getByEshopId((int) $eshopId);
@@ -24,8 +27,7 @@ class ProductCategoryRecommendationController extends Controller
         $product = $this->productRepository->getForClient($client, (int) $request->input('product'));
         try {
             $this->productCategoryRecommendationRepository->create($client, $product, $category);
-        }
-        catch (Throwable) {
+        } catch (Throwable) {
             return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', __('general.error'));
         }
         return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', __('general.success'));
@@ -36,8 +38,7 @@ class ProductCategoryRecommendationController extends Controller
         try {
             $productCategoryRecommendationRepository = $this->productCategoryRecommendationRepository->get((int) $request->input('id'));
             $this->productCategoryRecommendationRepository->delete($productCategoryRecommendationRepository);
-        }
-        catch (Throwable) {
+        } catch (Throwable) {
             return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', __('general.error'));
         }
         return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', __('general.success'));

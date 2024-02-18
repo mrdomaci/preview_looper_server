@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Helpers\StringHelper;
@@ -42,5 +44,4 @@ class Currency extends Model
 
         return str_replace('{price}', $value, $currency->getFormat());
     }
-
 }

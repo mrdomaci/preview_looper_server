@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Connector;
@@ -135,15 +136,15 @@ class Request
         $result = '';
         $count = 0;
         foreach ($this->query as $key => $value) {
-            if($count === 0) {
+            if ($count === 0) {
                 $result .= '?';
             } else {
                 $result .= '&';
             }
-            $count++;        
+            $count++;
             $result .= $key . '=' . $value;
         }
-        return $result; 
+        return $result;
     }
 
     public function setQuery(string $key, string $value): void
@@ -153,7 +154,7 @@ class Request
 
     public function setPage(int $page): void
     {
-        $this->setQuery('page',(string) $page);
+        $this->setQuery('page', (string) $page);
     }
 
     public function setItemsPerPage(int $itemsPerPage): void
@@ -170,7 +171,7 @@ class Request
     {
         try {
             $response = $this->sendRequest();
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             if ($e->getCode() === 401) {
                 $this->clientService->setAttribute('access_token', TokenHelper::getApiAccessToken($this->clientService));
                 $this->clientService->save();

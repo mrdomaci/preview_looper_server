@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Businesses;
@@ -12,18 +13,17 @@ use App\Repositories\ProductRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Throwable;
 
-class ProductRecommendationBusiness {
-    /**
-     * @var array<int, Product>
-     */
+class ProductRecommendationBusiness
+{
+    /** @var array<int, Product> */
     private array $recommendations = [];
     public function __construct(
         private OrderProductRepository $orderProductRepository,
         private ClientSettingsServiceOptionRepository $clientSettingsServiceOptionRepository,
         private ProductRepository $productRepository,
         private ProductCategoryRecommendationRepository $productCategoryRecommendationRepository
-    )
-    {}
+    ) {
+    }
 
     /**
      * @param Collection<Product> $products

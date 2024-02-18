@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Repositories;
@@ -7,11 +8,12 @@ use App\Models\Category;
 use App\Models\Client;
 use Illuminate\Database\Eloquent\Collection;
 
-class CategoryRepository {
+class CategoryRepository
+{
     public function createOrUpdate(Client $client, string $name): Category
     {
         $category = Category::where('client_id', $client->getId())->where('name', $name)->first();
-        if ($category === NULL) {
+        if ($category === null) {
             $category = Category::create([
                 'client_id' => $client->getId(),
                 'name' => $name,
@@ -25,7 +27,8 @@ class CategoryRepository {
         return Category::where('client_id', $client->getId())->where('id', $id)->firstOrFail();
     }
 
-    public function getAllForClient(Client $client): Collection {
+    public function getAllForClient(Client $client): Collection
+    {
         return $client->categories;
     }
 }

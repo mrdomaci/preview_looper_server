@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\ImageController;
@@ -23,9 +25,9 @@ Route::get('/plugin/{serviceUrlPath}', [HomepageController::class, 'plugin'])->n
 Route::get('/plugin/{serviceUrlPath}/terms', [HomepageController::class, 'terms'])->name('terms');
 
 Route::get('/addon-install/{country}/{serviceUrlPath}', [ClientController::class, 'install'])->name('client.install');
-Route::get('/client-settings/{country}/{serviceUrlPath}',[ClientController::class, 'settings'])->name('client.settings');
-Route::post('/client-settings/{country}/{serviceUrlPath}/{language}/{eshopId}',[ClientController::class, 'saveSettings'])->name('client.saveSettings');
-Route::post('/client-sync/{country}/{serviceUrlPath}/{language}/{eshopId}',[ClientController::class, 'sync'])->name('client.sync');
+Route::get('/client-settings/{country}/{serviceUrlPath}', [ClientController::class, 'settings'])->name('client.settings');
+Route::post('/client-settings/{country}/{serviceUrlPath}/{language}/{eshopId}', [ClientController::class, 'saveSettings'])->name('client.saveSettings');
+Route::post('/client-sync/{country}/{serviceUrlPath}/{language}/{eshopId}', [ClientController::class, 'sync'])->name('client.sync');
 Route::get('/products/{clientId}/{name}', [ProductController::class, 'getData'])->name('products.getData');
 Route::post('/recommendation/{country}/{serviceUrlPath}/{language}/{eshopId}', [ProductCategoryRecommendationController::class, 'add'])->name('recommendation.add');
 Route::delete('/recommendation/{country}/{serviceUrlPath}/{language}/{eshopId}', [ProductCategoryRecommendationController::class, 'delete'])->name('recommendation.delete');

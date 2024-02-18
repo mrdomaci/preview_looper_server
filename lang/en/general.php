@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 return [
     'introduction' => 'Development of plugins for Shoptet e-shops',
     'subtitle' => 'Below on this page, you will find a list of plugins I have created for the Shoptet marketplace of plugins.',

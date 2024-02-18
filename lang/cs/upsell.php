@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 return [
     'addon_title' => 'Doporučené produkty',
     'amount' => 'Maximální počet doporučených produktů',

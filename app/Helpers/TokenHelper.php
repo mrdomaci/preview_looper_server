@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Helpers;
@@ -24,10 +25,10 @@ class TokenHelper
         $OauthAccessToken = $clientService->getOAuthAccessToken();
         $curl = curl_init($apiAccessTokenUrl);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $OauthAccessToken]);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($curl);
         curl_close($curl);
-        $response = json_decode($response, TRUE);
+        $response = json_decode($response, true);
         if (ArrayHelper::containsKey($response, 'error') === true) {
             if ($response['error'] === 'addon_not_installed') {
                 throw new AddonNotInstalledException('Addon not installed', 401);

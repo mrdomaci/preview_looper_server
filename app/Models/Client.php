@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Exceptions\DataInsertFailException;
@@ -155,7 +157,7 @@ class Client extends Model
     {
         $client = Client::where('eshop_id', $eshopId)->first();
 
-        if ($client === NULL) {
+        if ($client === null) {
             try {
                 $client = Client::create([
                     'eshop_id' => $eshopId,

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Helpers\WebHookHelper;
@@ -26,8 +28,7 @@ class WebhookUpdateByClientsCommand extends AbstractCommand
 
     public function __construct(
         private readonly ClientServiceRepository $clientServiceRepository,
-    )
-    {
+    ) {
         parent::__construct();
     }
 

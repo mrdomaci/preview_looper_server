@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\ClientServiceStatusEnum;
@@ -27,9 +29,7 @@ class ClientService extends Model
         'country',
     ];
 
-    /**
-     * @var array <string, string>
-     */
+    /** @var array <string, string> */
     protected $casts = [
         'status' => ClientServiceStatusEnum::class,
     ];
@@ -116,17 +116,20 @@ class ClientService extends Model
         }
     }
 
-    public function setStatusDeleted(): void {
+    public function setStatusDeleted(): void
+    {
         $this->setAttribute('status', ClientServiceStatusEnum::DELETED);
         $this->save();
     }
 
-    public function setStatusInactive(): void {
+    public function setStatusInactive(): void
+    {
         $this->setAttribute('status', ClientServiceStatusEnum::INACTIVE);
         $this->save();
     }
 
-    public function setStatusActive(): void {
+    public function setStatusActive(): void
+    {
         $this->setAttribute('status', ClientServiceStatusEnum::ACTIVE);
         $this->save();
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
@@ -38,8 +40,7 @@ class StoreProductsFromApiCommand extends AbstractCommand
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly ClientServiceBusiness $clientServiceBusiness,
         private readonly ProductRepository $productRepository,
-    )
-    {
+    ) {
         parent::__construct();
     }
 
@@ -49,7 +50,7 @@ class StoreProductsFromApiCommand extends AbstractCommand
      * @return int
      */
     public function handle()
-    {        
+    {
         $clientId = $this->argument('client_id');
         if ($clientId !== null) {
             $clientId = (int) $clientId;
@@ -57,7 +58,7 @@ class StoreProductsFromApiCommand extends AbstractCommand
         $success = true;
 
         $lastClientServiceId = 0;
-        for($i = 0; $i < $this->getMaxIterationCount(); $i++) {
+        for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
                 Service::getDynamicPreviewImages(),
@@ -76,7 +77,7 @@ class StoreProductsFromApiCommand extends AbstractCommand
                 /** @var Collection<Product> $products */
                 $products = $this->productRepository->getActivesByClient($client);
                 $productFilter = new ProductFilter('visibility', 'visible');
-                for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) { 
+                for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) {
                     try {
                         $productListResponse = ConnectorHelper::getProducts($clientService, $page, $productFilter);
                         if ($productListResponse === null) {

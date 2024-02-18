@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Repositories;
@@ -9,13 +10,15 @@ use App\Models\SettingsService;
 use App\Models\SettingsServiceOption;
 use Throwable;
 
-class ClientSettingsServiceOptionRepository {
+class ClientSettingsServiceOptionRepository
+{
 
     /**
      * @param Client $client
      * @return int
      */
-    public function getMaxResultsForUpsell(Client $client): int {
+    public function getMaxResultsForUpsell(Client $client): int
+    {
         try {
             return (int) ClientSettingsServiceOption::from('client_settings_service_options as csso')
                 ->where('csso.client_id', $client->getId())

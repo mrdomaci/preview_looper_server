@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 return [
     'introduction' => 'Vývoj doplnkov pre Shoptet eshopy',
     'subtitle' => 'Nižšie na tejto stránke nájdete zoznam doplnkov, ktoré som pre Shoptet trhovisko doplnkov vytvoril.',
@@ -21,5 +24,5 @@ return [
     'sync_now' => 'Synchronizovať teraz',
     'sync_in_progress' => 'Synchronizácia práve prebieha',
     'synced_scheduled' => 'Synchronizácia bola pridaná do frontu a bude vykonaná v najbližšej možnej dobe',
-    'sync_info' => 'Synchronizácie údajov z Shoptet API sa spúšťajú pravidelne dvakrát denne. Ak chcete synchronizáciu spustiť manuálne, kliknite na tlačidlo nižšie.',    
+    'sync_info' => 'Synchronizácie údajov z Shoptet API sa spúšťajú pravidelne dvakrát denne. Ak chcete synchronizáciu spustiť manuálne, kliknite na tlačidlo nižšie.',
 ];

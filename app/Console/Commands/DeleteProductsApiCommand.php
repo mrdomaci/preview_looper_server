@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
@@ -30,8 +32,7 @@ class DeleteProductsApiCommand extends AbstractCommand
         private readonly ClientServiceBusiness $clientServiceBusiness,
         private readonly ProductRepository $productRepository,
         private readonly ImageRepository $imageRepository
-    )
-    {
+    ) {
         parent::__construct();
     }
 

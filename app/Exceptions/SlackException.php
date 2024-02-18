@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Exceptions;
 
 use Throwable;
@@ -14,7 +17,7 @@ class SlackException extends \Exception
     public function report(Throwable $t): Message
     {
         $attachments = [];
-        foreach($t->getTrace() as $trace) {
+        foreach ($t->getTrace() as $trace) {
             $attachments[] = [
                 'text'      => $trace['file'] . ':' . $trace['line'],
                 'color'     => 'danger',

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Repositories;
@@ -8,7 +9,8 @@ use App\Models\Client;
 use App\Models\Image;
 use App\Models\Product;
 
-class ImageRepository {
+class ImageRepository
+{
     public function deleteByClient(Client $client): void
     {
         Image::where('client_id', $client->getId())->delete();

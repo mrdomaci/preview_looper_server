@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Businesses\ProductBusiness;
@@ -17,8 +19,7 @@ class ProductController extends Controller
         private readonly ClientRepository $clientRepository,
         private readonly ProductBusiness $productBusiness,
         private readonly ProductRecommendationBusiness $productRecommendationBusiness,
-        )
-    {
+    ) {
     }
     public function recommend(string $eshopID, string $moduloCheck, string $guids): JsonResponse
     {

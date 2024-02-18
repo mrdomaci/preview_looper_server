@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 return [
     'addon_title' => 'Dynamické náhľadové obrázky',
     'infinite_repeat' => 'Nekonečné opakovanie zobrazenia náhľadových obrázkov',

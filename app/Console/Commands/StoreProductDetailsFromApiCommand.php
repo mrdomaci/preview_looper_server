@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
@@ -28,10 +30,7 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
      */
     protected $signature = 'store:product:details {client_id?}';
 
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     protected $description = 'Store product details from API';
 
     public function __construct(
@@ -39,8 +38,7 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
         private readonly ClientServiceBusiness $clientServiceBusiness,
         private readonly ProductRepository $productRepository,
         private readonly ImageRepository $imageRepository
-    )
-    {
+    ) {
         parent::__construct();
     }
 
@@ -57,8 +55,7 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
             $clientId = (int) $clientId;
         }
         $lastClientServiceId = 0;
-        for($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-
+        for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
                 Service::getDynamicPreviewImages(),
@@ -80,7 +77,7 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
                 $productOffsetId = 0;
                 for ($j = 0; $j < $this->getMaxIterationCount(); $j++) {
                     $products = $this->productRepository->getPastId($client, $productOffsetId);
-                    for($k = 0; $k < count($products); $k++) {
+                    for ($k = 0; $k < count($products); $k++) {
                         /** @var Product $product */
                         $product = $products[$k];
                         $productGuid = $product->getGuid();

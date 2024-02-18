@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Helpers;
@@ -30,7 +31,7 @@ class AuthorizationHelper
 
         $data = [
             'client_id' => $clientId,
-            'client_secret' => $clientSecret, 
+            'client_secret' => $clientSecret,
             'code' => $code,
             'grant_type' => 'authorization_code',
             'redirect_uri' => Route('client.install', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath]),
@@ -38,9 +39,9 @@ class AuthorizationHelper
         ];
 
         $curl = curl_init($oauthServerTokenUrl);
-        curl_setopt($curl, CURLOPT_POST, TRUE);
+        curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-type: application/json']);
         $response = curl_exec($curl);
         curl_close($curl);
@@ -66,7 +67,7 @@ class AuthorizationHelper
         }
         $data = [
             'client_id' => $clientId,
-            'client_secret' => $clientSecret, 
+            'client_secret' => $clientSecret,
             'code' => $code,
             'grant_type' => 'authorization_code',
             'redirect_uri' => Route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath]),
@@ -76,9 +77,9 @@ class AuthorizationHelper
         $url = $baseOAuthUrl . 'token';
 
         $curl = curl_init($url);
-        curl_setopt($curl, CURLOPT_POST, TRUE);
+        curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($curl);
         $error = curl_error($curl);
         curl_close($curl);
@@ -102,7 +103,7 @@ class AuthorizationHelper
         $url = $baseOAuthUrl . 'resource?method=getBasicEshop';
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $accessToken]);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($curl);
         $error = curl_error($curl);
         curl_close($curl);
