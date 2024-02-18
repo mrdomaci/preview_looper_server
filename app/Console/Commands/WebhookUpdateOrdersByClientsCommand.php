@@ -1,11 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
-use App\Enums\ClientServiceStatusEnum;
 use App\Helpers\WebHookHelper;
-use App\Models\Client;
-use App\Models\ClientService;
 use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
@@ -29,8 +28,7 @@ class WebhookUpdateOrdersByClientsCommand extends AbstractCommand
 
     public function __construct(
         private readonly ClientServiceRepository $clientServiceRepository,
-    )
-    {
+    ) {
         parent::__construct();
     }
 

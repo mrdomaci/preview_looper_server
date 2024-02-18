@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
-use App\Businesses\ClientServiceBusiness;
 use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\AddonSuspendedException;
 use App\Helpers\ConnectorHelper;
@@ -31,8 +32,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
     public function __construct(
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly ClientRepository $clientRepository,
-    )
-    {
+    ) {
         parent::__construct();
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Connector;
@@ -21,7 +22,7 @@ class Response
         private ?array $errors = [],
     ) {
         if ($errors !== null) {
-            foreach($errors as $key => $error) {
+            foreach ($errors as $key => $error) {
                 LoggerHelper::log($key);
                 LoggerHelper::log($error);
             }
@@ -130,7 +131,7 @@ class Response
                 $visibility = $product['visibility'];
             }
             if (ArrayHelper::containsKey($product, 'defaultCategory')) {
-                if (ArrayHelper::isArray($product['defaultCategory']) 
+                if (ArrayHelper::isArray($product['defaultCategory'])
                     && ArrayHelper::containsKey($product['defaultCategory'], 'guid')
                     && $product['defaultCategory']['guid'] !== null
                     && ArrayHelper::containsKey($product['defaultCategory'], 'name')
@@ -424,7 +425,7 @@ class Response
             $visibility = $this->data['visibility'];
         }
         if (ArrayHelper::containsKey($this->data, 'defaultCategory')) {
-            if (ArrayHelper::isArray($this->data['defaultCategory']) 
+            if (ArrayHelper::isArray($this->data['defaultCategory'])
                 && ArrayHelper::containsKey($this->data['defaultCategory'], 'guid')
                 && $this->data['defaultCategory']['guid'] !== null
                 && ArrayHelper::containsKey($this->data['defaultCategory'], 'name')
@@ -545,7 +546,7 @@ class Response
         $result = [];
         if (ArrayHelper::containsKey($this->data, 'images') === false) {
             return $result;
-        } 
+        }
         foreach ($this->data['images'] as $image) {
             $changeTime = null;
             $name = null;
@@ -707,7 +708,7 @@ class Response
                 if (isset($location) && isset($html)) {
                     $templateIncludes[] = new TemplateIncludeSnippet($location, $html);
                 }
-            }    
+            }
         }
         return new TemplateIncludeResponse($templateIncludes);
     }

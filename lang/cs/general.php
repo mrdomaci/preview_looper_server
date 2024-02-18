@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 return [
     'introduction' => 'Vývoj doplňků pro Shoptet eshopy',
     'subtitle' => 'Níže na této stránce naleznete seznam doplňků, které jsem pro Shoptet tržiště doplňků vytvořil.',

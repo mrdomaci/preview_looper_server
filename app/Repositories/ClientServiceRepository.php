@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Repositories;
@@ -9,7 +10,8 @@ use App\Models\Service;
 use DateTime;
 use Illuminate\Database\Eloquent\Collection;
 
-class ClientServiceRepository {
+class ClientServiceRepository
+{
     /**
      * @param int $lastId
      * @param Service|null $service
@@ -17,7 +19,8 @@ class ClientServiceRepository {
      * @param int $iterationCount
      * @return Collection<ClientService>
      */
-    public function getActive(int $lastId, ?Service $service = null, ?int $clientId = null, ?int $iterationCount = 100): Collection {
+    public function getActive(int $lastId, ?Service $service = null, ?int $clientId = null, ?int $iterationCount = 100): Collection
+    {
         $query = ClientService::where('status', ClientServiceStatusEnum::ACTIVE)
             ->where('id', '>', $lastId);
         if ($service !== null) {
@@ -32,7 +35,8 @@ class ClientServiceRepository {
             ->get();
     }
 
-    public function getNextForUpdate(Service $service, DateTime $dateLastSync): ?ClientService {
+    public function getNextForUpdate(Service $service, DateTime $dateLastSync): ?ClientService
+    {
         $q = ClientService::where('service_id', $service->getId())
         ->where('status', ClientServiceStatusEnum::ACTIVE)
         ->where('update_in_process', '=', 0);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Helpers\CacheHelper;
@@ -17,16 +19,12 @@ class StoreCachedResponseCommand extends AbstractCommand
      */
     protected $signature = 'store:cached:response {client_id?}';
 
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     protected $description = 'Store cached response';
 
     public function __construct(
         private readonly ClientServiceRepository $clientServiceRepository,
-    )
-    {
+    ) {
         parent::__construct();
     }
 

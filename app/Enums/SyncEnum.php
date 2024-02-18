@@ -1,15 +1,21 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Enums;
 
-enum SyncEnum:string {
+enum SyncEnum: string
+{
     case PRODUCT = 'product';
     case ORDER = 'order';
 
-    public function isProduct(): bool {
+    public function isProduct(): bool
+    {
         return $this->value === self::PRODUCT->value;
     }
 
-    public function isOrder(): bool {
+    public function isOrder(): bool
+    {
         return $this->value === self::ORDER->value;
     }
 }

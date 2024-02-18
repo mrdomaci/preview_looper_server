@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Dtos;
 
-class ProductRecommendationDto {
+class ProductRecommendationDto
+{
     public function __construct(
         private string $name,
         private string $price,
@@ -14,38 +16,46 @@ class ProductRecommendationDto {
         private string $unit,
     ) {
     }
-    public function getName(): string {
+    public function getName(): string
+    {
         return $this->name;
     }
 
-    public function getPrice(): string {
+    public function getPrice(): string
+    {
         return $this->price;
     }
 
-    public function getUrl(): string {
+    public function getUrl(): string
+    {
         return $this->url;
     }
 
-    public function getImageUrl(): string {
+    public function getImageUrl(): string
+    {
         return $this->imageUrl;
     }
 
-    public function getAvailability(): string {
+    public function getAvailability(): string
+    {
         return $this->availability;
     }
 
-    public function getCode(): string {
+    public function getCode(): string
+    {
         return $this->code;
     }
 
-    public function getUnit(): string {
+    public function getUnit(): string
+    {
         return $this->unit;
     }
 
     /**
      * @return array<string, string>
      */
-    public function toArray(): array {
+    public function toArray(): array
+    {
         return [
             'name' => $this->getName(),
             'price' => $this->getPrice(),

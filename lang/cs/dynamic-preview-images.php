@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 return [
     'addon_title' => 'Dynamické náhledové obrázky',
     'infinite_repeat' => 'Nekonečné opakování zobrazení náhledových obrázků',
@@ -17,7 +20,7 @@ return [
     'apply_to_all' => 'Aplikovat na počítač i telefon',
     'apply_to_desktop' => 'Aplikovat pouze na počítač',
     'apply_to_mobile' => 'Aplikovat pouze na telefon',
-    'initial_loop' => 'Prvotní čas zobrazení náhledového obrázku před přepnutím na další', 
+    'initial_loop' => 'Prvotní čas zobrazení náhledového obrázku před přepnutím na další',
     'homepage_description' => 'Dynamické náhledové obrázky je doplněk, který umožňuje zobrazit náhledové obrázky produktu, který zákazníka zajímá.',
     'general_description_1' => 'Při prohlížení produktů je na stránce výpisu měněn náhledový obrázek zboží, na kterém se aktuálně nachází kurzor myši. Díky tomu se nemusí návštěvník proklikávat na detail produktu, ale může si prohlédnout produktové fotografie produktu už přímo ve výpisu produktů.',
     'general_description_2' => 'Mobilní zobrazení umožní pomocí jednoduchých gest zákazníkovi prohlížet obrázky produktu také už přímo ve výpisu zboží.',
@@ -35,7 +38,7 @@ return [
     'terms_content_subheader_61' => 'Veškerou odpovědnost za vady Doplňku nese výhradně Poskytovatel.',
     'terms_content_subheader_62' => 'Poskytovatel také odpovídá za jakoukoli škodu či jinou újmu vzniklou z důvodu porušení jeho závazků vyplývajících z poskytování Doplňku Uživateli či z jakékoliv smlouvy, která mezi Poskytovatelem a Uživatelem byla ohledně Doplňku uzavřena.',
     'terms_content_subheader_63' => 'Uživatel bere na vědomí, že Shoptet neodpovídá za žádné právní ani faktické vady Doplňku, stejně tak jako neodpovídá za jakoukoli škodu či jinou újmu vzniklou z důvodu porušení závazků Poskytovatele vyplývajících ze Smlouvy nebo těchto obchodních podmínek. Shoptet neodpovídá ani za úroveň dostupnosti Doplňku, jeho aktuální či budoucí komptabilitu ani za shodu popisu funkcionalit Doplňku se skutečnou funkcionalitou Doplňku.',
-    'terms_content_subheader_64' => 'Pro účely uplatnění práv z vadného plnění Poskytovatel uvádí následující kontaktní údaje info@slabihoud.cz', 
+    'terms_content_subheader_64' => 'Pro účely uplatnění práv z vadného plnění Poskytovatel uvádí následující kontaktní údaje info@slabihoud.cz',
     'terms_content_11' => 'Doplněk – řešení prostřednictvím kterého je možné propojit Shoptet s externími službami',
     'terms_content_12' => 'Produktová stránka – internetová stránka Doplňku - https://doplnky.shoptet.cz/dynamicke-nahledove-obrazky/',
     'terms_content_13' => 'Shoptet – společnost Shoptet, a.s., se sídlem Dvořeckého 628/8, Břevnov, 169 00 Praha 6, IČ: 28935675, zapsaná u Městského soudu v Praze pod spisovou značkou B 25395',

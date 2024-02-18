@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 return [
     'introduction' => 'Shoptet e-kereskedésekhez készült bővítmények fejlesztése',
     'subtitle' => 'Az oldalon alább megtalálható egy lista a Shoptet bővítmény piacára készített általam létrehozott bővítményekről.',

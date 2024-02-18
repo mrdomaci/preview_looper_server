@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Helpers;
@@ -60,7 +61,7 @@ class ResponseHelper
         try {
             $response = Http::get($url);
             return $response->body();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return null;
         }
     }
@@ -86,13 +87,12 @@ class ResponseHelper
         $scriptTagEndPos = strpos($bodyContent, '</script>');
     
         if ($scriptTagStartPos !== false && $scriptTagEndPos !== false) {
-            $scriptTagContent = substr(
+            return substr(
                 $bodyContent,
                 $scriptTagStartPos + strlen($scriptTagStart)
             );
-            return $scriptTagContent;
         }
         
         return null; // shoptet script not found
-    }    
+    }
 }

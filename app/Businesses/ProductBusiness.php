@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Businesses;
@@ -7,8 +8,11 @@ use App\Models\Client;
 use App\Repositories\ProductRepository;
 use Illuminate\Database\Eloquent\Collection;
 
-class ProductBusiness {
-    public function __construct(private ProductRepository $productRepository) {}
+class ProductBusiness
+{
+    public function __construct(private ProductRepository $productRepository)
+    {
+    }
 
     public function getByGuids(Client $client, string $guids): Collection
     {

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Repositories;
@@ -13,14 +14,16 @@ use App\Models\Currency;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
 
-class ProductRepository {
+class ProductRepository
+{
     /**
      * @param Client $client
      * @param int $lastProductId
      * @param int $iterationCount
      * @return Collection<Product>
      */
-    public function getPastId(Client $client, int $lastProductId, int $iterationCount = 100): Collection {
+    public function getPastId(Client $client, int $lastProductId, int $iterationCount = 100): Collection
+    {
         return Product::where('client_id', $client->getId())
         ->where('active', true)
         ->where('parent_product_id', null)
@@ -34,7 +37,8 @@ class ProductRepository {
      * @param int $iterationCount
      * @return Collection<Product>
      */
-    public function getParentsInIds(array $ids, int $iterationCount = 4): Collection {
+    public function getParentsInIds(array $ids, int $iterationCount = 4): Collection
+    {
         return Product::where('active', true)
         ->where('parent_product_id', null)
         ->whereIn('id', $ids)
@@ -46,16 +50,19 @@ class ProductRepository {
      * @param Client $client
      * @return Collection<Product>
      */
-    public function getActivesByClient(Client $client): Collection {
+    public function getActivesByClient(Client $client): Collection
+    {
         return Product::where('client_id', $client->getId())->where('active', true)->get();
     }
 
-    public function setProductCategory(Product $product, Category $category): void {
+    public function setProductCategory(Product $product, Category $category): void
+    {
         $product->setAttribute('category_id', $category->getId());
         $product->save();
     }
 
-    public function delete(Product $product): void {
+    public function delete(Product $product): void
+    {
         Product::where('id', $product->getId())->delete();
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Repositories;
@@ -9,11 +10,14 @@ use App\Models\Product;
 use App\Models\ProductCategoryRecommendation;
 use Illuminate\Support\Facades\DB;
 
-class ProductCategoryRecommendationRepository {
-    public function get(int $id): ProductCategoryRecommendation {
+class ProductCategoryRecommendationRepository
+{
+    public function get(int $id): ProductCategoryRecommendation
+    {
         return ProductCategoryRecommendation::findOrFail($id);
     }
-    public function create(Client $client, Product $product, Category $category): ProductCategoryRecommendation {
+    public function create(Client $client, Product $product, Category $category): ProductCategoryRecommendation
+    {
         return ProductCategoryRecommendation::create([
             'product_id' => $product->getId(),
             'category_id' => $category->getId(),
@@ -21,7 +25,8 @@ class ProductCategoryRecommendationRepository {
         ]);
     }
 
-    public function delete(ProductCategoryRecommendation $productCategoryRecommendation): void {
+    public function delete(ProductCategoryRecommendation $productCategoryRecommendation): void
+    {
         $productCategoryRecommendation->delete();
     }
 

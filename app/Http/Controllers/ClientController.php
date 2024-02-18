@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Enums\ClientServiceStatusEnum;
@@ -30,12 +32,13 @@ class ClientController extends Controller
     public function __construct(
         private readonly CategoryRepository $categoryRepository,
         private readonly ClientRepository $clientRepository,
-    ) {}
+    ) {
+    }
     public function install(string $country, string $serviceUrlPath, Request $request): Response
     {
         $country = strtoupper($country);
         $code = $request->input('code');
-        if ($code === NULL) {
+        if ($code === null) {
             return Response('Bad request', 400);
         }
 
@@ -137,7 +140,7 @@ class ClientController extends Controller
             }
     
             $accessToken = AuthorizationHelper::getAccessTokenForSettings($country, $code, $serviceUrlPath, $eshopId, $language, $baseOAuthUrl);
-            $request->session()->put($eshopId . '_' . $serviceId . '_access_token', $accessToken);   
+            $request->session()->put($eshopId . '_' . $serviceId . '_access_token', $accessToken);
             $request->session()->put($eshopId . '_' . $serviceId . '_base_oauth_url', $baseOAuthUrl);
         } else {
             $accessToken = $request->session()->get($eshopId . '_' . $serviceId . '_access_token');
@@ -148,7 +151,7 @@ class ClientController extends Controller
         LocaleHelper::setLocale($language);
         if ($checkEshopId !== $client->getEshopId()) {
             LoggerHelper::log('Eshop ID mismatch for client ' . $client->getId() . ' from DB ' . $client->getEshopId() . ' from API ' . $checkEshopId);
-            //loosen security for now 
+            //loosen security for now
             //abort(401);
         }
 
@@ -163,7 +166,8 @@ class ClientController extends Controller
             $dateLastSynced = $clientService->getOrdersLastSyncedAt();
         }
 
-        return view($service->getViewName() . '.settings',
+        return view(
+            $service->getViewName() . '.settings',
             [
                 'country' => $country,
                 'service_url_path' => $serviceUrlPath,
@@ -177,7 +181,8 @@ class ClientController extends Controller
                 'eshop_id' => $eshopId,
                 'categories' => $categories,
                 'product_category_recommendations' => $productCategoryRecommendations,
-            ]);
+            ]
+        );
     }
 
     public function saveSettings(string $country, string $serviceUrlPath, string $language, string $eshopId, Request $request): \Illuminate\Http\RedirectResponse

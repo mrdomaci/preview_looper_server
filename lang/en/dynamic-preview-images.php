@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 return [
     'addon_title' => 'Dynamic Preview Images',
     'infinite_repeat' => 'Infinite repeat of preview images display',

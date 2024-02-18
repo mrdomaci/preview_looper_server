@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Connector;
@@ -29,17 +30,17 @@ class ProductFilter
     ) {
         $keyCheck = false;
         foreach (self::FILTERS as $filterKey => $filterValue) {
-            if(self::FILTERS[$filterKey] === DateTime::class) {
-                if($this->value instanceof DateTime) {
+            if (self::FILTERS[$filterKey] === DateTime::class) {
+                if ($this->value instanceof DateTime) {
                     $keyCheck = true;
                 }
             } else if (self::FILTERS[$filterKey] === 'string') {
-                if(is_string($filterValue)) {
+                if (is_string($filterValue)) {
                     $keyCheck = true;
                 }
             }
         }
-        if($keyCheck === false) {
+        if ($keyCheck === false) {
             throw new \Exception('Invalid filter key' . $this->key . ' and value ' . $this->value);
         }
     }
