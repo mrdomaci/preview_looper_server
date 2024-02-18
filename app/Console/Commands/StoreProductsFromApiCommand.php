@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
+use App\Businesses\ProductBusiness;
 use App\Connector\ProductFilter;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
@@ -13,14 +14,13 @@ use App\Helpers\GeneratorHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
 use App\Models\Product;
-use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 use Throwable;
 
-class StoreProductsFromApiCommand extends AbstractCommand
+class StoreProductsFromApiCommand extends AbstractClientCommand
 {
     /**
      * The name and signature of the console command.
@@ -40,6 +40,7 @@ class StoreProductsFromApiCommand extends AbstractCommand
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly ClientServiceBusiness $clientServiceBusiness,
         private readonly ProductRepository $productRepository,
+        private readonly ProductBusiness $productBusiness,
     ) {
         parent::__construct();
     }
@@ -51,17 +52,13 @@ class StoreProductsFromApiCommand extends AbstractCommand
      */
     public function handle()
     {
-        $clientId = $this->argument('client_id');
-        if ($clientId !== null) {
-            $clientId = (int) $clientId;
-        }
+        $clientId = $this->getClientId();
         $success = true;
-
         $lastClientServiceId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
-                Service::getDynamicPreviewImages(),
+                null,
                 $clientId,
                 $this->getIterationCount(),
             );
@@ -85,11 +82,8 @@ class StoreProductsFromApiCommand extends AbstractCommand
                         }
                         foreach (GeneratorHelper::fetchProducts($clientService, $productFilter, $page) as $productResponse) {
                             $this->info('Updating product ' . $productResponse->getGuid());
-                            $products = $products->filter(function ($product) use ($productResponse) {
-                                /** @var Product $product */
-                                return $product->getGuid() !== $productResponse->getGuid();
-                            });
                             $this->productRepository->createOrUpdateFromResponse($client, $productResponse);
+                            $products = $this->productBusiness->filterByGuid($products, $productResponse->getGuid());
                         }
                         if ($productListResponse->getPage() === $productListResponse->getPageCount()) {
                             break;

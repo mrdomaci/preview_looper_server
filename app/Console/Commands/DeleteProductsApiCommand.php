@@ -11,7 +11,7 @@ use App\Repositories\ImageRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Console\Command;
 
-class DeleteProductsApiCommand extends AbstractCommand
+class DeleteProductsApiCommand extends AbstractClientCommand
 {
     /**
      * The name and signature of the console command.
@@ -43,18 +43,13 @@ class DeleteProductsApiCommand extends AbstractCommand
      */
     public function handle()
     {
-        $clientId = $this->argument('client_id');
-        if ($clientId !== null) {
-            $clientId = (int) $clientId;
-        }
-
+        $clientId = $this->getClientId();
         $lastClientId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clients = $this->clientRepository->getClients($lastClientId, $clientId);
             /** @var Client $client */
             foreach ($clients as $client) {
-                $shouldDelete = !$this->clientServiceBusiness->hasActiveService($client);
-                if ($shouldDelete === true) {
+                if ($this->clientServiceBusiness->hasActiveService($client) === false) {
                     continue;
                 }
                 $this->productRepository->deleteByClient($client);

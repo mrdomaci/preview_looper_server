@@ -18,6 +18,7 @@ class Image extends Model
         'client_id',
         'product_id',
         'name',
+        'hash',
     ];
 
     public function getId(): int
@@ -53,6 +54,26 @@ class Image extends Model
     public function setName(string $name): self
     {
         return $this->setAttribute('name', $name);
+    }
+
+    public function getHash(): string
+    {
+        return $this->getAttribute('hash');
+    }
+
+    public function setHash(string $hash): self
+    {
+        return $this->setAttribute('hash', $hash);
+    }
+
+    public function getPriority(): ?int
+    {
+        return $this->getAttribute('priority');
+    }
+
+    public function setPriority(?int $priority): self
+    {
+        return $this->setAttribute('priority', $priority);
     }
 
     public function client(): BelongsTo

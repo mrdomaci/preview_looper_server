@@ -46,21 +46,22 @@ class ClientRepository
         $clientService->setAttribute('status', ClientServiceStatusEnum::ACTIVE);
         $clientService->save();
 
+        /** @var Client $client */
         $client = $clientService->client()->first();
 
-        $client->setAttribute('eshop_name', $response->getName());
-        $client->setAttribute('url', $response->getUrl());
-        $client->setAttribute('eshop_category', $response->getCategory());
-        $client->setAttribute('eshop_subtitle', $response->getSubtitle());
-        $client->setAttribute('contact_person', $response->getContactPerson());
-        $client->setAttribute('email', $response->getEmail());
-        $client->setAttribute('phone', $response->getPhone());
-        $client->setAttribute('street', $response->getStreet());
-        $client->setAttribute('city', $response->getCity());
-        $client->setAttribute('zip', $response->getZip());
-        $client->setAttribute('country', $response->getCountry());
-        $client->setAttribute('last_synced_at', now());
-        $client->save();
+        $client->setEshopName($response->getName())
+            ->setUrl($response->getUrl())
+            ->setEshopCategory($response->getCategory())
+            ->setEshopSubtitle($response->getSubtitle())
+            ->setContactPerson($response->getContactPerson())
+            ->setEmail($response->getEmail())
+            ->setPhone($response->getPhone())
+            ->setStreet($response->getStreet())
+            ->setCity($response->getCity())
+            ->setZip($response->getZip())
+            ->setCountry($response->getCountry())
+            ->setLastSyncedAt(now())
+            ->save();
     }
 
     public function findByEshopId(int $eshopID): ?Client

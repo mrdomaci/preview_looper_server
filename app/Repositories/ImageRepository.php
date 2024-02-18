@@ -24,16 +24,17 @@ class ImageRepository
 
     public function createOrUpdateFromResponse(ProductImageResponse $productImageResponse, Client $client, Product $product): void
     {
+        /** @var Image $image */
         $image = new Image();
         $hash = $client->getId() . '-' . $product->getId();
         if ($productImageResponse->getPriority() !== null) {
             $hash .= '-' . $productImageResponse->getPriority();
         }
-        $image->setAttribute('hash', $hash);
-        $image->setAttribute('client_id', $client->getId());
-        $image->setAttribute('product_id', $product->getId());
-        $image->setAttribute('name', $productImageResponse->getSeoName());
-        $image->setAttribute('priority', $productImageResponse->getPriority());
-        $image->save();
+        $image->setHash($hash)
+            ->setClient($client)
+            ->setProduct($product)
+            ->setName($productImageResponse->getSeoName())
+            ->setPriority($productImageResponse->getPriority())
+            ->save();
     }
 }

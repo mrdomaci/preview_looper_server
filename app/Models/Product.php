@@ -82,6 +82,16 @@ class Product extends Model
         return $this->setAttribute('name', $name);
     }
 
+    public function getPerex(): ?string
+    {
+        return $this->getAttribute('perex');
+    }
+
+    public function setPerex(?string $perex): self
+    {
+        return $this->setAttribute('perex', $perex);
+    }
+
     public function getDescription(): ?string
     {
         return $this->getAttribute('description');
@@ -208,12 +218,12 @@ class Product extends Model
         return $this->setAttribute('category_id', $category->getId());
     }
 
-    public function getStock(): ?int
+    public function getStock(): ?float
     {
         return $this->getAttribute('stock');
     }
 
-    public function setStock(?int $stock): self
+    public function setStock(?float $stock): self
     {
         return $this->setAttribute('stock', $stock);
     }

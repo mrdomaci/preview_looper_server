@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
+use App\Businesses\ImageBusiness;
+use App\Businesses\ProductBusiness;
 use App\Connector\ProductDetailResponse;
 use App\Enums\SyncEnum;
 use App\Exceptions\AddonNotInstalledException;
@@ -14,14 +16,13 @@ use App\Helpers\GeneratorHelper;
 use App\Helpers\LoggerHelper;
 use App\Models\ClientService;
 use App\Models\Product;
-use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\ImageRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
-class StoreProductDetailsFromApiCommand extends AbstractCommand
+class StoreProductDetailsFromApiCommand extends AbstractClientCommand
 {
     /**
      * The name and signature of the console command.
@@ -37,7 +38,9 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly ClientServiceBusiness $clientServiceBusiness,
         private readonly ProductRepository $productRepository,
-        private readonly ImageRepository $imageRepository
+        private readonly ImageRepository $imageRepository,
+        private readonly ProductBusiness $productBusiness,
+        private readonly ImageBusiness $imageBusiness,
     ) {
         parent::__construct();
     }
@@ -49,16 +52,13 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
      */
     public function handle()
     {
-        $clientId = $this->argument('client_id');
+        $clientId = $this->getClientId();
         $success = true;
-        if ($clientId !== null) {
-            $clientId = (int) $clientId;
-        }
         $lastClientServiceId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
-                Service::getDynamicPreviewImages(),
+                null,
                 $clientId,
                 $this->getIterationCount(),
             );
@@ -93,14 +93,8 @@ class StoreProductDetailsFromApiCommand extends AbstractCommand
                                 continue;
                             }
                             $this->productRepository->updateDetailFromResponse($product, $productDetailResponse);
-
-                            foreach ($productDetailResponse->getVariants() as $variantResponse) {
-                                $this->productRepository->createOrUpdateVariantFromResponse($variantResponse, $product);
-                            }
-
-                            foreach ($productDetailResponse->getImages() as $imageResponse) {
-                                $this->imageRepository->createOrUpdateFromResponse($imageResponse, $client, $product);
-                            }
+                            $this->productBusiness->createOrUpdateVariants($product, $productDetailResponse, $client);
+                            $this->imageBusiness->createOrUpdate($product, $productDetailResponse, $client);
                         } catch (ApiRequestNonExistingResourceException $t) {
                             $this->productRepository->deleteByClient($client);
                             $this->imageRepository->deleteByClient($client);
