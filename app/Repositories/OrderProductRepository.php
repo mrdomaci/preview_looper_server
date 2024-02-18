@@ -26,15 +26,14 @@ class OrderProductRepository
             ->where('product_guid', $orderDetailResponse->getProductGuid())
             ->delete();
         for ($j = 1; $j <= (int) $orderDetailResponse->getAmount(); $j++) {
+            /** @var OrderProduct $orderProduct */
             $orderProduct = new OrderProduct();
-            $orderProduct->setAttribute('client_id', $client->getId());
-            $orderProduct->setAttribute('order_id', $order->getId());
-            $orderProduct->setAttribute('order_guid', $orderResponse->getGuid());
-            $orderProduct->setAttribute('product_guid', $orderDetailResponse->getProductGuid());
-            if ($product !== null) {
-                $orderProduct->setAttribute('product_id', $product->getId());
-            }
-            $orderProduct->save();
+            $orderProduct->setClient($client)
+                ->setOrder($order)
+                ->setOrderGuid($orderResponse->getGuid())
+                ->setProductGuid($orderDetailResponse->getProductGuid())
+                ->setProduct($product)
+                ->save();
         }
     }
 

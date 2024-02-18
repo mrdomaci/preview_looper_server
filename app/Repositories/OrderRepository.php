@@ -17,32 +17,32 @@ class OrderRepository
         if ($order === null) {
             $order = new Order();
         }
-     
-        $order->setAttribute('client_id', $client->getId());
-        $order->setAttribute('guid', $orderResponse->getGuid());
-        $order->setAttribute('code', $orderResponse->getCode());
-        $order->setAttribute('created_at', $orderResponse->getCreationTime());
-        $order->setAttribute('updated_at', $orderResponse->getChangeTime());
-        $order->setAttribute('full_name', $orderResponse->getFullName());
-        $order->setAttribute('company', $orderResponse->getCompany());
-        $order->setAttribute('email', $orderResponse->getEmail());
-        $order->setAttribute('phone', $orderResponse->getPhone());
-        $order->setAttribute('remark', $orderResponse->getRemark());
-        $order->setAttribute('cash_desk_order', $orderResponse->isCashDeskOrder());
-        $order->setAttribute('customer_guid', $orderResponse->getCustomerGuid());
-        $order->setAttribute('paid', $orderResponse->isPaid());
-        $order->setAttribute('foreign_status_id', $orderResponse->getForeignStatusId());
-        $order->setAttribute('source', $orderResponse->getSource());
-        $order->setAttribute('vat', $orderResponse->getPrice()->getVat());
-        $order->setAttribute('to_pay', $orderResponse->getPrice()->getToPay());
-        $order->setAttribute('currency_code', $orderResponse->getPrice()->getCurrencyCode());
-        $order->setAttribute('with_vat', $orderResponse->getPrice()->getWithVat());
-        $order->setAttribute('without_vat', $orderResponse->getPrice()->getWithoutVat());
-        $order->setAttribute('exchange_rate', $orderResponse->getPrice()->getExchangeRate());
-        $order->setAttribute('payment_method', $orderResponse->getPaymentMethod()?->getGuid());
-        $order->setAttribute('shipping', $orderResponse->getShipping()?->getGuid());
-        $order->setAttribute('admin_url', $orderResponse->getAdminUrl());
-        $order->save();
+        /** @var Order $order */
+        $order->setClient($client)
+            ->setGuid($orderResponse->getGuid())
+            ->setCode($orderResponse->getCode())
+            ->setCreatedAt($orderResponse->getCreationTime())
+            ->setUpdatedAt($orderResponse->getChangeTime())
+            ->setFullName($orderResponse->getFullName())
+            ->setCompany($orderResponse->getCompany())
+            ->setEmail($orderResponse->getEmail())
+            ->setPhone($orderResponse->getPhone())
+            ->setRemark($orderResponse->getRemark())
+            ->setCashDeskOrder($orderResponse->isCashDeskOrder())
+            ->setCustomerGuid($orderResponse->getCustomerGuid())
+            ->setPaid($orderResponse->isPaid())
+            ->setForeignStatusId($orderResponse->getForeignStatusId())
+            ->setSource($orderResponse->getSource())
+            ->setVat($orderResponse->getPrice()->getVat())
+            ->setToPay($orderResponse->getPrice()->getToPay())
+            ->setCurrencyCode($orderResponse->getPrice()->getCurrencyCode())
+            ->setWithVat($orderResponse->getPrice()->getWithVat())
+            ->setWithoutVat($orderResponse->getPrice()->getWithoutVat())
+            ->setExchangeRate($orderResponse->getPrice()->getExchangeRate())
+            ->setPaymentMethod($orderResponse->getPaymentMethod()?->getGuid())
+            ->setShipping($orderResponse->getShipping()?->getGuid())
+            ->setAdminUrl($orderResponse->getAdminUrl())
+            ->save();
 
         return $order;
     }

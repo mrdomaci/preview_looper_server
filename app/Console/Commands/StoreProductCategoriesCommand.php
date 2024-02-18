@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Businesses\ProductCategoryBusiness;
 use App\Models\ClientService;
 use App\Models\Service;
-use App\Repositories\CategoryRepository;
 use App\Repositories\ClientServiceRepository;
-use App\Repositories\ProductRepository;
 use Illuminate\Console\Command;
 
-class StoreProductCategoriesCommand extends AbstractCommand
+class StoreProductCategoriesCommand extends AbstractClientCommand
 {
     /**
      * The name and signature of the console command.
@@ -29,8 +28,7 @@ class StoreProductCategoriesCommand extends AbstractCommand
 
     public function __construct(
         private readonly ClientServiceRepository $clientServiceRepository,
-        private readonly ProductRepository $productRepository,
-        private readonly CategoryRepository $categoryRepository,
+        private readonly ProductCategoryBusiness $productCategoryBusiness,
     ) {
         parent::__construct();
     }
@@ -42,11 +40,7 @@ class StoreProductCategoriesCommand extends AbstractCommand
      */
     public function handle()
     {
-        $clientId = $this->argument('client_id');
-        if ($clientId !== null) {
-            $clientId = (int) $clientId;
-        }
-        
+        $clientId = $this->getClientId();
         $lastClientServiceId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
@@ -59,19 +53,7 @@ class StoreProductCategoriesCommand extends AbstractCommand
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
                 $lastClientServiceId = $clientService->getId();
-                $client = $clientService->client()->first();
-
-                $lastProductId = 0;
-                for ($j = 0; $j < $this->getMaxIterationCount(); $j++) {
-                    foreach ($this->productRepository->getPastId($client, $lastProductId) as $product) {
-                        $lastProductId = $product->getId();
-                        if ($product->getCategoryName() === '') {
-                            continue;
-                        }
-                        $category = $this->categoryRepository->createOrUpdate($client, $product->getCategoryName());
-                        $this->productRepository->setProductCategory($product, $category);
-                    }
-                }
+                $this->productCategoryBusiness->createOrUpdate($clientService->client()->first());
             }
         }
 

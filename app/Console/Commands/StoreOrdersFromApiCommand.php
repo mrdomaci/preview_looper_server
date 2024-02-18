@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
+use App\Businesses\OrderProductBusiness;
 use App\Connector\OrderResponse;
 use App\Enums\SyncEnum;
 use App\Exceptions\ApiRequestFailException;
@@ -16,12 +17,11 @@ use App\Helpers\ResponseHelper;
 use App\Models\ClientService;
 use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
-use App\Repositories\OrderProductRepository;
 use App\Repositories\OrderRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
-class StoreOrdersFromApiCommand extends AbstractCommand
+class StoreOrdersFromApiCommand extends AbstractClientCommand
 {
     /**
      * The name and signature of the console command.
@@ -41,7 +41,7 @@ class StoreOrdersFromApiCommand extends AbstractCommand
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly ClientServiceBusiness $clientServiceBusiness,
         private readonly OrderRepository $orderRepository,
-        private readonly OrderProductRepository $orderProductRepository,
+        private readonly OrderProductBusiness $orderProductBusiness,
     ) {
         parent::__construct();
     }
@@ -53,10 +53,7 @@ class StoreOrdersFromApiCommand extends AbstractCommand
      */
     public function handle()
     {
-        $clientId = $this->argument('client_id');
-        if ($clientId !== null) {
-            $clientId = (int) $clientId;
-        }
+        $clientId = $this->getClientId();
         $success = true;
         $this->info('Updating orders');
         $lastClientServiceId = 0;
@@ -91,9 +88,7 @@ class StoreOrdersFromApiCommand extends AbstractCommand
                             $this->info('Updating order ' . $orderResponse->getGuid());
 
                             $order = $this->orderRepository->createOrUpdate($orderResponse, $client);
-                            foreach (GeneratorHelper::fetchOrderDetail($clientService, $orderResponse->getCode()) as $orderDetailResponse) {
-                                $this->orderProductRepository->createOrUpdate($orderResponse, $orderDetailResponse, $client, $order);
-                            }
+                            $this->orderProductBusiness->createOrUpdate($clientService, $orderResponse, $order);
                         }
                         if ($orderListResponse->getPage() === $orderListResponse->getPageCount()) {
                             break;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Enums\ClientServiceStatusEnum;
+use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\Service;
 use DateTime;
@@ -55,5 +56,13 @@ class ClientServiceRepository
         }
 
         return $q->first();
+    }
+
+    public function hasActiveService(Client $client, Service $service): bool
+    {
+        return ClientService::where('client_id', $client->getId())
+            ->where('service_id', $service->getId())
+            ->where('status', ClientServiceStatusEnum::ACTIVE)
+            ->exists();
     }
 }

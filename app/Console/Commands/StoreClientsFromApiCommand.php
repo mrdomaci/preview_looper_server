@@ -13,7 +13,7 @@ use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
-class StoreClientsFromApiCommand extends AbstractCommand
+class StoreClientsFromApiCommand extends AbstractClientCommand
 {
     /**
      * The name and signature of the console command.
@@ -43,11 +43,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
      */
     public function handle()
     {
-        $clientId = $this->argument('client_id');
-        if ($clientId !== null) {
-            $clientId = (int) $clientId;
-        }
-
+        $clientId = $this->getClientId();
         $lastClientId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
@@ -59,6 +55,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
                 try {
+                    $lastClientId = $clientService->getId();
                     $this->clientRepository->updateFromResponse($clientService, ConnectorHelper::getEshop($clientService));
                     $this->info('Updating client id:' . (string) $clientService->getClientId());
                     $clientService->setUpdateInProgress(false);
@@ -68,8 +65,6 @@ class StoreClientsFromApiCommand extends AbstractCommand
                     $clientService->setStatusInactive();
                 } catch (Throwable $e) {
                     $this->error($e->getMessage());
-                } finally {
-                    $lastClientId = $clientService->getId();
                 }
             }
 

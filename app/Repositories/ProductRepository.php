@@ -89,27 +89,29 @@ class ProductRepository
     {
         $product = Product::where('client_id', $client->getId())->where('guid', $productResponse->getGuid())->first();
         if ($product === null) {
+            /** @var Product $product */
             $product = new Product();
-            $product->setAttribute('guid', $productResponse->getGuid());
-            $product->setAttribute('client_id', $client->getId());
-            $product->setAttribute('active', true);
-            $product->save();
+            $product->setGuid($productResponse->getGuid())
+                ->setClient($client)
+                ->setActive(true)
+                ->save();
         } else if ($product->isActive() === false) {
-            $product->setAttribute('active', true);
-            $product->save();
+            $product->setActive(true)
+                ->save();
         }
     }
 
     public function updateDetailFromResponse(Product $product, ProductDetailResponse $productDetailResponse): void
     {
-        $product->setAttribute('name', $productDetailResponse->getName());
-        $product->setAttribute('perex', $productDetailResponse->getPerex());
-        $product->setAttribute('category', $productDetailResponse->getDefaultCategory()?->getName());
-        $product->setAttribute('producer', $productDetailResponse->getBrand()?->getName());
-        $product->setAttribute('url', $productDetailResponse->getUrl());
-        $product->setAttribute('price', PriceHelper::getUnfiedPriceString($productDetailResponse->getVariants()));
-        $product->setAttribute('image_url', $productDetailResponse->getImageUrl());
-        $product->save();
+        /** @var Product $product */
+        $product->setName($productDetailResponse->getName())
+            ->setPerex($productDetailResponse->getPerex())
+            ->setCategoryName($productDetailResponse->getDefaultCategory()?->getName())
+            ->setProducer($productDetailResponse->getBrand()?->getName())
+            ->setUrl($productDetailResponse->getUrl())
+            ->setPrice(PriceHelper::getUnfiedPriceString($productDetailResponse->getVariants()))
+            ->setImageUrl($productDetailResponse->getImageUrl())
+            ->save();
     }
 
     public function deleteCollection(Collection $products): void
@@ -124,17 +126,18 @@ class ProductRepository
         if ($productVariant === null) {
             $productVariant = Product::clone($product);
         }
-        $productVariant->setAttribute('name', $variant->getName());
-        $productVariant->setAttribute('code', $variant->getCode());
-        $productVariant->setAttribute('active', true);
-        $productVariant->setAttribute('availability', $variant->getAvailability());
-        $productVariant->setAttribute('availability_id', $variant->getAvailabilityId());
-        $productVariant->setAttribute('stock', $variant->getStock());
-        $productVariant->setAttribute('unit', $variant->getUnit());
-        $productVariant->setAttribute('price', Currency::formatPrice((string)$variant->getPrice(), $variant->getCurrencyCode()));
-        $productVariant->setAttribute('image_url', $variant->getImage());
-        $productVariant->setAttribute('url', $product->getUrl());
-        $productVariant->save();
+        /** @var Product $productVariant */
+        $productVariant->setName($variant->getName())
+            ->setCode($variant->getCode())
+            ->setActive(true)
+            ->setAvailability($variant->getAvailability())
+            ->setAvailabilityId($variant->getAvailabilityId())
+            ->setStock($variant->getStock())
+            ->setUnit($variant->getUnit())
+            ->setPrice(Currency::formatPrice((string)$variant->getPrice(), $variant->getCurrencyCode()))
+            ->setImageUrl($variant->getImage())
+            ->setUrl($product->getUrl())
+            ->save();
     }
 
     /**

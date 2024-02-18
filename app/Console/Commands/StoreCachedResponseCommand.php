@@ -10,7 +10,7 @@ use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 
-class StoreCachedResponseCommand extends AbstractCommand
+class StoreCachedResponseCommand extends AbstractClientCommand
 {
     /**
      * The name and signature of the console command.
@@ -35,10 +35,7 @@ class StoreCachedResponseCommand extends AbstractCommand
      */
     public function handle()
     {
-        $clientId = $this->argument('client_id');
-        if ($clientId !== null) {
-            $clientId = (int) $clientId;
-        }
+        $clientId = $this->getClientId();
         $lastClientServiceId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
