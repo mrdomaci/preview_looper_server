@@ -25,4 +25,5 @@ return [
     'sync_in_progress' => 'Szinkronizáció folyamatban',
     'synced_scheduled' => 'A szinkronizálást hozzáadtuk a sorhoz, és a lehető leghamarabb el fogjuk végezni',
     'sync_info' => 'A Shoptet API-ból származó adatok szinkronizálása naponta kétszer automatikusan indítódik. Ha kézzel szeretné indítani a szinkronizációt, kattintson az alábbi gombra.',
+    'not_synced_yet' => 'Még nem szinkronizált'
 ];

@@ -29,4 +29,5 @@ return [
     'product_search' => 'Zadejte alespoň první 3 znaky názvu produktu',
     'no_products_found' => 'Produkt nebyl nalezen',
     'delete' => 'Smazat',
+    'not_synced_yet' => 'Zatím nebylo synchronizováno',
 ];

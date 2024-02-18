@@ -127,8 +127,10 @@
                 <div class="col-md-6">
                     @if ($update_in_process === 1)
                         <label>{{ __('general.sync_in_progress') }}</label>
+                    @elseif ($last_synced === null)
+                        <label>{{ __('general.not_synced_yet') }}</label>
                     @else
-                        <label>{{ \Carbon\Carbon::parse($last_synced)->format('d.m.Y') }}</label>
+                        <label>{{ $last_synced->format('d.m.Y') }}</label>
                     @endif
                 </div>
             </div>
