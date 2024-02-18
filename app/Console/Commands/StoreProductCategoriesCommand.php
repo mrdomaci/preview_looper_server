@@ -65,7 +65,10 @@ class StoreProductCategoriesCommand extends AbstractCommand
                 for ($j = 0; $j < $this->getMaxIterationCount(); $j++) {
                     foreach ($this->productRepository->getPastId($client, $lastProductId) as $product) {
                         $lastProductId = $product->getId();
-                        $category = $this->categoryRepository->createOrUpdate($client, $product->getCategory());
+                        if ($product->getCategoryName() === '') {
+                            continue;
+                        }
+                        $category = $this->categoryRepository->createOrUpdate($client, $product->getCategoryName());
                         $this->productRepository->setProductCategory($product, $category);
                     }
                 }
