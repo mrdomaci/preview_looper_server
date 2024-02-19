@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Enums\ClientServiceStatusEnum;
+use App\Enums\CountryEnum;
 use App\Exceptions\DataNotFoundException;
 use App\Exceptions\DataUpdateFailException;
 use App\Models\Client;
@@ -69,7 +70,7 @@ class ClientServiceRepository
             ->exists();
     }
 
-    public function updateOrCreate(Client $client, Service $service, string $oAuthAccessToken, string $country): ClientService
+    public function updateOrCreate(Client $client, Service $service, string $oAuthAccessToken, CountryEnum $country): ClientService
     {
         $clientService = ClientService::where('client_id', $client->getId())
             ->where('service_id', $service->getId())
@@ -81,7 +82,7 @@ class ClientServiceRepository
         }
         $clientService->setAttribute('oauth_access_token', $oAuthAccessToken);
         $clientService->setAttribute('status', 'active');
-        $clientService->setAttribute('country', $country);
+        $clientService->setAttribute('country', $country->value);
         $clientService->setAttribute('update_in_process', false);
         $clientService->save();
         return $clientService;

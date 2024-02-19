@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Businesses\InstallBusiness;
+use App\Enums\CountryEnum;
 use App\Helpers\LoggerHelper;
 use App\Helpers\WebHookHelper;
 use App\Models\Service;
@@ -17,9 +18,9 @@ class InstallController extends Controller
         private readonly InstallBusiness $installBusiness,
     ) {
     }
-    public function install(string $country, string $serviceUrlPath, Request $request): Response
+    public function install(string $countryCode, string $serviceUrlPath, Request $request): Response
     {
-        $country = strtoupper($country);
+        $country = CountryEnum::getByValue($countryCode);
         $code = $request->input('code');
         if ($code === null) {
             return Response('Bad request', 400);

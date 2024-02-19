@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Businesses;
 
 use App\Enums\ClientServiceStatusEnum;
+use App\Enums\CountryEnum;
 use App\Helpers\AuthorizationHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
@@ -21,7 +22,7 @@ class InstallBusiness
         private ClientServiceRepository $clientServiceRepository,
     ) {
     }
-    public function install(string $country, string $code, Service $service): ClientService
+    public function install(CountryEnum $country, string $code, Service $service): ClientService
     {
         $response = AuthorizationHelper::getResponseForInstall($country, $code, $service);
 
