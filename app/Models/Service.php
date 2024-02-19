@@ -73,6 +73,11 @@ class Service extends Model
         return $this->hasMany(Client::class);
     }
 
+    public function settingsServices(): HasMany
+    {
+        return $this->hasMany(SettingsService::class);
+    }
+
     public function isDynamicPreviewImages(): bool
     {
         return $this->id === self::DYNAMIC_PREVIEW_IMAGES;

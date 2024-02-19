@@ -7,7 +7,6 @@ namespace App\Models;
 use App\Exceptions\DataInsertFailException;
 use App\Exceptions\DataUpdateFailException;
 use DateTime;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -203,9 +202,14 @@ class Client extends Model
         return $this->hasMany(Order::class);
     }
 
-    public function productCategoryRecommendations(): Collection
+    public function productCategoryRecommendations(): HasMany
     {
-        return $this->hasMany(ProductCategoryRecommendation::class)->get();
+        return $this->hasMany(ProductCategoryRecommendation::class);
+    }
+
+    public function ClientSettingsServiceOptions(): HasMany
+    {
+        return $this->hasMany(ClientSettingsServiceOption::class);
     }
 
     public function dynamicPreviewImages(): ?ClientService

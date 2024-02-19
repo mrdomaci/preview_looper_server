@@ -66,6 +66,11 @@ class ClientSettingsServiceOption extends Model
         return $this->setAttribute('value', $value);
     }
 
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(Client::class);
+    }
+
     public function settingsService(): BelongsTo
     {
         return $this->belongsTo(SettingsService::class);

@@ -56,7 +56,7 @@ class AuthorizationHelper
         return $response;
     }
 
-    public static function getAccessTokenForSettings(string $country, string $code, string $serviceUrlPath, string $eshopId, string $language, ?string $baseOAuthUrl): string
+    public static function getAccessTokenForSettings(string $country, string $code, string $serviceUrlPath, ?string $baseOAuthUrl): string
     {
         if ($country === 'HU') {
             $clientId = env('SHOPTET_CLIENT_ID_HU');
