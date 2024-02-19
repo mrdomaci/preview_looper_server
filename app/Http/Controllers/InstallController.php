@@ -4,22 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Enums\ClientServiceStatusEnum;
-use App\Helpers\AuthorizationHelper;
+use App\Businesses\InstallBusiness;
 use App\Helpers\LoggerHelper;
-use App\Helpers\ResponseHelper;
 use App\Helpers\WebHookHelper;
-use App\Models\Client;
-use App\Models\ClientService;
 use App\Models\Service;
-use App\Repositories\ClientRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class InstallController extends Controller
 {
     public function __construct(
-        private readonly ClientRepository $clientRepository,
+        private readonly InstallBusiness $installBusiness,
     ) {
     }
     public function install(string $country, string $serviceUrlPath, Request $request): Response
@@ -35,21 +30,11 @@ class InstallController extends Controller
             abort(404);
         }
 
-        $response = AuthorizationHelper::getResponseForInstall($country, $code, $serviceUrlPath);
+        $clientService = $this->installBusiness->install($country, $code, $service);
 
-        $oAuthAccessToken = ResponseHelper::getAccessToken($response);
-        $eshopId = ResponseHelper::getEshopId($response);
-        $eshopUrl = ResponseHelper::getFromResponse($response, 'eshopUrl');
-        $contactEmail = ResponseHelper::getFromResponse($response, 'contactEmail');
-        
-        $client = Client::updateOrCreate($eshopId, $eshopUrl, $contactEmail);
-        ClientService::updateOrCreate($client, $service, $oAuthAccessToken, $country);
-
-        if ($service->isDynamicPreviewImages()) {
-            $webhookResponse = WebHookHelper::jenkinsWebhookClient($client->getId());
-            if ($webhookResponse->failed()) {
-                LoggerHelper::log('Webhook failed: ' . $webhookResponse->body() . ', Status code: ' . $webhookResponse->status());
-            }
+        $webhookResponse = WebHookHelper::webhookResolver($clientService);
+        if ($webhookResponse->failed()) {
+            LoggerHelper::log('Webhook failed: ' . $webhookResponse->body() . ', Status code: ' . $webhookResponse->status());
         }
         return Response('ok', 200);
     }
@@ -60,10 +45,8 @@ class InstallController extends Controller
         if ($service === null) {
             abort(404);
         }
-        $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_DEACTIVATE);
-        $client = $this->clientRepository->getByEshopId($eshopId);
-        ClientService::updateStatus($client, $service, ClientServiceStatusEnum::INACTIVE);
-        LoggerHelper::log('Client ' . $client->getId() . ' deactivated');
+
+        $this->installBusiness->deactivate($service);
 
         return Response('ok', 200);
     }
@@ -74,11 +57,8 @@ class InstallController extends Controller
         if ($service === null) {
             abort(404);
         }
-        $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_UNINSTALL);
-        $client = $this->clientRepository->getByEshopId($eshopId);
 
-        ClientService::updateStatus($client, $service, ClientServiceStatusEnum::DELETED);
-        LoggerHelper::log('Client ' . $client->getId() . ' uninstalled');
+        $this->installBusiness->uninstall($service);
 
         return Response('ok', 200);
     }
@@ -89,12 +69,9 @@ class InstallController extends Controller
         if ($service === null) {
             abort(404);
         }
-        $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_ACTIVATE);
-        $client = $this->clientRepository->getByEshopId($eshopId);
 
-        ClientService::updateStatus($client, $service, ClientServiceStatusEnum::ACTIVE);
-        LoggerHelper::log('Client ' . $client->getId() . ' activated');
-        WebHookHelper::jenkinsWebhookClient($client->getId());
+        $this->installBusiness->activate($service);
+
         return Response('ok', 200);
     }
 }

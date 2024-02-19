@@ -6,11 +6,14 @@ namespace App\Repositories;
 
 use App\Connector\EshopResponse;
 use App\Enums\ClientServiceStatusEnum;
+use App\Exceptions\DataInsertFailException;
 use App\Exceptions\DataNotFoundException;
+use App\Exceptions\DataUpdateFailException;
 use App\Models\Client;
 use App\Models\ClientService;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
+use Throwable;
 
 class ClientRepository
 {
@@ -76,5 +79,31 @@ class ClientRepository
             throw new DataNotFoundException(new Exception('Client not found'));
         }
         return Client::where('eshop_id', $eshopID)->first();
+    }
+
+    public function updateOrCreate(int $eshopId, string $eshopUrl, string $email): Client
+    {
+        $client = Client::where('eshop_id', $eshopId)->first();
+
+        if ($client === null) {
+            try {
+                $client = Client::create([
+                    'eshop_id' => $eshopId,
+                    'url' => $eshopUrl,
+                    'email' => $email,
+                ]);
+            } catch (Throwable $t) {
+                throw new DataInsertFailException($t);
+            }
+        } else {
+            $client->url = $eshopUrl;
+            $client->email = $email;
+            try {
+                $client->save();
+            } catch (Throwable $t) {
+                throw new DataUpdateFailException($t);
+            }
+        }
+        return $client;
     }
 }

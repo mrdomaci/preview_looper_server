@@ -80,26 +80,4 @@ class ClientSettingsServiceOption extends Model
     {
         return $this->belongsTo(SettingsServiceOption::class);
     }
-
-    public static function updateOrCreate(Client $client, SettingsService $settingsService, ?SettingsServiceOption $settingsServiceOption, ?string $value): ClientSettingsServiceOption
-    {
-        $clientSettingsServiceOption = ClientSettingsServiceOption::where('client_id', $client->getId())->where('settings_service_id', $settingsService->getId())->first();
-        if ($clientSettingsServiceOption === null) {
-            $clientSettingsServiceOption = new ClientSettingsServiceOption();
-            $clientSettingsServiceOption->setAttribute('client_id', $client->getId());
-            $clientSettingsServiceOption->setAttribute('settings_service_id', $settingsService->getId());
-        }
-        if ($settingsServiceOption !== null) {
-            if ($settingsServiceOption->getAttribute('id') !== null) {
-                $settingsServiceOption = $settingsServiceOption->getId();
-            } else {
-                $settingsServiceOption = $settingsServiceOption->getSettingsServiceId();
-            }
-        }
-
-        $clientSettingsServiceOption->setAttribute('settings_service_option_id', $settingsServiceOption);
-        $clientSettingsServiceOption->setAttribute('value', $value);
-        $clientSettingsServiceOption->save();
-        return $clientSettingsServiceOption;
-    }
 }

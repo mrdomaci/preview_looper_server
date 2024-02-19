@@ -27,7 +27,7 @@ class AccessTokenBusiness
 
     private function get(string $country, string $code, Service $service, string $baseOAuthUrl): string
     {
-        return AuthorizationHelper::getAccessTokenForSettings($country, $code, $service->getUrlPath(), $baseOAuthUrl);
+        return AuthorizationHelper::getAccessTokenForSettings($country, $code, $service, $baseOAuthUrl);
     }
 
     private function getCode(Request $request): string

@@ -7,12 +7,11 @@ namespace App\Http\Controllers;
 use App\Businesses\AccessTokenBusiness;
 use App\Businesses\BaseOauthUrlBusiness;
 use App\Businesses\SettingServiceBusiness;
+use App\Businesses\SyncEndpointBusiness;
 use App\Businesses\TemplateIncludeBusiness;
 use App\Helpers\AuthorizationHelper;
 use App\Helpers\LocaleHelper;
 use App\Helpers\LoggerHelper;
-use App\Helpers\WebHookHelper;
-use App\Models\Service;
 use App\Repositories\ClientRepository;
 use App\Repositories\ServiceRepository;
 use Illuminate\Contracts\View\View;
@@ -29,6 +28,7 @@ class ClientController extends Controller
         private readonly BaseOauthUrlBusiness $baseOauthUrlBusiness,
         private readonly SettingServiceBusiness $settingsServiceBusiness,
         private readonly TemplateIncludeBusiness $templateIncludeBusiness,
+        private readonly SyncEndpointBusiness $syncEndpointBusiness,
     ) {
     }
     public function settings(string $country, string $serviceUrlPath, Request $request): View
@@ -106,21 +106,14 @@ class ClientController extends Controller
     public function sync(string $country, string $serviceUrlPath, string $language, string $eshopId, Request $request): \Illuminate\Http\RedirectResponse
     {
         $country = strtoupper($country);
-        $service = Service::where('url-path', $serviceUrlPath)->first();
-        if ($service === null) {
+        try {
+            $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
+            $client = $this->clientRepository->getByEshopId((int) $request->input('eshop_id'));
+        } catch (Throwable) {
             abort(404);
         }
-        if ($eshopId !== $request->input('eshop_id')) {
-            abort(403);
-        }
         try {
-            $client = $this->clientRepository->getByEshopId((int) $eshopId);
-            $clientServices = $client->services()->get();
-            foreach ($clientServices as $clientService) {
-                $clientService->setAttribute('update_in_process', false);
-                $clientService->save();
-            }
-            WebHookHelper::jenkinsWebhookClient($client->getId());
+            $this->syncEndpointBusiness->syncClientService($client, $service);
         } catch (Throwable $t) {
             LoggerHelper::log('Webhook failed: ' . $t->getMessage());
             return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));

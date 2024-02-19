@@ -6,7 +6,6 @@ namespace App\Models;
 
 use App\Enums\ClientServiceStatusEnum;
 use App\Enums\SyncEnum;
-use App\Exceptions\DataNotFoundException;
 use App\Exceptions\DataUpdateFailException;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -183,39 +182,5 @@ class ClientService extends Model
     {
         $this->setAttribute('status', ClientServiceStatusEnum::ACTIVE);
         $this->save();
-    }
-
-    public static function updateOrCreate(Client $client, Service $service, string $oAuthAccessToken, string $country): ClientService
-    {
-        $clientService = ClientService::where('client_id', $client->getId())
-            ->where('service_id', $service->getId())
-            ->first();
-        if ($clientService === null) {
-            $clientService = new ClientService();
-            $clientService->setAttribute('client_id', $client->getId());
-            $clientService->setAttribute('service_id', $service->getId());
-        }
-        $clientService->setAttribute('oauth_access_token', $oAuthAccessToken);
-        $clientService->setAttribute('status', 'active');
-        $clientService->setAttribute('country', $country);
-        $clientService->setAttribute('update_in_process', false);
-        $clientService->save();
-        return $clientService;
-    }
-
-    public static function updateStatus(Client $client, Service $service, ClientServiceStatusEnum $status): void
-    {
-        $clientService = ClientService::where('client_id', $client->getId())
-        ->where('service_id', $service->getId())
-        ->first();
-        if ($clientService === null) {
-            throw new DataNotFoundException(new \Exception('ClientService not found for client ' . $client->getId() . ' and service ' . $service->getId()));
-        }
-        $clientService->setAttribute('status', $status);
-        try {
-            $clientService->save();
-        } catch (Throwable $t) {
-            throw new DataUpdateFailException($t);
-        }
     }
 }

@@ -6,6 +6,7 @@ namespace App\Helpers;
 
 use App\Exceptions\AddonInstallFailException;
 use App\Exceptions\AddonSettingsSecurityFailException;
+use App\Models\Service;
 use Exception;
 use Nette\Utils\Json;
 use Throwable;
@@ -17,7 +18,7 @@ class AuthorizationHelper
      * @return array<string, int|string>
      * @throws AddonInstallFailException
      */
-    public static function getResponseForInstall(string $country, string $code, string $serviceUrlPath): array
+    public static function getResponseForInstall(string $country, string $code, Service $service): array
     {
         if ($country === 'HU') {
             $clientId = env('SHOPTET_CLIENT_ID_HU');
@@ -34,7 +35,7 @@ class AuthorizationHelper
             'client_secret' => $clientSecret,
             'code' => $code,
             'grant_type' => 'authorization_code',
-            'redirect_uri' => Route('client.install', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath]),
+            'redirect_uri' => Route('client.install', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath()]),
             'scope' => 'api',
         ];
 
@@ -56,7 +57,7 @@ class AuthorizationHelper
         return $response;
     }
 
-    public static function getAccessTokenForSettings(string $country, string $code, string $serviceUrlPath, ?string $baseOAuthUrl): string
+    public static function getAccessTokenForSettings(string $country, string $code, Service $service, ?string $baseOAuthUrl): string
     {
         if ($country === 'HU') {
             $clientId = env('SHOPTET_CLIENT_ID_HU');
@@ -70,7 +71,7 @@ class AuthorizationHelper
             'client_secret' => $clientSecret,
             'code' => $code,
             'grant_type' => 'authorization_code',
-            'redirect_uri' => Route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath]),
+            'redirect_uri' => Route('client.settings', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath()]),
             'scope' => 'basic_eshop',
         ];
         
