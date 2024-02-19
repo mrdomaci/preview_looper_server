@@ -6,14 +6,14 @@
     </div>
     <div class="card-body">
         @include('flashMessage')
-        <form method="POST" action="{{ route('client.saveSettings', ['country' => $country, 'serviceUrlPath' => $service_url_path, 'language' => $language, 'eshopId' => $client->eshop_id]) }}">
+        <form method="POST" action="{{ route('client.saveSettings', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath(), 'language' => $language, 'eshopId' => $client->getEshopId()]) }}">
         @csrf
         @foreach ($settings_service as $setting)
             <div class="form-group row mt-4">
                 <label for="settings_{{ $setting->name }}" class="col-md-6 col-md-form-label">{{ __($setting->name) }}:</label>
                 <div class="col-md-6">
                     @if ($setting->type == 'value')
-                        <input type="text" class="form-control" name="{{ $setting->id }}_value" id="{{ $setting->id }}_value" value="{{ $setting->getValue($client) }}" placeholder="{{ __( $title . '.' . $setting->id . '_placeholder')}}">
+                        <input type="text" class="form-control" name="{{ $setting->id }}_value" id="{{ $setting->id }}_value" value="{{ $setting->getValue($client) }}" placeholder="{{ __( $service->getName() . '.' . $setting->id . '_placeholder')}}">
                     @elseif ($setting->type == 'select')
                         <select class="form-control" name="{{ $setting->id }}" id="{{ $setting->id }}">
                             @foreach ($setting->settingsServicesOptions as $option)
@@ -38,7 +38,7 @@
         </div>
       </form>
       <div class="card-body">
-        <form method="POST" action="{{ route('recommendation.add', ['country' => $country, 'serviceUrlPath' => $service_url_path, 'language' => $language, 'eshopId' => $client->eshop_id]) }}">
+        <form method="POST" action="{{ route('recommendation.add', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath(), 'language' => $language, 'eshopId' => $client->getEshopId()]) }}">
             @csrf
             <h4>{{ __('upsell.category_recommendation_title')}}</h4>
             <div class="form-group row mt-4">
@@ -70,7 +70,7 @@
             </div>
             <div class="row mt-4">
                 <div class="col-md-12 text-center">
-                    <input type="hidden" name="eshop_id" value="{{$client->eshop_id}}">
+                    <input type="hidden" name="eshop_id" value="{{$client->getEshopId()}}">
                     <button type="submit" class="btn btn-primary m-3">{{ __('general.insert') }}</button>
                 </div>
             </div>
@@ -95,7 +95,7 @@
                                 <form method="POST" action="{{ route('recommendation.delete', 
                                         [
                                             'country' => $country,
-                                            'serviceUrlPath' => $service_url_path,
+                                            'serviceUrlPath' => $service->getUrlPath(),
                                             'language' => $language,
                                             'eshopId' => $client->eshop_id
                                         ]
@@ -115,7 +115,7 @@
         @endif
       </div>
       <div class="card-body">
-        <form method="POST" action="{{ route('client.sync', ['country' => $country, 'serviceUrlPath' => $service_url_path, 'language' => $language, 'eshopId' => $client->eshop_id]) }}">
+        <form method="POST" action="{{ route('client.sync', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath(), 'language' => $language, 'eshopId' => $client->getEshopId()]) }}">
             @csrf
             <div class="form-group row mt-4">
                 <div class="col-md-12 mb-4">
@@ -136,7 +136,7 @@
             </div>
             <div class="row mt-4">
                 <div class="col-md-12 text-center">
-                    <input type="hidden" name="eshop_id" value="{{$client->eshop_id}}">
+                    <input type="hidden" name="eshop_id" value="{{$client->getEshopId()}}">
                     <button type="submit" class="btn btn-secondary m-3">{{ __('general.sync_now') }}</button>
                 </div>
             </div>

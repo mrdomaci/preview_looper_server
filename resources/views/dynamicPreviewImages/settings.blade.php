@@ -6,7 +6,7 @@
     </div>
     <div class="card-body">
         @include('flashMessage')
-        <form method="POST" action="{{ route('client.saveSettings', ['country' => $country, 'serviceUrlPath' => $service_url_path, 'language' => $language, 'eshopId' => $client->eshop_id]) }}">
+        <form method="POST" action="{{ route('client.saveSettings', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath(), 'language' => $language, 'eshopId' => $client->getEshopId()]) }}">
         @csrf
         @foreach ($settings_service as $setting)
             <div class="form-group row mt-4">
@@ -34,7 +34,7 @@
         </div>
       </form>
       <div class="card-body">
-        <form method="POST" action="{{ route('client.sync', ['country' => $country, 'serviceUrlPath' => $service_url_path, 'language' => $language, 'eshopId' => $client->eshop_id]) }}">
+        <form method="POST" action="{{ route('client.sync', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath(), 'language' => $language, 'eshopId' => $client->getEshopId()]) }}">
             @csrf
             <div class="form-group row mt-4">
                 <div class="col-md-12 mb-4">
