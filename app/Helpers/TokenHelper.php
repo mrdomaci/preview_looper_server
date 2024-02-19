@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use App\Enums\CountryEnum;
 use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\AddonSuspendedException;
 use App\Exceptions\ApiAccessTokenNotFoundException;
@@ -15,15 +16,10 @@ class TokenHelper
 {
     public static function getApiAccessToken(ClientService $clientService): string
     {
-        $country = $clientService->getCountry();
-        if ($country === 'HU') {
-            $apiAccessTokenUrl = env('SHOPTET_API_ACCESS_TOKEN_URL_HU');
-        } else {
-            $apiAccessTokenUrl = env('SHOPTET_API_ACCESS_TOKEN_URL_CZ');
-        }
+        $country = CountryEnum::getByValue($clientService->getCountry());
 
         $OauthAccessToken = $clientService->getOAuthAccessToken();
-        $curl = curl_init($apiAccessTokenUrl);
+        $curl = curl_init($country->getApiAccessTokenUrl());
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $OauthAccessToken]);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($curl);

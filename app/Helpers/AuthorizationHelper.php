@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use App\Enums\CountryEnum;
 use App\Exceptions\AddonInstallFailException;
 use App\Exceptions\AddonSettingsSecurityFailException;
+use App\Models\Service;
 use Exception;
 use Nette\Utils\Json;
 use Throwable;
@@ -17,28 +19,18 @@ class AuthorizationHelper
      * @return array<string, int|string>
      * @throws AddonInstallFailException
      */
-    public static function getResponseForInstall(string $country, string $code, string $serviceUrlPath): array
+    public static function getResponseForInstall(CountryEnum $country, string $code, Service $service): array
     {
-        if ($country === 'HU') {
-            $clientId = env('SHOPTET_CLIENT_ID_HU');
-            $clientSecret = env('SHOPTET_CLIENT_SECRET_HU');
-            $oauthServerTokenUrl = env('SHOPTET_OAUTH_SERVER_TOKEN_URL_HU');
-        } else {
-            $clientId = env('SHOPTET_CLIENT_ID_CZ');
-            $clientSecret = env('SHOPTET_CLIENT_SECRET_CZ');
-            $oauthServerTokenUrl = env('SHOPTET_OAUTH_SERVER_TOKEN_URL_CZ');
-        }
-
         $data = [
-            'client_id' => $clientId,
-            'client_secret' => $clientSecret,
+            'client_id' => $country->getShoptetClientId(),
+            'client_secret' => $country->getShoptetClientSecret(),
             'code' => $code,
             'grant_type' => 'authorization_code',
-            'redirect_uri' => Route('client.install', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath]),
+            'redirect_uri' => Route('client.install', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath()]),
             'scope' => 'api',
         ];
 
-        $curl = curl_init($oauthServerTokenUrl);
+        $curl = curl_init($country->getShoptetOauthServerTokenUrl());
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -56,21 +48,14 @@ class AuthorizationHelper
         return $response;
     }
 
-    public static function getAccessTokenForSettings(string $country, string $code, string $serviceUrlPath, ?string $baseOAuthUrl): string
+    public static function getAccessTokenForSettings(CountryEnum $country, string $code, Service $service, ?string $baseOAuthUrl): string
     {
-        if ($country === 'HU') {
-            $clientId = env('SHOPTET_CLIENT_ID_HU');
-            $clientSecret = env('SHOPTET_CLIENT_SECRET_HU');
-        } else {
-            $clientId = env('SHOPTET_CLIENT_ID_CZ');
-            $clientSecret = env('SHOPTET_CLIENT_SECRET_CZ');
-        }
         $data = [
-            'client_id' => $clientId,
-            'client_secret' => $clientSecret,
+            'client_id' => $country->getShoptetClientId(),
+            'client_secret' => $country->getShoptetClientSecret(),
             'code' => $code,
             'grant_type' => 'authorization_code',
-            'redirect_uri' => Route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath]),
+            'redirect_uri' => Route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $service->getUrlPath()]),
             'scope' => 'basic_eshop',
         ];
         

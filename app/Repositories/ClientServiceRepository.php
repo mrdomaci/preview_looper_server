@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Enums\ClientServiceStatusEnum;
+use App\Enums\CountryEnum;
+use App\Exceptions\DataNotFoundException;
+use App\Exceptions\DataUpdateFailException;
 use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\Service;
 use DateTime;
 use Illuminate\Database\Eloquent\Collection;
+use Throwable;
 
 class ClientServiceRepository
 {
@@ -64,5 +68,39 @@ class ClientServiceRepository
             ->where('service_id', $service->getId())
             ->where('status', ClientServiceStatusEnum::ACTIVE)
             ->exists();
+    }
+
+    public function updateOrCreate(Client $client, Service $service, string $oAuthAccessToken, CountryEnum $country): ClientService
+    {
+        $clientService = ClientService::where('client_id', $client->getId())
+            ->where('service_id', $service->getId())
+            ->first();
+        if ($clientService === null) {
+            $clientService = new ClientService();
+            $clientService->setAttribute('client_id', $client->getId());
+            $clientService->setAttribute('service_id', $service->getId());
+        }
+        $clientService->setAttribute('oauth_access_token', $oAuthAccessToken);
+        $clientService->setAttribute('status', 'active');
+        $clientService->setAttribute('country', $country->value);
+        $clientService->setAttribute('update_in_process', false);
+        $clientService->save();
+        return $clientService;
+    }
+
+    public function updateStatus(Client $client, Service $service, ClientServiceStatusEnum $status): void
+    {
+        $clientService = ClientService::where('client_id', $client->getId())
+        ->where('service_id', $service->getId())
+        ->first();
+        if ($clientService === null) {
+            throw new DataNotFoundException(new \Exception('ClientService not found for client ' . $client->getId() . ' and service ' . $service->getId()));
+        }
+        $clientService->setAttribute('status', $status);
+        try {
+            $clientService->save();
+        } catch (Throwable $t) {
+            throw new DataUpdateFailException($t);
+        }
     }
 }

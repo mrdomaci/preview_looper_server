@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Businesses;
 
 use App\Models\Client;
-use App\Models\ClientSettingsServiceOption;
 use App\Models\Service;
 use App\Models\SettingsServiceOption;
+use App\Repositories\ClientSettingsServiceOptionRepository;
 use App\Repositories\SettingsServiceOptionRepository;
 use Illuminate\Http\Request;
 use Throwable;
@@ -15,7 +15,8 @@ use Throwable;
 class SettingServiceBusiness
 {
     public function __construct(
-        private readonly SettingsServiceOptionRepository $settingsServiceOptionRepository
+        private readonly SettingsServiceOptionRepository $settingsServiceOptionRepository,
+        private readonly ClientSettingsServiceOptionRepository $clientSettingsServiceOptionRepository,
     ) {
     }
     public function updateOrCreateFromRequest(Request $request, Service $service, Client $client): void
@@ -43,7 +44,7 @@ class SettingServiceBusiness
             if ($request->input($settingsService->getId() . '_value') !== null) {
                 $value = $request->input($settingsService->getId() . '_value');
             }
-            ClientSettingsServiceOption::updateOrCreate($client, $settingsService, $settingsServiceOption, $value);
+            $this->clientSettingsServiceOptionRepository->updateOrCreate($client, $settingsService, $settingsServiceOption, $value);
         }
     }
 }

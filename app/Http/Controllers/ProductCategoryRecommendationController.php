@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Enums\CountryEnum;
 use App\Repositories\CategoryRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\ProductCategoryRecommendationRepository;
@@ -20,27 +21,29 @@ class ProductCategoryRecommendationController extends Controller
         private readonly ProductCategoryRecommendationRepository $productCategoryRecommendationRepository
     ) {
     }
-    public function add(string $country, string $serviceUrlPath, string $language, string $eshopId, Request $request): \Illuminate\Http\RedirectResponse
+    public function add(string $countryCode, string $serviceUrlPath, string $language, string $eshopId, Request $request): \Illuminate\Http\RedirectResponse
     {
+        $country = CountryEnum::getByValue($countryCode);
         $client = $this->clientRepository->getByEshopId((int) $eshopId);
         $category = $this->categoryRepository->getForClient($client, (int) $request->input('category'));
         $product = $this->productRepository->getForClient($client, (int) $request->input('product'));
         try {
             $this->productCategoryRecommendationRepository->create($client, $product, $category);
         } catch (Throwable) {
-            return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', __('general.error'));
+            return redirect()->route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', __('general.error'));
         }
-        return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', __('general.success'));
+        return redirect()->route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', __('general.success'));
     }
 
-    public function delete(string $country, string $serviceUrlPath, string $language, string $eshopId, Request $request): \Illuminate\Http\RedirectResponse
+    public function delete(string $countryCode, string $serviceUrlPath, string $language, string $eshopId, Request $request): \Illuminate\Http\RedirectResponse
     {
+        $country = CountryEnum::getByValue($countryCode);
         try {
             $productCategoryRecommendationRepository = $this->productCategoryRecommendationRepository->get((int) $request->input('id'));
             $this->productCategoryRecommendationRepository->delete($productCategoryRecommendationRepository);
         } catch (Throwable) {
-            return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', __('general.error'));
+            return redirect()->route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', __('general.error'));
         }
-        return redirect()->route('client.settings', ['country' => $country, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', __('general.success'));
+        return redirect()->route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', __('general.success'));
     }
 }

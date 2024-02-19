@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Helpers;
 
 use App\Exceptions\WebhookException;
+use App\Models\Client;
+use App\Models\ClientService;
 use Exception;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -34,26 +36,34 @@ class WebHookHelper
         return (int)$webhook['eshopId'];
     }
 
-    public static function jenkinsWebhookClient(int $clientId): Response
+    public static function webhookResolver(ClientService $clientService): Response
+    {
+        $client = $clientService->client()->first();
+        $service = $clientService->service()->first();
+        if ($service->isDynamicPreviewImages()) {
+            return self::jenkinsWebhookUpdateClient($client);
+        }
+        if ($service->isUpsell()) {
+            return self::jenkinsWebhookUpdateOrders($client);
+        }
+        throw new WebhookException(new Exception('Webhook failed for client: ' . $client->getId() . ' and service ' . $service->getId() . '.'));
+    }
+
+    public static function jenkinsWebhookClient(Client $client): Response
     {
         $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_CLIENT');
-        return Http::post($url, ['client' => (string) $clientId]);
+        return Http::post($url, ['client' => (string) $client->getId()]);
     }
-    public static function jenkinsWebhookUpdateClient(int $clientId): Response
+
+    public static function jenkinsWebhookUpdateClient(Client $client): Response
     {
         $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_UPDATE');
-        return Http::post($url, ['client' => (string) $clientId]);
+        return Http::post($url, ['client' => (string) $client->getId()]);
     }
 
-    public static function jenkinsWebhookGenerateOrderStatusImages(int $clientId): Response
-    {
-        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_ORDER_STATUS_IMAGES');
-        return Http::post($url, ['client' => (string) $clientId]);
-    }
-
-    public static function jenkinsWebhookUpdateOrders(int $clientId): Response
+    public static function jenkinsWebhookUpdateOrders(Client $client): Response
     {
         $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_UPDATE_ORDERS');
-        return Http::post($url, ['client' => (string) $clientId]);
+        return Http::post($url, ['client' => (string) $client->getId()]);
     }
 }

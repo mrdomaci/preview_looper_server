@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Exceptions\DataInsertFailException;
-use App\Exceptions\DataUpdateFailException;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Throwable;
 
 class Client extends Model
 {
@@ -230,31 +227,5 @@ class Client extends Model
             }
         }
         return null;
-    }
-
-    public static function updateOrCreate(int $eshopId, string $eshopUrl, string $email): Client
-    {
-        $client = Client::where('eshop_id', $eshopId)->first();
-
-        if ($client === null) {
-            try {
-                $client = Client::create([
-                    'eshop_id' => $eshopId,
-                    'url' => $eshopUrl,
-                    'email' => $email,
-                ]);
-            } catch (Throwable $t) {
-                throw new DataInsertFailException($t);
-            }
-        } else {
-            $client->url = $eshopUrl;
-            $client->email = $email;
-            try {
-                $client->save();
-            } catch (Throwable $t) {
-                throw new DataUpdateFailException($t);
-            }
-        }
-        return $client;
     }
 }
