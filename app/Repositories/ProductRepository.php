@@ -117,7 +117,7 @@ class ProductRepository
     public function deleteCollection(Collection $products): void
     {
         $productIDs = $products->pluck('id')->toArray();
-        $chunks = array_chunk($productIDs, 1000);
+        $chunks = array_chunk($productIDs, 100);
         foreach ($chunks as $chunk) {
             Product::whereIn('id', $chunk)->delete();
         }
