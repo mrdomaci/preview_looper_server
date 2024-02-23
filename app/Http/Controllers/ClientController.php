@@ -14,6 +14,7 @@ use App\Helpers\AuthorizationHelper;
 use App\Helpers\LocaleHelper;
 use App\Helpers\LoggerHelper;
 use App\Repositories\ClientRepository;
+use App\Repositories\ClientServiceRepository;
 use App\Repositories\ServiceRepository;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -30,6 +31,7 @@ class ClientController extends Controller
         private readonly SettingServiceBusiness $settingsServiceBusiness,
         private readonly TemplateIncludeBusiness $templateIncludeBusiness,
         private readonly SyncEndpointBusiness $syncEndpointBusiness,
+        private readonly ClientServiceRepository $clientServiceRepository,
     ) {
     }
     public function settings(string $countryCode, string $serviceUrlPath, Request $request): View
@@ -43,7 +45,11 @@ class ClientController extends Controller
         }
 
         $language = $request->input('language');
-        $clientService = $client->services()->where('service_id', $service->getId())->first();
+        try {
+            $clientService = $this->clientServiceRepository->getByClientAndService($client, $service);
+        } catch (Throwable) {
+            abort(404);
+        }
 
         try {
             $baseOAuthUrl = $this->baseOauthUrlBusiness->getFromRequestClientService($request, $clientService);

@@ -96,8 +96,6 @@ class StoreProductDetailsFromApiCommand extends AbstractClientCommand
                             $this->productBusiness->createOrUpdateVariants($product, $productDetailResponse, $client);
                             $this->imageBusiness->createOrUpdate($product, $productDetailResponse, $client);
                         } catch (ApiRequestNonExistingResourceException $t) {
-                            $this->productRepository->deleteByClient($client);
-                            $this->imageRepository->deleteByClient($client);
                             $this->error('Product ' . $productGuid . ' not found');
                         } catch (AddonNotInstalledException) {
                             $clientService->setStatusInactive();
