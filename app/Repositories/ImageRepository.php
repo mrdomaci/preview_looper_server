@@ -30,6 +30,8 @@ class ImageRepository
         if ($productImageResponse->getPriority() !== null) {
             $hash .= '-' . $productImageResponse->getPriority();
         }
+        $hash .= '-' . $productImageResponse->getSeoName();
+        $hash = hash('xxh3', $hash);
         $image->setHash($hash)
             ->setClient($client)
             ->setProduct($product)
