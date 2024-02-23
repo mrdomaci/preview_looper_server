@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
-use App\Businesses\ProductBusiness;
 use App\Connector\ProductFilter;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
@@ -13,11 +12,9 @@ use App\Helpers\ConnectorHelper;
 use App\Helpers\GeneratorHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
-use App\Models\Product;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Collection;
 use Throwable;
 
 class StoreProductsFromApiCommand extends AbstractClientCommand
@@ -40,7 +37,6 @@ class StoreProductsFromApiCommand extends AbstractClientCommand
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly ClientServiceBusiness $clientServiceBusiness,
         private readonly ProductRepository $productRepository,
-        private readonly ProductBusiness $productBusiness,
     ) {
         parent::__construct();
     }
@@ -71,8 +67,6 @@ class StoreProductsFromApiCommand extends AbstractClientCommand
                 $clientService->setUpdateInProgress(true);
                 $client = $clientService->client()->first();
 
-                /** @var Collection<Product> $products */
-                $products = $this->productRepository->getActivesByClient($client);
                 $productFilter = new ProductFilter('visibility', 'visible');
                 for ($page = 1; $page < ResponseHelper::MAXIMUM_ITERATIONS; $page++) {
                     try {
@@ -83,7 +77,6 @@ class StoreProductsFromApiCommand extends AbstractClientCommand
                         foreach (GeneratorHelper::fetchProducts($clientService, $productFilter, $page) as $productResponse) {
                             $this->info('Updating product ' . $productResponse->getGuid());
                             $this->productRepository->createOrUpdateFromResponse($client, $productResponse);
-                            $products = $this->productBusiness->filterByGuid($products, $productResponse->getGuid());
                         }
                         if ($productListResponse->getPage() === $productListResponse->getPageCount()) {
                             break;
@@ -102,7 +95,6 @@ class StoreProductsFromApiCommand extends AbstractClientCommand
                         break;
                     }
                 }
-                $this->productRepository->deleteCollection($products);
                 $clientService->setUpdateInProgress(false);
             }
 
