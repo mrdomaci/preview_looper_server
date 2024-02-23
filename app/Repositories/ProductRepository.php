@@ -13,6 +13,7 @@ use App\Models\Client;
 use App\Models\Currency;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
+use Throwable;
 
 class ProductRepository
 {
@@ -87,16 +88,18 @@ class ProductRepository
 
     public function createOrUpdateFromResponse(Client $client, ProductResponse $productResponse): void
     {
-        $product = Product::where('client_id', $client->getId())->where('guid', $productResponse->getGuid())->first();
-        if ($product === null) {
+        try {
+            $product = Product::where('client_id', $client->getId())->where('guid', $productResponse->getGuid())->firstOrFail();
+            if ($product->isActive() === false) {
+                $product->setActive(true)
+                    ->save();
+            }
+        } catch (Throwable) {
             /** @var Product $product */
             $product = new Product();
             $product->setGuid($productResponse->getGuid())
                 ->setClient($client)
                 ->setActive(true)
-                ->save();
-        } else if ($product->isActive() === false) {
-            $product->setActive(true)
                 ->save();
         }
     }
@@ -125,8 +128,9 @@ class ProductRepository
 
     public function createOrUpdateVariantFromResponse(ProductVariantResponse $variant, Product $product): void
     {
-        $productVariant = Product::where('parent_product_id', $product->getId())->where('code', $variant->getCode())->first();
-        if ($productVariant === null) {
+        try {
+            $productVariant = Product::where('parent_product_id', $product->getId())->where('code', $variant->getCode())->firstOrFail();
+        } catch (Throwable) {
             $productVariant = Product::clone($product);
         }
         /** @var Product $productVariant */

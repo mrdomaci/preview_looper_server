@@ -7,13 +7,15 @@ namespace App\Repositories;
 use App\Models\Category;
 use App\Models\Client;
 use Illuminate\Database\Eloquent\Collection;
+use Throwable;
 
 class CategoryRepository
 {
     public function createOrUpdate(Client $client, string $name): Category
     {
-        $category = Category::where('client_id', $client->getId())->where('name', $name)->first();
-        if ($category === null) {
+        try {
+            $category = Category::where('client_id', $client->getId())->where('name', $name)->firstOrFail();
+        } catch (Throwable) {
             $category = Category::create([
                 'client_id' => $client->getId(),
                 'name' => $name,

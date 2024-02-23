@@ -8,14 +8,16 @@ use App\Businesses\InstallBusiness;
 use App\Enums\CountryEnum;
 use App\Helpers\LoggerHelper;
 use App\Helpers\WebHookHelper;
-use App\Models\Service;
+use App\Repositories\ServiceRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Throwable;
 
 class InstallController extends Controller
 {
     public function __construct(
         private readonly InstallBusiness $installBusiness,
+        private readonly ServiceRepository $serviceRepository,
     ) {
     }
     public function install(string $countryCode, string $serviceUrlPath, Request $request): Response
@@ -26,8 +28,9 @@ class InstallController extends Controller
             return Response('Bad request', 400);
         }
 
-        $service = Service::where('url-path', $serviceUrlPath)->first();
-        if ($service === null) {
+        try {
+            $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
+        } catch (Throwable) {
             abort(404);
         }
 
@@ -42,8 +45,9 @@ class InstallController extends Controller
 
     public function deactivate(string $serviceUrlPath): Response
     {
-        $service = Service::where('url-path', $serviceUrlPath)->first();
-        if ($service === null) {
+        try {
+            $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
+        } catch (Throwable) {
             abort(404);
         }
 
@@ -54,8 +58,9 @@ class InstallController extends Controller
 
     public function uninstall(string $serviceUrlPath): Response
     {
-        $service = Service::where('url-path', $serviceUrlPath)->first();
-        if ($service === null) {
+        try {
+            $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
+        } catch (Throwable) {
             abort(404);
         }
 
@@ -66,8 +71,9 @@ class InstallController extends Controller
 
     public function activate(string $serviceUrlPath): Response
     {
-        $service = Service::where('url-path', $serviceUrlPath)->first();
-        if ($service === null) {
+        try {
+            $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
+        } catch (Throwable) {
             abort(404);
         }
 

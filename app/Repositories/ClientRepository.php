@@ -6,9 +6,7 @@ namespace App\Repositories;
 
 use App\Connector\EshopResponse;
 use App\Enums\ClientServiceStatusEnum;
-use App\Exceptions\DataInsertFailException;
 use App\Exceptions\DataNotFoundException;
-use App\Exceptions\DataUpdateFailException;
 use App\Models\Client;
 use App\Models\ClientService;
 use Exception;
@@ -67,43 +65,26 @@ class ClientRepository
             ->save();
     }
 
-    public function findByEshopId(int $eshopID): ?Client
-    {
-        return Client::where('eshop_id', $eshopID)->first();
-    }
-
     public function getByEshopId(int $eshopID): Client
     {
-        $client = $this->findByEshopId($eshopID);
-        if ($client === null) {
-            throw new DataNotFoundException(new Exception('Client not found'));
-        }
-        return Client::where('eshop_id', $eshopID)->first();
+        return Client::where('eshop_id', $eshopID)->firstOrFail();
     }
 
     public function updateOrCreate(int $eshopId, string $eshopUrl, string $email): Client
     {
-        $client = Client::where('eshop_id', $eshopId)->first();
-
-        if ($client === null) {
-            try {
-                $client = Client::create([
-                    'eshop_id' => $eshopId,
-                    'url' => $eshopUrl,
-                    'email' => $email,
-                ]);
-            } catch (Throwable $t) {
-                throw new DataInsertFailException($t);
-            }
-        } else {
+        try {
+            $client = $this->getByEshopId($eshopId);
             $client->url = $eshopUrl;
             $client->email = $email;
-            try {
-                $client->save();
-            } catch (Throwable $t) {
-                throw new DataUpdateFailException($t);
-            }
+        } catch (Throwable) {
+            $client = Client::create([
+                'eshop_id' => $eshopId,
+                'url' => $eshopUrl,
+                'email' => $email,
+            ]);
         }
+        $client->save();
+
         return $client;
     }
 }

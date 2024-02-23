@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Helpers\StringHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Throwable;
 
 class Currency extends Model
 {
@@ -52,8 +53,9 @@ class Currency extends Model
 
     public static function formatPrice(string $value, string $currencyCode): string
     {
-        $currency = self::where('code', StringHelper::upper($currencyCode))->first();
-        if ($currency === null) {
+        try {
+            $currency = self::where('code', StringHelper::upper($currencyCode))->firstOrFail();
+        } catch (Throwable) {
             return $value . ' ' . $currencyCode;
         }
 

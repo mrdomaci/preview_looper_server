@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Throwable;
 
 class SettingsService extends Model
 {
@@ -97,10 +98,11 @@ class SettingsService extends Model
 
     public function getValue(Client $client): ?string
     {
-        $clientSettingsServiceOption = ClientSettingsServiceOption::where('client_id', $client->getId())->where('settings_service_id', $this->getAttribute('id'))->first();
-        if ($clientSettingsServiceOption === null) {
+        try {
+            $clientSettingsServiceOption = ClientSettingsServiceOption::where('client_id', $client->getId())->where('settings_service_id', $this->getAttribute('id'))->firstOrFail();
+            return $clientSettingsServiceOption->getAttribute('value');
+        } catch (Throwable) {
             return null;
         }
-        return $clientSettingsServiceOption->getAttribute('value');
     }
 }

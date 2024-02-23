@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Throwable;
 
 class SettingsServiceOption extends Model
 {
@@ -73,10 +74,15 @@ class SettingsServiceOption extends Model
 
     public function isSelected(Client $client): bool
     {
-        $clientSettingsServiceOption = ClientSettingsServiceOption::where('client_id', $client->getId())->where('settings_service_id', $this->getSettingsServiceId())->first();
-        if ($clientSettingsServiceOption === null && $this->isdefault()) {
-            return true;
-        } else if ($clientSettingsServiceOption !== null && $clientSettingsServiceOption->getSettingsServiceOptionId() === $this->getId()) {
+        try {
+            $clientSettingsServiceOption = ClientSettingsServiceOption::where('client_id', $client->getId())->where('settings_service_id', $this->getSettingsServiceId())->firstOrFail();
+        } catch (Throwable) {
+            if ($this->isdefault()) {
+                return true;
+            }
+            return false;
+        }
+        if ($clientSettingsServiceOption->getSettingsServiceOptionId() === $this->getId()) {
             return true;
         }
         return false;

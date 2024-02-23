@@ -46,10 +46,6 @@ class WebhookUpdateByClientsCommand extends AbstractCommand
             $this->info('No clients to update');
             return Command::SUCCESS;
         }
-        if ($clientService === null) {
-            $this->info('No clients to update');
-            return Command::SUCCESS;
-        }
         $client = $clientService->client()->first();
         WebHookHelper::jenkinsWebhookUpdateClient($client);
         $this->info('Client ' . (string) $client->getId() . ' webhooked to be updated');

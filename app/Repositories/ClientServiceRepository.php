@@ -7,7 +7,6 @@ namespace App\Repositories;
 use App\Enums\ClientServiceStatusEnum;
 use App\Enums\CountryEnum;
 use App\Exceptions\DataNotFoundException;
-use App\Exceptions\DataUpdateFailException;
 use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\Service;
@@ -40,7 +39,7 @@ class ClientServiceRepository
             ->get();
     }
 
-    public function getNextForUpdate(Service $service, DateTime $dateLastSync): ?ClientService
+    public function getNextForUpdate(Service $service, DateTime $dateLastSync): ClientService
     {
         $q = ClientService::where('service_id', $service->getId())
         ->where('status', ClientServiceStatusEnum::ACTIVE)
@@ -59,7 +58,7 @@ class ClientServiceRepository
             });
         }
 
-        return $q->first();
+        return $q->firstOrFail();
     }
 
     public function hasActiveService(Client $client, Service $service): bool
@@ -70,12 +69,21 @@ class ClientServiceRepository
             ->exists();
     }
 
+    public function getByClientAndService(Client $client, Service $service): ClientService
+    {
+        return ClientService::where('client_id', $client->getId())
+            ->where('service_id', $service->getId())
+            ->where('status', ClientServiceStatusEnum::ACTIVE)
+            ->firstOrFail();
+    }
+
     public function updateOrCreate(Client $client, Service $service, string $oAuthAccessToken, CountryEnum $country): ClientService
     {
-        $clientService = ClientService::where('client_id', $client->getId())
+        try {
+            $clientService = ClientService::where('client_id', $client->getId())
             ->where('service_id', $service->getId())
-            ->first();
-        if ($clientService === null) {
+            ->firstOrFail();
+        } catch (Throwable $t) {
             $clientService = new ClientService();
             $clientService->setAttribute('client_id', $client->getId());
             $clientService->setAttribute('service_id', $service->getId());
@@ -90,17 +98,15 @@ class ClientServiceRepository
 
     public function updateStatus(Client $client, Service $service, ClientServiceStatusEnum $status): void
     {
-        $clientService = ClientService::where('client_id', $client->getId())
-        ->where('service_id', $service->getId())
-        ->first();
-        if ($clientService === null) {
+        try {
+            $clientService = ClientService::where('client_id', $client->getId())
+            ->where('service_id', $service->getId())
+            ->firstOrFail();
+        } catch (Throwable $t) {
             throw new DataNotFoundException(new \Exception('ClientService not found for client ' . $client->getId() . ' and service ' . $service->getId()));
         }
+
         $clientService->setAttribute('status', $status);
-        try {
-            $clientService->save();
-        } catch (Throwable $t) {
-            throw new DataUpdateFailException($t);
-        }
+        $clientService->save();
     }
 }
