@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Helpers\BackupDB;
+use App\Helpers\BackupDBHelper;
+use App\Helpers\DropBoxUploadHelper;
+use DateTime;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -32,7 +34,10 @@ class DatabaseBackupCommand extends Command
     public function handle()
     {
         try {
-            BackupDB::run();
+            $path = 'storage/app/backup';
+            $fileName = (new DateTime())->format('Y-m-d') . '_backup.sql';
+            BackupDBHelper::run($path, $fileName);
+            DropBoxUploadHelper::upload($path, $fileName);
             return Command::SUCCESS;
         } catch (Throwable $t) {
             $this->error($t->getMessage());

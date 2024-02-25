@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Helpers;
 
 use Coderatio\SimpleBackup\SimpleBackup;
-use DateTime;
 
-class BackupDB
+class BackupDBHelper
 {
-    public static function run(): void
+    public static function run(string $path, string $fileName): void
     {
         SimpleBackup::start()
             ->setDbName(env('DB_DATABASE'))
@@ -26,6 +25,6 @@ class BackupDB
                     'settings_service_options',
                     'settings_services'
                 ]
-            )->then()->storeAfterExportTo('storage/app/backup', (new DateTime())->format('Y-m-d') . '_backup.sql');
+            )->then()->storeAfterExportTo($path, $fileName);
     }
 }
