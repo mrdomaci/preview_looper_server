@@ -16,7 +16,6 @@ use App\Helpers\GeneratorHelper;
 use App\Helpers\LoggerHelper;
 use App\Models\ClientService;
 use App\Models\Product;
-use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\ImageRepository;
 use App\Repositories\ProductRepository;
@@ -58,7 +57,7 @@ class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
-                Service::getUpsell(),
+                $this->findService(),
                 $this->findClient(),
                 $this->getIterationCount(),
             );
