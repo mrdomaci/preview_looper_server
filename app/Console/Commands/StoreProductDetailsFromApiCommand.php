@@ -14,8 +14,10 @@ use App\Exceptions\ApiRequestNonExistingResourceException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\GeneratorHelper;
 use App\Helpers\LoggerHelper;
+use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\Product;
+use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\ImageRepository;
 use App\Repositories\ProductRepository;
@@ -66,13 +68,17 @@ class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
             foreach ($clientServices as $clientService) {
                 $lastClientServiceId = $clientService->getId();
                 if ($this->clientServiceBusiness->isForbidenToUpdate($clientService) === true) {
+                    $this->info('Client service is forbidden to update');
                     continue;
                 }
 
                 $clientService->setUpdateInProgress(true);
 
+                /** @var Client $client */
                 $client = $clientService->client()->first();
-                $this->info('Updating images for client id:' . $client->getId());
+                /** @var Service $service */
+                $service = $clientService->service()->first();
+                $this->info('Updating product details for client id:' . $client->getId());
                 $productOffsetId = 0;
                 for ($j = 0; $j < $this->getMaxIterationCount(); $j++) {
                     $products = $this->productRepository->getPastId($client, $productOffsetId);
@@ -84,16 +90,20 @@ class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
                         $productOffsetId = $productId;
                         try {
                             $this->info('Updating details for product ' . $productGuid);
-                            $this->imageRepository->deleteByClientAndProduct($client, $product);
                             /** @var ?ProductDetailResponse $productDetailResponse */
                             $productDetailResponse = GeneratorHelper::fetchProductDetail($clientService, $productGuid);
                             if ($productDetailResponse === null) {
                                 $this->info('Product ' . $productGuid . ' not found');
                                 continue;
                             }
-                            $this->productRepository->updateDetailFromResponse($product, $productDetailResponse);
-                            $this->productBusiness->createOrUpdateVariants($product, $productDetailResponse, $client);
-                            $this->imageBusiness->createOrUpdate($product, $productDetailResponse, $client);
+                            if ($service->isDynamicPreviewImages()) {
+                                $this->imageRepository->deleteByClientAndProduct($client, $product);
+                                $this->imageBusiness->createOrUpdate($product, $productDetailResponse, $client);
+                            }
+                            if ($service->isUpsell()) {
+                                $this->productRepository->updateDetailFromResponse($product, $productDetailResponse);
+                                $this->productBusiness->createOrUpdateVariants($product, $productDetailResponse, $client);
+                            }
                         } catch (ApiRequestNonExistingResourceException $t) {
                             $this->productRepository->delete($product);
                             $this->imageRepository->deleteByClientAndProduct($client, $product);
