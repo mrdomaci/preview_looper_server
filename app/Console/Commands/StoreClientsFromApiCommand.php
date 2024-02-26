@@ -13,14 +13,14 @@ use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
-class StoreClientsFromApiCommand extends AbstractClientCommand
+class StoreClientsFromApiCommand extends AbstractClientServiceCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'update:clients {client_id?}';
+    protected $signature = 'update:clients {--client=} {--service=}';
 
     /**
      * The console command description.
@@ -43,13 +43,12 @@ class StoreClientsFromApiCommand extends AbstractClientCommand
      */
     public function handle()
     {
-        $clientId = $this->getClientId();
         $lastClientId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientId,
-                null,
-                $clientId,
+                $this->findService(),
+                $this->findClient(),
                 $this->getIterationCount(),
             );
             /** @var ClientService $clientService */

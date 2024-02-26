@@ -17,14 +17,14 @@ use App\Repositories\ProductRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
-class StoreProductsFromApiCommand extends AbstractClientCommand
+class StoreProductsFromApiCommand extends AbstractClientServiceCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'update:products {client_id?}';
+    protected $signature = 'update:products {--client=} {--service=}';
 
     /**
      * The console command description.
@@ -48,14 +48,13 @@ class StoreProductsFromApiCommand extends AbstractClientCommand
      */
     public function handle()
     {
-        $clientId = $this->getClientId();
         $success = true;
         $lastClientServiceId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
-                null,
-                $clientId,
+                $this->findService(),
+                $this->findClient(),
                 $this->getIterationCount(),
             );
 

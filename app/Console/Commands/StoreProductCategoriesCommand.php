@@ -10,14 +10,14 @@ use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 
-class StoreProductCategoriesCommand extends AbstractClientCommand
+class StoreProductCategoriesCommand extends AbstractClientServiceCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'store:product-categories {client_id?}';
+    protected $signature = 'store:product-categories {--client=} {--service=}';
 
     /**
      * The console command description.
@@ -40,13 +40,12 @@ class StoreProductCategoriesCommand extends AbstractClientCommand
      */
     public function handle()
     {
-        $clientId = $this->getClientId();
         $lastClientServiceId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
                 Service::getUpsell(),
-                $clientId,
+                $this->findClient(),
                 $this->getIterationCount(),
             );
 

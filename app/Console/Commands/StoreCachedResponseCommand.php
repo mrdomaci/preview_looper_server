@@ -10,14 +10,14 @@ use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 
-class StoreCachedResponseCommand extends AbstractClientCommand
+class StoreCachedResponseCommand extends AbstractClientServiceCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'store:cached:response {client_id?}';
+    protected $signature = 'store:cached:response {--client=} {--service=}';
 
     /** @var string */
     protected $description = 'Store cached response';
@@ -35,13 +35,12 @@ class StoreCachedResponseCommand extends AbstractClientCommand
      */
     public function handle()
     {
-        $clientId = $this->getClientId();
         $lastClientServiceId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
                 Service::getDynamicPreviewImages(),
-                $clientId,
+                $this->findClient(),
                 $this->getIterationCount(),
             );
             /** @var ClientService $clientService  */

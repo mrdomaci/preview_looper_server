@@ -16,20 +16,21 @@ use App\Helpers\GeneratorHelper;
 use App\Helpers\LoggerHelper;
 use App\Models\ClientService;
 use App\Models\Product;
+use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\ImageRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
-class StoreProductDetailsFromApiCommand extends AbstractClientCommand
+class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'store:product:details {client_id?}';
+    protected $signature = 'store:product:details {--client=} {--service=}';
 
     /** @var string */
     protected $description = 'Store product details from API';
@@ -52,14 +53,13 @@ class StoreProductDetailsFromApiCommand extends AbstractClientCommand
      */
     public function handle()
     {
-        $clientId = $this->getClientId();
         $success = true;
         $lastClientServiceId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
-                null,
-                $clientId,
+                Service::getUpsell(),
+                $this->findClient(),
                 $this->getIterationCount(),
             );
 

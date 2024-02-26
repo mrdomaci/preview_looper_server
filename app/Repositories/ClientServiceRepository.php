@@ -19,11 +19,11 @@ class ClientServiceRepository
     /**
      * @param int $lastId
      * @param Service|null $service
-     * @param int|null $clientId
+     * @param Client|null $client
      * @param int $iterationCount
      * @return Collection<ClientService>
      */
-    public function getActive(int $lastId, ?Service $service = null, ?int $clientId = null, ?int $iterationCount = 100): Collection
+    public function getActive(int $lastId, ?Service $service = null, ?Client $client = null, ?int $iterationCount = 100): Collection
     {
         $query = ClientService::where('status', ClientServiceStatusEnum::ACTIVE)
             ->where('id', '>', $lastId);
@@ -31,8 +31,8 @@ class ClientServiceRepository
             $query->where('service_id', $service->getId());
         }
 
-        if ($clientId !== null) {
-            $query->where('client_id', $clientId);
+        if ($client !== null) {
+            $query->where('client_id', $client->getId());
         }
 
         return $query->limit($iterationCount)
@@ -96,7 +96,7 @@ class ClientServiceRepository
         return $clientService;
     }
 
-    public function updateStatus(Client $client, Service $service, ClientServiceStatusEnum $status): void
+    public function updateStatus(Client $client, Service $service, ClientServiceStatusEnum $status): ClientService
     {
         try {
             $clientService = ClientService::where('client_id', $client->getId())
@@ -108,5 +108,6 @@ class ClientServiceRepository
 
         $clientService->setAttribute('status', $status);
         $clientService->save();
+        return $clientService;
     }
 }

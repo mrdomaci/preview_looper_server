@@ -5,26 +5,25 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Helpers\WebHookHelper;
-use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
-class WebhookUpdateOrdersByClientsCommand extends AbstractCommand
+class WebhookUpdateCommand extends AbstractServiceCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'webhook:update:orders';
+    protected $signature = 'webhook:update {service}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Update orders by webhook';
+    protected $description = 'Send webhook to update client for service if needed';
 
     public function __construct(
         private readonly ClientServiceRepository $clientServiceRepository,
@@ -39,16 +38,14 @@ class WebhookUpdateOrdersByClientsCommand extends AbstractCommand
      */
     public function handle()
     {
-        $dateLastSync = now()->subHours(2);
         try {
-            $clientService = $this->clientServiceRepository->getNextForUpdate(Service::getUpsell(), $dateLastSync);
+            $clientService = $this->clientServiceRepository->getNextForUpdate($this->getService(), now()->subHours(12));
         } catch (Throwable) {
-            $this->info('No orders to update');
+            $this->info('No clients to update for service ' . $this->getService()->getName());
             return Command::SUCCESS;
         }
-        $client = $clientService->client()->first();
-        WebHookHelper::jenkinsWebhookUpdateOrders($client);
-        $this->info('Client ' . (string) $client->getId() . ' webhooked to be orders updated');
+        WebHookHelper::webhookResolver($clientService);
+        $this->info('Client ' . (string) $clientService->client->first()->getId() . ' webhooked to be updated for service ' . $this->getService()->getName());
         return Command::SUCCESS;
     }
 }

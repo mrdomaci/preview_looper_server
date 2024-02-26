@@ -12,14 +12,14 @@ use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
-class StoreTemplateIncludeApiCommand extends AbstractCommand
+class StoreTemplateIncludeApiCommand extends AbstractClientServiceCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'update:template-include';
+    protected $signature = 'update:template-include {--client=} {--service=}';
 
     /**
      * The console command description.
@@ -46,8 +46,8 @@ class StoreTemplateIncludeApiCommand extends AbstractCommand
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
-                null,
-                null,
+                $this->findService(),
+                $this->findClient(),
                 $this->getIterationCount(),
             );
             /** @var ClientService $clientService */

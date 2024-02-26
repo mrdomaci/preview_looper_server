@@ -41,29 +41,23 @@ class WebHookHelper
         $client = $clientService->client()->first();
         $service = $clientService->service()->first();
         if ($service->isDynamicPreviewImages()) {
-            return self::jenkinsWebhookUpdateClient($client);
+            return self::jenkinsWebhookDynamicPreviewImages($client);
         }
         if ($service->isUpsell()) {
-            return self::jenkinsWebhookUpdateOrders($client);
+            return self::jenkinsWebhookUpsell($client);
         }
         throw new WebhookException(new Exception('Webhook failed for client: ' . $client->getId() . ' and service ' . $service->getId() . '.'));
     }
 
-    public static function jenkinsWebhookClient(Client $client): Response
+    private static function jenkinsWebhookDynamicPreviewImages(Client $client): Response
     {
-        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_CLIENT');
+        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_DYNAMIC_PREVIEW_IMAGES');
         return Http::post($url, ['client' => (string) $client->getId()]);
     }
 
-    public static function jenkinsWebhookUpdateClient(Client $client): Response
+    private static function jenkinsWebhookUpsell(Client $client): Response
     {
-        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_UPDATE');
-        return Http::post($url, ['client' => (string) $client->getId()]);
-    }
-
-    public static function jenkinsWebhookUpdateOrders(Client $client): Response
-    {
-        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_UPDATE_ORDERS');
+        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_UPSELL');
         return Http::post($url, ['client' => (string) $client->getId()]);
     }
 }
