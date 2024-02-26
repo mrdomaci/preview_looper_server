@@ -7,6 +7,7 @@ namespace App\Helpers;
 use App\Exceptions\WebhookException;
 use App\Models\Client;
 use App\Models\ClientService;
+use App\Models\Service;
 use Exception;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -41,29 +42,23 @@ class WebHookHelper
         $client = $clientService->client()->first();
         $service = $clientService->service()->first();
         if ($service->isDynamicPreviewImages()) {
-            return self::jenkinsWebhookUpdateClient($client);
+            return self::jenkinsWebhookDynamicPreviewImages($client, $service);
         }
         if ($service->isUpsell()) {
-            return self::jenkinsWebhookUpdateOrders($client);
+            return self::jenkinsWebhookUpsell($client, $service);
         }
         throw new WebhookException(new Exception('Webhook failed for client: ' . $client->getId() . ' and service ' . $service->getId() . '.'));
     }
 
-    public static function jenkinsWebhookClient(Client $client): Response
+    private static function jenkinsWebhookDynamicPreviewImages(Client $client, Service $service): Response
     {
-        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_CLIENT');
-        return Http::post($url, ['client' => (string) $client->getId()]);
+        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_DYNAMIC_PREVIEW_IMAGES');
+        return Http::post($url, ['client' => (string) $client->getId(), 'service' => (string) $service->getId()]);
     }
 
-    public static function jenkinsWebhookUpdateClient(Client $client): Response
+    private static function jenkinsWebhookUpsell(Client $client, Service $service): Response
     {
-        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_UPDATE');
-        return Http::post($url, ['client' => (string) $client->getId()]);
-    }
-
-    public static function jenkinsWebhookUpdateOrders(Client $client): Response
-    {
-        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_UPDATE_ORDERS');
-        return Http::post($url, ['client' => (string) $client->getId()]);
+        $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_UPSELL');
+        return Http::post($url, ['client' => (string) $client->getId(), 'service' => (string) $service->getId()]);
     }
 }

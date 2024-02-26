@@ -21,14 +21,14 @@ use App\Repositories\OrderRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
-class StoreOrdersFromApiCommand extends AbstractClientCommand
+class StoreOrdersFromApiCommand extends AbstractClientServiceCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'update:orders {client_id?}';
+    protected $signature = 'update:orders {--client=} {--service=}';
 
     /**
      * The console command description.
@@ -53,7 +53,6 @@ class StoreOrdersFromApiCommand extends AbstractClientCommand
      */
     public function handle()
     {
-        $clientId = $this->getClientId();
         $success = true;
         $this->info('Updating orders');
         $lastClientServiceId = 0;
@@ -61,7 +60,7 @@ class StoreOrdersFromApiCommand extends AbstractClientCommand
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
                 Service::getUpsell(),
-                $clientId,
+                $this->findClient(),
                 $this->getIterationCount(),
             );
 

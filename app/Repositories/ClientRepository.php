@@ -20,7 +20,7 @@ class ClientRepository
     {
         $client = Client::find($id);
         if ($client === null) {
-            throw new DataNotFoundException(new Exception('Client not found'));
+            throw new DataNotFoundException(new Exception('Client not found id: ' . $id));
         }
         return $client;
     }

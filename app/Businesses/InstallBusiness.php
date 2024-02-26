@@ -55,8 +55,8 @@ class InstallBusiness
     {
         $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_ACTIVATE);
         $client = $this->clientRepository->getByEshopId($eshopId);
-        $this->clientServiceRepository->updateStatus($client, $service, ClientServiceStatusEnum::ACTIVE);
+        $clientSevice = $this->clientServiceRepository->updateStatus($client, $service, ClientServiceStatusEnum::ACTIVE);
         LoggerHelper::log('Client ' . $client->getId() . ' activated');
-        WebHookHelper::jenkinsWebhookClient($client);
+        WebHookHelper::webhookResolver($clientSevice);
     }
 }
