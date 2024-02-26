@@ -7,6 +7,7 @@ namespace App\Helpers;
 use App\Exceptions\WebhookException;
 use App\Models\Client;
 use App\Models\ClientService;
+use App\Models\Service;
 use Exception;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -41,23 +42,23 @@ class WebHookHelper
         $client = $clientService->client()->first();
         $service = $clientService->service()->first();
         if ($service->isDynamicPreviewImages()) {
-            return self::jenkinsWebhookDynamicPreviewImages($client);
+            return self::jenkinsWebhookDynamicPreviewImages($client, $service);
         }
         if ($service->isUpsell()) {
-            return self::jenkinsWebhookUpsell($client);
+            return self::jenkinsWebhookUpsell($client, $service);
         }
         throw new WebhookException(new Exception('Webhook failed for client: ' . $client->getId() . ' and service ' . $service->getId() . '.'));
     }
 
-    private static function jenkinsWebhookDynamicPreviewImages(Client $client): Response
+    private static function jenkinsWebhookDynamicPreviewImages(Client $client, Service $service): Response
     {
         $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_DYNAMIC_PREVIEW_IMAGES');
-        return Http::post($url, ['client' => (string) $client->getId()]);
+        return Http::post($url, ['client' => (string) $client->getId(), 'service' => (string) $service->getId()]);
     }
 
-    private static function jenkinsWebhookUpsell(Client $client): Response
+    private static function jenkinsWebhookUpsell(Client $client, Service $service): Response
     {
         $url = self::JENKINS_TRIGGER_URL . env('JENKINS_HASH_UPSELL');
-        return Http::post($url, ['client' => (string) $client->getId()]);
+        return Http::post($url, ['client' => (string) $client->getId(), 'service' => (string) $service->getId()]);
     }
 }
