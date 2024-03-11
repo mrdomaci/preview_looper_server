@@ -26,6 +26,9 @@ class ProductCategoryBusiness
                 if ($product->getCategoryName() === '') {
                     continue;
                 }
+                if ($product->getCategoryName() === null) {
+                    continue;
+                }
                 $category = $this->categoryRepository->createOrUpdate($client, $product->getCategoryName());
                 $this->productRepository->setProductCategory($product, $category);
             }
