@@ -85,12 +85,12 @@ class Order extends Model
 
     public function getFullName(): string
     {
-        return $this->getAttribute('fullName');
+        return $this->getAttribute('full_fame');
     }
 
     public function setFullName(string $fullName): self
     {
-        return $this->setAttribute('fullName', $fullName);
+        return $this->setAttribute('full_name', $fullName);
     }
 
     public function getCompany(): ?string
@@ -135,22 +135,22 @@ class Order extends Model
 
     public function getCashDeskOrder(): bool
     {
-        return (bool) $this->getAttribute('cashDeskOrder');
+        return (bool) $this->getAttribute('cash_desk_order');
     }
 
     public function setCashDeskOrder(bool $cashDeskOrder): self
     {
-        return $this->setAttribute('cashDeskOrder', $cashDeskOrder);
+        return $this->setAttribute('cash_desk_order', $cashDeskOrder);
     }
 
     public function getCustomerGuid(): ?string
     {
-        return $this->getAttribute('customerGuid');
+        return $this->getAttribute('customer_guid');
     }
 
     public function setCustomerGuid(?string $customerGuid): self
     {
-        return $this->setAttribute('customerGuid', $customerGuid);
+        return $this->setAttribute('customer_guid', $customerGuid);
     }
 
     public function isPaid(): bool
@@ -165,12 +165,12 @@ class Order extends Model
 
     public function getForeignStatusId(): string
     {
-        return $this->getAttribute('foreignStatusId');
+        return $this->getAttribute('foreign_status_id');
     }
 
     public function setForeignStatusId(string $foreignStatusId): self
     {
-        return $this->setAttribute('foreignStatusId', $foreignStatusId);
+        return $this->setAttribute('foreign_status_id', $foreignStatusId);
     }
 
     public function getSource(): string
@@ -195,62 +195,62 @@ class Order extends Model
 
     public function getToPay(): float
     {
-        return $this->getAttribute('toPay');
+        return $this->getAttribute('to_pay');
     }
 
     public function setToPay(float $toPay): self
     {
-        return $this->setAttribute('toPay', $toPay);
+        return $this->setAttribute('to_pay', $toPay);
     }
 
     public function getCurrencyCode(): string
     {
-        return $this->getAttribute('currencyCode');
+        return $this->getAttribute('currency_code');
     }
 
     public function setCurrencyCode(string $currencyCode): self
     {
-        return $this->setAttribute('currencyCode', $currencyCode);
+        return $this->setAttribute('currency_code', $currencyCode);
     }
 
     public function getWithVat(): float
     {
-        return $this->getAttribute('withVat');
+        return $this->getAttribute('with_vat');
     }
 
     public function setWithVat(float $withVat): self
     {
-        return $this->setAttribute('withVat', $withVat);
+        return $this->setAttribute('with_vat', $withVat);
     }
 
     public function getWithoutVat(): float
     {
-        return $this->getAttribute('withoutVat');
+        return $this->getAttribute('without_vat');
     }
 
     public function setWithoutVat(float $withoutVat): self
     {
-        return $this->setAttribute('withoutVat', $withoutVat);
+        return $this->setAttribute('without_vat', $withoutVat);
     }
 
     public function getExchangeRate(): float
     {
-        return $this->getAttribute('exchangeRate');
+        return $this->getAttribute('exchange_rate');
     }
 
     public function setExchangeRate(float $exchangeRate): self
     {
-        return $this->setAttribute('exchangeRate', $exchangeRate);
+        return $this->setAttribute('exchange_rate', $exchangeRate);
     }
 
     public function getPaymentMethod(): ?string
     {
-        return $this->getAttribute('paymentMethod');
+        return $this->getAttribute('payment_method');
     }
 
     public function setPaymentMethod(?string $paymentMethod): self
     {
-        return $this->setAttribute('paymentMethod', $paymentMethod);
+        return $this->setAttribute('payment_method', $paymentMethod);
     }
 
     public function getShipping(): ?string
@@ -265,11 +265,11 @@ class Order extends Model
 
     public function getAdminUrl(): string
     {
-        return $this->getAttribute('adminUrl');
+        return $this->getAttribute('admin_url');
     }
 
     public function setAdminUrl(string $adminUrl): self
     {
-        return $this->setAttribute('adminUrl', $adminUrl);
+        return $this->setAttribute('admin_url', $adminUrl);
     }
 }
