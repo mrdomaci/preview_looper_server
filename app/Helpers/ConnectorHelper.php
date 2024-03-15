@@ -7,10 +7,8 @@ namespace App\Helpers;
 use App\Connector\EshopResponse;
 use App\Connector\OrderDetailListResponse;
 use App\Connector\OrderListResponse;
-use App\Connector\OrderStatusListResponse;
 use App\Connector\ProductDetailResponse;
 use App\Connector\ProductFilter;
-use App\Connector\ProductImageResponse;
 use App\Connector\ProductListResponse;
 use App\Connector\Request;
 use App\Connector\TemplateIncludeResponse;
@@ -38,31 +36,12 @@ class ConnectorHelper
         return $response->getProductDetails();
     }
 
-    /**
-     * @return array<ProductImageResponse>
-     */
-    public static function getProductImages(ClientService $clientService, string $productGuid): array
-    {
-        $request = new Request($clientService);
-        $request->getProductImages($productGuid, 'shop');
-        $response = $request->send();
-        return $response->getProductImages();
-    }
-
     public static function getEshop(ClientService $clientService): EshopResponse
     {
         $request = new Request($clientService);
         $request->getEshop();
         $response = $request->send();
         return $response->getEshop();
-    }
-
-    public static function getOrderSatuses(ClientService $clientService): OrderStatusListResponse
-    {
-        $request = new Request($clientService);
-        $request->getOrderStatuses();
-        $response = $request->send();
-        return $response->getOrderStatuses();
     }
 
     public static function getOrders(ClientService $clientService, int $page, ?DateTime $dateLastSynced): ?OrderListResponse

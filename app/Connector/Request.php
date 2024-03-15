@@ -58,24 +58,10 @@ class Request
         return $this;
     }
 
-    public function getProductImages(string $guid, string $gallery): Request
-    {
-        $this->setMethod(ProductImages::getMethod());
-        $this->setEndpoint(ProductImages::getEndpoint($guid, $gallery));
-        return $this;
-    }
-
     public function getEshop(): Request
     {
         $this->setMethod(Eshop::getMethod());
         $this->setEndpoint(Eshop::getEndpoint());
-        return $this;
-    }
-
-    public function getOrderStatuses(): Request
-    {
-        $this->setMethod(OrderStatus::getMethod());
-        $this->setEndpoint(OrderStatus::getEndpoint());
         return $this;
     }
 
