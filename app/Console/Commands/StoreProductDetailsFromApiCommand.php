@@ -102,7 +102,7 @@ class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
                             }
                             if ($service->isUpsell()) {
                                 $this->productRepository->updateDetailFromResponse($product, $productDetailResponse);
-                                $this->productBusiness->createOrUpdateVariants($product, $productDetailResponse, $client);
+                                //$this->productBusiness->createOrUpdateVariants($product, $productDetailResponse, $client);
                             }
                         } catch (ApiRequestNonExistingResourceException $t) {
                             $this->productRepository->delete($product);
