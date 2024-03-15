@@ -61,7 +61,7 @@ class ClientRepository
             ->setCity($response->getCity())
             ->setZip($response->getZip())
             ->setCountry($response->getCountry())
-            ->setLastSyncedAt(now())
+            ->setLastSyncedAt(now()->toDateTime())
             ->save();
     }
 

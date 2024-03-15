@@ -10,7 +10,6 @@ use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
 use DateTime;
 use Exception;
-use Illuminate\Support\Carbon;
 
 class Response
 {
@@ -405,10 +404,10 @@ class Response
             $guid = $this->data['guid'];
         }
         if (ArrayHelper::containsKey($this->data, 'creationTime') && $this->data['creationTime'] !== null) {
-            $creationTime = Carbon::parse($this->data['creationTime'])->toDateTime();
+            $creationTime = new DateTime($this->data['creationTime']);
         }
         if (ArrayHelper::containsKey($this->data, 'changeTime') && $this->data['changeTime'] !== null) {
-            $changeTime = Carbon::parse($this->data['changeTime'])->toDateTime();
+            $changeTime = new DateTime($this->data['changeTime']);
         }
         if (ArrayHelper::containsKey($this->data, 'name')) {
             $name = $this->data['name'];
