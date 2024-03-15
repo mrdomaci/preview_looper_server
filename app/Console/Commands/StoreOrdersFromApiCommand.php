@@ -92,6 +92,9 @@ class StoreOrdersFromApiCommand extends AbstractClientServiceCommand
                         if ($orderListResponse->getPage() === $orderListResponse->getPageCount()) {
                             break;
                         }
+                        if ($orderListResponse->getPage() > $orderListResponse->getPageCount()) {
+                            break;
+                        }
                     } catch (ApiRequestFailException) {
                         $clientService->setStatusInactive();
                         break;
