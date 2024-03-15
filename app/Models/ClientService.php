@@ -154,10 +154,10 @@ class ClientService extends Model
     {
         $this->setAttribute('update_in_process', $updateInProgress);
         if ($sync !== null && $sync->isOrder()) {
-            $this->setAttribute('orders_last_synced_at', now());
+            $this->setAttribute('orders_last_synced_at', now()->toDateTime());
         }
         if ($sync !== null && $sync->isProduct()) {
-            $this->setAttribute('products_last_synced_at', now());
+            $this->setAttribute('products_last_synced_at', now()->toDateTime());
         }
         try {
             $this->save();
