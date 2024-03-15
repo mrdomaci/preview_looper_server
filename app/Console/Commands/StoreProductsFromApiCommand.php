@@ -80,6 +80,9 @@ class StoreProductsFromApiCommand extends AbstractClientServiceCommand
                         if ($productListResponse->getPage() === $productListResponse->getPageCount()) {
                             break;
                         }
+                        if ($productListResponse->getPage() > $productListResponse->getPageCount()) {
+                            break;
+                        }
                     } catch (ApiRequestFailException) {
                         $clientService->setStatusInactive();
                         break;
