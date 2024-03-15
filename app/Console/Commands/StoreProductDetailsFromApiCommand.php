@@ -117,8 +117,8 @@ class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
                             $k--;
                             continue;
                         } catch (Throwable $t) {
-                            $this->error('Error updating images ' . $t->getMessage());
-                            LoggerHelper::log('Error updating images ' . $t->getMessage());
+                            $this->error('Error updating product details ' . $t->getMessage());
+                            LoggerHelper::log('Error updating product details ' . $t->getMessage());
                             $success = false;
                             break;
                         }
@@ -131,7 +131,7 @@ class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
                 $client->save();
                 $clientService->setUpdateInProgress(false, SyncEnum::PRODUCT);
             }
-            
+
             if ($clientServices->count() < $this->getIterationCount()) {
                 break;
             }

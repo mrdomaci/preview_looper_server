@@ -6,28 +6,14 @@ namespace App\Helpers;
 
 use App\Connector\OrderDetailResponse;
 use App\Connector\OrderResponse;
-use App\Connector\OrderStatusResponse;
 use App\Connector\ProductDetailResponse;
 use App\Connector\ProductFilter;
-use App\Connector\ProductImageResponse;
 use App\Connector\ProductResponse;
 use App\Models\ClientService;
 use DateTime;
 
 class GeneratorHelper
 {
-    /**
-     * @param ClientService $clientService
-     * @param string $productGuid
-     * @return iterable<ProductImageResponse>
-     */
-    public static function fetchProductImages(ClientService $clientService, string $productGuid): iterable
-    {
-        foreach (ConnectorHelper::getProductImages($clientService, $productGuid) as $item) {
-            yield $item;
-        }
-    }
-
     /**
      * @param ClientService $clientService
      * @param string $productGuid
@@ -50,17 +36,6 @@ class GeneratorHelper
             return;
         }
         foreach ($products->getProducts() as $item) {
-            yield $item;
-        }
-    }
-
-    /**
-     * @param ClientService $clientService
-     * @return iterable<OrderStatusResponse>
-     */
-    public static function fetchOrderStatuses(ClientService $clientService): iterable
-    {
-        foreach (ConnectorHelper::getOrderSatuses($clientService)->getOrderStatuses() as $item) {
             yield $item;
         }
     }
