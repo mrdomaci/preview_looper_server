@@ -189,7 +189,7 @@ class ProductRepository
             ->where('active', true)
             ->where('stock', '>', 0)
             ->orderBy('stock', 'desc')
-            ->select('name', 'code', 'guid', 'price', 'availability', 'image_url', 'url', 'unit')
+            ->select('name', 'code', 'guid', 'price', 'availability', 'image_url', 'url', 'unit', 'foreign_id as id')
             ->firstOrFail();
     }
 }
