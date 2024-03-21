@@ -248,6 +248,16 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function getForeignId(): ?string
+    {
+        return $this->getAttribute('foreign_id');
+    }
+
+    public function setForeignId(?string $foreignId): self
+    {
+        return $this->setAttribute('foreign_id', $foreignId);
+    }
+
     public static function clone(Product $product): self
     {
         $clone = new Product();

@@ -27,6 +27,7 @@ class ProductVariantResponse
         private string $name,
         private ?string $availabilityId,
         private ?string $image,
+        private ?string $foreignId,
     ) {
     }
 
@@ -128,5 +129,10 @@ class ProductVariantResponse
     public function getImage(): ?string
     {
         return $this->image;
+    }
+
+    public function getForeignId(): ?string
+    {
+        return $this->foreignId;
     }
 }

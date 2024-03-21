@@ -8,6 +8,7 @@ use App\Exceptions\ApiResponsePaginatorFailException;
 use App\Helpers\ArrayHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
+use App\Helpers\StringHelper;
 use DateTime;
 use Exception;
 
@@ -490,7 +491,7 @@ class Response
             }
             $productDetailResponse->addImage($productImageResponse);
         }
-        $productDetailResponse->setImageUrl($imageUrl);
+        $productDetailResponse->setImageUrl(StringHelper::removeParameter($imageUrl));
 
         foreach ($this->data['variants'] as $variant) {
             $availability = null;
@@ -510,6 +511,11 @@ class Response
             $variantName = $name;
             if (ArrayHelper::containsKey($variant, 'name')) {
                 $variantName .= ' ' . $variant['name'];
+            }
+            $image = StringHelper::removeParameter($variant['image']);
+            $foreignId = null;
+            if ($image !== null) {
+                $foreignId = StringHelper::getIdFromImage($image);
             }
             $productVariantResponse = new ProductVariantResponse(
                 $variant['code'],
@@ -531,7 +537,8 @@ class Response
                 $availability,
                 $variantName,
                 $availabilityId,
-                $variant['image'],
+                $image,
+                $foreignId,
             );
             $productDetailResponse->addVariant($productVariantResponse);
         }

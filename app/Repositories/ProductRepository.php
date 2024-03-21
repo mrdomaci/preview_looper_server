@@ -144,6 +144,7 @@ class ProductRepository
             ->setPrice(Currency::formatPrice((string)$variant->getPrice(), $variant->getCurrencyCode()))
             ->setImageUrl($variant->getImage())
             ->setUrl($product->getUrl())
+            ->setForeignId($variant->getForeignId())
             ->save();
     }
 

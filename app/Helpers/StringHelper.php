@@ -21,4 +21,24 @@ class StringHelper
     {
         return mb_strtoupper($value);
     }
+
+    public static function removeParameter(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        $value = explode('?', $value);
+        return $value[0];
+    }
+
+    public static function getSingelRegexResult(string $pattern, string $subject): string
+    {
+        preg_match($pattern, $subject, $matches);
+        return $matches[0];
+    }
+
+    public static function getIdFromImage(string $image): string
+    {
+        return self::getSingelRegexResult('/(\d+)(?=[^\d])/', $image);
+    }
 }
