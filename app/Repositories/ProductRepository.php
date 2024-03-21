@@ -8,6 +8,7 @@ use App\Connector\ProductDetailResponse;
 use App\Connector\ProductResponse;
 use App\Connector\ProductVariantResponse;
 use App\Helpers\PriceHelper;
+use App\Helpers\StringHelper;
 use App\Models\Category;
 use App\Models\Client;
 use App\Models\Currency;
@@ -113,7 +114,8 @@ class ProductRepository
             ->setProducer($productDetailResponse->getBrand()?->getName())
             ->setUrl($productDetailResponse->getUrl())
             ->setPrice(PriceHelper::getUnfiedPriceString($productDetailResponse->getVariants()))
-            ->setImageUrl($productDetailResponse->getImageUrl())
+            ->setImageUrl(StringHelper::removeParameter($productDetailResponse->getImageUrl()))
+            ->setForeignId(StringHelper::getIdFromImage($productDetailResponse->getImageUrl()))
             ->save();
     }
 
