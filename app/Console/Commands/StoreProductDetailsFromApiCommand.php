@@ -96,12 +96,12 @@ class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
                                 $this->info('Product ' . $productGuid . ' not found');
                                 continue;
                             }
+                            $this->productRepository->updateDetailFromResponse($product, $productDetailResponse);
                             if ($service->isDynamicPreviewImages()) {
                                 $this->imageRepository->deleteByClientAndProduct($client, $product);
                                 $this->imageBusiness->createOrUpdate($product, $productDetailResponse, $client);
                             }
                             if ($service->isUpsell()) {
-                                $this->productRepository->updateDetailFromResponse($product, $productDetailResponse);
                                 $this->productBusiness->createOrUpdateVariants($product, $productDetailResponse, $client);
                             }
                         } catch (ApiRequestNonExistingResourceException $t) {
