@@ -37,8 +37,11 @@ class StringHelper
         return $matches[0];
     }
 
-    public static function getIdFromImage(string $image): string
+    public static function getIdFromImage(?string $image): ?string
     {
+        if ($image === null) {
+            return null;
+        }
         return self::getSingelRegexResult('/(\d+)(?=[^\d])/', $image);
     }
 }

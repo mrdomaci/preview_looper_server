@@ -513,10 +513,8 @@ class Response
                 $variantName .= ' ' . $variant['name'];
             }
             $image = StringHelper::removeParameter($variant['image']);
-            $foreignId = null;
-            if ($image !== null) {
-                $foreignId = StringHelper::getIdFromImage($image);
-            }
+            $foreignId = StringHelper::getIdFromImage($image);
+
             $productVariantResponse = new ProductVariantResponse(
                 $variant['code'],
                 $variant['ean'],
