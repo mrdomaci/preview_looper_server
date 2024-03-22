@@ -23,6 +23,9 @@ class TokenHelper
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $OauthAccessToken]);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($curl);
+        if ($response === false) {
+            throw new ApiRequestFailException(new Exception('Failed to request api access token: ' . curl_error($curl)));
+        }
         curl_close($curl);
         $response = json_decode($response, true);
         if (ArrayHelper::containsKey($response, 'error') === true) {
