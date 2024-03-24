@@ -9,6 +9,7 @@ use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\AddonSuspendedException;
 use App\Helpers\ConnectorHelper;
 use App\Models\ClientService;
+use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Throwable;
@@ -47,7 +48,7 @@ class StoreAvailabilitiesFromApiCommand extends AbstractClientCommand
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientId,
-                null,
+                Service::getUpsell(),
                 $this->findClient(),
                 $this->getIterationCount(),
             );
