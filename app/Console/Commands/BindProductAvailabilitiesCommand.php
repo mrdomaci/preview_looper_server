@@ -51,7 +51,9 @@ class BindProductAvailabilitiesCommand extends AbstractClientCommand
 
             /** @var ClientService $clientService */
             foreach ($clientServices as $clientService) {
+                $clientService->setUpdateInProgress(true);
                 $this->availabilityBusiness->bindProductAvailabilities($clientService);
+                $clientService->setUpdateInProgress(false);
             }
         }
 
