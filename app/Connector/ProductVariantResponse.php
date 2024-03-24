@@ -28,6 +28,7 @@ class ProductVariantResponse
         private ?string $availabilityId,
         private ?string $image,
         private ?string $foreignId,
+        private bool $isNegativeStockAllowed,
     ) {
     }
 
@@ -134,5 +135,10 @@ class ProductVariantResponse
     public function getForeignId(): ?string
     {
         return $this->foreignId;
+    }
+
+    public function isNegativeStockAllowed(): bool
+    {
+        return $this->isNegativeStockAllowed;
     }
 }

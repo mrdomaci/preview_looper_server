@@ -468,7 +468,21 @@ class Response
             return null;
         }
 
-        $productDetailResponse = new ProductDetailResponse($guid, $creationTime, $changeTime, $name, $voteAverageScore, $voteCount, $type, $visibility, $defaultCategory, $url, $supplier, $brand, $perex);
+        $productDetailResponse = new ProductDetailResponse(
+            $guid,
+            $creationTime,
+            $changeTime,
+            $name,
+            $voteAverageScore,
+            $voteCount,
+            $type,
+            $visibility,
+            $defaultCategory,
+            $url,
+            $supplier,
+            $brand,
+            $perex,
+        );
 
         $lowesPriority = 1000000;
         $imageUrl = null;
@@ -496,6 +510,7 @@ class Response
         foreach ($this->data['variants'] as $variant) {
             $availability = null;
             $availabilityId = null;
+            $isNegativeStockAllowed = false;
             if (ArrayHelper::containsKey($variant, 'availabilityWhenSoldOut') === true) {
                 if ($variant['availabilityWhenSoldOut'] !== null) {
                     $availability = $variant['availabilityWhenSoldOut']['name'];
@@ -511,6 +526,11 @@ class Response
             $variantName = $name;
             if (ArrayHelper::containsKey($variant, 'name')) {
                 $variantName .= ' ' . $variant['name'];
+            }
+            if (ArrayHelper::containsKey($this->data, 'negativeStockAllowed')) {
+                if ($this->data['negativeStockAllowed'] === 'yes' || $this->data['negativeStockAllowed'] === 'yes-global') {
+                    $isNegativeStockAllowed = true;
+                }
             }
             $image = StringHelper::removeParameter($variant['image']);
             $foreignId = StringHelper::getIdFromImage($image);
@@ -537,6 +557,7 @@ class Response
                 $availabilityId,
                 $image,
                 $foreignId,
+                $isNegativeStockAllowed,
             );
             $productDetailResponse->addVariant($productVariantResponse);
         }
@@ -650,6 +671,82 @@ class Response
             }
         }
         return new TemplateIncludeResponse($templateIncludes);
+    }
+
+    public function getAvailabilities(): ?AvailabilityListResponse
+    {
+        $onStockId = null;
+        $soldOutNegativeStockAllowedId = null;
+        $soldOutNegativeStockForbiddenId = null;
+        if (ArrayHelper::containsKey($this->data, 'defaultAvailabilities') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data, 'availabilities') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['defaultAvailabilities'], 'onStock')) {
+            $onStockId = (string) $this->data['defaultAvailabilities']['onStock'];
+        }
+        if (ArrayHelper::containsKey($this->data['defaultAvailabilities'], 'soldOutNegativeStockAllowed')) {
+            $soldOutNegativeStockAllowedId = (string) $this->data['defaultAvailabilities']['soldOutNegativeStockAllowed'];
+        }
+        if (ArrayHelper::containsKey($this->data['defaultAvailabilities'], 'soldOutNegativeStockForbidden')) {
+            $soldOutNegativeStockForbiddenId = (string) $this->data['defaultAvailabilities']['soldOutNegativeStockForbidden'];
+        }
+        $availabilityListResponse = new AvailabilityListResponse([], $onStockId, $soldOutNegativeStockAllowedId, $soldOutNegativeStockForbiddenId);
+        foreach ($this->data['availabilities'] as $availability) {
+            $onStockInHours = null;
+            $deliveryInHours = null;
+            $color = null;
+            $description = null;
+            $isSystem = false;
+            $googleAvailability = null;
+            if (ArrayHelper::containsKey($availability, 'name') === false) {
+                continue;
+            }
+            $name = $availability['name'];
+            if (ArrayHelper::containsKey($availability, 'id') === false) {
+                continue;
+            }
+            $id = $availability['id'];
+            if (ArrayHelper::containsKey($availability, 'isSystem')) {
+                $isSystem = $availability['isSystem'];
+            }
+            if (ArrayHelper::containsKey($availability, 'description')) {
+                $description = $availability['description'];
+            }
+            if (ArrayHelper::containsKey($availability, 'onStockInHours') && $availability['onStockInHours'] !== null) {
+                $onStockInHours = (string) $availability['onStockInHours'];
+            }
+            if (ArrayHelper::containsKey($availability, 'deliveryInHours') && $availability['deliveryInHours'] !== null) {
+                $deliveryInHours = (string) $availability['deliveryInHours'];
+            }
+            if (ArrayHelper::containsKey($availability, 'color')) {
+                $color = $availability['color'];
+            }
+            if (ArrayHelper::containsKey($availability, 'googleAvailability')
+                && ArrayHelper::isArray($availability['googleAvailability'])
+                && ArrayHelper::containsKey($availability['googleAvailability'], 'id')
+                && ArrayHelper::containsKey($availability['googleAvailability'], 'name')) {
+                $googleAvailability = new GoogleAvailabilityResponse(
+                    (string) $availability['googleAvailability']['id'],
+                    (string) $availability['googleAvailability']['name']
+                );
+            }
+            $availabilityListResponse->addAvailability(
+                new AvailabilityResponse(
+                    (string) $id,
+                    $name,
+                    $isSystem,
+                    $description,
+                    $onStockInHours,
+                    $deliveryInHours,
+                    $color,
+                    $googleAvailability
+                )
+            );
+        }
+        return $availabilityListResponse;
     }
 
     /**

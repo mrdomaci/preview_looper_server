@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\AvailabilityLevelEnum;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -156,24 +157,37 @@ class Product extends Model
         return $this->setAttribute('parent_product_id', $product->getId());
     }
 
-    public function getAvailability(): ?string
+    public function getAvailabilityName(): ?string
     {
-        return $this->getAttribute('availability');
+        return $this->getAttribute('availability_name');
     }
 
-    public function setAvailability(?string $availability): self
+    public function setAvailabilityName(?string $availabilityName): self
     {
-        return $this->setAttribute('availability', $availability);
+        return $this->setAttribute('availability_name', $availabilityName);
     }
 
-    public function getAvailabilityId(): ?string
+    public function getAvailabilityForeignId(): ?string
     {
         return $this->getAttribute('availability_id');
     }
 
-    public function setAvailabilityId(?string $availabilityId): self
+    public function setAvailabilityForeignId(?string $availabilityForeignId): self
     {
-        return $this->setAttribute('availability_id', $availabilityId);
+        return $this->setAttribute('availability_foreign_id', $availabilityForeignId);
+    }
+
+    public function getAvailability(): ?Availability
+    {
+        return $this->belongsTo(Availability::class, 'availability_id')->first();
+    }
+
+    public function setAvailability(?Availability $availability): self
+    {
+        if ($availability === null) {
+            return $this->setAttribute('availability_id', null);
+        }
+        return $this->setAttribute('availability_id', $availability->getId());
     }
 
     public function getImageUrl(): ?string
@@ -256,6 +270,39 @@ class Product extends Model
     public function setForeignId(?string $foreignId): self
     {
         return $this->setAttribute('foreign_id', $foreignId);
+    }
+
+    public function isNegativeStockAllowed(): bool
+    {
+        return (bool) $this->getAttribute('negative_stock_allowed');
+    }
+
+    public function setNegativeStockAllowed(bool $negativeStockAllowed): self
+    {
+        return $this->setAttribute('negative_stock_allowed', $negativeStockAllowed);
+    }
+
+    public function getAvailabilityColor(): ?string
+    {
+        return $this->getAttribute('availability_color');
+    }
+
+    public function setAvailabilityColor(?string $availabilityColor): self
+    {
+        return $this->setAttribute('availability_color', $availabilityColor);
+    }
+
+    public function getAvailabilityLevel(): ?AvailabilityLevelEnum
+    {
+        if ($this->getAttribute('availability_level') === null) {
+            return null;
+        }
+        return AvailabilityLevelEnum::fromValue($this->getAttribute('availability_level'));
+    }
+
+    public function setAvailabilityLevel(?AvailabilityLevelEnum $availabilityLevel): self
+    {
+        return $this->setAttribute('availability_level', $availabilityLevel?->value);
     }
 
     public static function clone(Product $product): self

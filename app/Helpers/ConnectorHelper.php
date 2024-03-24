@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use App\Connector\AvailabilityListResponse;
 use App\Connector\EshopResponse;
 use App\Connector\OrderDetailListResponse;
 use App\Connector\OrderListResponse;
@@ -66,5 +67,13 @@ class ConnectorHelper
         $request->postTemplateInclude($body);
         $response = $request->send();
         return $response->postTemplateIncluded();
+    }
+
+    public static function getAvailabilities(ClientService $clientService): ?AvailabilityListResponse
+    {
+        $request = new Request($clientService);
+        $request->getAvailabilities();
+        $response = $request->send();
+        return $response->getAvailabilities();
     }
 }

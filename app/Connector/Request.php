@@ -92,6 +92,13 @@ class Request
         return $this;
     }
 
+    public function getAvailabilities(): Request
+    {
+        $this->setMethod(Availability::getMethod());
+        $this->setEndpoint(Availability::getEndpoint());
+        return $this;
+    }
+
     public function getToken(): string
     {
         return $this->clientService->getAccessToken();
