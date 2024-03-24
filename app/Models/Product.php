@@ -274,12 +274,12 @@ class Product extends Model
 
     public function isNegativeStockAllowed(): bool
     {
-        return (bool) $this->getAttribute('negative_stock_allowed');
+        return (bool) $this->getAttribute('is_negative_stock_allowed');
     }
 
     public function setNegativeStockAllowed(bool $negativeStockAllowed): self
     {
-        return $this->setAttribute('negative_stock_allowed', $negativeStockAllowed);
+        return $this->setAttribute('is_negative_stock_allowed', $negativeStockAllowed);
     }
 
     public function getAvailabilityColor(): ?string
