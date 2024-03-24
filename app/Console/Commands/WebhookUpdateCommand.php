@@ -16,7 +16,7 @@ class WebhookUpdateCommand extends AbstractServiceCommand
      *
      * @var string
      */
-    protected $signature = 'webhook:update {service}';
+    protected $signature = 'webhook:update {--service=}';
 
     /**
      * The console command description.

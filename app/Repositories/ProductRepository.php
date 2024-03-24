@@ -7,8 +7,10 @@ namespace App\Repositories;
 use App\Connector\ProductDetailResponse;
 use App\Connector\ProductResponse;
 use App\Connector\ProductVariantResponse;
+use App\Enums\AvailabilityLevelEnum;
 use App\Helpers\PriceHelper;
 use App\Helpers\StringHelper;
+use App\Models\Availability;
 use App\Models\Category;
 use App\Models\Client;
 use App\Models\Currency;
@@ -139,14 +141,15 @@ class ProductRepository
         $productVariant->setName($variant->getName())
             ->setCode($variant->getCode())
             ->setActive(true)
-            ->setAvailability($variant->getAvailability())
-            ->setAvailabilityId($variant->getAvailabilityId())
+            ->setAvailabilityName($variant->getAvailability())
+            ->setAvailabilityForeignId($variant->getAvailabilityId())
             ->setStock($variant->getStock())
             ->setUnit($variant->getUnit())
             ->setPrice(Currency::formatPrice((string)$variant->getPrice(), $variant->getCurrencyCode()))
             ->setImageUrl($variant->getImage())
             ->setUrl($product->getUrl())
             ->setForeignId($variant->getForeignId())
+            ->setNegativeStockAllowed($variant->isNegativeStockAllowed())
             ->save();
     }
 
@@ -187,9 +190,63 @@ class ProductRepository
         return Product::where('client_id', $client->getId())
             ->where('parent_product_id', $productId)
             ->where('active', true)
-            ->where('stock', '>', 0)
+            ->where('availability_level', '<', 3)
+            ->orderBy('availability_level', 'asc')
             ->orderBy('stock', 'desc')
-            ->select('name', 'code', 'guid', 'price', 'availability', 'image_url', 'url', 'unit', 'foreign_id as id')
+            ->select('name', 'code', 'guid', 'price', 'availability_name as availability', 'image_url', 'url', 'unit', 'foreign_id as id', 'availability_color as color')
             ->firstOrFail();
+    }
+
+    public function bulkSetAvailability(Availability $availability): void
+    {
+        Product::where('availability_foreign_id', $availability->getForeignId())
+            ->where('client_id', $availability->getClientId())
+            ->update([
+                'availability_name' => $availability->getName(),
+                'availability_id' => $availability->getId(),
+                'availability_color' => $availability->getColor(),
+                'availability_level' => $availability->getLevel(),
+            ]);
+    }
+
+    public function bulkSetIsOnStockAvailability(Availability $availability): void
+    {
+        Product::where('stock', '>', 0)
+            ->whereNull('availability_foreign_id')
+            ->where('client_id', $availability->getClientId())
+            ->update([
+                'availability_name' => $availability->getName(),
+                'availability_id' => $availability->getId(),
+                'availability_color' => $availability->getColor(),
+                'availability_level' => AvailabilityLevelEnum::IN_STOCK->value,
+            ]);
+    }
+
+    public function bulkSetSoldOutNegativeStockForbiddenAvailability(Availability $availability): void
+    {
+        Product::where('stock', '<=', 0)
+            ->where('is_negative_stock_allowed', false)
+            ->whereNull('availability_foreign_id')
+            ->where('client_id', $availability->getClientId())
+            ->update([
+                'availability_name' => $availability->getName(),
+                'availability_id' => $availability->getId(),
+                'availability_color' => $availability->getColor(),
+                'availability_level' => AvailabilityLevelEnum::OUT_OF_STOCK->value,
+            ]);
+    }
+
+    public function bulkSetSoldOutNegativeStockAllowedAvailability(Availability $availability): void
+    {
+        Product::where('stock', '<=', 0)
+            ->where('is_negative_stock_allowed', true)
+            ->whereNull('availability_foreign_id')
+            ->where('client_id', $availability->getClientId())
+            ->update([
+                'availability_name' => $availability->getName(),
+                'availability_id' => $availability->getId(),
+                'availability_color' => $availability->getColor(),
+                'availability_level' => AvailabilityLevelEnum::SELLABLE->value,
+            ]);
     }
 }
