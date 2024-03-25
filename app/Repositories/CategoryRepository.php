@@ -21,8 +21,8 @@ class CategoryRepository
                 'name' => $name,
                 'guid' => $guid,
             ]);
+            $category->save();
         }
-        $category->save();
         return $category;
     }
 

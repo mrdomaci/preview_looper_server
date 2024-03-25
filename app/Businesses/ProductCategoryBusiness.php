@@ -21,9 +21,9 @@ class ProductCategoryBusiness
     public function createFromResponse(ProductDetailResponse $productDetailResponse, Product $product): void
     {
         $this->productCategoryRepository->clear($product);
-        /** @var ProductCategory $category */
-        foreach ($productDetailResponse->getCategories() as $category) {
-            $category = $this->categoryRepository->createOrUpdate($product->getClient(), $category->getName(), $category->getGuid());
+        /** @var ProductCategory $productCategory */
+        foreach ($productDetailResponse->getCategories() as $productCategory) {
+            $category = $this->categoryRepository->createOrUpdate($product->getClient(), $productCategory->getName(), $productCategory->getGuid());
             $this->productCategoryRepository->create($product, $category);
         }
     }
