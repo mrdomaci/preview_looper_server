@@ -12,6 +12,7 @@ class ProductDetailResponse
     /**
      * @param array<ProductImageResponse> $images
      * @param array<ProductVariantResponse> $variants
+     * @param array<ProductCategory> $categories
      */
     public function __construct(
         private string $guid,
@@ -29,6 +30,7 @@ class ProductDetailResponse
         private ?string $perex,
         private ?array $images = [],
         private ?array $variants = [],
+        private ?array $categories = []
     ) {
     }
     public function getGuid(): string
@@ -99,7 +101,7 @@ class ProductDetailResponse
     /**
      * @return array<ProductImageResponse>
      */
-    public function getImages(): ?array
+    public function getImages(): array
     {
         return $this->images;
     }
@@ -107,9 +109,17 @@ class ProductDetailResponse
     /**
      * @return array<ProductVariantResponse>
      */
-    public function getVariants(): ?array
+    public function getVariants(): array
     {
         return $this->variants;
+    }
+
+    /**
+     * @return array<ProductCategory>
+     */
+    public function getCategories(): array
+    {
+        return $this->categories;
     }
 
     public function addImage(ProductImageResponse $image): void
@@ -120,6 +130,11 @@ class ProductDetailResponse
     public function addVariant(ProductVariantResponse $variant): void
     {
         $this->variants[] = $variant;
+    }
+
+    public function addCategory(ProductCategory $category): void
+    {
+        $this->categories[] = $category;
     }
 
     public function setImageUrl(?string $imageUrl): void

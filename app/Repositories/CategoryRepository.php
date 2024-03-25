@@ -11,14 +11,15 @@ use Throwable;
 
 class CategoryRepository
 {
-    public function createOrUpdate(Client $client, string $name): Category
+    public function createOrUpdate(Client $client, string $name, string $guid): Category
     {
         try {
-            $category = Category::where('client_id', $client->getId())->where('name', $name)->firstOrFail();
+            $category = Category::where('client_id', $client->getId())->where('guid', $guid)->firstOrFail();
         } catch (Throwable) {
             $category = Category::create([
                 'client_id' => $client->getId(),
                 'name' => $name,
+                'guid' => $guid,
             ]);
         }
         return $category;

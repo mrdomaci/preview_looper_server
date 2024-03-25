@@ -39,6 +39,11 @@ class Product extends Model
         return $this->getAttribute('client_id');
     }
 
+    public function getClient(): Client
+    {
+        return Client::findOrFail($this->getAttribute('client_id'));
+    }
+
     public function setClient(Client $client): self
     {
         return $this->setAttribute('client_id', $client->getId());

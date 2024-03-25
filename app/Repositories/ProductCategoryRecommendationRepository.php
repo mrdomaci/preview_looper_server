@@ -40,13 +40,12 @@ class ProductCategoryRecommendationRepository
     {
         return DB::table('product_category_recommendations', 'pcr')
             ->join(
-                'products as p',
-                'p.category_id',
+                'product_categories as pc',
+                'pc.product_id',
                 '=',
-                'pcr.category_id',
+                (string) $product->getId(),
             )
             ->where('pcr.client_id', $client->getId())
-            ->where('p.id', $product->getId())
             ->select('pcr.product_id', 'pcr.priority')
             ->orderBy('pcr.priority', 'DESC')
             ->limit($maxResults)

@@ -561,6 +561,13 @@ class Response
             );
             $productDetailResponse->addVariant($productVariantResponse);
         }
+
+        if (ArrayHelper::containsKey($this->data, 'categories')) {
+            foreach ($this->data['categories'] as $category) {
+                $productCategory = new ProductCategory($category['guid'], $category['name']);
+                $productDetailResponse->addCategory($productCategory);
+            }
+        }
         return $productDetailResponse;
     }
 
