@@ -130,18 +130,33 @@ class ProductRepository
         }
     }
 
-    public function createOrUpdateVariantFromResponse(ProductVariantResponse $variant, Product $product): void
-    {
+    public function createOrUpdateVariantFromResponse(
+        ProductVariantResponse $variant,
+        Product $product,
+        ?Availability $onStockAvailability,
+        ?Availability $soldOutNegativeStockForbidden,
+        ?Availability $soldOutNegativeStockAllowed,
+    ): void {
         try {
             $productVariant = Product::where('parent_product_id', $product->getId())->where('code', $variant->getCode())->firstOrFail();
         } catch (Throwable) {
             $productVariant = Product::clone($product);
         }
+        $availabilityName = $variant->getAvailability();
+        if ($availabilityName === null) {
+            if ($variant->getStock() > 0) {
+                $availabilityName = $onStockAvailability->getName();
+            } elseif ($variant->isNegativeStockAllowed()) {
+                $availabilityName = $soldOutNegativeStockAllowed->getName();
+            } else {
+                $availabilityName = $soldOutNegativeStockForbidden->getName();
+            }
+        }
         /** @var Product $productVariant */
         $productVariant->setName($variant->getName())
             ->setCode($variant->getCode())
             ->setActive(true)
-            ->setAvailabilityName($variant->getAvailability())
+            ->setAvailabilityName($availabilityName)
             ->setAvailabilityForeignId($variant->getAvailabilityId())
             ->setStock($variant->getStock())
             ->setUnit($variant->getUnit())

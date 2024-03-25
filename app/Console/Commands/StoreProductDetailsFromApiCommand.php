@@ -18,6 +18,7 @@ use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\Product;
 use App\Models\Service;
+use App\Repositories\AvailabilityRepository;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\ImageRepository;
 use App\Repositories\ProductRepository;
@@ -43,6 +44,7 @@ class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
         private readonly ImageRepository $imageRepository,
         private readonly ProductBusiness $productBusiness,
         private readonly ImageBusiness $imageBusiness,
+        private readonly AvailabilityRepository $availabilityRepository,
     ) {
         parent::__construct();
     }
@@ -80,6 +82,9 @@ class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
                 $service = $clientService->service()->first();
                 $this->info('Updating product details for client id:' . $client->getId());
                 $productOffsetId = 0;
+                $onStockAvailability = $this->availabilityRepository->getIsOnStockAvailability($client);
+                $soldOutNegativeStockForbidden = $this->availabilityRepository->getSoldOutNegativeStockForbiddenkAvailability($client);
+                $soldOutNegativeStockAllowed = $this->availabilityRepository->getSoldOutNegativeStockAllowedAvailability($client);
                 for ($j = 0; $j < $this->getMaxIterationCount(); $j++) {
                     $products = $this->productRepository->getPastId($client, $productOffsetId);
                     for ($k = 0; $k < count($products); $k++) {
@@ -102,7 +107,14 @@ class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
                                 $this->imageBusiness->createOrUpdate($product, $productDetailResponse, $client);
                             }
                             if ($service->isUpsell()) {
-                                $this->productBusiness->createOrUpdateVariants($product, $productDetailResponse, $client);
+                                $this->productBusiness->createOrUpdateVariants(
+                                    $product,
+                                    $productDetailResponse,
+                                    $client,
+                                    $onStockAvailability,
+                                    $soldOutNegativeStockForbidden,
+                                    $soldOutNegativeStockAllowed,
+                                );
                             }
                         } catch (ApiRequestNonExistingResourceException $t) {
                             $this->productRepository->delete($product);
