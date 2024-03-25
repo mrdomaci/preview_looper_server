@@ -4,39 +4,27 @@ declare(strict_types=1);
 
 namespace App\Businesses;
 
-use App\Models\Client;
+use App\Connector\ProductCategory;
+use App\Connector\ProductDetailResponse;
+use App\Models\Product;
 use App\Repositories\CategoryRepository;
-use App\Repositories\ProductRepository;
+use App\Repositories\ProductCategoryRepository;
 
 class ProductCategoryBusiness
 {
-    private const MAX_ITERATION_COUNT = 10000;
     public function __construct(
-        private ProductRepository $productRepository,
-        private CategoryRepository $categoryRepository
+        private CategoryRepository $categoryRepository,
+        private ProductCategoryRepository $productCategoryRepository
     ) {
     }
 
-    public function createOrUpdate(Client $client): void
+    public function createFromResponse(ProductDetailResponse $productDetailResponse, Product $product): void
     {
-        $lastProductId = 0;
-        for ($j = 0; $j < $this->getMaxIterationCount(); $j++) {
-            foreach ($this->productRepository->getPastId($client, $lastProductId) as $product) {
-                $lastProductId = $product->getId();
-                if ($product->getCategoryName() === '') {
-                    continue;
-                }
-                if ($product->getCategoryName() === null) {
-                    continue;
-                }
-                $category = $this->categoryRepository->createOrUpdate($client, $product->getCategoryName());
-                $this->productRepository->setProductCategory($product, $category);
-            }
+        $this->productCategoryRepository->clear($product);
+        /** @var ProductCategory $category */
+        foreach ($productDetailResponse->getCategories() as $category) {
+            $category = $this->categoryRepository->createOrUpdate($product->getClient(), $category->getName(), $category->getGuid());
+            $this->productCategoryRepository->create($product, $category);
         }
-    }
-
-    private function getMaxIterationCount(): int
-    {
-        return self::MAX_ITERATION_COUNT;
     }
 }

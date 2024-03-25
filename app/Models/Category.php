@@ -16,6 +16,7 @@ class Category extends Model
     protected $fillable=[
         'client_id',
         'name',
+        'guid'
     ];
 
     public function getId(): int
@@ -40,6 +41,16 @@ class Category extends Model
     public function setName(string $name): self
     {
         return $this->setAttribute('name', $name);
+    }
+
+    public function getGuid(): string
+    {
+        return $this->getAttribute('guid');
+    }
+
+    public function setGuid(string $guid): self
+    {
+        return $this->setAttribute('guid', $guid);
     }
 
     public function getCreatedAt(): ?DateTime

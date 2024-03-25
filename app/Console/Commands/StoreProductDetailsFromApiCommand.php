@@ -7,6 +7,7 @@ namespace App\Console\Commands;
 use App\Businesses\ClientServiceBusiness;
 use App\Businesses\ImageBusiness;
 use App\Businesses\ProductBusiness;
+use App\Businesses\ProductCategoryBusiness;
 use App\Connector\ProductDetailResponse;
 use App\Enums\SyncEnum;
 use App\Exceptions\AddonNotInstalledException;
@@ -45,6 +46,7 @@ class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
         private readonly ProductBusiness $productBusiness,
         private readonly ImageBusiness $imageBusiness,
         private readonly AvailabilityRepository $availabilityRepository,
+        private readonly ProductCategoryBusiness $productCategoryBusiness
     ) {
         parent::__construct();
     }
@@ -115,6 +117,7 @@ class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
                                     $soldOutNegativeStockForbidden,
                                     $soldOutNegativeStockAllowed,
                                 );
+                                $this->productCategoryBusiness->createFromResponse($productDetailResponse, $product);
                             }
                         } catch (ApiRequestNonExistingResourceException $t) {
                             $this->productRepository->delete($product);
