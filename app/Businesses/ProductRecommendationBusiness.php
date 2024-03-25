@@ -36,9 +36,9 @@ class ProductRecommendationBusiness
         foreach ($products as $product) {
             $this->recommendations+= $this->getProductsFromOrders($client, $product);
             $this->recommendations+= $this->getProductsFromProductCategoryRecommendations($client, $product, $maxResults);
-            unset($this->recommendations[$product->getId()]);
         }
         arsort($this->recommendations);
+        $this->filterProductsInCart($products);
         $loop = $maxResults;
         foreach ($this->recommendations as $productId => $priority) {
             try {
@@ -73,5 +73,15 @@ class ProductRecommendationBusiness
     private function getProductsFromProductCategoryRecommendations(Client $client, Product $product, int $maxResults): array
     {
         return $this->productCategoryRecommendationRepository->getByClientProduct($client, $product, $maxResults);
+    }
+
+    /**
+     * @param Collection<Product> $products
+     */
+    private function filterProductsInCart(Collection $products): void
+    {
+        foreach ($products as $product) {
+            unset($this->recommendations[$product->getId()]);
+        }
     }
 }
