@@ -38,14 +38,15 @@ class ProductCategoryRecommendationRepository
      */
     public function getByClientProduct(Client $client, Product $product, int $maxResults): array
     {
-        return DB::table('product_category_recommendations', 'pcr')
+        return DB::table('product_categories', 'pc')
             ->join(
-                'product_categories as pc',
-                'pc.product_id',
+                'product_category_recommendations as pcr',
+                'pcr.product_id',
                 '=',
-                (string) $product->getId(),
+                'pc.product_id',
             )
             ->where('pcr.client_id', $client->getId())
+            ->where('pc.product_id', $product->getId())
             ->select('pcr.product_id', 'pcr.priority')
             ->orderBy('pcr.priority', 'DESC')
             ->limit($maxResults)
