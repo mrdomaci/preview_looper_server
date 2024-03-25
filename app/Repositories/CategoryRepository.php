@@ -22,6 +22,7 @@ class CategoryRepository
                 'guid' => $guid,
             ]);
         }
+        $category->save();
         return $category;
     }
 
