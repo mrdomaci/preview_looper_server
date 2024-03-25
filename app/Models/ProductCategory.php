@@ -11,6 +11,8 @@ class ProductCategory extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable=[
         'product_id',
         'category_id',
