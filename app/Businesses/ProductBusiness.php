@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Businesses;
 
 use App\Connector\ProductDetailResponse;
+use App\Models\Availability;
 use App\Models\Client;
 use App\Models\Product;
 use App\Models\Service;
@@ -53,13 +54,25 @@ class ProductBusiness
         return $products;
     }
 
-    public function createOrUpdateVariants(Product $product, ProductDetailResponse $productDetailResponse, Client $client): void
-    {
+    public function createOrUpdateVariants(
+        Product $product,
+        ProductDetailResponse $productDetailResponse,
+        Client $client,
+        ?Availability $onStockAvailability,
+        ?Availability $soldOutNegativeStockForbidden,
+        ?Availability $soldOutNegativeStockAllowed,
+    ): void {
         if ($this->clientServiceRepository->hasActiveService($client, Service::getUpsell()) === false) {
             return;
         }
         foreach ($productDetailResponse->getVariants() as $variantResponse) {
-            $this->productRepository->createOrUpdateVariantFromResponse($variantResponse, $product);
+            $this->productRepository->createOrUpdateVariantFromResponse(
+                $variantResponse,
+                $product,
+                $onStockAvailability,
+                $soldOutNegativeStockForbidden,
+                $soldOutNegativeStockAllowed
+            );
         }
     }
 }
