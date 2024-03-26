@@ -9,6 +9,7 @@ use App\Businesses\ProductRecommendationBusiness;
 use App\Helpers\NumbersHelper;
 use App\Models\Product;
 use App\Repositories\ClientRepository;
+use App\Repositories\ClientSettingsServiceOptionRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Throwable;
@@ -19,6 +20,7 @@ class ProductController extends Controller
         private readonly ClientRepository $clientRepository,
         private readonly ProductBusiness $productBusiness,
         private readonly ProductRecommendationBusiness $productRecommendationBusiness,
+        private readonly ClientSettingsServiceOptionRepository $clientSettingsServiceOptionRepository,
     ) {
     }
     public function recommend(string $eshopID, string $moduloCheck, string $guids): JsonResponse
@@ -45,9 +47,10 @@ class ProductController extends Controller
             return response()->json([]);
         }
 
+        $header = $this->clientSettingsServiceOptionRepository->getUpsellHeader($client);
         $productRecommendations = $this->productRecommendationBusiness->recommend($products, $client);
 
-        return response()->json($productRecommendations);
+        return response()->json(['header' => $header, 'recommendations' => $productRecommendations]);
     }
 
     public function getData(int $clientId, string $name): Collection

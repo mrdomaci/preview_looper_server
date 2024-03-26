@@ -34,6 +34,17 @@ class ClientSettingsServiceOptionRepository
         }
     }
 
+    public function getUpsellHeader(Client $client): ?string
+    {
+        $result = ClientSettingsServiceOption::where('client_id', $client->getId())
+            ->where('settings_service_id', SettingsService::UPSELL_HEADER)
+            ->first();
+        if ($result !== null) {
+            return $result->getAttribute('value');
+        }
+        return null;
+    }
+
     public function updateOrCreate(Client $client, SettingsService $settingsService, ?SettingsServiceOption $settingsServiceOption, ?string $value): ClientSettingsServiceOption
     {
         try {
