@@ -9,13 +9,11 @@ use App\Connector\AvailabilityResponse;
 use App\Enums\AvailabilityLevelEnum;
 use App\Models\ClientService;
 use App\Repositories\AvailabilityRepository;
-use App\Repositories\ProductRepository;
 
 class AvailabilityBusiness
 {
     public function __construct(
-        private AvailabilityRepository $availabilityRepository,
-        private ProductRepository $productRepository
+        private AvailabilityRepository $availabilityRepository
     ) {
     }
     public function createOrUpdateFromResponse(ClientService $clientService, ?AvailabilityListResponse $availabilityListResponse): void
@@ -48,31 +46,6 @@ class AvailabilityBusiness
                 $isSoldOutNegativeStockForbidden,
                 $level
             );
-        }
-    }
-
-    public function bindProductAvailabilities(ClientService $clientService): void
-    {
-        $service = $clientService->service()->first();
-        if ($service->isDynamicPreviewImages()) {
-            return;
-        }
-        $client = $clientService->client()->first();
-        $availabilities = $this->availabilityRepository->getByClient($client);
-        foreach ($availabilities as $availability) {
-            $this->productRepository->bulkSetAvailability($availability);
-        }
-        $isOnStockAvailability = $this->availabilityRepository->getIsOnStockAvailability($client);
-        if ($isOnStockAvailability !== null) {
-            $this->productRepository->bulkSetIsOnStockAvailability($isOnStockAvailability);
-        }
-        $isSoldOutNegativeStockForbiddenAvailability = $this->availabilityRepository->getSoldOutNegativeStockForbiddenkAvailability($client);
-        if ($isSoldOutNegativeStockForbiddenAvailability !== null) {
-            $this->productRepository->bulkSetSoldOutNegativeStockForbiddenAvailability($isSoldOutNegativeStockForbiddenAvailability);
-        }
-        $isSoldOutNegativeStockAllowedAvailability = $this->availabilityRepository->getSoldOutNegativeStockAllowedAvailability($client);
-        if ($isSoldOutNegativeStockAllowedAvailability !== null) {
-            $this->productRepository->bulkSetSoldOutNegativeStockAllowedAvailability($isSoldOutNegativeStockAllowedAvailability);
         }
     }
 }
