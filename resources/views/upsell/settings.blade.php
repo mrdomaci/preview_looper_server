@@ -89,10 +89,10 @@
                 <tbody>
                     @foreach ($product_category_recommendations as $productCategoryRecommendation)
                         <tr>
-                            <td>{{ __($productCategoryRecommendation->category->name) }}</td>
-                            <td>{{ __($productCategoryRecommendation->product->name) }}</td>
+                            <td>{{ $productCategoryRecommendation->category->name }}</td>
+                            <td>{{ $productCategoryRecommendation->product->name }}</td>
                             <td>
-                                <form method="POST" action="{{ route('recommendation.delete', 
+                                <form method="POST" action="{{ route('recommendation.delete',
                                         [
                                             'country' => $country,
                                             'serviceUrlPath' => $service->getUrlPath(),

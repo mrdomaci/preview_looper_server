@@ -15,6 +15,7 @@ class SettingsService extends Model
     use HasFactory;
 
     public const UPSELL_MAX_RESULTS = 7;
+    public const UPSELL_HEADER = 8;
 
     public $timestamps = false;
 
