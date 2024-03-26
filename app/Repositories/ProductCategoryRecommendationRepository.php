@@ -41,9 +41,9 @@ class ProductCategoryRecommendationRepository
         return DB::table('product_categories', 'pc')
             ->join(
                 'product_category_recommendations as pcr',
-                'pcr.product_id',
+                'pcr.category_id',
                 '=',
-                'pc.product_id',
+                'pc.category_id',
             )
             ->where('pcr.client_id', $client->getId())
             ->where('pc.product_id', $product->getId())
