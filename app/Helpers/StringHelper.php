@@ -44,4 +44,12 @@ class StringHelper
         }
         return self::getSingelRegexResult('/(\d+)(?=[^\d])/', $image);
     }
+
+    public static function hash(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        return hash('xxh32', $value);
+    }
 }

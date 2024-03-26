@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Connector\OrderResponse;
+use App\Helpers\StringHelper;
 use App\Models\Client;
 use App\Models\Order;
 
 class OrderRepository
 {
-    
+
     public function createOrUpdate(OrderResponse $orderResponse, Client $client): Order
     {
         $order = Order::where('client_id', $client->getId())->where('guid', $orderResponse->getGuid())->first();
@@ -23,11 +24,11 @@ class OrderRepository
             ->setCode($orderResponse->getCode())
             ->setCreatedAt($orderResponse->getCreationTime())
             ->setUpdatedAt($orderResponse->getChangeTime())
-            ->setFullName($orderResponse->getFullName())
-            ->setCompany($orderResponse->getCompany())
-            ->setEmail($orderResponse->getEmail())
-            ->setPhone($orderResponse->getPhone())
-            ->setRemark($orderResponse->getRemark())
+            ->setFullName(StringHelper::hash($orderResponse->getFullName()))
+            ->setCompany(StringHelper::hash($orderResponse->getCompany()))
+            ->setEmail(StringHelper::hash($orderResponse->getEmail()))
+            ->setPhone(StringHelper::hash($orderResponse->getPhone()))
+            ->setRemark(StringHelper::hash($orderResponse->getRemark()))
             ->setCashDeskOrder($orderResponse->isCashDeskOrder())
             ->setCustomerGuid($orderResponse->getCustomerGuid())
             ->setPaid($orderResponse->isPaid())
