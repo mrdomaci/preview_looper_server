@@ -511,16 +511,19 @@ class Response
             $availability = null;
             $availabilityId = null;
             $isNegativeStockAllowed = false;
-            if (ArrayHelper::containsKey($variant, 'availabilityWhenSoldOut') === true) {
-                if ($variant['availabilityWhenSoldOut'] !== null) {
-                    $availability = $variant['availabilityWhenSoldOut']['name'];
-                    $availabilityId = (string) $variant['availabilityWhenSoldOut']['id'];
-                }
-            }
+            $stock = (float) $variant['stock'];
             if (ArrayHelper::containsKey($variant, 'availability') === true) {
                 if ($variant['availability'] !== null) {
                     $availability = $variant['availability']['name'];
                     $availabilityId = (string) $variant['availability']['id'];
+                }
+            }
+            if ($availability === null && $stock <= 0) {
+                if (ArrayHelper::containsKey($variant, 'availabilityWhenSoldOut') === true) {
+                    if ($variant['availabilityWhenSoldOut'] !== null) {
+                        $availability = $variant['availabilityWhenSoldOut']['name'];
+                        $availabilityId = (string) $variant['availabilityWhenSoldOut']['id'];
+                    }
                 }
             }
             $variantName = $name;
@@ -528,7 +531,9 @@ class Response
                 $variantName .= ' ' . $variant['name'];
             }
             if (ArrayHelper::containsKey($this->data, 'negativeStockAllowed')) {
-                if ($this->data['negativeStockAllowed'] === 'yes' || $this->data['negativeStockAllowed'] === 'yes-global') {
+                if ($this->data['negativeStockAllowed'] === 'yes') {
+                    $isNegativeStockAllowed = true;
+                } elseif ($this->data['negativeStockAllowed'] === 'yes-global') {
                     $isNegativeStockAllowed = true;
                 }
             }
@@ -538,7 +543,7 @@ class Response
             $productVariantResponse = new ProductVariantResponse(
                 $variant['code'],
                 $variant['ean'],
-                (float) $variant['stock'],
+                $stock,
                 $variant['unit'],
                 (float) $variant['weight'],
                 (float) $variant['width'],

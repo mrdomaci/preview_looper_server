@@ -7,7 +7,6 @@ namespace App\Repositories;
 use App\Connector\ProductDetailResponse;
 use App\Connector\ProductResponse;
 use App\Connector\ProductVariantResponse;
-use App\Enums\AvailabilityLevelEnum;
 use App\Helpers\PriceHelper;
 use App\Helpers\StringHelper;
 use App\Models\Availability;
@@ -133,36 +132,21 @@ class ProductRepository
     public function createOrUpdateVariantFromResponse(
         ProductVariantResponse $variant,
         Product $product,
-        ?Availability $onStockAvailability,
-        ?Availability $soldOutNegativeStockForbidden,
-        ?Availability $soldOutNegativeStockAllowed,
+        ?Availability $availability
     ): void {
         try {
             $productVariant = Product::where('parent_product_id', $product->getId())->where('code', $variant->getCode())->firstOrFail();
         } catch (Throwable) {
             $productVariant = Product::clone($product);
         }
-        $availabilityName = $variant->getAvailability();
-        $availabilityLevel = AvailabilityLevelEnum::UNKNOWN;
-        if ($availabilityName === null) {
-            if ($variant->getStock() > 0) {
-                $availabilityName = $onStockAvailability->getName();
-                $availabilityLevel = AvailabilityLevelEnum::IN_STOCK;
-            } elseif ($variant->isNegativeStockAllowed()) {
-                $availabilityName = $soldOutNegativeStockAllowed->getName();
-                $availabilityLevel = AvailabilityLevelEnum::SELLABLE;
-            } else {
-                $availabilityName = $soldOutNegativeStockForbidden->getName();
-                $availabilityLevel = AvailabilityLevelEnum::OUT_OF_STOCK;
-            }
-        }
         /** @var Product $productVariant */
         $productVariant->setName($variant->getName())
             ->setCode($variant->getCode())
             ->setActive(true)
-            ->setAvailabilityName($availabilityName)
+            ->setAvailabilityName($variant->getAvailability())
             ->setAvailabilityForeignId($variant->getAvailabilityId())
-            ->setAvailabilityLevel($availabilityLevel)
+            ->setAvailabilityLevel($availability?->getLevel())
+            ->setAvailability($availability)
             ->setStock($variant->getStock())
             ->setUnit($variant->getUnit())
             ->setPrice(Currency::formatPrice((string)$variant->getPrice(), $variant->getCurrencyCode()))
