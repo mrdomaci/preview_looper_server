@@ -9,6 +9,7 @@ use App\Models\Availability;
 use App\Models\Client;
 use App\Models\Product;
 use App\Models\Service;
+use App\Repositories\AvailabilityRepository;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Database\Eloquent\Collection;
@@ -18,6 +19,7 @@ class ProductBusiness
     public function __construct(
         private ProductRepository $productRepository,
         private ClientServiceRepository $clientServiceRepository,
+        private AvailabilityRepository $availabilityRepository
     ) {
     }
 
@@ -66,12 +68,23 @@ class ProductBusiness
             return;
         }
         foreach ($productDetailResponse->getVariants() as $variantResponse) {
+            $availability = null;
+            if ($variantResponse->getAvailabilityId() !== null) {
+                $availability = $this->availabilityRepository->getByForeignId($client, $variantResponse->getAvailabilityId());
+            }
+            if ($availability === null) {
+                if ($variantResponse->getStock() > 0) {
+                    $availability = $onStockAvailability;
+                } elseif ($variantResponse->isNegativeStockAllowed() === true) {
+                    $availability = $soldOutNegativeStockAllowed;
+                } else {
+                    $availability = $soldOutNegativeStockForbidden;
+                }
+            }
             $this->productRepository->createOrUpdateVariantFromResponse(
                 $variantResponse,
                 $product,
-                $onStockAvailability,
-                $soldOutNegativeStockForbidden,
-                $soldOutNegativeStockAllowed
+                $availability
             );
         }
     }

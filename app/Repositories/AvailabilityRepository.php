@@ -24,6 +24,13 @@ class AvailabilityRepository
         return $entity;
     }
 
+    public function getByForeignId(Client $client, string $foreignId): ?Availability
+    {
+        return Availability::where('client_id', $client->getId())
+            ->where('foreign_id', $foreignId)
+            ->first();
+    }
+
     public function createOrUpdateFromResponse(
         Client $client,
         AvailabilityResponse $response,
