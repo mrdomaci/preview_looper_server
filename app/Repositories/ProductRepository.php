@@ -130,30 +130,30 @@ class ProductRepository
     }
 
     public function createOrUpdateVariantFromResponse(
-        ProductVariantResponse $variant,
+        ProductVariantResponse $productVariantResponse,
         Product $product,
         ?Availability $availability
     ): void {
         try {
-            $productVariant = Product::where('parent_product_id', $product->getId())->where('code', $variant->getCode())->firstOrFail();
+            $productVariant = Product::where('parent_product_id', $product->getId())->where('code', $productVariantResponse->getCode())->firstOrFail();
         } catch (Throwable) {
             $productVariant = Product::clone($product);
         }
         /** @var Product $productVariant */
-        $productVariant->setName($variant->getName())
-            ->setCode($variant->getCode())
+        $productVariant->setName($productVariantResponse->getName())
+            ->setCode($productVariantResponse->getCode())
             ->setActive(true)
-            ->setAvailabilityName($variant->getAvailability())
-            ->setAvailabilityForeignId($variant->getAvailabilityId())
+            ->setAvailabilityName($productVariantResponse->getAvailability())
+            ->setAvailabilityForeignId($productVariantResponse->getAvailabilityId())
             ->setAvailabilityLevel($availability?->getLevel())
             ->setAvailability($availability)
-            ->setStock($variant->getStock())
-            ->setUnit($variant->getUnit())
-            ->setPrice(Currency::formatPrice((string)$variant->getPrice(), $variant->getCurrencyCode()))
-            ->setImageUrl($variant->getImage())
+            ->setStock($productVariantResponse->getStock())
+            ->setUnit($productVariantResponse->getUnit())
+            ->setPrice(Currency::formatPrice((string)$productVariantResponse->getPrice(), $productVariantResponse->getCurrencyCode()))
+            ->setImageUrl($productVariantResponse->getImage())
             ->setUrl($product->getUrl())
-            ->setForeignId($variant->getForeignId())
-            ->setNegativeStockAllowed($variant->isNegativeStockAllowed())
+            ->setForeignId($productVariantResponse->getForeignId())
+            ->setNegativeStockAllowed($productVariantResponse->isNegativeStockAllowed())
             ->save();
     }
 
