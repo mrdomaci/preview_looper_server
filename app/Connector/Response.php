@@ -530,10 +530,10 @@ class Response
             if (ArrayHelper::containsKey($variant, 'name')) {
                 $variantName .= ' ' . $variant['name'];
             }
-            if (ArrayHelper::containsKey($this->data, 'negativeStockAllowed')) {
-                if ($this->data['negativeStockAllowed'] === 'yes') {
+            if (ArrayHelper::containsKey($variant, 'negativeStockAllowed')) {
+                if ($variant['negativeStockAllowed'] === 'yes') {
                     $isNegativeStockAllowed = true;
-                } elseif ($this->data['negativeStockAllowed'] === 'yes-global') {
+                } elseif ($variant['negativeStockAllowed'] === 'yes-global') {
                     $isNegativeStockAllowed = true;
                 }
             }
