@@ -721,8 +721,8 @@ class Response
                 continue;
             }
             $id = $availability['id'];
-            if (ArrayHelper::containsKey($availability, 'isSystem')) {
-                $isSystem = $availability['isSystem'];
+            if (ArrayHelper::containsKey($availability, 'system')) {
+                $isSystem = $availability['system'];
             }
             if (ArrayHelper::containsKey($availability, 'description')) {
                 $description = $availability['description'];
