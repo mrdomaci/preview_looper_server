@@ -43,8 +43,37 @@
         <p class="lead">{{ __('general.subtitle')}}</p>
         <hr class="my-4">
     </div>
-
-   
+        <div class="row">
+            <div class="col-md-3">
+                <a href="{{ URL::route('plugin', array('serviceUrlPath' => 'easy-upsell')) }}">
+                @if ( Config::get('app.locale') == 'cs')
+                    <img class="logo-plugin" src="{{ url('images/easy-upsell/webpage_logo_cs.png') }}" alt="">
+                @elseif ( Config::get('app.locale') == 'en')
+                    <img class="logo-plugin" src="{{ url('images/easy-upsell/webpage_logo_en.png') }}" alt="">
+                @elseif ( Config::get('app.locale') == 'sk')
+                    <img class="logo-plugin" src="{{ url('images/easy-upsell/webpage_logo_sk.png') }}" alt="">
+                @elseif ( Config::get('app.locale') == 'hu')
+                    <img class="logo-plugin" src="{{ url('images/easy-upsell/webpage_logo_hu.png') }}" alt="">
+                @else
+                    <h1>{{ __('easy-upsell.addon_title') }}</h1>
+                @endif
+                </a>
+            </div>
+            <div class="col-md-5">
+                <a href="{{ URL::route('plugin', array('serviceUrlPath' => 'easy-upsell')) }}"><h2>{{__('easy-upsell.addon_title')}}</h2></a>
+                <p class="text-justify">{{ __('easy-upsell.homepage_description') }}</p>
+                <p class="text-justify">{{ __('easy-upsell.general_description_1') }}</p>
+                <p class="text-justify">{{ __('easy-upsell.general_description_2') }}</p>
+                <div class="text-center">
+                    <a class="btn btn-primary btn-lg mb-4" href="{{ __('easy-upsell.url_addon')}}" role="button">{{ __('general.homepage_button') }}</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <img class="img-fluid p-1" src="{{ url('images/dynamic-preview-images/preview_1.gif') }}" alt="">
+                <img class="img-fluid p-1" src="{{ url('images/dynamic-preview-images/preview_2.gif') }}" alt="">
+            </div>
+        </div>
+        <hr class="my-4">
         <div class="row">
             <div class="col-md-3">
                 <a href="{{ URL::route('plugin', array('serviceUrlPath' => 'dynamic-preview-images')) }}">
@@ -77,13 +106,6 @@
         </div>
         <hr class="my-4">
 
-    <div class="jumbotron text-center mt-4">
-        <div class="logo-warper">
-
-        </div>
-        
-    </div>
-        
     </div>
     @include('layouts.footer')
 </body>

@@ -2,7 +2,7 @@
 <body>
     <div class="container">
         <nav class="navbar navbar-expand-lg bg-light">
-            <a class="navbar-brand" href="{{ URL::route('plugin', array('serviceUrlPath' => $service_url_path) ) }}">{{ __('dynamic-preview-images.addon_title') }}</a>
+            <a class="navbar-brand" href="{{ URL::route('plugin', array('serviceUrlPath' => $service_url_path) ) }}">{{ __('easy-upsell.addon_title') }}</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -47,45 +47,46 @@
                     <div class="accordion-body">
                         <h4>{{ __('general.terms_content_header_1') }}</h4>
                         <ul>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_1') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_1') }}</li>
                         </ul>
-                        <p>{{__('dynamic-preview-images.terms_content_11')}}</p>
-                        <p>{{__('dynamic-preview-images.terms_content_12')}}</p>
-                        <p>{{__('dynamic-preview-images.terms_content_13')}}</p>
+                        <p>{{__('easy-upsell.terms_content_11')}}</p>
+                        <p>{{__('easy-upsell.terms_content_12')}}</p>
+                        <p>{{__('easy-upsell.terms_content_13')}}</p>
                         <h4>{{ __('general.terms_content_header_2') }}</h4>
                         <ul>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_21') }}</li>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_22') }}</li>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_23') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_21') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_22') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_23') }}</li>
                         </ul>
                         <h4>{{ __('general.terms_content_header_3') }}</h4>
                         <ul>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_31') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_31') }}</li>
                         </ul>
                         <h4>{{ __('general.terms_content_header_4') }}</h4>
                         <ul>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_41') }}</li>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_42') }}</li>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_43') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_41') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_42') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_43') }}</li>
                         </ul>
                         <h4>{{ __('general.terms_content_header_5') }}</h4>
                         <ul>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_51') }}</li>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_52') }}</li>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_53') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_51') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_52') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_53') }}</li>
                         </ul>
                         <h4>{{ __('general.terms_content_header_6') }}</h4>
                         <ul>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_61') }}</li>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_62') }}</li>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_63') }}</li>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_64') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_61') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_62') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_63') }}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_64') }}</li>
                         </ul>
                         <h4 id="privacy">{{ __('general.privacy') }}</h4>
                         <ul>
-                            <li>{{ __('dynamic-preview-images.terms_content_subheader_1')}}</li>
+                            <li>{{ __('easy-upsell.terms_content_subheader_1')}}</li>
                         </ul>
-                        <p>{{__('dynamic-preview-images.privacy_content_1')}}</p>
+                        <p>{{__('easy-upsell.privacy_content_1')}}</p>
+                        <p>{{__('easy-upsell.privacy_content_2')}}</p>
                     </div>
                 </div>
             </div>

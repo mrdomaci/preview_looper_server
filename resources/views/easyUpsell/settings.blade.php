@@ -2,7 +2,7 @@
 <div class="container">
   <div class="card m-4">
     <div class="card-header text-center font-weight-bold">
-        <h4>{{ __('upsell.addon_title') }} - {{ __('general.settings') }}</h4>
+        <h4>{{ __('easy-upsell.addon_title') }} - {{ __('general.settings') }}</h4>
     </div>
     <div class="card-body">
         @include('flashMessage')
@@ -40,15 +40,15 @@
       <div class="card-body">
         <form method="POST" action="{{ route('recommendation.add', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath(), 'language' => $language, 'eshopId' => $client->getEshopId()]) }}">
             @csrf
-            <h4>{{ __('upsell.category_recommendation_title')}}</h4>
+            <h4>{{ __('easy-upsell.category_recommendation_title')}}</h4>
             <div class="form-group row mt-4">
                 <div class="col-md-12 mb-4">
-                    <label>{{ __('upsell.category_recommendation_info')}}</label>
+                    <label>{{ __('easy-upsell.category_recommendation_info')}}</label>
                 </div>
             </div>
             <div class="form-group row mt-4">
                 <div class="col-md-4">
-                    <label>{{ __('upsell.category')}}</label>
+                    <label>{{ __('easy-upsell.category')}}</label>
                 </div>
                 <div class="col-md-6">
                     <select class="form-control" name="category" id="category">
@@ -60,7 +60,7 @@
             </div>
             <div class="form-group row mt-4">
                 <div class="col-md-4">
-                    <label>{{ __('upsell.product')}}</label>
+                    <label>{{ __('easy-upsell.product')}}</label>
                 </div>
                 <div class="col-md-6">
                     <input type="text" class="form-control" name="product_autocomplete" id="product_autocomplete" placeholder="{{ __('general.product_search') }}">
@@ -81,8 +81,8 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>{{ __('upsell.category')}}</th>
-                        <th>{{ __('upsell.product')}}</th>
+                        <th>{{ __('easy-upsell.category')}}</th>
+                        <th>{{ __('easy-upsell.product')}}</th>
                         <th>{{ __('general.delete')}}</th>
                     </tr>
                 </thead>
@@ -111,7 +111,7 @@
                 </tbody>
             </table>
         @else
-            <p>{{ __('upsell.no_recommendations')}}</p>
+            <p>{{ __('easy-upsell.no_recommendations')}}</p>
         @endif
       </div>
       <div class="card-body">
