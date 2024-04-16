@@ -7,12 +7,15 @@ namespace App\Helpers;
 class ArrayHelper
 {
     /**
-     * @param array<mixed> $array
+     * @param ?array<mixed> $array
      * @param string $key
      * @return bool
      */
-    public static function containsKey(array $array, string $key): bool
+    public static function containsKey(?array $array, string $key): bool
     {
+        if ($array === null) {
+            return false;
+        }
         return array_key_exists($key, $array);
     }
 

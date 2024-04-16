@@ -1,6 +1,6 @@
 if (isCart() == true) {
     getResults();
-    setInterval(getResults, 30000);
+    setInterval(getResults, 2000);
 }
 
 async function getRecommnededProductsFromServer(us_cart_items) {
@@ -69,7 +69,7 @@ async function getResults() {
         await cacheResults(result);
         await cacheRequest(us_cart_items, result);
     }
-    await printResults();
+    printResults();
 }
 
 function setMainDiv() {
@@ -89,10 +89,63 @@ function setMainDiv() {
 }
 
 async function cacheResults(result) {
-    result.recommendations.forEach(function (recommendation) {
-        const recommendationJson = JSON.stringify(recommendation);
-        sessionStorage.setItem('us_' + recommendation.id, recommendationJson.toString());
+    result.recommendations.forEach(async function (recommendation) {
+        recommendation = await getVariantDetail(recommendation);
+        let recommendationJson = JSON.stringify(recommendation);
+        if (recommendationJson != null) {
+            sessionStorage.setItem('us_' + recommendation.id, recommendationJson.toString());
+        }
     });
+    return true;
+}
+
+async function getVariantDetail(recommendation) {
+    return await getVariantDetailFromEshop(recommendation);
+}
+
+async function getVariantDetailFromEshop(recommendation)
+{
+    const us_link_response = await goToURL(recommendation.url);
+    const response = await us_link_response.text();
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = response;
+    const availability = tempContainer.querySelector('span.availability-label');
+    recommendation.availability = '-';
+    if (availability) {
+        recommendation.availability = availability.textContent.trim();
+    }
+    const product_id = tempContainer.querySelector('input[name="productId"]');
+    if (product_id) {
+        recommendation.id = product_id.getAttribute('value');
+    } else {
+        return null;
+    }
+    const price_id = tempContainer.querySelector('input[name="priceId"]');
+    if (price_id) {
+        recommendation.priceId = price_id.getAttribute('value');
+    } else {
+        return null;
+    }
+    recommendation.color = null;
+    if (availability.style.color) {
+        recommendation.color = availability.style.color;
+    }
+    const price = tempContainer.querySelector('span.price-final-holder')
+    if (price) {
+        recommendation.price = price.textContent.trim();
+    }
+    if (recommendation.guid)
+    return recommendation;
+}
+
+async function goToURL(url) {
+    try {
+        const response = await fetch(url);
+        return response;
+    }
+    catch (error) {
+        console.error('Error:', error);
+    }
 }
 
 async function cacheRequest(us_cart_items, result) {
@@ -102,6 +155,17 @@ async function cacheRequest(us_cart_items, result) {
     });
     sessionStorage.setItem('us_request_' + us_cart_items.toString(), us_recommendation_ids.toString());
     sessionStorage.setItem('us_header', result.header);
+    return true;
+}
+
+function checkCachedData(us_product_ids) {
+    let us_result = true;
+    us_product_ids.forEach(function (product_id) {
+        if (sessionStorage.getItem('us_' + product_id) == null) {
+            us_result = false;
+        }
+    });
+    return us_result;
 }
 
 async function printResults() {
@@ -113,40 +177,33 @@ async function printResults() {
         upsell_container.forEach(async function (el) {
             let us_request = sessionStorage.getItem('us_request_' + getCartItemsGUIDS().toString());
             let us_product_ids = us_request.split(',');
-            if (us_product_ids.length > 0) {
+            if (us_product_ids.length > 0 && checkCachedData(us_product_ids) == true) {
                 let us_header = sessionStorage.getItem('us_header');
                 let us_result = '<h4>'+ us_header +'</h4><table class="cart-table upsell"><tbody id="upsell-recommendations">';
                 us_product_ids.forEach(function (product_id) {
                     let recommendation = sessionStorage.getItem('us_' + product_id);
-                    recommendation = JSON.parse(recommendation);
-                    let us_result_item = `
-                            <tr class="removeable" data-micro="cartItem" data-source="easy-upsell" data-micro-identifier="${recommendation.guid}" data-micro-sku="${recommendation.code}" data-testid="productItem_${recommendation.guid}">
-                                <td class="cart-p-image"><a href="${recommendation.url}"><img src="${us_image_cdn}${recommendation.image_url}" data-src="${us_image_cdn}${recommendation.image_url}" alt="${recommendation.name}"></a></td>
-                                <td class="p-name" data-testid="cartProductName"><a href="${recommendation.url}" class="main-link" data-testid="cartWidgetProductName">${recommendation.name}</a></td>
-                                <td class="p-availability p-cell"><strong class="availability-label" style="color: ${recommendation.color}">${recommendation.availability}</strong></td>
-                                <td class="p-quantity p-cell">
-                                    <form action="/action/Cart/addCartItem/" method="post" id="product-detail-form">
-                                        <meta itemprop="productID" content="${recommendation.id}">
-                                        <meta itemprop="identifier" content="${recommendation.guid}">
-                                        <meta itemprop="sku" content="${recommendation.code}">
-                                        <input type="hidden" name="productId" value="${recommendation.id}">
-                                        <input type="hidden" name="priceId" value="${recommendation.id}">
-                                        <div class="add-to-cart">
-                                            <form action="/action/Cart/addCartItem/" method="post" class="pr-action">
-                                                <input type="hidden" name="language" value="${us_language}">
-                                                <input type="hidden" name="priceId" value="${recommendation.id}">
-                                                <input type="hidden" name="productId" value="${recommendation.id}">
-                                                <input type="hidden" name="amount" value="1" autocomplete="off">
-                                                <button type="submit" class="btn btn-cart add-to-cart-button" data-testid="buttonAddToCart">
-                                                    <span>${us_call_to_action}</span>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </form>
-                                </td>
-                                <td class="p-total"><strong class="price-final" data-testid="cartItemPrice">${recommendation.price}</strong><span class="unit-value">/ ${recommendation.unit}</span></td>
-                            </tr>`;
-                    us_result += us_result_item;
+                    if (recommendation != null) {
+                        recommendation = JSON.parse(recommendation);
+                        let us_result_item = `
+                                <tr class="removeable" data-micro="cartItem" data-source="easy-upsell" data-micro-identifier="${recommendation.guid}" data-micro-sku="${recommendation.code}" data-testid="productItem_${recommendation.guid}">
+                                    <td class="cart-p-image"><a href="${recommendation.url}"><img src="${us_image_cdn}${recommendation.image_url}" data-src="${us_image_cdn}${recommendation.image_url}" alt="${recommendation.name}"></a></td>
+                                    <td class="p-name" data-testid="cartProductName"><a href="${recommendation.url}" class="main-link" data-testid="cartWidgetProductName">${recommendation.name}</a></td>
+                                    <td class="p-availability p-cell"><strong class="availability-label" style="color: ${recommendation.color}">${recommendation.availability}</strong></td>
+                                    <td class="p-quantity p-cell">
+                                        <form action="/action/Cart/addCartItem/" method="post" class="pr-action csrf-enabled">
+                                            <input type="hidden" name="language" value="${us_language}">
+                                            <input type="hidden" name="priceId" value="${recommendation.priceId}">
+                                            <input type="hidden" name="productId" value="${recommendation.id}">
+                                            <input type="hidden" name="amount" value="1" autocomplete="off">
+                                            <button type="submit" class="btn btn-cart add-to-cart-button" data-testid="buttonAddToCart">
+                                                <span>${us_call_to_action}</span>
+                                            </button>
+                                        </form>
+                                    </td>
+                                    <td class="p-total"><strong class="price-final" data-testid="cartItemPrice">${recommendation.price}</strong><span class="unit-value">/ ${recommendation.unit}</span></td>
+                                </tr>`;
+                        us_result += us_result_item;
+                    }
                 });
                 us_result += '</tbody></table>';
 
