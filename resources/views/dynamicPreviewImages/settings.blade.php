@@ -9,9 +9,11 @@
         <form method="POST" action="{{ route('client.saveSettings', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath(), 'language' => $language, 'eshopId' => $client->getEshopId()]) }}">
         @csrf
         @foreach ($settings_service as $setting)
-            {{ $setting->name = str_replace('dynamic-preview-images-', 'dynamic-preview-images.', $setting->name) }}
+            @php
+                $modifiedName = str_replace('dynamic-preview-images-', 'dynamic-preview-images.', $setting->name);
+            @endphp
             <div class="form-group row mt-4">
-                <label for="settings_{{ $setting->name }}" class="col-md-6 col-md-form-label">{{ __($setting->name) }}:</label>
+                <label for="settings_{{ $setting->name }}" class="col-md-6 col-md-form-label">{{ __($modifiedName) }}:</label>
                 <div class="col-md-6">
                     <select class="form-control" name="{{ $setting->id }}" id="{{ $setting->id }}">
                         @foreach ($setting->settingsServicesOptions as $option)
