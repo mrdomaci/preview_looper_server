@@ -6,12 +6,12 @@ let pw_i_l = 500;
 let pw_a_t = 'all';
 let pw_m_i = 'circles';
 if (pw_carousel_settings) {
-  pw_i_r = pw_carousel_settings.getAttribute('data-dynamic-preview-images.infinite_repeat') || '0';
-  pw_r_t_d = pw_carousel_settings.getAttribute('data-dynamic-preview-images.return_to_default') || '0';
-  pw_s_t = pw_carousel_settings.getAttribute('data-dynamic-preview-images.show_time') || 1500;
-  pw_i_l = pw_carousel_settings.getAttribute('data-dynamic-preview-images.initial_loop') || 500;
-  pw_a_t = pw_carousel_settings.getAttribute('data-dynamic-preview-images.apply_to') || 'all';
-  pw_m_i = pw_carousel_settings.getAttribute('data-dynamic-preview-images.mobile_icons') || 'circles';
+  pw_i_r = pw_carousel_settings.getAttribute('data-dynamic-preview-images-infinite-repeat') || '0';
+  pw_r_t_d = pw_carousel_settings.getAttribute('data-dynamic-preview-images-return-to-default') || '0';
+  pw_s_t = pw_carousel_settings.getAttribute('data-dynamic-preview-images-show-time') || 1500;
+  pw_i_l = pw_carousel_settings.getAttribute('data-dynamic-preview-images-initial-loop') || 500;
+  pw_a_t = pw_carousel_settings.getAttribute('data-dynamic-preview-images-apply-to') || 'all';
+  pw_m_i = pw_carousel_settings.getAttribute('data-dynamic-preview-images-mobile-icons') || 'circles';
 }
 let pw_image_prefix;
 let pw_global_products = [];
