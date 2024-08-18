@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\OrderSatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('orders', function(Blueprint $table){
-            $table->string('status')->default(OrderSatusEnum::UNKNOWN->value)->change();
+            $table->string('status')->default('UNKNOWN')->change();
             $table->string('full_name');
             $table->string('company')->nullable();
             $table->string('email');
@@ -46,7 +45,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('orders', function(Blueprint $table){
-            $table->integer('status')->default(OrderSatusEnum::NEW->value)->change();
+            $table->integer('status')->default('NEW')->change();
             $table->dropColumn('full_name');
             $table->dropColumn('company');
             $table->dropColumn('email');
