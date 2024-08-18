@@ -69,8 +69,8 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <img class="img-fluid p-1" src="{{ url('images/dynamic-preview-images/preview_1.gif') }}" alt="">
-                <img class="img-fluid p-1" src="{{ url('images/dynamic-preview-images/preview_2.gif') }}" alt="">
+                <img class="img-fluid p-1" src="{{ url('images/easy-upsell/preview_1.gif') }}" alt="">
+                <img class="img-fluid p-1" src="{{ url('images/easy-upsell/preview_2.png') }}" alt="">
             </div>
         </div>
         <hr class="my-4">

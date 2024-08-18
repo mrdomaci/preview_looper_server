@@ -166,7 +166,7 @@ function handleTouchMove(pw_element) {
   const pw_y_diff = pw_start_y - pw_element.touches[0].clientY;
 
   if (Math.abs(pw_x_diff) > Math.abs(pw_y_diff)) {
-    const pw_product_element = findParentElementByClassName(pw_element.target, 'p');
+    const pw_product_element = findParentElementByDataMicro(pw_element.target);
     const pw_id = pw_product_element.getAttribute('data-micro-identifier');
     const pw_img = pw_product_element.querySelector('img[data-micro], img[data-micro-image]');
     const pw_product = getProduct(pw_id);
@@ -215,14 +215,14 @@ function handleTouchMove(pw_element) {
   pw_start_y = null;
 }
 
-function findParentElementByClassName(pw_element, pw_class_name) {
+function findParentElementByDataMicro(pw_element) {
   if (!pw_element) {
     return null;
   }
-  if (pw_element.classList && pw_element.classList.contains(pw_class_name)) {
+  if (pw_element.getAttribute('data-micro') === 'product') {
     return pw_element;
   }
-  return findParentElementByClassName(pw_element.parentElement, pw_class_name);
+  return findParentElementByDataMicro(pw_element.parentElement);
 }
 
 async function sendGetRequest(pw_project_id) {
@@ -393,7 +393,7 @@ function isMobile()
 }
 
 function isPc() {
-  return pw_a_t === 'all' || pw_a_t === 'pc';
+  return screen.width > 767 && (pw_a_t === 'all' || pw_a_t === 'pc');
 }
 
 function isCircles() {
@@ -417,6 +417,10 @@ async function setupIndexedDB() {
       const db = event.target.result;
       const objectStore = db.createObjectStore("pw_images", { keyPath: "id" });
       objectStore.createIndex("images", "images", { unique: false });
+    };
+
+    request.onerror = function(event) {
+      reject(event.target.error);
     };
 
     request.onsuccess = function(event) {
