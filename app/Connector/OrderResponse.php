@@ -22,7 +22,7 @@ class OrderResponse
         private ?string $customerGuid,
         private bool $paid,
         private string $foreignStatusId,
-        private string $source,
+        private ?string $source,
         private OrderPriceResponse $price,
         private ?OrderPaymentMethodResponse $paymentMethod,
         private ?OrderShippingResponse $shipping,
@@ -95,7 +95,7 @@ class OrderResponse
         return $this->foreignStatusId;
     }
 
-    public function getSource(): string
+    public function getSource(): ?string
     {
         return $this->source;
     }
