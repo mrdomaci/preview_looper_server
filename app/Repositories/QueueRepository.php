@@ -43,8 +43,7 @@ class QueueRepository
     public function updateOrCreate(
         ClientService $clientService,
         JobResponse $response,
-    ): void
-    {
+    ): void {
         $queue = Queue::where('client_service_id', $clientService->getId())
             ->where('job_id', $response->getJobId())
             ->first();

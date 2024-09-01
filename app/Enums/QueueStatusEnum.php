@@ -16,4 +16,3 @@ enum QueueStatusEnum: string
     case KILLED = 'killed';
     case DONE = 'done';
 }
-

@@ -6,7 +6,8 @@ namespace App\Helpers;
 
 class QrHelper
 {
-    public static function requestPayment(int $size, string $iban, string $amount, string $variableSymbol, string $currency): string {
+    public static function requestPayment(int $size, string $iban, string $amount, string $variableSymbol, string $currency): string
+    {
         $data = sprintf(
             'SPD*1.0*ACC:%s*AM:%s*CC:%s*X-VS:%s',
             urlencode($iban),
@@ -22,8 +23,6 @@ class QrHelper
             'data' => $data
         ]);
     
-        $qrCodeUrl = $baseUrl . '?' . $queryParams;
-    
-        return $qrCodeUrl;
+        return $baseUrl . '?' . $queryParams;
     }
 }

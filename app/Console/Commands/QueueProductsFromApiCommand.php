@@ -73,7 +73,6 @@ class QueueProductsFromApiCommand extends AbstractClientServiceCommand
                         break;
                     }
                     $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse);
-                    
                 } catch (ApiRequestFailException) {
                     $clientService->setStatusInactive();
                     break;

@@ -190,6 +190,11 @@ class ClientService extends Model
         $this->save();
     }
 
+    public function getCreatedAt(): DateTime
+    {
+        return $this->getAttribute('created_at');
+    }
+
     public function getVariableSymbol(): string
     {
         return $this->created_at->format('y') . $this->service_id . str_pad((string)$this->getAttribute('id'), 6, '0', STR_PAD_LEFT);

@@ -110,4 +110,19 @@ class ClientServiceRepository
         $clientService->save();
         return $clientService;
     }
+
+    public function getByVariableSymbol(string $variableSymbol): ?ClientService
+    {
+        $year = substr($variableSymbol, 0, 2);
+        $clientServiceId = substr($variableSymbol, 2);
+        $clientServiceId = ltrim($clientServiceId, '0');
+        $clientService = ClientService::find((int) $clientServiceId);
+        if ($clientService === null) {
+            return null;
+        }
+        if ($clientService->getCreatedAt()->format('y') !== $year) {
+            return null;
+        }
+        return $clientService;
+    }
 }
