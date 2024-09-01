@@ -49,5 +49,12 @@ return [
     'category' => 'Kategória',
     'product' => 'Termék',
     'no_recommendations' => 'Nincsenek meghatározott ajánlások',
-    'url_addon' => 'https://doplnky.shoptet.cz/easy-upsell'
+    'url_addon' => 'https://doplnky.shoptet.cz/easy-upsell',
+    'active' => 'Aktív',
+    'valid' => 'Érvényes eddig',
+    'licence' => 'Licenc',
+    'no_licence' => 'Nincs megvásárolt licenc',
+    'licence_info' => 'Ez a bővítmény ingyenesen elérhető havi 50 fizetett rendelés limitig. A magasabb rendelési számhoz licenc megvásárlása szükséges.',
+    'licence_monthly_payment' => 'A licencet meg lehet vásárolni <b>31 napra</b> a <b>490 CZK</b> összeg elküldésével, <b>:variable változó szimbólummal</b> a <b>1234567890/1234</b> számlaszámra. A licenc az összeg beérkezésekor aktiválódik. Szükség esetén beállíthat késleltetett fizetést a bankjában.',
+    'licence_yearly_payment' => 'A licencet meg lehet vásárolni <b>365 napra</b> a <b>4990 CZK</b> összeg elküldésével, <b>:variable változó szimbólummal</b> a <b>1234567890/1234</b> számlaszámra. A licenc az összeg beérkezésekor aktiválódik. Szükség esetén beállíthat késleltetett fizetést a bankjában.',
 ];

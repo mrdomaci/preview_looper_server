@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
-use App\Connector\OrderDetailResponse;
-use App\Connector\OrderResponse;
-use App\Connector\ProductDetailResponse;
-use App\Connector\ProductFilter;
-use App\Connector\ProductResponse;
+use App\Connector\Shoptet\OrderDetailResponse;
+use App\Connector\Shoptet\OrderResponse;
+use App\Connector\Shoptet\ProductDetailResponse;
+use App\Connector\Shoptet\ProductFilter;
+use App\Connector\Shoptet\ProductResponse;
 use App\Models\ClientService;
 use DateTime;
 

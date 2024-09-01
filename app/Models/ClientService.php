@@ -11,6 +11,7 @@ use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Throwable;
 
 class ClientService extends Model
@@ -41,6 +42,11 @@ class ClientService extends Model
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
+    }
+
+    public function licences(): HasMany
+    {
+        return $this->hasMany(License::class);
     }
 
     public function getId(): int
@@ -182,5 +188,10 @@ class ClientService extends Model
     {
         $this->setAttribute('status', ClientServiceStatusEnum::ACTIVE);
         $this->save();
+    }
+
+    public function getVariableSymbol(): string
+    {
+        return $this->created_at->format('y') . $this->service_id . str_pad((string)$this->getAttribute('id'), 6, '0', STR_PAD_LEFT);
     }
 }

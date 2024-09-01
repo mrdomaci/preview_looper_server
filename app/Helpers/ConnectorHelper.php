@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
-use App\Connector\AvailabilityListResponse;
-use App\Connector\EshopResponse;
-use App\Connector\OrderDetailListResponse;
-use App\Connector\OrderListResponse;
-use App\Connector\ProductDetailResponse;
-use App\Connector\ProductFilter;
-use App\Connector\ProductListResponse;
-use App\Connector\Request;
-use App\Connector\TemplateIncludeResponse;
+use App\Connector\Fio\LicenseListResponse;
+use App\Connector\Fio\Request as FioRequest;
+use App\Connector\Shoptet\AvailabilityListResponse;
+use App\Connector\Shoptet\EshopResponse;
+use App\Connector\Shoptet\JobListResponse;
+use App\Connector\Shoptet\OrderDetailListResponse;
+use App\Connector\Shoptet\OrderFilter;
+use App\Connector\Shoptet\OrderListResponse;
+use App\Connector\Shoptet\ProductDetailResponse;
+use App\Connector\Shoptet\ProductFilter;
+use App\Connector\Shoptet\ProductListResponse;
+use App\Connector\Shoptet\QueueFilter;
+use App\Connector\Shoptet\QueueResponse;
+use App\Connector\Shoptet\Request;
+use App\Connector\Shoptet\TemplateIncludeResponse;
 use App\Models\ClientService;
 use DateTime;
 
@@ -25,15 +31,63 @@ class ConnectorHelper
         if ($productFilter !== null) {
             $request->addFilterProducts($productFilter);
         }
-        $response = $request->send();
+        $response = $request->sendShoptet();
         return $response->getProducts();
+    }
+
+    /**
+     * @param ClientService $clientService
+     * @param ProductFilter[] $productFilters
+     */
+    public static function queueProducts(ClientService $clientService, array $productFilters): ?QueueResponse
+    {
+        $request = new Request($clientService);
+        $request->queueProducts();
+        /** @var ProductFilter $productFilter */
+        foreach ($productFilters as $productFilter) {
+            $request->addFilterProducts($productFilter);
+        }
+        $response = $request->sendShoptet();
+        return $response->getQueue();
+    }
+
+    /**
+     * @param ClientService $clientService
+     * @param OrderFilter[] $orderFilters
+     */
+    public static function queueOrders(ClientService $clientService, array $orderFilters): ?QueueResponse
+    {
+        $request = new Request($clientService);
+        $request->queueOrders();
+        /** @var OrderFilter $orderFilter */
+        foreach ($orderFilters as $orderFilter) {
+            $request->addFilterOrders($orderFilter);
+        }
+        $response = $request->sendShoptet();
+        return $response->getQueue();
+    }
+
+    /**
+     * @param ClientService $clientService
+     * @param QueueFilter[] $queueFilters
+     */
+    public  static function queues(ClientService $clientService, array $queueFilters): ?JobListResponse
+    {
+        $request = new Request($clientService);
+        $request->queues();
+        /** @var QueueFilter $queueFilter */
+        foreach ($queueFilters as $queueFilter) {
+            $request->addFilterQueues($queueFilter);
+        }
+        $response = $request->sendShoptet();
+        return $response->getQueues();
     }
 
     public static function getProductDetail(ClientService $clientService, string $productGuid): ?ProductDetailResponse
     {
         $request = new Request($clientService);
         $request->getProductDetail($productGuid);
-        $response = $request->send();
+        $response = $request->sendShoptet();
         return $response->getProductDetails();
     }
 
@@ -41,7 +95,7 @@ class ConnectorHelper
     {
         $request = new Request($clientService);
         $request->getEshop();
-        $response = $request->send();
+        $response = $request->sendShoptet();
         return $response->getEshop();
     }
 
@@ -49,7 +103,7 @@ class ConnectorHelper
     {
         $request = new Request($clientService);
         $request->getOrders($page, $dateLastSynced);
-        $response = $request->send();
+        $response = $request->sendShoptet();
         return $response->getOrders();
     }
 
@@ -57,7 +111,7 @@ class ConnectorHelper
     {
         $request = new Request($clientService);
         $request->getOrderDetail($code);
-        $response = $request->send();
+        $response = $request->sendShoptet();
         return $response->getOrderDetails();
     }
 
@@ -65,7 +119,7 @@ class ConnectorHelper
     {
         $request = new Request($clientService);
         $request->postTemplateInclude($body);
-        $response = $request->send();
+        $response = $request->sendShoptet();
         return $response->postTemplateIncluded();
     }
 
@@ -73,7 +127,15 @@ class ConnectorHelper
     {
         $request = new Request($clientService);
         $request->getAvailabilities();
-        $response = $request->send();
+        $response = $request->sendShoptet();
         return $response->getAvailabilities();
+    }
+
+    public static function getLicense(DateTime $from, DateTime $to): ?LicenseListResponse
+    {
+        $request = new FioRequest();
+        $request->getLicense($from, $to);
+        $response = $request->sendFio();
+        return $response->getLicense();
     }
 }

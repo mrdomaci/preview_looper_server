@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
-use App\Connector\ProductVariantResponse;
+use App\Connector\Shoptet\ProductVariantResponse;
 use App\Models\Currency;
 
 class PriceHelper

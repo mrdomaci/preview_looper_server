@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Connector\AvailabilityResponse;
+use App\Connector\Shoptet\AvailabilityResponse;
 use App\Enums\AvailabilityLevelEnum;
 use App\Exceptions\DataNotFoundException;
 use App\Models\Availability;

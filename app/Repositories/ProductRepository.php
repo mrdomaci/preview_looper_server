@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Connector\ProductDetailResponse;
-use App\Connector\ProductResponse;
-use App\Connector\ProductVariantResponse;
+use App\Connector\Shoptet\ProductDetailResponse;
+use App\Connector\Shoptet\ProductResponse;
+use App\Connector\Shoptet\ProductVariantResponse;
 use App\Helpers\PriceHelper;
 use App\Helpers\StringHelper;
 use App\Models\Availability;

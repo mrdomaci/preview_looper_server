@@ -80,6 +80,8 @@ class ClientController extends Controller
                 'client_settings' => $client->ClientSettingsServiceOptions()->get(),
                 'categories' => $client->categories()->get(),
                 'product_category_recommendations' => $client->productCategoryRecommendations()->get(),
+                'licences' => $clientService->licences()->get(),
+                'variable_symbol' => $clientService->getVariableSymbol(),
             ]
         );
     }

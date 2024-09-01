@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Businesses;
 
-use App\Connector\ProductCategory;
-use App\Connector\ProductDetailResponse;
+use App\Connector\Shoptet\ProductCategory;
+use App\Connector\Shoptet\ProductDetailResponse;
 use App\Models\Product;
 use App\Repositories\CategoryRepository;
 use App\Repositories\ProductCategoryRepository;
