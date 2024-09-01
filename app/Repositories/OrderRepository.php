@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Connector\OrderResponse;
+use App\Connector\Shoptet\OrderResponse;
 use App\Helpers\StringHelper;
 use App\Models\Client;
 use App\Models\Order;

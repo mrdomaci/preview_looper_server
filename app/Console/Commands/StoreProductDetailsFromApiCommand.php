@@ -8,7 +8,7 @@ use App\Businesses\ClientServiceBusiness;
 use App\Businesses\ImageBusiness;
 use App\Businesses\ProductBusiness;
 use App\Businesses\ProductCategoryBusiness;
-use App\Connector\ProductDetailResponse;
+use App\Connector\Shoptet\ProductDetailResponse;
 use App\Enums\SyncEnum;
 use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\ApiRequestNonExistingResourceException;

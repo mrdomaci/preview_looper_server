@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
-use App\Connector\ProductFilter;
+use App\Connector\Shoptet\ProductFilter;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ConnectorHelper;

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Connector\OrderDetailResponse;
-use App\Connector\OrderResponse;
+use App\Connector\Shoptet\OrderDetailResponse;
+use App\Connector\Shoptet\OrderResponse;
 use App\Models\Client;
 use App\Models\Order;
 use App\Models\OrderProduct;

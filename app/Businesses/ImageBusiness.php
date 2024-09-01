@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Businesses;
 
-use App\Connector\ProductDetailResponse;
+use App\Connector\Shoptet\ProductDetailResponse;
 use App\Models\Client;
 use App\Models\Product;
 use App\Models\Service;

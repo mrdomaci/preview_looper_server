@@ -49,5 +49,12 @@ return [
     'category' => 'Category',
     'product' => 'Product',
     'no_recommendations' => 'You have no defined recommendations',
-    'url_addon' => 'https://doplnky.shoptet.cz/easy-upsell'
+    'url_addon' => 'https://doplnky.shoptet.cz/easy-upsell',
+    'active' => 'Active',
+    'valid' => 'Valid until',
+    'licence' => 'License',
+    'no_licence' => 'You do not have a purchased license',
+    'licence_info' => 'This add-on is provided for free with a monthly limit of 50 paid orders. For a higher number of orders, it is necessary to purchase a license.',
+    'licence_monthly_payment' => 'You can purchase a license for <b>31 days</b> for <b>490 CZK</b> by sending this amount with <b>variable symbol :variable</b> to account <b>1234567890/1234</b>. The license will be activated once the payment is received. You may set up a deferred payment at your bank if necessary.',
+    'licence_yearly_payment' => 'You can purchase a license for <b>365 days</b> for <b>4990 CZK</b> by sending this amount with <b>variable symbol :variable</b> to account <b>1234567890/1234</b>. The license will be activated once the payment is received. You may set up a deferred payment at your bank if necessary.',
 ];

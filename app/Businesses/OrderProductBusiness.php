@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Businesses;
 
-use App\Connector\OrderResponse;
+use App\Connector\Shoptet\OrderResponse;
 use App\Helpers\GeneratorHelper;
 use App\Models\ClientService;
 use App\Models\Order;

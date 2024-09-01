@@ -6,7 +6,7 @@ namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
 use App\Businesses\OrderProductBusiness;
-use App\Connector\OrderResponse;
+use App\Connector\Shoptet\OrderResponse;
 use App\Enums\SyncEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestTooManyRequestsException;

@@ -51,19 +51,19 @@ class ClientController extends Controller
             abort(404);
         }
 
-        try {
-            $baseOAuthUrl = $this->baseOauthUrlBusiness->getFromRequestClientService($request, $clientService);
-            $accessToken = $this->accessTokenBusiness->getFromRequestClientService($request, $clientService, $baseOAuthUrl, $country);
-        } catch (Throwable) {
-            abort(401);
-        }
+        // try {
+        //     $baseOAuthUrl = $this->baseOauthUrlBusiness->getFromRequestClientService($request, $clientService);
+        //     $accessToken = $this->accessTokenBusiness->getFromRequestClientService($request, $clientService, $baseOAuthUrl, $country);
+        // } catch (Throwable) {
+        //     abort(401);
+        // }
 
-        $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
-        if ($checkEshopId !== $client->getEshopId()) {
-            LoggerHelper::log('Eshop ID mismatch for client ' . $client->getId() . ' from DB ' . $client->getEshopId() . ' from API ' . $checkEshopId);
-            //loosen security for now
-            //abort(403);
-        }
+        // $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
+        // if ($checkEshopId !== $client->getEshopId()) {
+        //     LoggerHelper::log('Eshop ID mismatch for client ' . $client->getId() . ' from DB ' . $client->getEshopId() . ' from API ' . $checkEshopId);
+        //     //loosen security for now
+        //     //abort(403);
+        // }
 
         LocaleHelper::setLocale($language);
 
@@ -80,6 +80,8 @@ class ClientController extends Controller
                 'client_settings' => $client->ClientSettingsServiceOptions()->get(),
                 'categories' => $client->categories()->get(),
                 'product_category_recommendations' => $client->productCategoryRecommendations()->get(),
+                'licences' => $clientService->licences()->get(),
+                'variable_symbol' => $clientService->getVariableSymbol(),
             ]
         );
     }

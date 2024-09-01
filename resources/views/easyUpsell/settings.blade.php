@@ -1,3 +1,6 @@
+<?php
+use App\Helpers\QrHelper;
+?>
 @include('../layouts.header')
 <div class="container">
   <div class="card m-4">
@@ -37,6 +40,43 @@
             </div>
         </div>
       </form>
+      <div class="card-body">
+            <h4>{{ __('easy-upsell.licence')}}</h4>
+            <div class="form-group row mt-4">
+                <div class="col-md-12 mb-4">
+                    @if (count($licences) > 0)
+                        @foreach ($licences as $licence)
+                            <label>{{ __('easy-upsell.valid')}}: {{ $licence->valid_to }}</label>
+                        @endforeach
+                    @else
+                        <label>{{ __('easy-upsell.no_licence')}}.</label>
+                    @endif
+                </div>
+            </div>
+            <div class="form-group row mt-4">
+                <div class="col-md-12 mb-4">
+                    <label>{{ __('easy-upsell.licence_info')}}</label>
+                </div>
+            </div>
+            <div class="form-group row mt-4">
+                <div class="col-md-12 mb-4">
+                    <label>{!! __('easy-upsell.licence_monthly_payment', ['variable' => $variable_symbol]) !!}</label>
+                </div>
+                <div class="col-md-12 mb-4">
+                    <img src="{{ QrHelper::requestPayment(200, 'CZ2206000000000258219536', 490, $variable_symbol, 'CZK') }}"/>
+                </div>
+            </div>
+            <div class="form-group row mt-4">
+                <div class="col-md-12 mb-4">
+                    <label>{!! __('easy-upsell.licence_yearly_payment', ['variable' => $variable_symbol]) !!}</label>
+                </div>
+                <div class="col-md-12 mb-4">
+                    <div class="text-start">
+                        <img src="{{ QrHelper::requestPayment(200, 'CZ2206000000000258219536', 4990, $variable_symbol, 'CZK') }}"/>
+                    </div>
+                </div>
+            </div>
+      </div>
       <div class="card-body">
         <form method="POST" action="{{ route('recommendation.add', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath(), 'language' => $language, 'eshopId' => $client->getEshopId()]) }}">
             @csrf

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Connector\EshopResponse;
+use App\Connector\Shoptet\EshopResponse;
 use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\DataNotFoundException;
 use App\Models\Client;

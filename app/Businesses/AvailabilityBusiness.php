@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Businesses;
 
-use App\Connector\AvailabilityListResponse;
-use App\Connector\AvailabilityResponse;
+use App\Connector\Shoptet\AvailabilityListResponse;
+use App\Connector\Shoptet\AvailabilityResponse;
 use App\Enums\AvailabilityLevelEnum;
 use App\Models\ClientService;
 use App\Repositories\AvailabilityRepository;

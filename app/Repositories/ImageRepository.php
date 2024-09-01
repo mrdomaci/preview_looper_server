@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Connector\ProductImageResponse;
+use App\Connector\Shoptet\ProductImageResponse;
 use App\Models\Client;
 use App\Models\Image;
 use App\Models\Product;
