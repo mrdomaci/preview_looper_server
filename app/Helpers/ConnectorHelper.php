@@ -131,10 +131,10 @@ class ConnectorHelper
         return $response->getAvailabilities();
     }
 
-    public static function getLicense(DateTime $from, DateTime $to): ?LicenseListResponse
+    public static function getLicense(DateTime $from, DateTime $to, string $currency): ?LicenseListResponse
     {
         $request = new FioRequest();
-        $request->getLicense($from, $to);
+        $request->getLicense($from, $to, $currency);
         $response = $request->sendFio();
         return $response->getLicense();
     }

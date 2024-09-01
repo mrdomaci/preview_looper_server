@@ -12,9 +12,15 @@ class License
     public const ENDPOINT = '/%s/%s/%s/transactions.json';
     public const QUERY = [];
 
-    public static function getEndpoint(DateTime $from, DateTime $to): string
+    public static function getEndpoint(DateTime $from, DateTime $to, string $currency): string
     {
-        return sprintf(self::ENDPOINT, env('FIO_API_KEY'), $from->format('Y-m-d'), $to->format('Y-m-d'));
+        if ($currency === 'CZK') {
+            return sprintf(self::ENDPOINT, env('FIO_API_KEY'), $from->format('Y-m-d'), $to->format('Y-m-d'));
+        }
+        if ($currency === 'EUR') {
+            return sprintf(self::ENDPOINT, env('FIO_API_KEY_EUR'), $from->format('Y-m-d'), $to->format('Y-m-d'));
+        }
+        return 'unknown_currency_endpoint';
     }
 
     /**

@@ -7,7 +7,6 @@ namespace App\Connector\Fio;
 use App\Exceptions\BankApiRequestFailException;
 use DateTime;
 use Exception;
-use GuzzleHttp\Exception\ClientException;
 use Psr\Http\Message\ResponseInterface;
 
 class Request
@@ -28,10 +27,10 @@ class Request
     ) {
     }
 
-    public function getLicense(DateTime $from, DateTime $to): Request
+    public function getLicense(DateTime $from, DateTime $to, string $currency): Request
     {
         $this->setMethod(License::getMethod());
-        $this->setEndpoint(License::getEndpoint($from, $to));
+        $this->setEndpoint(License::getEndpoint($from, $to, $currency));
         return $this;
     }
 
@@ -93,14 +92,7 @@ class Request
 
     public function sendFio(): Response
     {
-        try {
-            $response = $this->sendFioRequest();
-        } catch (ClientException $e) {
-            if ($e->getCode() !== 409) {
-                throw new BankApiRequestFailException($e);
-            }
-        }
-
+        $response = $this->sendFioRequest();
         return $this->parseResponse($response->getBody()->getContents());
     }
 
