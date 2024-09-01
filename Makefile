@@ -1,4 +1,4 @@
-CONTAINER_NAME := laravel-app
+CONTAINER_NAME := preview_looper_server-php-fpm-1
 
 ### DOCKER ###
 

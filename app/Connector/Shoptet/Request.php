@@ -44,6 +44,33 @@ class Request
         return $this;
     }
 
+    public function queueProducts(): Request
+    {
+        $this->setMethod(ProductSnapshot::getMethod());
+        $this->setEndpoint(ProductSnapshot::getEndpoint());
+        return $this;
+    }
+
+    public function queueOrders(): Request
+    {
+        $this->setMethod(OrderSnapshot::getMethod());
+        $this->setEndpoint(OrderSnapshot::getEndpoint());
+        return $this;
+    }
+
+    public function queues(): Request
+    {
+        $this->setMethod(Queue::getMethod());
+        $this->setEndpoint(Queue::getEndpoint());
+        return $this;
+    }
+
+    public function addFilterQueues(QueueFilter $queueFilter): Request
+    {
+        $this->query[$queueFilter->getKey()] = $queueFilter->getValue();
+        return $this;
+    }
+
     public function getProductDetail(string $guid): Request
     {
         $this->setMethod(Product::getMethod());
@@ -55,6 +82,12 @@ class Request
     public function addFilterProducts(ProductFilter $productFilter): Request
     {
         $this->query[$productFilter->getKey()] = $productFilter->getValue();
+        return $this;
+    }
+
+    public function addFilterOrders(OrderFilter $orderFilter): Request
+    {
+        $this->query[$orderFilter->getKey()] = $orderFilter->getValue();
         return $this;
     }
 

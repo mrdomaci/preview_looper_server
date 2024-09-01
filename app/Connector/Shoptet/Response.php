@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connector\Shoptet;
 
+use App\Enums\QueueStatusEnum;
 use App\Exceptions\ApiResponsePaginatorFailException;
 use App\Helpers\ArrayHelper;
 use App\Helpers\LoggerHelper;
@@ -164,6 +165,97 @@ class Response
             $productListResponse->addProduct(new ProductResponse($guid, $creationTime, $changeTime, $name, $voteAverageScore, $voteCount, $type, $visibility, $defaultCategory, $url, $supplier, $brand));
         }
         return $productListResponse;
+    }
+
+    public function getQueue(): ?QueueResponse
+    {
+        if (ArrayHelper::containsKey($this->data, 'jobId') === false) {
+            return null;
+        }
+        return new QueueResponse($this->data['jobId']);
+    }
+
+    public function getQueues(): ?JobListResponse
+    {
+        if (ArrayHelper::containsKey($this->data, 'jobs') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data, 'paginator') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['paginator'], 'totalCount') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['paginator'], 'page') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['paginator'], 'pageCount') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['paginator'], 'itemsOnPage') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['paginator'], 'itemsPerPage') === false) {
+            return null;
+        }
+
+        $jobListResponse = new JobListResponse(
+            $this->data['paginator']['totalCount'],
+            $this->data['paginator']['page'],
+            $this->data['paginator']['pageCount'],
+            $this->data['paginator']['itemsOnPage'],
+            $this->data['paginator']['itemsPerPage'],
+            []
+        );
+
+        foreach ($this->data['jobs'] as $job) {
+            $jobId = null;
+            $endpoint = null;
+            $creationTime = null;
+            $completionTime = null;
+            $status = null;
+            $validUntil = null;
+            $resultUrl = null;
+
+            if (ArrayHelper::containsKey($job, 'jobId') === false) {
+                continue;
+            } else {
+                $jobId = $job['jobId'];
+            }
+
+            if (ArrayHelper::containsKey($job, 'endpoint') === false) {
+                continue;
+            } else {
+                $endpoint = $job['endpoint'];
+            }
+
+            if (ArrayHelper::containsKey($job, 'resultUrl') === false) {
+                continue;
+            } else {
+                $resultUrl = $job['resultUrl'];
+            }
+
+            if (ArrayHelper::containsKey($job, 'creationTime') && $job['creationTime'] !== null) {
+                $creationTime = new DateTime($job['creationTime']);
+            }
+
+            if (ArrayHelper::containsKey($job, 'completionTime') && $job['completionTime'] !== null) {
+                $completionTime = new DateTime($job['completionTime']);
+            }
+
+            if (ArrayHelper::containsKey($job, 'status') === false) {
+                continue;
+            } else {
+                $status = QueueStatusEnum::fromCase($job['status']);
+            }
+
+            if (ArrayHelper::containsKey($job, 'validUntil') && $job['validUntil'] !== null) {
+                $validUntil = new DateTime($job['validUntil']);
+            }
+
+            $jobListResponse->addJob(new JobResponse($jobId, $endpoint, $creationTime, $completionTime, $status, $validUntil, $resultUrl));
+        }
+        return $jobListResponse;
     }
 
     public function getOrders(): ?OrderListResponse

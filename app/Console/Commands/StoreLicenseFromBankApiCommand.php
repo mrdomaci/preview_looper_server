@@ -11,7 +11,7 @@ use App\Repositories\ClientServiceRepository;
 use DateTime;
 use Illuminate\Console\Command;
 
-class StoreLicenseFromBankApiCommand extends AbstractClientServiceCommand
+class StoreLicenseFromBankApiCommand extends AbstractCommand
 {
     /**
      * The name and signature of the console command.

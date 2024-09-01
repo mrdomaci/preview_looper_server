@@ -8,11 +8,15 @@ use App\Connector\Fio\LicenseListResponse;
 use App\Connector\Fio\Request as FioRequest;
 use App\Connector\Shoptet\AvailabilityListResponse;
 use App\Connector\Shoptet\EshopResponse;
+use App\Connector\Shoptet\JobListResponse;
 use App\Connector\Shoptet\OrderDetailListResponse;
+use App\Connector\Shoptet\OrderFilter;
 use App\Connector\Shoptet\OrderListResponse;
 use App\Connector\Shoptet\ProductDetailResponse;
 use App\Connector\Shoptet\ProductFilter;
 use App\Connector\Shoptet\ProductListResponse;
+use App\Connector\Shoptet\QueueFilter;
+use App\Connector\Shoptet\QueueResponse;
 use App\Connector\Shoptet\Request;
 use App\Connector\Shoptet\TemplateIncludeResponse;
 use App\Models\ClientService;
@@ -29,6 +33,54 @@ class ConnectorHelper
         }
         $response = $request->sendShoptet();
         return $response->getProducts();
+    }
+
+    /**
+     * @param ClientService $clientService
+     * @param ProductFilter[] $productFilters
+     */
+    public static function queueProducts(ClientService $clientService, array $productFilters): ?QueueResponse
+    {
+        $request = new Request($clientService);
+        $request->queueProducts();
+        /** @var ProductFilter $productFilter */
+        foreach ($productFilters as $productFilter) {
+            $request->addFilterProducts($productFilter);
+        }
+        $response = $request->sendShoptet();
+        return $response->getQueue();
+    }
+
+    /**
+     * @param ClientService $clientService
+     * @param OrderFilter[] $orderFilters
+     */
+    public static function queueOrders(ClientService $clientService, array $orderFilters): ?QueueResponse
+    {
+        $request = new Request($clientService);
+        $request->queueOrders();
+        /** @var OrderFilter $orderFilter */
+        foreach ($orderFilters as $orderFilter) {
+            $request->addFilterOrders($orderFilter);
+        }
+        $response = $request->sendShoptet();
+        return $response->getQueue();
+    }
+
+    /**
+     * @param ClientService $clientService
+     * @param QueueFilter[] $queueFilters
+     */
+    public  static function queues(ClientService $clientService, array $queueFilters): ?JobListResponse
+    {
+        $request = new Request($clientService);
+        $request->queues();
+        /** @var QueueFilter $queueFilter */
+        foreach ($queueFilters as $queueFilter) {
+            $request->addFilterQueues($queueFilter);
+        }
+        $response = $request->sendShoptet();
+        return $response->getQueues();
     }
 
     public static function getProductDetail(ClientService $clientService, string $productGuid): ?ProductDetailResponse
