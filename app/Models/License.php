@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Throwable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class License extends Model
 {
@@ -32,11 +34,11 @@ class License extends Model
     ];
 
     protected $casts = [
-        'valid_to' => 'datetime:Y-m-d',
+        'valid_to' => 'datetime',
         'is_active' => 'boolean',
     ];
 
-    public function clientService()
+    public function clientService(): BelongsTo
     {
         return $this->belongsTo(ClientService::class);
     }
@@ -119,45 +121,5 @@ class License extends Model
     public function getBic(): string
     {
         return $this->getAttribute('bic');
-    }
-
-    public static function createOrSkip(
-        string $foreignId,
-        DateTime $applyDate,
-        float $amount,
-        string $currency,
-        string $accountNumber,
-        string $accountName,
-        string $bankCode,
-        string $bankName,
-        string $constantSymbol,
-        string $variableSymbol,
-        string $specificSymbol,
-        string $messageForRecipient,
-        string $bic,
-    ): ?self
-    {
-        try {
-            $license = Self::where('foreign_id', $foreignId)->firstOrFail();
-            return null;
-        } catch (Throwable) {
-            return Self::create([
-                'client_service_id' => 1,
-                'value' => $amount,
-                'currency' => $currency,
-                'valid_to' => $applyDate->format('Y-m-d'),
-                'is_active' => true,
-                'foreign_id' => $foreignId,
-                'account_number' => $accountNumber,
-                'bank_code' => $bankCode,
-                'account_name' => $accountName,
-                'bank_name' => $bankName,
-                'bic' => $bic,
-                'variable_symbol' => $variableSymbol,
-                'specific_symbol' => $specificSymbol,
-                'constant_symbol' => $constantSymbol,
-                'note' => $messageForRecipient,
-            ]);
-        }
     }
 }

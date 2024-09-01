@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Connector\Fio;
 
+use App\Exceptions\BankApiRequestFailException;
 use DateTime;
+use Exception;
+use GuzzleHttp\Exception\ClientException;
 use Psr\Http\Message\ResponseInterface;
 
 class Request
@@ -29,7 +32,6 @@ class Request
     {
         $this->setMethod(License::getMethod());
         $this->setEndpoint(License::getEndpoint($from, $to));
-        dd($this);
         return $this;
     }
 
@@ -93,8 +95,10 @@ class Request
     {
         try {
             $response = $this->sendFioRequest();
-        } catch (\Throwable $e) {
-            dd($e);
+        } catch (ClientException $e) {
+            if ($e->getCode() !== 409) {
+                throw new BankApiRequestFailException($e);
+            }
         }
 
         return $this->parseResponse($response->getBody()->getContents());
@@ -116,6 +120,9 @@ class Request
     private function parseResponse(string $response): Response
     {
         $response = json_decode($response, true);
-        return new Response($response['data'], $response['errors']);
+        if (isset($response['accountStatement']) === false) {
+            throw new BankApiRequestFailException(new Exception('Bank api response returned invalid data'));
+        }
+        return new Response($response['accountStatement']);
     }
 }

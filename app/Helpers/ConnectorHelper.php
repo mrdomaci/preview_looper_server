@@ -37,7 +37,7 @@ class ConnectorHelper
 
     /**
      * @param ClientService $clientService
-     * @param ProductFilter[] $productFilters
+     * @param array<ProductFilter> $productFilters
      */
     public static function queueProducts(ClientService $clientService, array $productFilters): ?QueueResponse
     {
@@ -53,7 +53,7 @@ class ConnectorHelper
 
     /**
      * @param ClientService $clientService
-     * @param OrderFilter[] $orderFilters
+     * @param array<OrderFilter> $orderFilters
      */
     public static function queueOrders(ClientService $clientService, array $orderFilters): ?QueueResponse
     {
@@ -69,9 +69,9 @@ class ConnectorHelper
 
     /**
      * @param ClientService $clientService
-     * @param QueueFilter[] $queueFilters
+     * @param array<QueueFilter> $queueFilters
      */
-    public  static function queues(ClientService $clientService, array $queueFilters): ?JobListResponse
+    public static function queues(ClientService $clientService, array $queueFilters): ?JobListResponse
     {
         $request = new Request($clientService);
         $request->queues();

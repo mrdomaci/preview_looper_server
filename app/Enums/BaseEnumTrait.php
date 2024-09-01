@@ -32,4 +32,3 @@ trait BaseEnumTrait
         throw new EnumFailException(new Exception('Invalid enum value: ' . $value));
     }
 }
-
