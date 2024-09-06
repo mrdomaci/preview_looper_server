@@ -52,4 +52,9 @@ class StringHelper
         }
         return hash('xxh32', $value);
     }
+
+    public static function contains(string $haystack, string $needle): bool
+    {
+        return strpos($haystack, $needle) !== false;
+    }
 }

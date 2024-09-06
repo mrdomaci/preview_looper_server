@@ -175,6 +175,36 @@ class Response
         return new QueueResponse($this->data['jobId']);
     }
 
+    public function getQueueByJobId(): ?QueueResponse
+    {
+        if (ArrayHelper::containsKey($this->data, 'job') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['job'], 'jobId') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['job'], 'endpoint') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['job'], 'status') === false) {
+            return null;
+        }
+        if (ArrayHelper::containsKey($this->data['job'], 'resultUrl') === false) {
+            return null;
+        }
+        return new QueueResponse(
+            $this->data['job']['jobId'],
+            $this->data['job']['endpoint'],
+            (isset($this->data['job']['creationTime']) ? new DateTime($this->data['job']['creationTime']) : null),
+            ($this->data['job']['duration'] ?? null),
+            (isset($this->data['job']['completionTime']) ? new DateTime($this->data['job']['completionTime']) : null),
+            QueueStatusEnum::fromCase($this->data['job']['status']),
+            $this->data['job']['resultUrl'],
+            (isset($this->data['job']['validUntil']) ? new DateTime($this->data['job']['validUntil']) : null),
+            ($this->data['job']['log'] ?? null),
+        );
+    }
+
     public function getQueues(): ?JobListResponse
     {
         if (ArrayHelper::containsKey($this->data, 'jobs') === false) {
@@ -199,14 +229,7 @@ class Response
             return null;
         }
 
-        $jobListResponse = new JobListResponse(
-            $this->data['paginator']['totalCount'],
-            $this->data['paginator']['page'],
-            $this->data['paginator']['pageCount'],
-            $this->data['paginator']['itemsOnPage'],
-            $this->data['paginator']['itemsPerPage'],
-            []
-        );
+        $tempJobs = [];
 
         foreach ($this->data['jobs'] as $job) {
             $jobId = null;
@@ -215,7 +238,6 @@ class Response
             $completionTime = null;
             $status = null;
             $validUntil = null;
-            $resultUrl = null;
 
             if (ArrayHelper::containsKey($job, 'jobId') === false) {
                 continue;
@@ -229,11 +251,7 @@ class Response
                 $endpoint = $job['endpoint'];
             }
 
-            if (ArrayHelper::containsKey($job, 'resultUrl') === false) {
-                continue;
-            } else {
-                $resultUrl = $job['resultUrl'];
-            }
+            $resultUrl = (ArrayHelper::containsKey($job, 'resultUrl') ? $job['resultUrl'] : null);
 
             if (ArrayHelper::containsKey($job, 'creationTime') && $job['creationTime'] !== null) {
                 $creationTime = new DateTime($job['creationTime']);
@@ -253,9 +271,16 @@ class Response
                 $validUntil = new DateTime($job['validUntil']);
             }
 
-            $jobListResponse->addJob(new JobResponse($jobId, $endpoint, $creationTime, $completionTime, $status, $validUntil, $resultUrl));
+            $tempJobs[] = new JobResponse($jobId, $endpoint, $creationTime, $completionTime, $status, $validUntil, $resultUrl);
         }
-        return $jobListResponse;
+        return new JobListResponse(
+            $this->data['paginator']['totalCount'],
+            $this->data['paginator']['page'],
+            $this->data['paginator']['pageCount'],
+            $this->data['paginator']['itemsOnPage'],
+            $this->data['paginator']['itemsPerPage'],
+            $tempJobs
+        );
     }
 
     public function getOrders(): ?OrderListResponse
@@ -775,6 +800,11 @@ class Response
             }
         }
         return new TemplateIncludeResponse($templateIncludes);
+    }
+
+    public function postWebhook(): bool
+    {
+        return true;
     }
 
     public function getAvailabilities(): ?AvailabilityListResponse

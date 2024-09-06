@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Connector\Shoptet\Endpoint;
 use App\Connector\Shoptet\JobResponse;
 use App\Connector\Shoptet\QueueResponse;
 use App\Enums\QueueStatusEnum;
@@ -11,6 +12,7 @@ use App\Exceptions\DataNotFoundException;
 use App\Models\ClientService;
 use App\Models\Queue;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 
 class QueueRepository
 {
@@ -24,9 +26,24 @@ class QueueRepository
         return $entity;
     }
 
+    public function getByJobId(string $jobId): Queue
+    {
+        $entity = Queue::where('job_id', $jobId)->where('status', QueueStatusEnum::PENDING->name)->first();
+        if ($entity === null) {
+            throw new DataNotFoundException(new Exception('Queue not found job_id: ' . $jobId));
+        }
+        return $entity;
+    }
+
+    public function getCompleted(int $limit): Collection
+    {
+        return Queue::where('status', QueueStatusEnum::COMPLETED->name)->limit($limit)->get();
+    }
+
     public function createOrIgnoreFromResponse(
         ClientService $clientService,
         QueueResponse $response,
+        ?Endpoint $endpoint,
     ): void {
         $queue = Queue::where('client_service_id', $clientService->getId())
             ->where('job_id', $response->getJobId())
@@ -35,6 +52,7 @@ class QueueRepository
             $queue = new Queue();
             $queue->setClientServiceId($clientService->id);
             $queue->setJobId($response->getJobId());
+            $queue->setEndpoint($endpoint->getEndpoint());
             $queue->status = QueueStatusEnum::PENDING->name;
             $queue->save();
         }
@@ -51,9 +69,6 @@ class QueueRepository
             $queue = new Queue();
             $queue->setClientServiceId($clientService->id);
             $queue->setJobId($response->getJobId());
-        }
-        if ($queue->status === $response->getStatus()->name) {
-            return;
         }
         $queue->status = $response->getStatus()->name;
         $queue->reqsult_url = $response->getResultUrl();

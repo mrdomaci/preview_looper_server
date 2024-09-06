@@ -19,7 +19,9 @@ use App\Connector\Shoptet\QueueFilter;
 use App\Connector\Shoptet\QueueResponse;
 use App\Connector\Shoptet\Request;
 use App\Connector\Shoptet\TemplateIncludeResponse;
+use App\Connector\Shoptet\Webhook;
 use App\Models\ClientService;
+use App\Models\Queue;
 use DateTime;
 
 class ConnectorHelper
@@ -83,6 +85,14 @@ class ConnectorHelper
         return $response->getQueues();
     }
 
+    public static function queue(ClientService $clientService, Queue $queue): ?QueueResponse
+    {
+        $request = new Request($clientService);
+        $request->queue($queue->getJobId());
+        $response = $request->sendShoptet();
+        return $response->getQueueByJobId();
+    }
+
     public static function getProductDetail(ClientService $clientService, string $productGuid): ?ProductDetailResponse
     {
         $request = new Request($clientService);
@@ -121,6 +131,14 @@ class ConnectorHelper
         $request->postTemplateInclude($body);
         $response = $request->sendShoptet();
         return $response->postTemplateIncluded();
+    }
+
+    public static function postWebhook(ClientService $clientService): bool
+    {
+        $request = new Request($clientService);
+        $request->postWebhook((new Webhook())->getBody());
+        $response = $request->sendShoptet();
+        return $response->postWebhook();
     }
 
     public static function getAvailabilities(ClientService $clientService): ?AvailabilityListResponse

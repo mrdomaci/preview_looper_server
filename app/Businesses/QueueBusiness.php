@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Businesses;
 
+use App\Connector\Shoptet\Endpoint;
 use App\Connector\Shoptet\JobListResponse;
 use App\Connector\Shoptet\QueueResponse;
 use App\Models\ClientService;
@@ -15,7 +16,7 @@ class QueueBusiness
         private QueueRepository $queueRepository
     ) {
     }
-    public function createOrIgnoreFromResponse(ClientService $clientService, ?QueueResponse $queueResponse): void
+    public function createOrIgnoreFromResponse(ClientService $clientService, ?QueueResponse $queueResponse, ?Endpoint $endpoint): void
     {
         if ($queueResponse === null) {
             return;
@@ -23,6 +24,7 @@ class QueueBusiness
         $this->queueRepository->createOrIgnoreFromResponse(
             $clientService,
             $queueResponse,
+            $endpoint,
         );
     }
 

@@ -17,16 +17,26 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
+        'client_id',
         'guid',
         'active',
         'created_at',
         'updated_at',
+        'name',
+        'perex',
+        'description',
+        'url',
+        'category',
+        'category_id',
+        'producer',
+        'images',
     ];
 
     protected $casts = [
         'active' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'images' => 'array',
     ];
 
     public function getId(): int
@@ -308,6 +318,22 @@ class Product extends Model
     public function setAvailabilityLevel(?AvailabilityLevelEnum $availabilityLevel): self
     {
         return $this->setAttribute('availability_level', $availabilityLevel?->value);
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getImages(): ?array
+    {
+        return $this->getAttribute('images');
+    }
+
+    /**
+     * @param array<string> $images
+     */
+    public function setImages(?array $images): self
+    {
+        return $this->setAttribute('images', $images);
     }
 
     public static function clone(Product $product): self

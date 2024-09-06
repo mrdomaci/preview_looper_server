@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connector\Shoptet;
 
+use App\Exceptions\ApiAlreadyRequestedException;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestNonExistingResourceException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
@@ -65,6 +66,13 @@ class Request
         return $this;
     }
 
+    public function queue(string $jobId): Request
+    {
+        $this->setMethod(Queue::getMethod());
+        $this->setEndpoint(Queue::getEndpoint($jobId));
+        return $this;
+    }
+
     public function addFilterQueues(QueueFilter $queueFilter): Request
     {
         $this->query[$queueFilter->getKey()] = $queueFilter->getValue();
@@ -121,6 +129,14 @@ class Request
     {
         $this->setMethod(TemplateInclude::getMethod());
         $this->setEndpoint(TemplateInclude::getEndpoint());
+        $this->setBody($body);
+        return $this;
+    }
+
+    public function postWebhook(string $body): Request
+    {
+        $this->setMethod(Webhook::getMethod());
+        $this->setEndpoint(Webhook::getEndpoint());
         $this->setBody($body);
         return $this;
     }
@@ -206,6 +222,8 @@ class Request
                 throw new ApiRequestNonExistingResourceException($e->getMessage(), 404);
             } else if ($e->getCode() === 429) {
                 throw new ApiRequestTooManyRequestsException($e->getMessage(), 429);
+            } else if ($e->getCode() === 422) {
+                throw new ApiAlreadyRequestedException($e->getMessage(), 422);
             } else {
                 throw new ApiRequestFailException(new Exception('API request failed for ' . self::SHOPTET_API_URL . $this->endpoint . $this->getQueryAsAString() . ' with status code ' . $e->getCode() . ' and message ' . $e->getMessage()));
             }

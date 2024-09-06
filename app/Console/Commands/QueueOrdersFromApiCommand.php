@@ -6,7 +6,9 @@ namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
 use App\Businesses\QueueBusiness;
+use App\Connector\Shoptet\Order;
 use App\Connector\Shoptet\OrderFilter;
+use App\Enums\SyncEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ConnectorHelper;
@@ -73,7 +75,7 @@ class QueueOrdersFromApiCommand extends AbstractClientServiceCommand
                     if ($queueResponse === null) {
                         break;
                     }
-                    $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse);
+                    $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse, new Order());
                 } catch (ApiRequestFailException) {
                     $clientService->setStatusInactive();
                     break;
@@ -87,7 +89,7 @@ class QueueOrdersFromApiCommand extends AbstractClientServiceCommand
                     break;
                 }
                 
-                $clientService->setUpdateInProgress(false);
+                $clientService->setUpdateInProgress(false, SyncEnum::ORDER);
             }
 
             if ($clientServices->count() < $this->getIterationCount()) {

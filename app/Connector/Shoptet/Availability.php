@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connector\Shoptet;
 
-class Availability
+class Availability implements Endpoint
 {
     public const METHOD = 'GET';
     public const ENDPOINT = '/products/availabilities';

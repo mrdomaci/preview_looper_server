@@ -6,12 +6,16 @@ namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
 use App\Businesses\QueueBusiness;
+use App\Connector\Shoptet\Product;
 use App\Connector\Shoptet\ProductFilter;
+use App\Enums\SyncEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
+use App\Helpers\StringHelper;
 use App\Repositories\ClientServiceRepository;
+use Exception;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -66,13 +70,20 @@ class QueueProductsFromApiCommand extends AbstractClientServiceCommand
                 $productFilters = [];
                 $productFilters[] = new ProductFilter('visibility', 'visible');
                 $productFilters[] = new ProductFilter('include', 'images');
+                try {
+                    ConnectorHelper::postWebhook($clientService);
+                } catch (Throwable $t) {
+                    if (StringHelper::contains($t->getMessage(), 'webhook-event-already-registered') === false) {
+                        throw new ApiRequestFailException(new Exception($t->getMessage(), $t->getCode(), $t));
+                    }
+                }
 
                 try {
                     $queueResponse = ConnectorHelper::queueProducts($clientService, $productFilters);
                     if ($queueResponse === null) {
                         break;
                     }
-                    $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse);
+                    $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse, new Product());
                 } catch (ApiRequestFailException) {
                     $clientService->setStatusInactive();
                     break;
@@ -86,7 +97,7 @@ class QueueProductsFromApiCommand extends AbstractClientServiceCommand
                     break;
                 }
                 
-                $clientService->setUpdateInProgress(false);
+                $clientService->setUpdateInProgress(false, SyncEnum::PRODUCT);
             }
 
             if ($clientServices->count() < $this->getIterationCount()) {

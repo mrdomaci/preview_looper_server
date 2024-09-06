@@ -8,6 +8,22 @@ use DateTime;
 
 class ProductResponse
 {
+    /**
+     * @param string $guid
+     * @param DateTime|null $creationTime
+     * @param DateTime|null $changeTime
+     * @param string|null $name
+     * @param float|null $voteAverageScore
+     * @param int|null $voteCount
+     * @param string|null $type
+     * @param string|null $visibility
+     * @param ProductCategory|null $defaultCategory
+     * @param string|null $url
+     * @param string|null $supplier
+     * @param ProductBrand|null $brand
+     * @param string|null $perex
+     * @param array<string>|null $images
+     */
     public function __construct(
         private string $guid,
         private ?DateTime $creationTime,
@@ -21,6 +37,8 @@ class ProductResponse
         private ?string $url,
         private ?string $supplier,
         private ?ProductBrand $brand,
+        private ?string $perex = null,
+        private ?array $images = null,
     ) {
     }
     public function getGuid(): string
@@ -81,5 +99,24 @@ class ProductResponse
     public function getBrand(): ?ProductBrand
     {
         return $this->brand;
+    }
+
+    public function getPerex(): ?string
+    {
+        return $this->perex;
+    }
+
+    public function setPerex(?string $perex): self
+    {
+        $this->perex = $perex;
+        return $this;
+    }
+
+    /**
+     * @return array<string>|null
+     */
+    public function getImages(): ?array
+    {
+        return $this->images;
     }
 }
