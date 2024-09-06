@@ -10,15 +10,18 @@ use App\Businesses\SettingServiceBusiness;
 use App\Businesses\SyncEndpointBusiness;
 use App\Businesses\TemplateIncludeBusiness;
 use App\Enums\CountryEnum;
+use App\Enums\QueueStatusEnum;
 use App\Helpers\AuthorizationHelper;
 use App\Helpers\LocaleHelper;
 use App\Helpers\LoggerHelper;
 use App\Repositories\ClientRepository;
 use App\Repositories\ClientServiceRepository;
+use App\Repositories\QueueRepository;
 use App\Repositories\ServiceRepository;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Throwable;
 
 class ClientController extends Controller
@@ -32,6 +35,7 @@ class ClientController extends Controller
         private readonly TemplateIncludeBusiness $templateIncludeBusiness,
         private readonly SyncEndpointBusiness $syncEndpointBusiness,
         private readonly ClientServiceRepository $clientServiceRepository,
+        private readonly QueueRepository $queueRepository,
     ) {
     }
     public function settings(string $countryCode, string $serviceUrlPath, Request $request): View
@@ -129,5 +133,18 @@ class ClientController extends Controller
         }
 
         return redirect()->route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', trans('general.synced_scheduled'));
+    }
+
+    public function job(Request $request): Response
+    {
+        $data = $request->all();
+        try {
+            $queue = $this->queueRepository->getByJobId($data['eventInstance']);
+            $queue->setStatus(QueueStatusEnum::COMPLETED);
+            $queue->save();
+            return response('OK', 200)->header('Content-Type', 'text/plain');
+        } catch (Throwable) {
+            return response('No data found', 404)->header('Content-Type', 'text/plain');
+        }
     }
 }

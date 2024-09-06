@@ -125,4 +125,13 @@ class ClientServiceRepository
         }
         return $clientService;
     }
+
+    public function get(int $id): ClientService
+    {
+        $entity = ClientService::find($id);
+        if ($entity === null) {
+            throw new DataNotFoundException(new \Exception('ClientService not found id: ' . $id));
+        }
+        return $entity;
+    }
 }

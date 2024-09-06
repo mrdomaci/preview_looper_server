@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Connector\Shoptet;
 
-class Eshop
+class Eshop implements Endpoint
 {
     public const METHOD = 'GET';
     public const ENDPOINT = '/eshop';
+    public const QUERY = [];
 
     public static function getEndpoint(): string
     {
@@ -17,5 +18,10 @@ class Eshop
     public static function getMethod(): string
     {
         return self::METHOD;
+    }
+
+    public static function getQuery(): array
+    {
+        return self::QUERY;
     }
 }

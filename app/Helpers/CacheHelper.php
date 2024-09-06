@@ -23,18 +23,13 @@ class CacheHelper
             $products = Product::where('client_id', $clientId)
                 ->where('id', '>', $lastProductId)
                 ->where('active', 1)
+                ->where('parent_product_id', null)
                 ->limit(1000)
                 ->get();
 
+            /** @var Product $product */
             foreach ($products as $product) {
-                $productImages = $product->images()->orderBy('priority', 'ASC')->get();
-                $guid = $product->getGuid();
-                foreach ($productImages as $productImage) {
-                    if (!isset($result[$guid])) {
-                        $result[$guid] = [];
-                    }
-                    $result[$guid][] = $productImage->getName();
-                }
+                $result[$product->getGuid()] = $product->getImages();
                 $lastProductId = $product->getId();
             }
             if (count($products) < 1000) {

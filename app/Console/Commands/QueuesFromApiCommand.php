@@ -6,7 +6,6 @@ namespace App\Console\Commands;
 
 use App\Businesses\ClientServiceBusiness;
 use App\Businesses\QueueBusiness;
-use App\Connector\Shoptet\QueueFilter;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ConnectorHelper;
@@ -62,9 +61,9 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
                 if ($this->clientServiceBusiness->isForbidenToUpdate($clientService) === true) {
                     continue;
                 }
-                $clientService->setUpdateInProgress(true);
+                //$clientService->setUpdateInProgress(true);
                 $filterQueues = [];
-                $filterQueues[] = new QueueFilter('creationTimeFrom', $yesterday);
+                //$filterQueues[] = new QueueFilter('creationTimeFrom', $yesterday);
                 try {
                     $jobListResponse = ConnectorHelper::queues($clientService, $filterQueues);
                     if ($jobListResponse === null) {

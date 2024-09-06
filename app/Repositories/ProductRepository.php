@@ -88,23 +88,28 @@ class ProductRepository
                 ->get();
     }
 
-    public function createOrUpdateFromResponse(Client $client, ProductResponse $productResponse): void
+    public function createOrUpdateFromResponse(Client $client, ProductResponse $productResponse): Product
     {
-        try {
-            $product = Product::where('client_id', $client->getId())->where('guid', $productResponse->getGuid())->firstOrFail();
-            if ($product->isActive() === false) {
-                $product->setActive(true)
-                    ->save();
-            }
-        } catch (Throwable) {
-            /** @var Product $product */
-            $product = new Product();
-            $product->setGuid($productResponse->getGuid())
-                ->setClient($client)
-                ->setActive(true)
-                ->save();
-        }
+        return Product::updateOrCreate(
+            [
+                'client_id' => $client->getId(),
+                'guid' => $productResponse->getGuid()
+            ],
+            [
+                'active' => true,
+                'created_at' => $productResponse->getCreationTime(),
+                'updated_at' => $productResponse->getChangeTime(),
+                'name' => $productResponse->getName(),
+                'url' => $productResponse->getUrl(),
+                'category' => $productResponse->getDefaultCategory()?->getName(),
+                'category_id' => $productResponse->getDefaultCategory()?->getId(),
+                'perex' => $productResponse->getPerex(),
+                'producer' => $productResponse->getBrand()?->getName(),
+                'images' => $productResponse->getImages(),
+            ]
+        );
     }
+    
 
     public function updateDetailFromResponse(Product $product, ProductDetailResponse $productDetailResponse): void
     {
@@ -147,6 +152,7 @@ class ProductRepository
             ->setAvailabilityForeignId($productVariantResponse->getAvailabilityId())
             ->setAvailabilityLevel($availability?->getLevel())
             ->setAvailability($availability)
+            ->setAvailabilityColor($availability?->getColor())
             ->setStock($productVariantResponse->getStock())
             ->setUnit($productVariantResponse->getUnit())
             ->setPrice(Currency::formatPrice((string)$productVariantResponse->getPrice(), $productVariantResponse->getCurrencyCode()))
@@ -199,5 +205,12 @@ class ProductRepository
             ->orderBy('stock', 'desc')
             ->select('name', 'code', 'guid', 'price', 'availability_name as availability', 'image_url', 'url', 'unit', 'foreign_id as id', 'availability_color as color')
             ->firstOrFail();
+    }
+
+    public function getByGuid(Client $client, string $guid): ?Product
+    {
+        return Product::where('client_id', $client->getId())
+            ->where('guid', $guid)
+            ->first();
     }
 }

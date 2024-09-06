@@ -16,7 +16,7 @@ class JobResponse
         private ?DateTime $completionTime,
         private QueueStatusEnum $status,
         private ?DateTime $validUntil,
-        private string $resultUrl,
+        private ?string $resultUrl,
     ) {
     }
 
@@ -50,7 +50,7 @@ class JobResponse
         return $this->validUntil;
     }
 
-    public function getResultUrl(): string
+    public function getResultUrl(): ?string
     {
         return $this->resultUrl;
     }

@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\QueueStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Queue extends Model
 {
@@ -73,5 +74,10 @@ class Queue extends Model
     public function setClientServiceId(int $clientServiceId): self
     {
         return $this->setAttribute('client_service_id', $clientServiceId);
+    }
+
+    public function clientService(): BelongsTo
+    {
+        return $this->belongsTo(ClientService::class);
     }
 }
