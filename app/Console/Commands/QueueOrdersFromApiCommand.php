@@ -14,7 +14,6 @@ use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
 use App\Repositories\ClientServiceRepository;
-use DateTime;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -51,7 +50,7 @@ class QueueOrdersFromApiCommand extends AbstractClientServiceCommand
     {
         $success = true;
         $lastClientServiceId = 0;
-        $yesterday = new DateTime('yesterday');
+
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
@@ -68,7 +67,9 @@ class QueueOrdersFromApiCommand extends AbstractClientServiceCommand
                 $clientService->setUpdateInProgress(true);
 
                 $orderFilters = [];
-                $orderFilters[] = new OrderFilter('changeTimeFrom', $yesterday);
+                if ($clientService->getOrdersLastSyncedAt() !== null) {
+                    $orderFilters[] = new OrderFilter('changeTimeFrom', $clientService->getOrdersLastSyncedAt());
+                }
 
                 try {
                     $queueResponse = ConnectorHelper::queueOrders($clientService, $orderFilters);
