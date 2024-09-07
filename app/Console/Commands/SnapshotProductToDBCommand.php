@@ -9,6 +9,7 @@ use App\Connector\Shoptet\ProductCategory;
 use App\Connector\Shoptet\ProductResponse;
 use App\Connector\Shoptet\ProductVariantResponse;
 use App\Helpers\ArrayHelper;
+use App\Helpers\CacheHelper;
 use App\Helpers\StringHelper;
 use App\Models\Category;
 use App\Models\Client;
@@ -35,7 +36,7 @@ class SnapshotProductToDBCommand extends AbstractCommand
      *
      * @var string
      */
-    protected $description = 'Snapshot product to DB';
+    protected $description = 'Snapshot product to DB and jsonn cache';
 
     public function __construct(
         private readonly ClientServiceRepository $clientServiceRepository,
@@ -206,6 +207,7 @@ class SnapshotProductToDBCommand extends AbstractCommand
             fclose($txtFile);
             Storage::delete($txtFilePath);
             Storage::delete($latestFile);
+            CacheHelper::imageResponse($client);
         } else {
             $this->info('No product snapshot file found.');
         }
