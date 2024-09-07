@@ -5,27 +5,23 @@ declare(strict_types=1);
 namespace App\Businesses;
 
 use App\Connector\Shoptet\ProductDetailResponse;
-use App\Models\Client;
+use App\Connector\Shoptet\ProductImageResponse;
 use App\Models\Product;
-use App\Models\Service;
-use App\Repositories\ClientServiceRepository;
-use App\Repositories\ImageRepository;
 
 class ImageBusiness
 {
-    public function __construct(
-        private ImageRepository $imageRepository,
-        private ClientServiceRepository $clientServiceRepository,
-    ) {
-    }
-
-    public function createOrUpdate(Product $product, ProductDetailResponse $productDetailResponse, Client $client): void
+    public function createOrUpdate(Product $product, ProductDetailResponse $productDetailResponse): void
     {
-        if ($this->clientServiceRepository->hasActiveService($client, Service::getDynamicPreviewImages()) === false) {
-            return;
+        $images = [];
+        $productImages = $productDetailResponse->getImages();
+        usort($productImages, function ($a, $b) {
+            return $a->getPriority() <=> $b->getPriority();
+        });
+        /** @var ProductImageResponse $imageResponse */
+        foreach ($productImages as $imageResponse) {
+            $images[] = $imageResponse->getSeoName();
         }
-        foreach ($productDetailResponse->getImages() as $imageResponse) {
-            $this->imageRepository->createOrUpdateFromResponse($imageResponse, $client, $product);
-        }
+        $product->setImages($images);
+        $product->save();
     }
 }

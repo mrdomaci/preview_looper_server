@@ -104,10 +104,7 @@ class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
                                 continue;
                             }
                             $this->productRepository->updateDetailFromResponse($product, $productDetailResponse);
-                            if ($service->isDynamicPreviewImages()) {
-                                $this->imageRepository->deleteByClientAndProduct($client, $product);
-                                $this->imageBusiness->createOrUpdate($product, $productDetailResponse, $client);
-                            }
+                            $this->imageBusiness->createOrUpdate($product, $productDetailResponse);
                             if ($service->isUpsell()) {
                                 $this->productBusiness->createOrUpdateVariants(
                                     $product,
