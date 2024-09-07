@@ -146,8 +146,7 @@ class SnapshotOrderToDBCommand extends AbstractCommand
             Storage::delete($txtFilePath);
             Storage::delete($latestFile);
         } else {
-            $this->error('No product snapshot file found.');
-            $success = false;
+            $this->info('No product snapshot file found.');
         }
 
         return $success ? Command::SUCCESS : Command::FAILURE;
