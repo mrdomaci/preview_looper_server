@@ -63,7 +63,11 @@ use App\Helpers\QrHelper;
                     <label>{!! __('easy-upsell.licence_monthly_payment', ['variable' => $variable_symbol]) !!}</label>
                 </div>
                 <div class="col-md-12 mb-4">
-                    <img src="{{ QrHelper::requestPayment(200, 'CZ2206000000000258219536', 490, $variable_symbol, 'CZK') }}"/>
+                    @if (Config::get('app.locale') == 'sk') 
+                        <img src="{{ QrHelper::requestPayment(200, 'CZ3520100000002302969385', 19.90, $variable_symbol, 'EUR') }}"/>
+                    @else
+                        <img src="{{ QrHelper::requestPayment(200, 'CZ2206000000000258219536', 490, $variable_symbol, 'CZK') }}"/>
+                    @endif
                 </div>
             </div>
             <div class="form-group row mt-4">
@@ -72,7 +76,11 @@ use App\Helpers\QrHelper;
                 </div>
                 <div class="col-md-12 mb-4">
                     <div class="text-start">
-                        <img src="{{ QrHelper::requestPayment(200, 'CZ2206000000000258219536', 4990, $variable_symbol, 'CZK') }}"/>
+                        @if (Config::get('app.locale') == 'sk') 
+                            <img src="{{ QrHelper::requestPayment(200, 'CZ3520100000002302969385', 199, $variable_symbol, 'EUR') }}"/>
+                        @else
+                            <img src="{{ QrHelper::requestPayment(200, 'CZ2206000000000258219536', 4990, $variable_symbol, 'CZK') }}"/>
+                        @endif
                     </div>
                 </div>
             </div>

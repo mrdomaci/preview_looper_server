@@ -55,6 +55,6 @@ return [
     'licence' => 'Licencia',
     'no_licence' => 'Nemáte zakúpenú licenciu',
     'licence_info' => 'Tento doplnok je poskytovaný zadarmo s mesačným limitom 50 zaplatených objednávok. Pre vyšší počet objednávok je nutné zakúpiť licenciu.',
-    'licence_monthly_payment' => 'Licenciu je možné zakúpiť na <b>31 dní</b> za cenu <b>490 Kč</b> odoslaním tejto sumy s <b>variabilným symbolom :variable</b> na účet <b>1234567890/1234</b>. V momente prijatia platby sa licencia aktivuje. Podľa potreby môžete nastaviť odloženú platbu vo svojej banke.',
-    'licence_yearly_payment' => 'Licenciu je možné zakúpiť na <b>365 dní</b> za cenu <b>4990 Kč</b> odoslaním tejto sumy s <b>variabilným symbolom :variable</b> na účet <b>1234567890/1234</b>. V momente prijatia platby sa licencia aktivuje. Podľa potreby môžete nastaviť odloženú platbu vo svojej banke.',
+    'licence_monthly_payment' => 'Licenciu je možné zakúpiť na <b>31 dní</b> za cenu <b>19.90€</b> odoslaním tejto sumy s <b>variabilným symbolom :variable</b> na účet <b>2302969385/2010</b>. V momente prijatia platby sa licencia aktivuje. Podľa potreby môžete nastaviť odloženú platbu vo svojej banke.',
+    'licence_yearly_payment' => 'Licenciu je možné zakúpiť na <b>365 dní</b> za cenu <b>199€</b> odoslaním tejto sumy s <b>variabilným symbolom :variable</b> na účet <b>2302969385/2010</b>. V momente prijatia platby sa licencia aktivuje. Podľa potreby môžete nastaviť odloženú platbu vo svojej banke.',
 ];
