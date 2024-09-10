@@ -67,6 +67,7 @@ class QueueFromApiCommand extends AbstractCommand
             }
             $queue->delete();
         }
+        $this->queueRepository->deleteExpired();
 
         if ($success === true) {
             return Command::SUCCESS;
