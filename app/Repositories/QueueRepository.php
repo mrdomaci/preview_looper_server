@@ -75,4 +75,9 @@ class QueueRepository
         $queue->endpoint = $response->getEndpoint();
         $queue->save();
     }
+
+    public function deleteExpired(): void
+    {
+        Queue::where('created_at', '<', now()->subDays(2))->delete();
+    }
 }

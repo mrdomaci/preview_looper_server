@@ -87,7 +87,7 @@ class StoreProductsFromApiCommand extends AbstractClientServiceCommand
                         $clientService->setStatusInactive();
                         break;
                     } catch (ApiRequestTooManyRequestsException) {
-                        sleep(10);
+                        sleep(20);
                         $page--;
                         continue;
                     } catch (Throwable $t) {
