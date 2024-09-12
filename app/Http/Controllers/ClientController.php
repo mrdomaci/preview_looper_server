@@ -137,7 +137,7 @@ class ClientController extends Controller
 
     public function job(Request $request): Response
     {
-        $data = $request->all();
+        $data = $request->request->all();
         try {
             $queue = $this->queueRepository->getByJobId($data['eventInstance']);
             $queue->setStatus(QueueStatusEnum::COMPLETED);
