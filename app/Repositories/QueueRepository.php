@@ -65,7 +65,7 @@ class QueueRepository
         $queue = Queue::where('client_service_id', $clientService->getId())
             ->where('job_id', $response->getJobId())
             ->first();
-        if ($queue === null) {
+        if ($queue === null && $response->getStatus()->name == QueueStatusEnum::COMPLETED->name) {
             $queue = new Queue();
             $queue->setClientServiceId($clientService->id);
             $queue->setJobId($response->getJobId());
@@ -76,8 +76,8 @@ class QueueRepository
         $queue->save();
     }
 
-    public function deleteExpired(): void
+    public function deleteOld(): void
     {
-        Queue::where('status', 'EXPIRED')->delete();
+        Queue::where('created_at', '<', now()->subDays(3))->delete();
     }
 }

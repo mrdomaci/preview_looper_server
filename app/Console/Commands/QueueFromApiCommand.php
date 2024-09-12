@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Connector\Shoptet\Order;
+use App\Enums\QueueStatusEnum;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\StringHelper;
 use App\Models\Queue;
@@ -65,9 +66,9 @@ class QueueFromApiCommand extends AbstractCommand
                     $success = false;
                 }
             }
-            $queue->delete();
+            $queue->setStatus(QueueStatusEnum::DONE);
+            $queue->save();
         }
-        $this->queueRepository->deleteExpired();
 
         if ($success === true) {
             return Command::SUCCESS;
