@@ -49,6 +49,7 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
     {
         $success = true;
         $lastClientServiceId = 0;
+        $yesterday = new DateTime('yesterday');
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
@@ -63,7 +64,8 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
                 }
                 $clientService->setUpdateInProgress(true);
                 $filterQueues = [];
-                $filterQueues[] = new QueueFilter('status', 'completed');
+                //$filterQueues[] = new QueueFilter('status', 'completed');
+                $filterQueues[] = new QueueFilter('creationTimeFrom', $yesterday);
                 try {
                     $jobListResponse = ConnectorHelper::queues($clientService, $filterQueues);
                     if ($jobListResponse === null) {

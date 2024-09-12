@@ -78,6 +78,6 @@ class QueueRepository
 
     public function deleteExpired(): void
     {
-        Queue::where('created_at', '<', now()->subDays(2))->delete();
+        Queue::where('status', 'EXPIRED')->delete();
     }
 }
