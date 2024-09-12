@@ -12,6 +12,7 @@ use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
 use App\Repositories\ClientServiceRepository;
+use App\Repositories\QueueRepository;
 use DateTime;
 use Illuminate\Console\Command;
 use Throwable;
@@ -36,6 +37,7 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly ClientServiceBusiness $clientServiceBusiness,
         private readonly QueueBusiness $queueBusiness,
+        private readonly QueueRepository $queueRepository,
     ) {
         parent::__construct();
     }
@@ -72,6 +74,7 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
                         break;
                     }
                     $this->queueBusiness->update($clientService, $jobListResponse);
+                    $this->queueRepository->deleteOld();
                 } catch (ApiRequestFailException) {
                     $clientService->setStatusInactive();
                     break;
