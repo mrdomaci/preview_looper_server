@@ -36,7 +36,7 @@ Route::get('/addon-deactivate/{serviceUrlPath}', [InstallController::class, 'dea
 Route::get('/addon-activate/{serviceUrlPath}', [InstallController::class, 'activate'])->name('client.activate');
 
 // Webhooks
-Route::post('/webhook/job', [ClientController::class, 'job'])->name('webhook.job');
+Route::get('/webhook/job', [ClientController::class, 'job'])->name('webhook.job');
 
 // Settings
 Route::get('/client-settings/{country}/{serviceUrlPath}', [ClientController::class, 'settings'])->name('client.settings');
