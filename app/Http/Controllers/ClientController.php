@@ -18,6 +18,7 @@ use App\Repositories\ClientRepository;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\QueueRepository;
 use App\Repositories\ServiceRepository;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -137,9 +138,19 @@ class ClientController extends Controller
 
     public function job(Request $request): Response
     {
-        $data = $request->request->all();
+        $data = $request->query->all();
+        $eventInstance = null;
         try {
-            $queue = $this->queueRepository->getByJobId($data['eventInstance']);
+            foreach ($data as $key => $value) {
+                if ($key === 'eventInstance') {
+                    $eventInstance = $value;
+                    break;
+                }
+            }
+            if ($eventInstance === null) {
+                throw new Exception('No eventInstance found');
+            }
+            $queue = $this->queueRepository->getByJobId($eventInstance);
             $queue->setStatus(QueueStatusEnum::COMPLETED);
             $queue->save();
             return response('OK', 200)->header('Content-Type', 'text/plain');
