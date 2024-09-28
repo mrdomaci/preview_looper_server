@@ -138,7 +138,7 @@ class ClientController extends Controller
 
     public function job(Request $request): Response
     {
-        $data = $request->query->all();
+        $data = $request->request->all();
         $eventInstance = null;
         try {
             foreach ($data as $key => $value) {
