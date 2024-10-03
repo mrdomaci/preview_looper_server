@@ -66,7 +66,7 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
                 }
                 $clientService->setUpdateInProgress(true);
                 $filterQueues = [];
-                //$filterQueues[] = new QueueFilter('status', 'completed');
+                $filterQueues[] = new QueueFilter('status', 'completed');
                 $filterQueues[] = new QueueFilter('creationTimeFrom', $yesterday);
                 try {
                     $jobListResponse = ConnectorHelper::queues($clientService, $filterQueues);
