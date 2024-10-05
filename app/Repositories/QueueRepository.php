@@ -65,7 +65,7 @@ class QueueRepository
         $queue = Queue::where('client_service_id', $clientService->getId())
             ->where('job_id', $response->getJobId())
             ->first();
-        if ($queue === null && $response->getStatus()->name === QueueStatusEnum::COMPLETED->name) {
+        if ($queue === null) {
             $queue = new Queue();
             $queue->setClientServiceId($clientService->id);
             $queue->setJobId($response->getJobId());

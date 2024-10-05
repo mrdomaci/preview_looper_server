@@ -84,8 +84,8 @@ class QueueOrdersFromApiCommand extends AbstractClientServiceCommand
                     sleep(10);
                     continue;
                 } catch (Throwable $t) {
-                    $this->error('Error updating products ' . $t->getMessage());
-                    LoggerHelper::log('Error updating products ' . $t->getMessage());
+                    $this->error('Error updating orders ' . $t->getMessage());
+                    LoggerHelper::log('Error updating orders ' . $t->getMessage());
                     $success = false;
                     break;
                 }
