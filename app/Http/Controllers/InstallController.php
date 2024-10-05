@@ -31,7 +31,7 @@ class InstallController extends Controller
         try {
             $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
         } catch (Throwable) {
-            abort(404);
+            abort(404, __('general.wrong_url'));
         }
 
         $clientService = $this->installBusiness->install($country, $code, $service);
@@ -48,7 +48,7 @@ class InstallController extends Controller
         try {
             $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
         } catch (Throwable) {
-            abort(404);
+            abort(404, __('general.wrong_url'));
         }
 
         $this->installBusiness->deactivate($service);
@@ -61,7 +61,7 @@ class InstallController extends Controller
         try {
             $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
         } catch (Throwable) {
-            abort(404);
+            abort(404, __('general.wrong_url'));
         }
 
         $this->installBusiness->uninstall($service);
@@ -74,7 +74,7 @@ class InstallController extends Controller
         try {
             $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
         } catch (Throwable) {
-            abort(404);
+            abort(404, __('general.wrong_url'));
         }
 
         $this->installBusiness->activate($service);

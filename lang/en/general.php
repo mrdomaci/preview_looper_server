@@ -25,5 +25,12 @@ return [
     'sync_in_progress' => 'Synchronization in progress',
     'synced_scheduled' => 'Synchronization has been added to the queue and will be performed as soon as possible',
     'sync_info' => 'Synchronization of data from the Shoptet API is triggered regularly twice a day. If you want to start synchronization manually, click the button below.',
-    'not_synced_yet' => 'Not synced yet'
+    'not_synced_yet' => 'Not synced yet',
+    'client_error' => 'Client-side error',
+    'server_error' => 'Server-side error',
+    'sorry' => 'We apologize for the inconvenience. Please try again later, and if the issue persists, contact support at the email address below.',
+    'inactive_service' => 'The service is inactive. To ensure the proper functioning of the add-on, it must remain active for the entire duration of its use.',
+    'wrong_url' => 'The entered URL is not valid. Please check the entered URL and try again.',
+    'unauthorized' => 'Access denied. An error occurred during user authentication. Please try again later.',
+    'forbidden' => 'You do not have access to this page. If you believe this is an error, please contact support at the email address below.',
 ];
