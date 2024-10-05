@@ -17,7 +17,7 @@ class Queue extends Model
         'job_id',
         'endpoint',
         'status',
-        'reqsult_url',
+        'result_url',
         'client_service_id'
     ];
 
@@ -58,12 +58,12 @@ class Queue extends Model
 
     public function getResultUrl(): string
     {
-        return $this->getAttribute('reqsult_url');
+        return $this->getAttribute('result_url');
     }
 
     public function setResultUrl(string $resultUrl): self
     {
-        return $this->setAttribute('reqsult_url', $resultUrl);
+        return $this->setAttribute('result_url', $resultUrl);
     }
 
     public function getClientServiceId(): int

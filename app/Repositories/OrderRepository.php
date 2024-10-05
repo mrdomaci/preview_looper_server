@@ -8,6 +8,8 @@ use App\Connector\Shoptet\OrderResponse;
 use App\Helpers\StringHelper;
 use App\Models\Client;
 use App\Models\Order;
+use DateTime;
+use Illuminate\Database\Eloquent\Collection;
 
 class OrderRepository
 {
@@ -46,5 +48,13 @@ class OrderRepository
             ->save();
 
         return $order;
+    }
+
+    public function getFromDate(Client $client, DateTime $date): Collection
+    {
+        return Order::where('client_id', $client->getId())
+            ->where('created_at', '>=', $date)
+            ->where('paid', true)
+            ->get();
     }
 }

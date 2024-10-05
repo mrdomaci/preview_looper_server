@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Connector\Fio\LicenseResponse;
-use App\Exceptions\BankVariableSymbolNotValidException;
 use App\Helpers\ConnectorHelper;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\LicenseRepository;
 use DateTime;
-use Exception;
 use Illuminate\Console\Command;
 
 class StoreLicenseFromBankApiCommand extends AbstractCommand
@@ -51,7 +49,9 @@ class StoreLicenseFromBankApiCommand extends AbstractCommand
         foreach ($licenseList->transactions as $transaction) {
             $clientService = $this->clientServiceRepository->getByVariableSymbol($transaction->variableSymbol);
             if ($clientService === null) {
-                throw new BankVariableSymbolNotValidException(new Exception('Variable ' . $transaction->variableSymbol . ' not valid for client service pairing'));
+                $this->error('Variable ' . $transaction->variableSymbol . ' not valid for client service pairing CZK');
+                continue;
+                //throw new BankVariableSymbolNotValidException(new Exception('Variable ' . $transaction->variableSymbol . ' not valid for client service pairing'));
             }
             $this->licenseRepository->updateOrCreate(
                 $transaction->foreignId,
@@ -73,7 +73,9 @@ class StoreLicenseFromBankApiCommand extends AbstractCommand
         foreach ($licenseList->transactions as $transaction) {
             $clientService = $this->clientServiceRepository->getByVariableSymbol($transaction->variableSymbol);
             if ($clientService === null) {
-                throw new BankVariableSymbolNotValidException(new Exception('Variable ' . $transaction->variableSymbol . ' not valid for client service pairing'));
+                $this->error('Variable ' . $transaction->variableSymbol . ' not valid for client service pairing EUR');
+                continue;
+                //throw new BankVariableSymbolNotValidException(new Exception('Variable ' . $transaction->variableSymbol . ' not valid for client service pairing'));
             }
             $this->licenseRepository->updateOrCreate(
                 $transaction->foreignId,
