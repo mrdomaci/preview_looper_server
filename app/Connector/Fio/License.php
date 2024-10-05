@@ -9,7 +9,7 @@ use DateTime;
 class License
 {
     public const METHOD = 'GET';
-    public const ENDPOINT = '%s/%s/%s/transactions.json';
+    public const ENDPOINT = '/%s/%s/%s/transactions.json';
     public const QUERY = [];
 
     public static function getEndpoint(DateTime $from, DateTime $to, string $currency): string
