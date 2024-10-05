@@ -74,7 +74,6 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
                         break;
                     }
                     $this->queueBusiness->update($clientService, $jobListResponse);
-                    $this->queueRepository->deleteOld();
                 } catch (ApiRequestFailException) {
                     $clientService->setStatusInactive();
                     break;
@@ -95,6 +94,8 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
                 break;
             }
         }
+        $this->queueRepository->deleteOld();
+        $this->queueRepository->deleteExpired();
         if ($success === true) {
             return Command::SUCCESS;
         } else {

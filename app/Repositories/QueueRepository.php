@@ -78,6 +78,11 @@ class QueueRepository
 
     public function deleteOld(): void
     {
-        Queue::where('created_at', '<', now()->subDays(3))->delete();
+        Queue::where('created_at', '<', now()->subDays(1))->delete();
+    }
+
+    public function deleteExpired(): void
+    {
+        Queue::where('status', 'EXPIRED')->delete();
     }
 }
