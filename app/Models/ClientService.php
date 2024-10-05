@@ -199,4 +199,15 @@ class ClientService extends Model
     {
         return $this->created_at->format('y') . $this->service_id . str_pad((string)$this->getAttribute('id'), 6, '0', STR_PAD_LEFT);
     }
+
+    public function isLicenseActive(): bool
+    {
+        return (bool) $this->getAttribute('is_license_active');
+    }
+
+    public function setLicenseActive(bool $is_license_active): void
+    {
+        $this->setAttribute('is_license_active', $is_license_active);
+        $this->save();
+    }
 }

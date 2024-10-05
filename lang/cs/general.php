@@ -36,5 +36,5 @@ return [
     'inactive_service' => 'Služba je neaktivní. Pro správné fungování doplňku je nutné mít doplněk aktivní po celou dobu jeho užívání.',
     'wrong_url' => 'Zadaná URL adresa není platná. Prosím zkontrolujte zadanou URL adresu a zkuste to znovu.',
     'unauthorized' => 'Přístup odepřen. Nastapa chyba při ověřování uživatele. Zkuste to prosím znovu později.',
-    'forbidden' => 'Nemáte přístup na tuto stránku. Pokud si myslíte, že se jedná o chybu, kontaktujte podporu na níže uvedeném emailu.', 
+    'forbidden' => 'Nemáte přístup na tuto stránku. Pokud si myslíte, že se jedná o chybu, kontaktujte podporu na níže uvedeném emailu.',
 ];

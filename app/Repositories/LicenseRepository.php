@@ -80,4 +80,12 @@ class LicenseRepository
         }
         return $client;
     }
+
+    public function getValidByClientService(ClientService $clientService): ?License
+    {
+        return License::where('client_service_id', $clientService->id)
+            ->where('is_active', true)
+            ->where('valid_to', '>', Carbon::now())
+            ->first();
+    }
 }

@@ -16,4 +16,17 @@ class DateTimeHelper
         $dateTimeString .= '+0100';
         return urlencode($dateTimeString);
     }
+
+    public static function adjustDateToCurrentMonth(DateTime $date): DateTime
+    {
+        $currentDate = new DateTime();
+        $adjustedDate = new DateTime($currentDate->format('Y') . '-' . $currentDate->format('m') . '-' . $date->format('d'));
+        if ($adjustedDate > $currentDate) {
+            $adjustedDate->modify('-1 month');
+        }
+        if ($adjustedDate < $date) {
+            return $date;
+        }
+        return $adjustedDate;
+    }
 }
