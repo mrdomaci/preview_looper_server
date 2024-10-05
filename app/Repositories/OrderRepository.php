@@ -54,6 +54,7 @@ class OrderRepository
     {
         return Order::where('client_id', $client->getId())
             ->where('created_at', '>=', $date)
+            ->where('paid', true)
             ->get();
     }
 }

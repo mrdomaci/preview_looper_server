@@ -40,6 +40,10 @@ class ProductController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
+        if ($clientService->isLicenseActive() === false) {
+            return response()->json(['error' => 'License is not active'], 403);
+        }
+
         /** @var Collection<Product> $products */
         $products = $this->productBusiness->getByGuids($client, $guids);
 
