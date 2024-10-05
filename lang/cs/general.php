@@ -30,4 +30,11 @@ return [
     'no_products_found' => 'Produkt nebyl nalezen',
     'delete' => 'Smazat',
     'not_synced_yet' => 'Zatím nebylo synchronizováno',
+    'client_error' => 'Chyba na straně klienta',
+    'server_error' => 'Chyba na straně serveru',
+    'sorry' => 'Omlouváme se za vzniklé potíže. Zkuste to prosím znovu později a pokud problém přetrvává, kontaktujte podporu na níže uvedeném emailu.',
+    'inactive_service' => 'Služba je neaktivní. Pro správné fungování doplňku je nutné mít doplněk aktivní po celou dobu jeho užívání.',
+    'wrong_url' => 'Zadaná URL adresa není platná. Prosím zkontrolujte zadanou URL adresu a zkuste to znovu.',
+    'unauthorized' => 'Přístup odepřen. Nastapa chyba při ověřování uživatele. Zkuste to prosím znovu později.',
+    'forbidden' => 'Nemáte přístup na tuto stránku. Pokud si myslíte, že se jedná o chybu, kontaktujte podporu na níže uvedeném emailu.', 
 ];

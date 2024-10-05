@@ -25,5 +25,12 @@ return [
     'sync_in_progress' => 'Synchronizácia práve prebieha',
     'synced_scheduled' => 'Synchronizácia bola pridaná do frontu a bude vykonaná v najbližšej možnej dobe',
     'sync_info' => 'Synchronizácie údajov z Shoptet API sa spúšťajú pravidelne dvakrát denne. Ak chcete synchronizáciu spustiť manuálne, kliknite na tlačidlo nižšie.',
-    'not_synced_yet' => 'Zatiaľ nebolo synchronizované'
+    'not_synced_yet' => 'Zatiaľ nebolo synchronizované',
+    'client_error' => 'Chyba na strane klienta',
+    'server_error' => 'Chyba na strane servera',
+    'sorry' => 'Ospravedlňujeme sa za vzniknuté problémy. Skúste to prosím neskôr znova a ak problém pretrváva, kontaktujte podporu na nižšie uvedenom emaili.',
+    'inactive_service' => 'Služba je neaktívna. Pre správne fungovanie doplnku je potrebné, aby bol doplnok aktívny počas celej doby jeho používania.',
+    'wrong_url' => 'Zadaná URL adresa nie je platná. Skontrolujte prosím zadanú URL adresu a skúste to znova.',
+    'unauthorized' => 'Prístup bol zamietnutý. Pri overovaní používateľa došlo k chybe. Skúste to prosím neskôr znova.',
+    'forbidden' => 'Na túto stránku nemáte prístup. Ak si myslíte, že ide o chybu, kontaktujte podporu na nižšie uvedenom emaili.',
 ];

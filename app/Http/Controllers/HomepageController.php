@@ -52,7 +52,7 @@ class HomepageController extends Controller
         try {
             $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
         } catch (Throwable) {
-            abort(404);
+            abort(404, __('general.wrong_url'));
         }
         return View($service->getViewName() . '.index', ['service_url_path' => $serviceUrlPath, 'title' => $service->getName()]);
     }
@@ -70,7 +70,7 @@ class HomepageController extends Controller
         try {
             $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
         } catch (Throwable) {
-            abort(404);
+            abort(404, __('general.wrong_url'));
         }
         
         return View($service->getViewName() . '.terms', ['service_url_path' => $serviceUrlPath, 'title' => $service->getName()]);

@@ -46,21 +46,21 @@ class ClientController extends Controller
             $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
             $client = $this->clientRepository->getByEshopId((int) $request->input('eshop_id'));
         } catch (Throwable) {
-            abort(404);
+            abort(404, __('general.wrong_url'));
         }
 
         $language = $request->input('language');
         try {
             $clientService = $this->clientServiceRepository->getByClientAndService($client, $service);
         } catch (Throwable) {
-            abort(404);
+            abort(404, __('general.inactive_service'));
         }
 
         try {
             $baseOAuthUrl = $this->baseOauthUrlBusiness->getFromRequestClientService($request, $clientService);
             $accessToken = $this->accessTokenBusiness->getFromRequestClientService($request, $clientService, $baseOAuthUrl, $country);
         } catch (Throwable) {
-            abort(401);
+            abort(401, __('general.unauthorized'));
         }
 
         $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
@@ -98,10 +98,10 @@ class ClientController extends Controller
             $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
             $client = $this->clientRepository->getByEshopId((int) $request->input('eshop_id'));
         } catch (Throwable) {
-            abort(404);
+            abort(404, __('general.wrong_url'));
         }
         if ($eshopId !== $request->input('eshop_id')) {
-            abort(403);
+            abort(403, __('general.forbidden'));
         }
 
         LocaleHelper::setLocale($language);
@@ -124,7 +124,7 @@ class ClientController extends Controller
             $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
             $client = $this->clientRepository->getByEshopId((int) $request->input('eshop_id'));
         } catch (Throwable) {
-            abort(404);
+            abort(404, __('general.wrong_url'));
         }
         try {
             $this->syncEndpointBusiness->syncClientService($client, $service);
