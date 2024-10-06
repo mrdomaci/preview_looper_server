@@ -34,6 +34,7 @@ class License extends Model
     ];
 
     protected $casts = [
+        'valid_to' => 'datetime',
         'is_active' => 'boolean',
     ];
 
