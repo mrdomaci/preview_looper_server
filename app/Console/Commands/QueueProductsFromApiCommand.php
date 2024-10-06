@@ -69,7 +69,7 @@ class QueueProductsFromApiCommand extends AbstractClientServiceCommand
 
                 $productFilters = [];
                 $productFilters[] = new ProductFilter('visibility', 'visible');
-                $productFilters[] = new ProductFilter('include', 'images');
+                $productFilters[] = new ProductFilter('include', 'images,allCategories');
                 try {
                     ConnectorHelper::postWebhook($clientService);
                 } catch (Throwable $t) {

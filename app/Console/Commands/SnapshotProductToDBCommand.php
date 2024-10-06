@@ -205,8 +205,8 @@ class SnapshotProductToDBCommand extends AbstractCommand
             }
 
             fclose($txtFile);
-            Storage::delete($txtFilePath);
-            Storage::delete($latestFile);
+            //Storage::delete($txtFilePath);
+            //Storage::delete($latestFile);
             CacheHelper::imageResponse($client);
         } else {
             $this->info('No product snapshot file found.');
