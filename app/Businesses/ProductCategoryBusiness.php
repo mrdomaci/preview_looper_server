@@ -34,7 +34,6 @@ class ProductCategoryBusiness
      */
     public function createFromSnapshot(Product $product, array $category): void
     {
-        $this->productCategoryRepository->clear($product);
         $category = $this->categoryRepository->createOrUpdate($product->getClient(), $category['name'], $category['guid']);
         $this->productCategoryRepository->create($product, $category);
     }

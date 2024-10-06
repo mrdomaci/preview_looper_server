@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\ClientService;
 use App\Repositories\AvailabilityRepository;
 use App\Repositories\ClientServiceRepository;
+use App\Repositories\ProductCategoryRepository;
 use App\Repositories\ProductRepository;
 use DateTime;
 use Illuminate\Console\Command;
@@ -43,7 +44,8 @@ class SnapshotProductToDBCommand extends AbstractCommand
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly ProductRepository $productRepository,
         private readonly AvailabilityRepository $availabilityRepository,
-        private readonly ProductCategoryBusiness $productCategoryBusiness
+        private readonly ProductCategoryBusiness $productCategoryBusiness,
+        private readonly ProductCategoryRepository $productCategoryRepository,
     ) {
         parent::__construct();
     }
@@ -198,6 +200,7 @@ class SnapshotProductToDBCommand extends AbstractCommand
                         
                         $this->productRepository->createOrUpdateVariantFromResponse($productVariantResponse, $product, $availability);
                     }
+                    $this->productCategoryRepository->clear($product);
                     foreach ($productData['categories'] as $category) {
                         $this->productCategoryBusiness->createFromSnapshot($product, $category);
                     }
