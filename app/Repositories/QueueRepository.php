@@ -28,7 +28,7 @@ class QueueRepository
 
     public function getByJobId(string $jobId): Queue
     {
-        $entity = Queue::where('job_id', $jobId)->where('status', QueueStatusEnum::PENDING->name)->first();
+        $entity = Queue::where('job_id', $jobId)->first();
         if ($entity === null) {
             throw new DataNotFoundException(new Exception('Queue not found job_id: ' . $jobId));
         }

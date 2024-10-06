@@ -27,4 +27,15 @@ class ProductCategoryBusiness
             $this->productCategoryRepository->create($product, $category);
         }
     }
+
+    /**
+     * @param Product $product
+     * @param array<string, string> $category
+     */
+    public function createFromSnapshot(Product $product, array $category): void
+    {
+        $this->productCategoryRepository->clear($product);
+        $category = $this->categoryRepository->createOrUpdate($product->getClient(), $category['name'], $category['guid']);
+        $this->productCategoryRepository->create($product, $category);
+    }
 }
