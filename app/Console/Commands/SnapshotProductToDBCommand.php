@@ -200,9 +200,11 @@ class SnapshotProductToDBCommand extends AbstractCommand
                         
                         $this->productRepository->createOrUpdateVariantFromResponse($productVariantResponse, $product, $availability);
                     }
-                    $this->productCategoryRepository->clear($product);
-                    foreach ($productData['categories'] as $category) {
-                        $this->productCategoryBusiness->createFromSnapshot($product, $category);
+                    if (isset($productData['categories'])) {
+                        $this->productCategoryRepository->clear($product);
+                        foreach ($productData['categories'] as $category) {
+                            $this->productCategoryBusiness->createFromSnapshot($product, $category);
+                        }
                     }
                 }
                 DB::commit();
