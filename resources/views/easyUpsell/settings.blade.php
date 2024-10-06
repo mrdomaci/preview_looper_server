@@ -66,7 +66,7 @@ use App\Helpers\QrHelper;
                     @if (Config::get('app.locale') == 'sk') 
                         <img src="{{ QrHelper::requestPayment(200, 'CZ3520100000002302969385', 19.90, $variable_symbol, 'EUR') }}"/>
                     @else
-                        <img src="{{ QrHelper::requestPayment(200, 'CZ2206000000000258219536', 490, $variable_symbol, 'CZK') }}"/>
+                        <img src="{{ QrHelper::requestPayment(200, 'CZ0420100000002601474251', 490, $variable_symbol, 'CZK') }}"/>
                     @endif
                 </div>
             </div>
@@ -79,7 +79,7 @@ use App\Helpers\QrHelper;
                         @if (Config::get('app.locale') == 'sk') 
                             <img src="{{ QrHelper::requestPayment(200, 'CZ3520100000002302969385', 199, $variable_symbol, 'EUR') }}"/>
                         @else
-                            <img src="{{ QrHelper::requestPayment(200, 'CZ2206000000000258219536', 4990, $variable_symbol, 'CZK') }}"/>
+                            <img src="{{ QrHelper::requestPayment(200, 'CZ0420100000002601474251', 4990, $variable_symbol, 'CZK') }}"/>
                         @endif
                     </div>
                 </div>

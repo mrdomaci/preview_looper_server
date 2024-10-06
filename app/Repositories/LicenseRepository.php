@@ -47,7 +47,7 @@ class LicenseRepository
 
         if ($currency === 'CZK') {
             if ($value > 4489) {
-                $validTo = Carbon::now()->addDays(365);
+                $validTo = Carbon::now()->addDays(366);
                 $isActive = true;
             } else if ($value > 489) {
                 $validTo = Carbon::now()->addDays(31);

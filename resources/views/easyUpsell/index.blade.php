@@ -110,6 +110,35 @@
                 src="https://www.youtube.com/embed/0A04glXYrd4">
             </iframe>
         </div>
+
+        <div class="container text-center mt-5">
+            <h2 id="pricing">{{ __('easy-upsell.pricing_title') }}</h2>
+            <p>{!! __('easy-upsell.pricing_description') !!}</p>
+
+            <div class="row justify-content-center">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">{{ __('easy-upsell.monthly_plan') }}</h4>
+                            <p class="card-text">{{ __('easy-upsell.monthly_plan_text') }}</p>
+                            <h3 class="text-primary">{{ __('easy-upsell.monthly_price') }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h4 class="card-title">{{ __('easy-upsell.yearly_plan') }}</h4>
+                            <p class="card-text">{{ __('easy-upsell.yearly_plan_text') }}</p>
+                            <h3 class="text-primary">{{ __('easy-upsell.yearly_price') }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="mt-4">{{ __('easy-upsell.free_plan_notice') }}</p>
+        </div>
+
     </div>
 
     @include('../layouts.footer')
