@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Businesses\ProductCategoryBusiness;
 use App\Connector\Shoptet\ProductBrand;
 use App\Connector\Shoptet\ProductCategory;
 use App\Connector\Shoptet\ProductResponse;
@@ -41,7 +42,8 @@ class SnapshotProductToDBCommand extends AbstractCommand
     public function __construct(
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly ProductRepository $productRepository,
-        private readonly AvailabilityRepository $availabilityRepository
+        private readonly AvailabilityRepository $availabilityRepository,
+        private readonly ProductCategoryBusiness $productCategoryBusiness
     ) {
         parent::__construct();
     }
@@ -195,6 +197,9 @@ class SnapshotProductToDBCommand extends AbstractCommand
                         }
                         
                         $this->productRepository->createOrUpdateVariantFromResponse($productVariantResponse, $product, $availability);
+                    }
+                    foreach ($productData['categories'] as $category) {
+                        $this->productCategoryBusiness->createFromSnapshot($product, $category);
                     }
                 }
                 DB::commit();
