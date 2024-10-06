@@ -46,7 +46,7 @@ use App\Helpers\QrHelper;
                 <div class="col-md-12 mb-4">
                     @if (count($licences) > 0)
                         @foreach ($licences as $licence)
-                            <label>{{ __('easy-upsell.valid')}}: {{ $licence->valid_to }}</label>
+                            <label>{{ __('easy-upsell.valid')}}: {{ $licence->valid_to->format('d.m.Y') }}</label>
                         @endforeach
                     @else
                         <label>{{ __('easy-upsell.no_licence')}}.</label>
