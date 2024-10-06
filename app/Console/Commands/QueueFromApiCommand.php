@@ -67,6 +67,7 @@ class QueueFromApiCommand extends AbstractCommand
                 }
             }
             $queue->setStatus(QueueStatusEnum::DONE);
+            $queue->setResultUrl($response->getResultUrl());
             $queue->save();
         }
 
