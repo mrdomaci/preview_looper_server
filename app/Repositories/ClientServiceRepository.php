@@ -23,10 +23,9 @@ class ClientServiceRepository
      * @param int $iterationCount
      * @return Collection<ClientService>
      */
-    public function getActive(int $lastId, ?Service $service = null, ?Client $client = null, ?int $iterationCount = 100): Collection
+    public function list(int $lastId, ?Service $service = null, ?Client $client = null, ?int $iterationCount = 100): Collection
     {
-        $query = ClientService::where('status', ClientServiceStatusEnum::ACTIVE)
-            ->where('id', '>', $lastId);
+        $query = ClientService::where('id', '>', $lastId);
         if ($service !== null) {
             $query->where('service_id', $service->getId());
         }

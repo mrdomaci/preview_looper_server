@@ -45,7 +45,7 @@ class StoreClientsFromApiCommand extends AbstractClientServiceCommand
     {
         $lastClientId = 0;
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-            $clientServices = $this->clientServiceRepository->getActive(
+            $clientServices = $this->clientServiceRepository->list(
                 $lastClientId,
                 $this->findService(),
                 $this->findClient(),
