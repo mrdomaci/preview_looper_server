@@ -38,7 +38,7 @@ class QueueRepository
     public function getCompleted(int $limit): Collection
     {
         return Queue::where('status', QueueStatusEnum::COMPLETED->name)
-                ->whereIsNull('reqsult_url')
+                ->whereNull('reqsult_url')
                 ->limit($limit)->get();
     }
 
