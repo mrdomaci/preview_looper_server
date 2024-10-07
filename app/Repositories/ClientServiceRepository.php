@@ -38,6 +38,29 @@ class ClientServiceRepository
             ->get();
     }
 
+    /**
+     * @param int $lastId
+     * @param Service|null $service
+     * @param Client|null $client
+     * @param int $iterationCount
+     * @return Collection<ClientService>
+     */
+    public function getActive(int $lastId, ?Service $service = null, ?Client $client = null, ?int $iterationCount = 100): Collection
+    {
+        $query = ClientService::where('status', ClientServiceStatusEnum::ACTIVE)
+            ->where('id', '>', $lastId);
+        if ($service !== null) {
+            $query->where('service_id', $service->getId());
+        }
+
+        if ($client !== null) {
+            $query->where('client_id', $client->getId());
+        }
+
+        return $query->limit($iterationCount)
+            ->get();
+    }
+
     public function getNextForUpdate(Service $service, DateTime $dateLastSync): ClientService
     {
         $q = ClientService::where('service_id', $service->getId())
