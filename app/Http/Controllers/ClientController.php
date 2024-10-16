@@ -82,7 +82,7 @@ class ClientController extends Controller
                 'language' => $language,
                 'client' => $client,
                 'settings_service' => $service->settingsServices()->get(),
-                'last_synced' => $clientService->getLastSyncedAt(),
+                'last_synced' => $clientService->getSyncedAt(),
                 'update_in_process' => $clientService->isUpdateInProcess(),
                 'client_settings' => $client->ClientSettingsServiceOptions()->get(),
                 'categories' => $client->categories()->get(),

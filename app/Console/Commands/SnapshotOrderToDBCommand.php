@@ -145,6 +145,8 @@ class SnapshotOrderToDBCommand extends AbstractCommand
             fclose($txtFile);
             Storage::delete($txtFilePath);
             Storage::delete($latestFile);
+            $clientService->setSyncedAt(new DateTime());
+            $clientService->save();
         } else {
             $this->info('No product snapshot file found.');
         }

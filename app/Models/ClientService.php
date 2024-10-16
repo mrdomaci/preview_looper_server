@@ -145,17 +145,6 @@ class ClientService extends Model
         return (bool) $this->getAttribute('update_in_process');
     }
 
-    public function getLastSyncedAt(): ?DateTime
-    {
-        if ($this->service()->first()->isUpsell()) {
-            return $this->getOrdersLastSyncedAt();
-        }
-        if ($this->service()->first()->isDynamicPreviewImages()) {
-            return $this->getProductsLastSyncedAt();
-        }
-        return null;
-    }
-
     public function setUpdateInProgress(bool $updateInProgress, ?SyncEnum $sync = null): void
     {
         $this->setAttribute('update_in_process', $updateInProgress);
@@ -198,5 +187,18 @@ class ClientService extends Model
     public function getVariableSymbol(): string
     {
         return $this->created_at->format('y') . $this->service_id . str_pad((string)$this->getAttribute('id'), 6, '0', STR_PAD_LEFT);
+    }
+
+    public function getSyncedAt(): ?DateTime
+    {
+        if ($this->getAttribute('synced_at') === null) {
+            return null;
+        }
+        return new DateTime($this->getAttribute('synced_at'));
+    }
+
+    public function setSyncedAt(?DateTime $syncedAt): self
+    {
+        return $this->setAttribute('synced_at', $syncedAt);
     }
 }

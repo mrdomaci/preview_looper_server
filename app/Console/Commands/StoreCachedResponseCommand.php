@@ -8,6 +8,7 @@ use App\Helpers\CacheHelper;
 use App\Models\ClientService;
 use App\Models\Service;
 use App\Repositories\ClientServiceRepository;
+use DateTime;
 use Illuminate\Console\Command;
 
 class StoreCachedResponseCommand extends AbstractClientServiceCommand
@@ -36,6 +37,7 @@ class StoreCachedResponseCommand extends AbstractClientServiceCommand
     public function handle()
     {
         $lastClientServiceId = 0;
+        $now = new DateTime();
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientServiceId,
@@ -48,6 +50,8 @@ class StoreCachedResponseCommand extends AbstractClientServiceCommand
                 $client = $clientService->client()->first();
                 CacheHelper::imageResponse($client);
                 $lastClientServiceId = $clientService->getId();
+                $clientService->setSyncedAt($now);
+                $clientService->save();
                 $this->info('Client ' . $client->getId() . ' updated');
             }
             if (count($clientServices) < $this->getIterationCount()) {
