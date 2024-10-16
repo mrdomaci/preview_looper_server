@@ -57,4 +57,5 @@ return [
     'licence_info' => 'Tento doplněk je poskytován zdarma s měsíčním limitem 50 zaplacených objednávek. Pro vyšší počet objednávek je nutné zakoupit licenci.',
     'licence_monthly_payment' => 'Licenci je možné zakoupit na <b>31 dní</b> za cenu <b>490 Kč</b> odesláním této částky s <b>variabilním symbolem :variable</b> na účet <b>2601474251/2010</b>. Ve chvíli přijetí platby se licence aktivuje. Dle potřeby můžete nastavit odloženou platbu ve své bance.',
     'licence_yearly_payment' => 'Licenci je možné zakoupit na <b>365 dní</b> za cenu <b>4990 Kč</b> odesláním této částky s <b>variabilním symbolem :variable</b> na účet <b>2601474251/2010</b>. Ve chvíli přijetí platby se licence aktivuje. Dle potřeby můžete nastavit odloženou platbu ve své bance.',
+    'invoice_download' => 'Stáhnout doklad',
 ];

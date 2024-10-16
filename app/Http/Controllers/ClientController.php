@@ -12,8 +12,10 @@ use App\Businesses\TemplateIncludeBusiness;
 use App\Enums\CountryEnum;
 use App\Enums\QueueStatusEnum;
 use App\Helpers\AuthorizationHelper;
+use App\Helpers\LicenseHelper;
 use App\Helpers\LocaleHelper;
 use App\Helpers\LoggerHelper;
+use App\Models\License;
 use App\Repositories\ClientRepository;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\QueueRepository;
@@ -85,7 +87,7 @@ class ClientController extends Controller
                 'client_settings' => $client->ClientSettingsServiceOptions()->get(),
                 'categories' => $client->categories()->get(),
                 'product_category_recommendations' => $client->productCategoryRecommendations()->get(),
-                'licences' => $clientService->licences()->get(),
+                'licenses' => $clientService->licenses()->get(),
                 'variable_symbol' => $clientService->getVariableSymbol(),
             ]
         );
@@ -157,5 +159,12 @@ class ClientController extends Controller
         } catch (Throwable) {
             return response('No data found', 404)->header('Content-Type', 'text/plain');
         }
+    }
+
+    public function license(License $license)
+    {
+        $filePath = LicenseHelper::generate($license);
+
+        return response()->download(storage_path('app/' . $filePath));
     }
 }

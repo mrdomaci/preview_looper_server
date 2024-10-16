@@ -52,6 +52,9 @@ Route::get('/products/{clientId}/{name}', [ProductController::class, 'getData'])
 Route::post('/recommendation/{country}/{serviceUrlPath}/{language}/{eshopId}', [ProductCategoryRecommendationController::class, 'add'])->name('recommendation.add');
 Route::delete('/recommendation/{country}/{serviceUrlPath}/{language}/{eshopId}', [ProductCategoryRecommendationController::class, 'delete'])->name('recommendation.delete');
 
+// License
+Route::get('/license/download/{license}', [ClientController::class, 'license'])->name('license.download');
+
 // Ajax endpoints
 Route::get('/images/{eshopID}/{moduloCheck}', [ImageController::class, 'all'])->name('images.all')->middleware('cors');
 Route::get('/products/{ehsopID}/{moduloCheck}/{guids}', [ProductController::class, 'recommend'])->name('products.all')->middleware('cors');

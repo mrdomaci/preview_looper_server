@@ -44,7 +44,7 @@ class ClientService extends Model
         return $this->belongsTo(Service::class);
     }
 
-    public function licences(): HasMany
+    public function licenses(): HasMany
     {
         return $this->hasMany(License::class);
     }
