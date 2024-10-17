@@ -136,7 +136,7 @@ class ClientServiceRepository
     public function getByVariableSymbol(string $variableSymbol): ?ClientService
     {
         $year = substr($variableSymbol, 0, 2);
-        $clientServiceId = substr($variableSymbol, 2);
+        $clientServiceId = substr($variableSymbol, 3);
         $clientServiceId = ltrim($clientServiceId, '0');
         $clientService = ClientService::find((int) $clientServiceId);
         if ($clientService === null) {

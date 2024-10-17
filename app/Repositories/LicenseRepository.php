@@ -47,7 +47,7 @@ class LicenseRepository
 
         if ($currency === 'CZK') {
             if ($value > 4489) {
-                $validTo = Carbon::now()->addDays(365);
+                $validTo = Carbon::now()->addDays(366);
                 $isActive = true;
             } else if ($value > 489) {
                 $validTo = Carbon::now()->addDays(31);
@@ -79,5 +79,13 @@ class LicenseRepository
             throw new DataNotFoundException(new Exception('License not found foreignId: ' . $foreignId));
         }
         return $client;
+    }
+
+    public function getValidByClientService(ClientService $clientService): ?License
+    {
+        return License::where('client_service_id', $clientService->id)
+            ->where('is_active', true)
+            ->where('valid_to', '>', Carbon::now())
+            ->first();
     }
 }

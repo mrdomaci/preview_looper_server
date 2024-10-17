@@ -201,4 +201,15 @@ class ClientService extends Model
     {
         return $this->setAttribute('synced_at', $syncedAt);
     }
+
+    public function isLicenseActive(): bool
+    {
+        return (bool) $this->getAttribute('is_license_active');
+    }
+
+    public function setLicenseActive(bool $is_license_active): void
+    {
+        $this->setAttribute('is_license_active', $is_license_active);
+        $this->save();
+    }
 }

@@ -73,7 +73,7 @@ class QueueRepository
             $queue->setJobId($response->getJobId());
         }
         $queue->status = $response->getStatus()->name;
-        $queue->reqsult_url = $response->getResultUrl();
+        $queue->result_url = $response->getResultUrl();
         $queue->endpoint = $response->getEndpoint();
         $queue->save();
     }
