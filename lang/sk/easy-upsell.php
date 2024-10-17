@@ -58,4 +58,8 @@ return [
     'licence_monthly_payment' => 'Licenciu je možné zakúpiť na <b>31 dní</b> za cenu <b>19.90€</b> odoslaním tejto sumy s <b>variabilným symbolom :variable</b> na účet <b>2302969385/2010</b>. V momente prijatia platby sa licencia aktivuje. Podľa potreby môžete nastaviť odloženú platbu vo svojej banke.',
     'licence_yearly_payment' => 'Licenciu je možné zakúpiť na <b>365 dní</b> za cenu <b>199€</b> odoslaním tejto sumy s <b>variabilným symbolom :variable</b> na účet <b>2302969385/2010</b>. V momente prijatia platby sa licencia aktivuje. Podľa potreby môžete nastaviť odloženú platbu vo svojej banke.',
     'invoice_download' => 'Stiahnuť doklad',
+    'company_name' => 'Názov spoločnosti',
+    'company_address' => 'Adresa spoločnosti',
+    'cin' => 'IČO',
+    'tin' => 'DIČ',
 ];

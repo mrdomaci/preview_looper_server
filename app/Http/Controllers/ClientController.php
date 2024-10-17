@@ -18,6 +18,7 @@ use App\Helpers\LoggerHelper;
 use App\Models\License;
 use App\Repositories\ClientRepository;
 use App\Repositories\ClientServiceRepository;
+use App\Repositories\ClientSettingsServiceOptionRepository;
 use App\Repositories\QueueRepository;
 use App\Repositories\ServiceRepository;
 use Exception;
@@ -39,6 +40,7 @@ class ClientController extends Controller
         private readonly SyncEndpointBusiness $syncEndpointBusiness,
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly QueueRepository $queueRepository,
+        private readonly ClientSettingsServiceOptionRepository $clientSettingsServiceOptionRepository,
     ) {
     }
     public function settings(string $countryCode, string $serviceUrlPath, Request $request): View
@@ -163,7 +165,14 @@ class ClientController extends Controller
 
     public function license(License $license)
     {
-        $filePath = LicenseHelper::generate($license);
+        $clientService = $license->clientService()->first();
+        $client = $clientService->client()->first();
+        $companyName = $this->clientSettingsServiceOptionRepository->getUpsellCompanyName($client);
+        $companyAddress = $this->clientSettingsServiceOptionRepository->getUpsellCompanyAddress($client);
+        $cin = $this->clientSettingsServiceOptionRepository->getUpsellCin($client);
+        $tin = $this->clientSettingsServiceOptionRepository->getUpsellTin($client);
+
+        $filePath = LicenseHelper::generate($license, $companyName, $companyAddress, $cin, $tin); 
 
         return response()->download(storage_path('app/' . $filePath));
     }

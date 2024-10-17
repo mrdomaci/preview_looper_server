@@ -16,6 +16,10 @@ class SettingsService extends Model
 
     public const UPSELL_MAX_RESULTS = 7;
     public const UPSELL_HEADER = 8;
+    public const UPSELL_COMPANY_NAME = 9;
+    public const UPSELL_CIN = 10;
+    public const UPSELL_TIN = 11;
+    public const UPSELL_COMPANY_ADDRESS = 12;
 
     public $timestamps = false;
 

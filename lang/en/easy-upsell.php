@@ -58,4 +58,8 @@ return [
     'licence_monthly_payment' => 'You can purchase a license for <b>31 days</b> for <b>490 CZK</b> by sending this amount with <b>variable symbol :variable</b> to account <b>1234567890/1234</b>. The license will be activated once the payment is received. You may set up a deferred payment at your bank if necessary.',
     'licence_yearly_payment' => 'You can purchase a license for <b>365 days</b> for <b>4990 CZK</b> by sending this amount with <b>variable symbol :variable</b> to account <b>1234567890/1234</b>. The license will be activated once the payment is received. You may set up a deferred payment at your bank if necessary.',
     'invoice_download' => 'Download receipt',
+    'company_name' => 'Company Name',
+    'company_address' => 'Company Address',
+    'cin' => 'Company identification number',
+    'tin' => 'Tax identification number',
 ];

@@ -58,4 +58,8 @@ return [
     'licence_monthly_payment' => 'A licencet meg lehet vásárolni <b>31 napra</b> a <b>490 CZK</b> összeg elküldésével, <b>:variable változó szimbólummal</b> a <b>1234567890/1234</b> számlaszámra. A licenc az összeg beérkezésekor aktiválódik. Szükség esetén beállíthat késleltetett fizetést a bankjában.',
     'licence_yearly_payment' => 'A licencet meg lehet vásárolni <b>365 napra</b> a <b>4990 CZK</b> összeg elküldésével, <b>:variable változó szimbólummal</b> a <b>1234567890/1234</b> számlaszámra. A licenc az összeg beérkezésekor aktiválódik. Szükség esetén beállíthat késleltetett fizetést a bankjában.',
     'invoice_download' => 'Dokument letöltése',
+    'company_name' => 'Cég neve',
+    'company_address' => 'Cég címe',
+    'cin' => 'Cégjegyzékszám',
+    'tin' => 'Adószám',
 ];

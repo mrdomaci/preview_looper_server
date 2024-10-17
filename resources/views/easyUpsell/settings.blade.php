@@ -16,7 +16,7 @@ use App\Helpers\QrHelper;
                 <label for="settings_{{ $setting->name }}" class="col-md-6 col-md-form-label">{{ __($setting->name) }}:</label>
                 <div class="col-md-6">
                     @if ($setting->type == 'value')
-                        <input type="text" class="form-control" name="{{ $setting->id }}_value" id="{{ $setting->id }}_value" value="{{ $setting->getValue($client) }}" placeholder="{{ __( $service->getName() . '.' . $setting->id . '_placeholder')}}">
+                        <input type="text" class="form-control" name="{{ $setting->id }}_value" id="{{ $setting->id }}_value" value="{{ $setting->getValue($client) }}" @if(trans($service->getName() . '.' . $setting->id . '_placeholder') != $service->getName() . '.' . $setting->id . '_placeholder') placeholder="{{ __( $service->getName() . '.' . $setting->id . '_placeholder')}}"@endif>
                     @elseif ($setting->type == 'select')
                         <select class="form-control" name="{{ $setting->id }}" id="{{ $setting->id }}">
                             @foreach ($setting->settingsServicesOptions as $option)
