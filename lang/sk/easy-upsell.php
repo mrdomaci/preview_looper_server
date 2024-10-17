@@ -57,6 +57,11 @@ return [
     'licence_info' => 'Tento doplnok je poskytovaný zadarmo s mesačným limitom 50 zaplatených objednávok. Pre vyšší počet objednávok je nutné zakúpiť licenciu.',
     'licence_monthly_payment' => 'Licenciu je možné zakúpiť na <b>31 dní</b> za cenu <b>19.90€</b> odoslaním tejto sumy s <b>variabilným symbolom :variable</b> na účet <b>2302969385/2010</b>. V momente prijatia platby sa licencia aktivuje. Podľa potreby môžete nastaviť odloženú platbu vo svojej banke.',
     'licence_yearly_payment' => 'Licenciu je možné zakúpiť na <b>366 dní</b> za cenu <b>199€</b> odoslaním tejto sumy s <b>variabilným symbolom :variable</b> na účet <b>2302969385/2010</b>. V momente prijatia platby sa licencia aktivuje. Podľa potreby môžete nastaviť odloženú platbu vo svojej banke.',
+    'invoice_download' => 'Stiahnuť doklad',
+    'company_name' => 'Názov spoločnosti',
+    'company_address' => 'Adresa spoločnosti',
+    'cin' => 'IČO',
+    'tin' => 'DIČ',
     'monthly_price' => '19.90€',
     'yearly_price' => '199€',
     'monthly_plan' => 'Mesačná platba',
@@ -66,4 +71,5 @@ return [
     'monthly_plan_text' => '31 dní fungovania služby bez obmedzení a záväzkov',
     'yearly_plan_text' => '366 dní fungovania služby bez obmedzení a záväzkov',
     'free_plan_notice' => 'Mesačné obdobie začína dňom prvej inštalácie doplnku. Bez zakúpenej licencie bude služba pozastavená po dosiahnutí 50 zaplatených objednávok v aktuálnom období. Ďalšie obdobie začína v rovnaký deň nasledujúceho mesiaca a limit 50 objednávok je obnovený.',
+
 ];

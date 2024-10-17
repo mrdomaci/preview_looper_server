@@ -36,6 +36,7 @@ class License extends Model
     protected $casts = [
         'valid_to' => 'datetime',
         'is_active' => 'boolean',
+        'created_at' => 'datetime',
     ];
 
     public function clientService(): BelongsTo
@@ -121,5 +122,11 @@ class License extends Model
     public function getBic(): string
     {
         return $this->getAttribute('bic');
+    }
+
+    public function getNumber(): int
+    {
+        $result = $this->created_at->format('Y') . sprintf('%04d', $this->id);   
+        return (int) $result;
     }
 }

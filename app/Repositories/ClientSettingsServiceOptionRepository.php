@@ -45,6 +45,50 @@ class ClientSettingsServiceOptionRepository
         return null;
     }
 
+    public function getUpsellCompanyName(Client $client): ?string
+    {
+        $result = ClientSettingsServiceOption::where('client_id', $client->getId())
+            ->where('settings_service_id', SettingsService::UPSELL_COMPANY_NAME)
+            ->first();
+        if ($result !== null) {
+            return $result->getAttribute('value');
+        }
+        return null;
+    }
+
+    public function getUpsellCin(Client $client): ?string
+    {
+        $result = ClientSettingsServiceOption::where('client_id', $client->getId())
+            ->where('settings_service_id', SettingsService::UPSELL_CIN)
+            ->first();
+        if ($result !== null) {
+            return $result->getAttribute('value');
+        }
+        return null;
+    }
+
+    public function getUpsellTin(Client $client): ?string
+    {
+        $result = ClientSettingsServiceOption::where('client_id', $client->getId())
+            ->where('settings_service_id', SettingsService::UPSELL_TIN)
+            ->first();
+        if ($result !== null) {
+            return $result->getAttribute('value');
+        }
+        return null;
+    }
+
+    public function getUpsellCompanyAddress(Client $client): ?string
+    {
+        $result = ClientSettingsServiceOption::where('client_id', $client->getId())
+            ->where('settings_service_id', SettingsService::UPSELL_COMPANY_ADDRESS)
+            ->first();
+        if ($result !== null) {
+            return $result->getAttribute('value');
+        }
+        return null;
+    }
+
     public function updateOrCreate(Client $client, SettingsService $settingsService, ?SettingsServiceOption $settingsServiceOption, ?string $value): ClientSettingsServiceOption
     {
         try {

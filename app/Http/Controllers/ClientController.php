@@ -12,10 +12,13 @@ use App\Businesses\TemplateIncludeBusiness;
 use App\Enums\CountryEnum;
 use App\Enums\QueueStatusEnum;
 use App\Helpers\AuthorizationHelper;
+use App\Helpers\LicenseHelper;
 use App\Helpers\LocaleHelper;
 use App\Helpers\LoggerHelper;
+use App\Models\License;
 use App\Repositories\ClientRepository;
 use App\Repositories\ClientServiceRepository;
+use App\Repositories\ClientSettingsServiceOptionRepository;
 use App\Repositories\QueueRepository;
 use App\Repositories\ServiceRepository;
 use Exception;
@@ -37,6 +40,7 @@ class ClientController extends Controller
         private readonly SyncEndpointBusiness $syncEndpointBusiness,
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly QueueRepository $queueRepository,
+        private readonly ClientSettingsServiceOptionRepository $clientSettingsServiceOptionRepository,
     ) {
     }
     public function settings(string $countryCode, string $serviceUrlPath, Request $request): View
@@ -80,12 +84,12 @@ class ClientController extends Controller
                 'language' => $language,
                 'client' => $client,
                 'settings_service' => $service->settingsServices()->get(),
-                'last_synced' => $clientService->getLastSyncedAt(),
+                'last_synced' => $clientService->getSyncedAt(),
                 'update_in_process' => $clientService->isUpdateInProcess(),
                 'client_settings' => $client->ClientSettingsServiceOptions()->get(),
                 'categories' => $client->categories()->get(),
                 'product_category_recommendations' => $client->productCategoryRecommendations()->get(),
-                'licences' => $clientService->licences()->get(),
+                'licenses' => $clientService->licenses()->get(),
                 'variable_symbol' => $clientService->getVariableSymbol(),
             ]
         );
@@ -157,5 +161,19 @@ class ClientController extends Controller
         } catch (Throwable) {
             return response('No data found', 404)->header('Content-Type', 'text/plain');
         }
+    }
+
+    public function license(License $license)
+    {
+        $clientService = $license->clientService()->first();
+        $client = $clientService->client()->first();
+        $companyName = $this->clientSettingsServiceOptionRepository->getUpsellCompanyName($client);
+        $companyAddress = $this->clientSettingsServiceOptionRepository->getUpsellCompanyAddress($client);
+        $cin = $this->clientSettingsServiceOptionRepository->getUpsellCin($client);
+        $tin = $this->clientSettingsServiceOptionRepository->getUpsellTin($client);
+
+        $filePath = LicenseHelper::generate($license, $companyName, $companyAddress, $cin, $tin); 
+
+        return response()->download(storage_path('app/' . $filePath));
     }
 }

@@ -57,6 +57,11 @@ return [
     'licence_info' => 'Ez a bővítmény ingyenesen elérhető havi 50 fizetett rendelés limitig. A magasabb rendelési számhoz licenc megvásárlása szükséges.',
     'licence_monthly_payment' => 'A licencet meg lehet vásárolni <b>31 napra</b> a <b>490 CZK</b> összeg elküldésével, <b>:variable változó szimbólummal</b> a <b>1234567890/1234</b> számlaszámra. A licenc az összeg beérkezésekor aktiválódik. Szükség esetén beállíthat késleltetett fizetést a bankjában.',
     'licence_yearly_payment' => 'A licencet meg lehet vásárolni <b>366 napra</b> a <b>4990 CZK</b> összeg elküldésével, <b>:variable változó szimbólummal</b> a <b>1234567890/1234</b> számlaszámra. A licenc az összeg beérkezésekor aktiválódik. Szükség esetén beállíthat késleltetett fizetést a bankjában.',
+    'invoice_download' => 'Dokument letöltése',
+    'company_name' => 'Cég neve',
+    'company_address' => 'Cég címe',
+    'cin' => 'Cégjegyzékszám',
+    'tin' => 'Adószám',
     'monthly_price' => '19.90€',
     'yearly_price' => '199€',
     'monthly_plan' => 'Havi fizetés',
@@ -66,4 +71,5 @@ return [
     'monthly_plan_text' => '31 nap korlátozás nélküli szolgáltatás elköteleződés nélkül',
     'yearly_plan_text' => '366 nap korlátozás nélküli szolgáltatás elköteleződés nélkül',
     'free_plan_notice' => 'A havi időszak a bővítmény első telepítésének napjától kezdődik. Licenc megvásárlása nélkül a szolgáltatás felfüggesztésre kerül, miután az aktuális időszakban 50 fizetett rendelés teljesült. A következő időszak a következő hónap azonos napján kezdődik, és az 50 rendeléses limit megújul.',
+
 ];

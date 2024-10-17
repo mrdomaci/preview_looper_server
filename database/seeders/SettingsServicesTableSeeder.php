@@ -73,6 +73,34 @@ class SettingsServicesTableSeeder extends Seeder
                 'service_id' => 2,
                 'type' => 'value',
             ],
+            [
+                'id' => 9,
+                'name' => 'easy-upsell.company_name',
+                'sort' => 3,
+                'service_id' => 2,
+                'type' => 'value',
+            ],
+            [
+                'id' => 10,
+                'name' => 'easy-upsell.cin',
+                'sort' => 4,
+                'service_id' => 2,
+                'type' => 'value',
+            ],
+            [
+                'id' => 11,
+                'name' => 'easy-upsell.tin',
+                'sort' => 5,
+                'service_id' => 2,
+                'type' => 'value',
+            ],
+            [
+                'id' => 12,
+                'name' => 'easy-upsell.company_address',
+                'sort' => 6,
+                'service_id' => 2,
+                'type' => 'value',
+            ],
         ]);
     }
 }

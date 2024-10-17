@@ -37,32 +37,21 @@
         </div>
       </form>
       <div class="card-body">
-        <form method="POST" action="{{ route('client.sync', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath(), 'language' => $language, 'eshopId' => $client->getEshopId()]) }}">
-            @csrf
-            <div class="form-group row mt-4">
-                <div class="col-md-12 mb-4">
-                    <label>{{ __('general.sync_info')}}</label>
-                </div>
-                <div class="col-md-6">
-                    <label>{{ __('general.last_synced_at')}}:</label>
-                </div>
-                <div class="col-md-6">
-                    @if ($update_in_process === 1)
-                        <label>{{ __('general.sync_in_progress') }}</label>
-                    @elseif ($last_synced === null)
-                        <label>{{ __('general.not_synced_yet') }}</label>
-                    @else
-                        <label>{{ $last_synced->format('d.m.Y') }}</label>
-                    @endif
-                </div>
+        <h4>{{ __('general.data_sync')}}</h4>
+        <div class="form-group row mt-4">
+            <div class="col-md-12 mb-4">
+                <label>{{ __('general.sync_info')}}</label>
             </div>
-            <div class="row mt-4">
-                <div class="col-md-12 text-center">
-                    <input type="hidden" name="eshop_id" value="{{$client->eshop_id}}">
-                    <button type="submit" class="btn btn-secondary m-3">{{ __('general.sync_now') }}</button>
-                </div>
+            <div class="col">
+                @if ($update_in_process === 1)
+                    <label>{{ __('general.last_synced_at')}}: {{ __('general.sync_in_progress') }}</label>
+                @elseif ($last_synced === null)
+                    <label>{{ __('general.last_synced_at')}}: {{ __('general.not_synced_yet') }}</label>
+                @else
+                    <label>{{ __('general.last_synced_at')}}: {{ $last_synced->format('d.m.Y') }}</label>
+                @endif
             </div>
-        </form>
+        </div>
       </div>
     </div>
   </div>
