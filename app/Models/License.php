@@ -126,7 +126,7 @@ class License extends Model
 
     public function getNumber(): int
     {
-        $result = $this->created_at->format('Y') . sprintf('%04d', $this->id);   
+        $result = $this->created_at->format('Y') . sprintf('%04d', $this->id);
         return (int) $result;
     }
 }

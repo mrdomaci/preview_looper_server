@@ -26,6 +26,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
 
 class ClientController extends Controller
@@ -60,19 +61,19 @@ class ClientController extends Controller
             abort(404, __('general.inactive_service'));
         }
 
-        // try {
-        //     $baseOAuthUrl = $this->baseOauthUrlBusiness->getFromRequestClientService($request, $clientService);
-        //     $accessToken = $this->accessTokenBusiness->getFromRequestClientService($request, $clientService, $baseOAuthUrl, $country);
-        // } catch (Throwable) {
-        //     abort(401, __('general.unauthorized'));
-        // }
+        try {
+            $baseOAuthUrl = $this->baseOauthUrlBusiness->getFromRequestClientService($request, $clientService);
+            $accessToken = $this->accessTokenBusiness->getFromRequestClientService($request, $clientService, $baseOAuthUrl, $country);
+        } catch (Throwable) {
+            abort(401, __('general.unauthorized'));
+        }
 
-        // $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
-        // if ($checkEshopId !== $client->getEshopId()) {
-        //     LoggerHelper::log('Eshop ID mismatch for client ' . $client->getId() . ' from DB ' . $client->getEshopId() . ' from API ' . $checkEshopId);
-        //     //loosen security for now
-        //     //abort(403);
-        // }
+        $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
+        if ($checkEshopId !== $client->getEshopId()) {
+            LoggerHelper::log('Eshop ID mismatch for client ' . $client->getId() . ' from DB ' . $client->getEshopId() . ' from API ' . $checkEshopId);
+            //loosen security for now
+            //abort(403);
+        }
 
         LocaleHelper::setLocale($language);
 
@@ -89,7 +90,7 @@ class ClientController extends Controller
                 'client_settings' => $client->ClientSettingsServiceOptions()->get(),
                 'categories' => $client->categories()->get(),
                 'product_category_recommendations' => $client->productCategoryRecommendations()->get(),
-                'licenses' => $clientService->licenses()->get(),
+                'licenses' => $clientService->licenses()->orderBy('valid_to', 'desc')->get(),
                 'variable_symbol' => $clientService->getVariableSymbol(),
             ]
         );
@@ -163,7 +164,7 @@ class ClientController extends Controller
         }
     }
 
-    public function license(License $license)
+    public function license(License $license): BinaryFileResponse
     {
         $clientService = $license->clientService()->first();
         $client = $clientService->client()->first();
@@ -172,7 +173,7 @@ class ClientController extends Controller
         $cin = $this->clientSettingsServiceOptionRepository->getUpsellCin($client);
         $tin = $this->clientSettingsServiceOptionRepository->getUpsellTin($client);
 
-        $filePath = LicenseHelper::generate($license, $companyName, $companyAddress, $cin, $tin); 
+        $filePath = LicenseHelper::generate($license, $companyName, $companyAddress, $cin, $tin);
 
         return response()->download(storage_path('app/' . $filePath));
     }

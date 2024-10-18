@@ -41,17 +41,29 @@ class LicenseRepository
             $license = new License();
             $license->foreign_id = $foreignId;
         }
-
         $validTo = Carbon::now();
-        $isActive = false;
+        $latestLicense = License::where('client_service_id', $clientService->id)
+            ->where('is_active', true)
+            ->where('foreign_id', '!=', $foreignId)
+            ->where('valid_to', '>', Carbon::now())
+            ->orderBy('valid_to', 'desc')
+            ->first();
+
+        if ($latestLicense !== null) {
+            $validTo = $latestLicense->valid_to;
+        }
 
         if ($currency === 'CZK') {
             if ($value > 4489) {
-                $validTo = Carbon::now()->addDays(366);
-                $isActive = true;
+                $validTo = $validTo->addDays(366);
             } else if ($value > 489) {
-                $validTo = Carbon::now()->addDays(31);
-                $isActive = true;
+                $validTo = $validTo->addDays(31);
+            }
+        } else if ($currency === 'EUR') {
+            if ($value > 198) {
+                $validTo = $validTo->addDays(366);
+            } else if ($value > 19.8) {
+                $validTo = $validTo->addDays(31);
             }
         }
 
@@ -59,7 +71,7 @@ class LicenseRepository
         $license->value = $value;
         $license->currency = $currency;
         $license->valid_to = $validTo;
-        $license->is_active = $isActive;
+        $license->is_active = true;
         $license->account_number = $accountNumber;
         $license->bank_code = $bankCode;
         $license->variable_symbol = $variableSymbol;
