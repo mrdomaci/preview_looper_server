@@ -31,9 +31,9 @@ Route::get('/locale/{locale}', [HomepageController::class, 'setLocale'])->name('
 
 // Installation
 Route::get('/addon-install/{country}/{serviceUrlPath}', [InstallController::class, 'install'])->name('client.install');
-Route::get('/addon-uninstall/{serviceUrlPath}', [InstallController::class, 'uninstall'])->name('client.uninstall');
-Route::get('/addon-deactivate/{serviceUrlPath}', [InstallController::class, 'deactivate'])->name('client.deactivate');
-Route::get('/addon-activate/{serviceUrlPath}', [InstallController::class, 'activate'])->name('client.activate');
+Route::post('/addon-uninstall/{serviceUrlPath}', [InstallController::class, 'uninstall'])->name('client.uninstall');
+Route::post('/addon-deactivate/{serviceUrlPath}', [InstallController::class, 'deactivate'])->name('client.deactivate');
+Route::post('/addon-activate/{serviceUrlPath}', [InstallController::class, 'activate'])->name('client.activate');
 
 // Webhooks
 Route::post('/webhook/job', [ClientController::class, 'job'])->name('webhook.job');

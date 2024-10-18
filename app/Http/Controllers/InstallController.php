@@ -11,6 +11,7 @@ use App\Helpers\WebHookHelper;
 use App\Repositories\ServiceRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class InstallController extends Controller
@@ -43,12 +44,18 @@ class InstallController extends Controller
         return Response('ok', 200);
     }
 
-    public function deactivate(string $serviceUrlPath): Response
+    public function deactivate(string $serviceUrlPath, Request $request): Response
     {
         try {
             $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
         } catch (Throwable) {
             abort(404, __('general.wrong_url'));
+        }
+
+        $data = $request->request->all();
+
+        foreach ($data as $key => $value) {
+            Log::info($key . ': ' . $value);
         }
 
         $this->installBusiness->deactivate($service);
@@ -56,7 +63,7 @@ class InstallController extends Controller
         return Response('ok', 200);
     }
 
-    public function uninstall(string $serviceUrlPath): Response
+    public function uninstall(string $serviceUrlPath, Request $request): Response
     {
         try {
             $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
@@ -64,17 +71,31 @@ class InstallController extends Controller
             abort(404, __('general.wrong_url'));
         }
 
+
+        $data = $request->request->all();
+
+        foreach ($data as $key => $value) {
+            Log::info($key . ': ' . $value);
+        }
+
         $this->installBusiness->uninstall($service);
 
         return Response('ok', 200);
     }
 
-    public function activate(string $serviceUrlPath): Response
+    public function activate(string $serviceUrlPath, Request $request): Response
     {
         try {
             $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
         } catch (Throwable) {
             abort(404, __('general.wrong_url'));
+        }
+
+
+        $data = $request->request->all();
+
+        foreach ($data as $key => $value) {
+            Log::info($key . ': ' . $value);
         }
 
         $this->installBusiness->activate($service);
