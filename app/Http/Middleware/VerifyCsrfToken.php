@@ -14,6 +14,9 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        '/webhook/job'
+        '/webhook/job',
+        '/addon-uninstall/*',
+        '/addon-deactivate/*',
+        '/addon-activate/*',
     ];
 }
