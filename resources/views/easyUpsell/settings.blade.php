@@ -62,9 +62,11 @@ use App\Helpers\QrHelper;
                 <div class="form-group row mt-4">
                     <div class="col-md-12 mb-4">
                         @if (count($licenses) > 0)
+                            <ul>
                             @foreach ($licenses as $license)
-                                <label>{{ __('easy-upsell.valid')}}: {{ $license->valid_to->format('j.n. Y') }} <a href="{{ route('license.download', [$license->id])}}">[{{ __('easy-upsell.invoice_download')}}]</a></label>
+                                <li>{{ __('easy-upsell.valid')}}: {{ $license->valid_to->format('j.n. Y') }} <a href="{{ route('license.download', [$license->id])}}">[{{ __('easy-upsell.invoice_download')}}]</a></li>
                             @endforeach
+                            </ul>
                         @else
                             <label>{{ __('easy-upsell.no_licence')}}.</label>
                         @endif
