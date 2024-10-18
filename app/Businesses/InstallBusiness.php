@@ -10,6 +10,7 @@ use App\Helpers\AuthorizationHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
 use App\Helpers\WebHookHelper;
+use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\Service;
 use App\Repositories\ClientRepository;
@@ -35,26 +36,20 @@ class InstallBusiness
         return $this->clientServiceRepository->updateOrCreate($client, $service, $oAuthAccessToken, $country);
     }
 
-    public function deactivate(Service $service): void
+    public function deactivate(Service $service, Client $client): void
     {
-        $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_DEACTIVATE);
-        $client = $this->clientRepository->getByEshopId($eshopId);
         $this->clientServiceRepository->updateStatus($client, $service, ClientServiceStatusEnum::INACTIVE);
         LoggerHelper::log('Client ' . $client->getId() . ' deactivated');
     }
 
-    public function uninstall(Service $service): void
+    public function uninstall(Service $service, Client $client): void
     {
-        $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_UNINSTALL);
-        $client = $this->clientRepository->getByEshopId($eshopId);
         $this->clientServiceRepository->updateStatus($client, $service, ClientServiceStatusEnum::DELETED);
         LoggerHelper::log('Client ' . $client->getId() . ' uninstalled');
     }
 
-    public function activate(Service $service): void
+    public function activate(Service $service, Client $client): void
     {
-        $eshopId = WebHookHelper::getEshopId(WebHookHelper::EVENT_ACTIVATE);
-        $client = $this->clientRepository->getByEshopId($eshopId);
         $clientSevice = $this->clientServiceRepository->updateStatus($client, $service, ClientServiceStatusEnum::ACTIVE);
         LoggerHelper::log('Client ' . $client->getId() . ' activated');
         WebHookHelper::webhookResolver($clientSevice);

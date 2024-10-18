@@ -8,10 +8,10 @@ use App\Businesses\InstallBusiness;
 use App\Enums\CountryEnum;
 use App\Helpers\LoggerHelper;
 use App\Helpers\WebHookHelper;
+use App\Repositories\ClientRepository;
 use App\Repositories\ServiceRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class InstallController extends Controller
@@ -19,6 +19,7 @@ class InstallController extends Controller
     public function __construct(
         private readonly InstallBusiness $installBusiness,
         private readonly ServiceRepository $serviceRepository,
+        private readonly ClientRepository $clientRepository,
     ) {
     }
     public function install(string $countryCode, string $serviceUrlPath, Request $request): Response
@@ -53,12 +54,10 @@ class InstallController extends Controller
         }
 
         $data = $request->request->all();
+        $eshopId = $data['eshopId'];
+        $client = $this->clientRepository->getByEshopId((int) $eshopId);
 
-        foreach ($data as $key => $value) {
-            Log::info($key . ': ' . $value);
-        }
-
-        $this->installBusiness->deactivate($service);
+        $this->installBusiness->deactivate($service, $client);
 
         return Response('ok', 200);
     }
@@ -73,12 +72,10 @@ class InstallController extends Controller
 
 
         $data = $request->request->all();
+        $eshopId = $data['eshopId'];
+        $client = $this->clientRepository->getByEshopId((int) $eshopId);
 
-        foreach ($data as $key => $value) {
-            Log::info($key . ': ' . $value);
-        }
-
-        $this->installBusiness->uninstall($service);
+        $this->installBusiness->uninstall($service, $client);
 
         return Response('ok', 200);
     }
@@ -91,14 +88,11 @@ class InstallController extends Controller
             abort(404, __('general.wrong_url'));
         }
 
-
         $data = $request->request->all();
+        $eshopId = $data['eshopId'];
+        $client = $this->clientRepository->getByEshopId((int) $eshopId);
 
-        foreach ($data as $key => $value) {
-            Log::info($key . ': ' . $value);
-        }
-
-        $this->installBusiness->activate($service);
+        $this->installBusiness->activate($service, $client);
 
         return Response('ok', 200);
     }
