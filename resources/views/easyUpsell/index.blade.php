@@ -106,9 +106,10 @@
             </div>
         </div>
         <div class="container text-center mt-5">
-            <iframe width="800" height="550"
-                src="https://www.youtube.com/embed/0A04glXYrd4">
-            </iframe>
+            <video width="70%" controls>
+                <source src="{{ url('videos/eu-demo.mp4')}}" type="video/mp4">
+                Your browser does not support the video tag.    
+            </video>
         </div>
 
         <div class="container text-center mt-5">
