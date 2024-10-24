@@ -173,12 +173,12 @@ class Order extends Model
         return $this->setAttribute('foreign_status_id', $foreignStatusId);
     }
 
-    public function getSource(): string
+    public function getSource(): ?string
     {
         return $this->getAttribute('source');
     }
 
-    public function setSource(string $source): self
+    public function setSource(?string $source): self
     {
         return $this->setAttribute('source', $source);
     }
