@@ -60,7 +60,7 @@ class OrderResponse
         return $this->company;
     }
 
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
