@@ -108,7 +108,7 @@ class Order extends Model
         return $this->getAttribute('email');
     }
 
-    public function setEmail(string $email): self
+    public function setEmail(?string $email): self
     {
         return $this->setAttribute('email', $email);
     }
