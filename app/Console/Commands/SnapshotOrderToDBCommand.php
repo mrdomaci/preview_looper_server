@@ -94,7 +94,7 @@ class SnapshotOrderToDBCommand extends AbstractCommand
                         (isset($orderData['changeTime']) ? new DateTime($orderData['changeTime']) : null),
                         ($orderData['billingAddress']['fullName'] ?? ''),
                         ($orderData['billingAddress']['company'] ?? null),
-                        $orderData['email'],
+                        ($orderData['email'] ?? null),
                         ($orderData['phone'] ?? null),
                         ($orderData['remark'] ?? null),
                         ($orderData['cashDeskOrder'] ?? false),
