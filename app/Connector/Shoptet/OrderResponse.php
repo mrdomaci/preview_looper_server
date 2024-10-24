@@ -15,7 +15,7 @@ class OrderResponse
         private ?DateTime $changeTime,
         private string $fullName,
         private ?string $company,
-        private string $email,
+        private ?string $email,
         private ?string $phone,
         private ?string $remark,
         private bool $cashDeskOrder,
