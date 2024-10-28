@@ -6,11 +6,14 @@ namespace App\Console\Commands;
 
 use App\Connector\Shoptet\Order;
 use App\Enums\QueueStatusEnum;
+use App\Exceptions\AddonNotInstalledException;
+use App\Exceptions\AddonSuspendedException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\StringHelper;
 use App\Models\Queue;
 use App\Repositories\QueueRepository;
 use Illuminate\Console\Command;
+use Throwable;
 
 class QueueFromApiCommand extends AbstractCommand
 {
@@ -46,7 +49,20 @@ class QueueFromApiCommand extends AbstractCommand
         /** @var Queue $queue */
         foreach ($queues as $queue) {
             $clientService = $queue->clientService()->first();
-            $response = ConnectorHelper::queue($clientService, $queue);
+            try {
+                $response = ConnectorHelper::queue($clientService, $queue);
+            } catch (AddonNotInstalledException) {
+                $queue->delete();
+                $clientService->setStatusDeleted();
+                continue;
+            } catch (AddonSuspendedException $e) {
+                $queue->delete();
+                $clientService->setStatusInactive();
+                continue;
+            } catch (Throwable $e) {
+                $this->error($e->getMessage());
+                continue;
+            }
             if (StringHelper::contains($queue->getEndpoint(), (new Order())->getEndpoint())) {
                 $domain = 'orders';
             } else {
