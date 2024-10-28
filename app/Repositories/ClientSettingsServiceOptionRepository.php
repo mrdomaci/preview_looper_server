@@ -89,6 +89,17 @@ class ClientSettingsServiceOptionRepository
         return null;
     }
 
+    public function getUpsellOrders(Client $client): ?string
+    {
+        $result = ClientSettingsServiceOption::where('client_id', $client->getId())
+            ->where('settings_service_id', SettingsService::UPSELL_ORDERS)
+            ->first();
+        if ($result !== null) {
+            return $result->getAttribute('value');
+        }
+        return null;
+    }
+
     public function updateOrCreate(Client $client, SettingsService $settingsService, ?SettingsServiceOption $settingsServiceOption, ?string $value): ClientSettingsServiceOption
     {
         try {
@@ -98,11 +109,14 @@ class ClientSettingsServiceOptionRepository
             $clientSettingsServiceOption->setAttribute('client_id', $client->getId());
             $clientSettingsServiceOption->setAttribute('settings_service_id', $settingsService->getId());
         }
-
-        if ($settingsServiceOption->getAttribute('id') !== null) {
-            $settingsServiceOption = $settingsServiceOption->getId();
+        if ($settingsServiceOption === null) {
+            $settingsServiceOption = null;
         } else {
-            $settingsServiceOption = $settingsServiceOption->getSettingsServiceId();
+            if ($settingsServiceOption->getAttribute('id') !== null) {
+                $settingsServiceOption = $settingsServiceOption->getId();
+            } else {
+                $settingsServiceOption = $settingsServiceOption->getSettingsServiceId();
+            }
         }
 
         $clientSettingsServiceOption->setAttribute('settings_service_option_id', $settingsServiceOption);

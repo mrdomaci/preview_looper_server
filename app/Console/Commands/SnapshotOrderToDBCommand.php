@@ -128,10 +128,10 @@ class SnapshotOrderToDBCommand extends AbstractCommand
                         if ($item['itemType'] !== 'product') {
                             continue;
                         }
-                        if (!isset($item['productGuid']) || !isset($item['amount'])) {
+                        if (!isset($item['productGuid'])) {
                             continue;
                         }
-                        if ($item['amount'] == null || $item['productGuid'] == null) {
+                        if (!isset($item['amount'])) {
                             continue;
                         }
                         $orderDetailResponse = new OrderDetailResponse(

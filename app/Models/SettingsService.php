@@ -20,6 +20,7 @@ class SettingsService extends Model
     public const UPSELL_CIN = 10;
     public const UPSELL_TIN = 11;
     public const UPSELL_COMPANY_ADDRESS = 12;
+    public const UPSELL_ORDERS = 13;
 
     public $timestamps = false;
 

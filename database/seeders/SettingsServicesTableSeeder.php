@@ -101,6 +101,13 @@ class SettingsServicesTableSeeder extends Seeder
                 'service_id' => 2,
                 'type' => 'value',
             ],
+            [
+                'id' => 13,
+                'name' => 'easy-upsell.monthly_orders',
+                'sort' => 7,
+                'service_id' => 2,
+                'type' => 'hidden',
+            ],
         ]);
     }
 }
