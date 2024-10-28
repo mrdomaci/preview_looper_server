@@ -12,6 +12,9 @@ use App\Helpers\QrHelper;
         <form method="POST" action="{{ route('client.saveSettings', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath(), 'language' => $language, 'eshopId' => $client->getEshopId()]) }}">
         @csrf
         @foreach ($settings_service as $setting)
+            @if ($setting->type == 'hidden')
+                @continue
+            @endif
             <div class="form-group row mt-4">
                 <label for="settings_{{ $setting->name }}" class="col-md-6 col-md-form-label">{{ __($setting->name) }}:</label>
                 <div class="col-md-6">

@@ -6,7 +6,9 @@ namespace App\Console\Commands;
 
 use App\Helpers\DateTimeHelper;
 use App\Models\ClientService;
+use App\Models\SettingsService;
 use App\Repositories\ClientServiceRepository;
+use App\Repositories\ClientSettingsServiceOptionRepository;
 use App\Repositories\LicenseRepository;
 use App\Repositories\OrderRepository;
 use DateTime;
@@ -32,6 +34,7 @@ class LicenseValidateCommand extends AbstractClientServiceCommand
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly LicenseRepository $licenseRepository,
         private readonly OrderRepository $orderRepository,
+        private readonly ClientSettingsServiceOptionRepository $clientSettingsServiceOptionRepository,
     ) {
         parent::__construct();
     }
@@ -44,6 +47,7 @@ class LicenseValidateCommand extends AbstractClientServiceCommand
     public function handle()
     {
         $lastClientId = 0;
+        $settigService = SettingsService::where('id', SettingsService::UPSELL_ORDERS)->first();
         for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
             $clientServices = $this->clientServiceRepository->getActive(
                 $lastClientId,
@@ -59,7 +63,14 @@ class LicenseValidateCommand extends AbstractClientServiceCommand
                 if ($license === null) {
                     $date = DateTimeHelper::adjustDateToCurrentMonth(new DateTime($clientService->getCreatedAt()->format('Y-m-d')));
                     $orders = $this->orderRepository->getFromDate($client, $date);
-                    if ($orders->count() > 50) {
+                    $orderCount = $orders->count();
+                    $this->clientSettingsServiceOptionRepository->updateOrCreate(
+                        $client,
+                        $settigService,
+                        null,
+                        (string) $orderCount
+                    );
+                    if ($orderCount > 50) {
                         $licenseActive = false;
                     }
                 }

@@ -122,7 +122,7 @@ class SnapshotProductToDBCommand extends AbstractCommand
                             ) : null
                         ),
                         ($productData['url'] ?? null),
-                        (isset($productData['supplier']['name']) ? $productData['supplier']['name'] : null),
+                        ($productData['supplier']['name'] ?? null),
                         (isset($productData['brand']) ? new ProductBrand($productData['brand']['code'], $productData['brand']['name']) : null),
                         ($productData['shortDescription'] ?? null),
                         $images,
