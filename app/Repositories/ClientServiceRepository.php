@@ -67,9 +67,9 @@ class ClientServiceRepository
         ->where('status', ClientServiceStatusEnum::ACTIVE)
         ->where('update_in_process', '=', 0)
         ->where(function ($query) use ($dateLastSync) {
-            $query->where('synced_at', '<=', $dateLastSync)
-              ->orWhereNull('synced_at');
-        })->orderBy('synced_at', 'asc');
+            $query->where('webhooked_at', '<=', $dateLastSync)
+              ->orWhereNull('webhooked_at');
+        })->orderBy('webhooked_at', 'asc');
 
         return $q->firstOrFail();
     }

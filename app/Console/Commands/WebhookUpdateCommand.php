@@ -45,6 +45,8 @@ class WebhookUpdateCommand extends AbstractServiceCommand
             return Command::SUCCESS;
         }
         WebHookHelper::webhookResolver($clientService);
+        $clientService->setWebhoodAt(now());
+        $clientService->save();
         $this->info('Client ' . (string) $clientService->client->first()->getId() . ' webhooked to be updated for service ' . $this->getService()->getName());
         return Command::SUCCESS;
     }

@@ -212,4 +212,17 @@ class ClientService extends Model
         $this->setAttribute('is_license_active', $is_license_active);
         $this->save();
     }
+
+    public function setWebhoodAt(?DateTime $webhoodAt): self
+    {
+        return $this->setAttribute('webhood_at', $webhoodAt);
+    }
+
+    public function getWebhoodAt(): ?DateTime
+    {
+        if ($this->getAttribute('webhood_at') === null) {
+            return null;
+        }
+        return new DateTime($this->getAttribute('webhood_at'));
+    }
 }
