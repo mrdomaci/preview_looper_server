@@ -66,7 +66,10 @@ class ClientServiceRepository
         $q = ClientService::where('service_id', $service->getId())
         ->where('status', ClientServiceStatusEnum::ACTIVE)
         ->where('update_in_process', '=', 0)
-        ->where('synced_at', '<=', $dateLastSync);
+        ->where(function ($query) use ($dateLastSync) {
+            $query->where('synced_at', '<=', $dateLastSync)
+              ->orWhereNull('synced_at');
+        })->orderBy('synced_at', 'asc');
 
         return $q->firstOrFail();
     }
