@@ -65,20 +65,8 @@ class ClientServiceRepository
     {
         $q = ClientService::where('service_id', $service->getId())
         ->where('status', ClientServiceStatusEnum::ACTIVE)
-        ->where('update_in_process', '=', 0);
-
-        if ($service->isDynamicPreviewImages()) {
-            $q->where(function ($query) use ($dateLastSync) {
-                $query->where('products_last_synced_at', '<=', $dateLastSync)
-                    ->orWhereNull('products_last_synced_at');
-            });
-        }
-        if ($service->isUpsell()) {
-            $q->where(function ($query) use ($dateLastSync) {
-                $query->where('orders_last_synced_at', '<=', $dateLastSync)
-                    ->orWhereNull('orders_last_synced_at');
-            });
-        }
+        ->where('update_in_process', '=', 0)
+        ->where('synced_at', '<=', $dateLastSync);
 
         return $q->firstOrFail();
     }
