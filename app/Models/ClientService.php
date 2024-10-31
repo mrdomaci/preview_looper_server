@@ -215,14 +215,14 @@ class ClientService extends Model
 
     public function setWebhoodAt(?DateTime $webhoodAt): self
     {
-        return $this->setAttribute('webhood_at', $webhoodAt);
+        return $this->setAttribute('webhooked_at', $webhoodAt);
     }
 
     public function getWebhoodAt(): ?DateTime
     {
-        if ($this->getAttribute('webhood_at') === null) {
+        if ($this->getAttribute('webhooked_at') === null) {
             return null;
         }
-        return new DateTime($this->getAttribute('webhood_at'));
+        return new DateTime($this->getAttribute('webhooked_at'));
     }
 }
