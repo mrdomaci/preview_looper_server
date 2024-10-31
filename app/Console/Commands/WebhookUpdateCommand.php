@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Helpers\WebHookHelper;
 use App\Repositories\ClientServiceRepository;
+use DateTime;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -39,13 +40,14 @@ class WebhookUpdateCommand extends AbstractServiceCommand
     public function handle()
     {
         try {
-            $clientService = $this->clientServiceRepository->getNextForUpdate($this->getService(), now()->subHours(12));
+            $from = new DateTime((now()->subHours(12))->format('Y-m-d H:i:s'));
+            $clientService = $this->clientServiceRepository->getNextForUpdate($this->getService(), $from);
         } catch (Throwable) {
             $this->info('No clients to update for service ' . $this->getService()->getName());
             return Command::SUCCESS;
         }
         WebHookHelper::webhookResolver($clientService);
-        $clientService->setWebhoodAt(now());
+        $clientService->setWebhoodAt(new DateTime());
         $clientService->save();
         $this->info('Client ' . (string) $clientService->client->first()->getId() . ' webhooked to be updated for service ' . $this->getService()->getName());
         return Command::SUCCESS;
