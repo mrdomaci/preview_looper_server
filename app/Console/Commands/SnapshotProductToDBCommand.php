@@ -149,7 +149,10 @@ class SnapshotProductToDBCommand extends AbstractCommand
                                 }
                             }
                         }
-                        $variantName = $productResponse->getName();
+                        $variantName = '';
+                        if ($productResponse !== null) {
+                            $variantName = $productResponse->getName();
+                        }
                         if (ArrayHelper::containsKey($variant, 'name')) {
                             $variantName .= ' ' . $variant['name'];
                         }
@@ -190,9 +193,9 @@ class SnapshotProductToDBCommand extends AbstractCommand
                         );
                         if ($availabilityId !== null) {
                             $availability = $this->availabilityRepository->getByForeignId($client, $availabilityId);
-                        } elseif ($productVariantResponse->getStock() > 0) {
+                        } elseif ($productVariantResponse !== null && $productVariantResponse->getStock() > 0) {
                             $availability = $onStockAvailability;
-                        } elseif ($productVariantResponse->isNegativeStockAllowed() === true) {
+                        } elseif ($productVariantResponse !== null && $productVariantResponse->isNegativeStockAllowed() === true) {
                             $availability = $soldOutNegativeStockAllowed;
                         } else {
                             $availability = $soldOutNegativeStockForbidden;
