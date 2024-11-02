@@ -148,7 +148,7 @@ class ProductRepository
         $productVariant->setName($productVariantResponse->getName())
             ->setCode($productVariantResponse->getCode())
             ->setActive(true)
-            ->setAvailabilityName($availability->getName())
+            ->setAvailabilityName($availability?->getName())
             ->setAvailabilityForeignId($productVariantResponse->getAvailabilityId())
             ->setAvailabilityLevel($availability?->getLevel())
             ->setAvailability($availability)
