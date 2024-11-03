@@ -3,6 +3,7 @@ use App\Helpers\QrHelper;
 ?>
 @include('../layouts.header')
 <div class="container">
+  <span id="eu_client_id" data-id="{{ $client->getId() }}"></span>
   <div class="card m-4">
     <div class="card-header text-center font-weight-bold">
         <h4>{{ __('easy-upsell.addon_title') }} - {{ __('general.settings') }}</h4>

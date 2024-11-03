@@ -3,7 +3,7 @@
 window.onload = function() {
     if (window.jQuery) {  
         $(document).ready(function () {
-            var client = 2;
+            var client = $('#eu_client_id').data('id');
             $('#product_autocomplete').on('input', function () {
                 var inputString = $(this).val();
                 
