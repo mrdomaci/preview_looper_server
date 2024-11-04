@@ -26,8 +26,11 @@ class CategoryRepository
         return $category;
     }
 
-    public function getForClient(Client $client, int $id): Category
+    public function getForClient(Client $client, ?int $id = null): ?Category
     {
+        if ($id === null) {
+            return null;
+        }
         return Category::where('client_id', $client->getId())->where('id', $id)->firstOrFail();
     }
 

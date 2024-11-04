@@ -16,12 +16,13 @@ class ProductCategoryRecommendationRepository
     {
         return ProductCategoryRecommendation::findOrFail($id);
     }
-    public function create(Client $client, Product $product, Category $category): ProductCategoryRecommendation
+    public function create(Client $client, Product $product, ?Category $category, ?bool $isForbidden = false): ProductCategoryRecommendation
     {
         return ProductCategoryRecommendation::create([
             'product_id' => $product->getId(),
-            'category_id' => $category->getId(),
+            'category_id' => $category?->getId(),
             'client_id' => $client->getId(),
+            'is_forbidden' => $isForbidden,
         ]);
     }
 
@@ -41,12 +42,16 @@ class ProductCategoryRecommendationRepository
         return DB::table('product_categories', 'pc')
             ->join(
                 'product_category_recommendations as pcr',
-                'pcr.category_id',
-                '=',
-                'pc.category_id',
-            )
-            ->where('pcr.client_id', $client->getId())
+                function ($join) use ($client) {
+                    $join->on('pcr.category_id', '=', 'pc.category_id')
+                    ->where('pcr.client_id', $client->getId());
+                })
             ->where('pc.product_id', $product->getId())
+            ->whereNotIn('pcr.product_id', function ($query) {
+                $query->select('product_id')
+                    ->from('product_category_recommendations')
+                    ->where('is_forbidden', true);
+            })
             ->select('pcr.product_id', 'pcr.priority')
             ->orderBy('pcr.priority', 'DESC')
             ->limit($maxResults)

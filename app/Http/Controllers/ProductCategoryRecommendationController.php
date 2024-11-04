@@ -25,10 +25,19 @@ class ProductCategoryRecommendationController extends Controller
     {
         $country = CountryEnum::getByValue($countryCode);
         $client = $this->clientRepository->getByEshopId((int) $eshopId);
-        $category = $this->categoryRepository->getForClient($client, (int) $request->input('category'));
+        if ($request->input('category') === null) {
+            $category = null;
+        } else {
+            $category = $this->categoryRepository->getForClient($client, (int) $request->input('category'));
+        }
         $product = $this->productRepository->getForClient($client, (int) $request->input('product'));
+        if ($request->input('is_forbidden') === null) {
+            $isForbidden = false;
+        } else {
+            $isForbidden = $request->input('is_forbidden');
+        }
         try {
-            $this->productCategoryRecommendationRepository->create($client, $product, $category);
+            $this->productCategoryRecommendationRepository->create($client, $product, $category, $isForbidden);
         } catch (Throwable) {
             return redirect()->route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', __('general.error'));
         }

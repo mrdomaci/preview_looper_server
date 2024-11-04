@@ -17,6 +17,7 @@ class ProductCategoryRecommendation extends Model
         'product_id',
         'category_id',
         'client_id',
+        'is_forbidden',
     ];
 
     public function getId(): int
@@ -62,6 +63,16 @@ class ProductCategoryRecommendation extends Model
     public function getUpdatedAt(): DateTime
     {
         return $this->getAttribute('updated_at');
+    }
+
+    public function isForbidden(): bool
+    {
+        return $this->getAttribute('is_forbidden');
+    }
+
+    public function setForbidden(bool $isForbidden): self
+    {
+        return $this->setAttribute('is_forbidden', $isForbidden);
     }
 
     public function product(): BelongsTo

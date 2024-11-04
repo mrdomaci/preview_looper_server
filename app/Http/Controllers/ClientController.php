@@ -91,6 +91,7 @@ class ClientController extends Controller
                 'client_settings' => $client->ClientSettingsServiceOptions()->get(),
                 'categories' => $client->categories()->get(),
                 'product_category_recommendations' => $client->productCategoryRecommendations()->orderBy('category_id', 'ASC')->orderBy('id', 'DESC')->paginate(25, ['*'], 'page', $page),
+                'product_forbidden_recommendations' => $client->productForbiddenRecommendations()->orderBy('category_id', 'ASC')->orderBy('id', 'DESC')->paginate(25, ['*'], 'page', $page),
                 'licenses' => $clientService->licenses()->orderBy('valid_to', 'desc')->get(),
                 'variable_symbol' => $clientService->getVariableSymbol(),
                 'ordersCount' => $this->clientSettingsServiceOptionRepository->getUpsellOrders($client) ?? 0,
