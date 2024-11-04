@@ -32,7 +32,7 @@ class ProductCategoryRecommendationController extends Controller
             $category = $this->categoryRepository->getForClient($client, (int) $request->input('category'));
         }
         if ($request->input('product') === null) {
-            return redirect()->route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', __('general.error'));
+            return redirect()->route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', __('general.product_empty_not_allowed'));
         }
         $product = $this->productRepository->getForClient($client, (int) $request->input('product'));
         if ($request->input('is_forbidden') === null) {

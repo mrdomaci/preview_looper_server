@@ -5,7 +5,7 @@
 @endif
 
 @if ($message = Session::get('error'))
-<div class="alert alert-error alert-dismissible fade show" role="alert">
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
   {{ $message }}
 </div>
 @endif

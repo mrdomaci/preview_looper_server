@@ -34,4 +34,5 @@ return [
     'wrong_url' => 'A megadott URL-cím érvénytelen. Kérjük, ellenőrizze a megadott URL-címet, és próbálja újra.',
     'unauthorized' => 'Hozzáférés megtagadva. Hiba történt a felhasználó hitelesítése során. Kérjük, próbálja újra később.',
     'forbidden' => 'Önnek nincs jogosultsága az oldal megtekintéséhez. Ha úgy gondolja, hogy ez egy hiba, kérjük, vegye fel a kapcsolatot a támogatással az alábbi e-mail címen.',
+    'product_empty_not_allowed' => 'A termék mező nem lehet üres',
 ];
