@@ -79,6 +79,7 @@ use App\Helpers\QrHelper;
                 <div class="form-group row mt-4">
                     <div class="col-md-12 mb-4">
                         <label>{{ __('easy-upsell.licence_info')}}</label>
+                        <lable>{{ __('easy-upsell.order_count_in_period')}}: <b>{{ $ordersCount }}</b></lable>
                     </div>
                 </div>
                 <div class="form-group row mt-4">
@@ -136,7 +137,7 @@ use App\Helpers\QrHelper;
                     <div class="col-md-6">
                         <input type="text" class="form-control" name="product_autocomplete" id="product_autocomplete" placeholder="{{ __('general.product_search') }}">
                         <div id="autocomplete_results" class="list-group mt-2"></div>
-                        <input type="hidden" name="product" required>
+                        <input type="hidden" id="product" name="product" required>
                     </div>
                 </div>
                 <div class="row mt-4">
@@ -181,8 +182,74 @@ use App\Helpers\QrHelper;
                         @endforeach
                     </tbody>
                 </table>
+                <x-pagination :page="$product_category_recommendations->currentPage()" :lastPage="$product_category_recommendations->lastPage()"/>
             @else
                 <p>{{ __('easy-upsell.no_recommendations')}}</p>
+            @endif
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ route('recommendation.add', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath(), 'language' => $language, 'eshopId' => $client->getEshopId()]) }}">
+                @csrf
+                <h4>{{ __('easy-upsell.recommendation_forbidden_title')}}</h4>
+                <div class="form-group row mt-4">
+                    <div class="col-md-12 mb-4">
+                        <label>{{ __('easy-upsell.recommendation_forbidden_info')}}</label>
+                    </div>
+                </div>
+                <div class="form-group row mt-4">
+                    <div class="col-md-4">
+                        <label>{{ __('easy-upsell.product')}}</label>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" name="forbidden_product_autocomplete" id="forbidden_product_autocomplete" placeholder="{{ __('general.product_search') }}">
+                        <div id="autocomplete_forbidden_results" class="list-group mt-2"></div>
+                        <input type="hidden" id="forbidden_product" name="product" required>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-12 text-center">
+                        <input type="hidden" name="is_forbidden" value="1">
+                        <input type="hidden" name="eshop_id" value="{{$client->getEshopId()}}">
+                        <button type="submit" class="btn btn-primary m-3">{{ __('general.insert') }}</button>
+                    </div>
+                </div>
+            </form>
+        </div>    
+        <div class="card-body">
+            @if (count($product_forbidden_recommendations) > 0)
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{{ __('easy-upsell.product')}}</th>
+                            <th>{{ __('general.delete')}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($product_forbidden_recommendations as $productCategoryRecommendation)
+                            <tr>
+                                <td>{{ $productCategoryRecommendation->product->name }}</td>
+                                <td>
+                                    <form method="POST" action="{{ route('recommendation.delete',
+                                            [
+                                                'country' => $country,
+                                                'serviceUrlPath' => $service->getUrlPath(),
+                                                'language' => $language,
+                                                'eshopId' => $client->eshop_id
+                                            ]
+                                        ) }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <input type="hidden" name="id" value="{{ $productCategoryRecommendation->id }}">
+                                        <button type="submit" class="btn btn-danger">{{ __('general.delete') }}</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                <x-pagination :page="$product_category_recommendations->currentPage()" :lastPage="$product_category_recommendations->lastPage()"/>
+            @else
+                <p>{{ __('easy-upsell.no_fobidden_recommendations')}}</p>
             @endif
         </div>
     </div>

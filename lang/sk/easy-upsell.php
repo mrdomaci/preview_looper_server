@@ -71,5 +71,8 @@ return [
     'monthly_plan_text' => '31 dní fungovania služby bez obmedzení a záväzkov',
     'yearly_plan_text' => '366 dní fungovania služby bez obmedzení a záväzkov',
     'free_plan_notice' => 'Mesačné obdobie začína dňom prvej inštalácie doplnku. Bez zakúpenej licencie bude služba pozastavená po dosiahnutí 50 zaplatených objednávok v aktuálnom období. Ďalšie obdobie začína v rovnaký deň nasledujúceho mesiaca a limit 50 objednávok je obnovený.',
-
+    'order_count_in_period' => 'Počet objednávok v aktuálnom období',
+    'recommendation_forbidden_title' => 'Zakázané produkty',
+    'recommendation_forbidden_info' => 'Zadajte produkty, ktoré sa nebudú zobrazovať ako odporúčania. Zákazník ich teda nebude môcť pridať do košíka.',
+    'no_fobidden_recommendations' => 'Nemáte žiadne definované zakázané produkty',
 ];

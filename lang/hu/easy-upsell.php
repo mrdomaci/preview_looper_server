@@ -71,5 +71,8 @@ return [
     'monthly_plan_text' => '31 nap korlátozás nélküli szolgáltatás elköteleződés nélkül',
     'yearly_plan_text' => '366 nap korlátozás nélküli szolgáltatás elköteleződés nélkül',
     'free_plan_notice' => 'A havi időszak a bővítmény első telepítésének napjától kezdődik. Licenc megvásárlása nélkül a szolgáltatás felfüggesztésre kerül, miután az aktuális időszakban 50 fizetett rendelés teljesült. A következő időszak a következő hónap azonos napján kezdődik, és az 50 rendeléses limit megújul.',
-
+    'order_count_in_period' => 'Rendelések száma az aktuális időszakban',
+    'recommendation_forbidden_title' => 'Tiltott termékek',
+    'recommendation_forbidden_info' => 'Itt meghatározhatja azokat a termékeket, amelyeket nem jeleníthet meg a vásárlónak ajánlásként',
+    'no_fobidden_recommendations' => 'Nincsenek meghatározott tiltott termékek',
 ];
