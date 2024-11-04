@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Enums\CountryEnum;
+use App\Helpers\StringHelper;
 use App\Repositories\CategoryRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\ProductCategoryRecommendationRepository;
@@ -30,11 +31,14 @@ class ProductCategoryRecommendationController extends Controller
         } else {
             $category = $this->categoryRepository->getForClient($client, (int) $request->input('category'));
         }
+        if ($request->input('product') === null) {
+            return redirect()->route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', __('general.error'));
+        }
         $product = $this->productRepository->getForClient($client, (int) $request->input('product'));
         if ($request->input('is_forbidden') === null) {
             $isForbidden = false;
         } else {
-            $isForbidden = $request->input('is_forbidden');
+            $isForbidden = StringHelper::getBool($request->input('is_forbidden'));
         }
         try {
             $this->productCategoryRecommendationRepository->create($client, $product, $category, $isForbidden);
