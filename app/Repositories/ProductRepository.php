@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\Currency;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Throwable;
 
 class ProductRepository
@@ -203,7 +204,18 @@ class ProductRepository
             ->where('availability_level', '<', 3)
             ->orderBy('availability_level', 'asc')
             ->orderBy('stock', 'desc')
-            ->select('name', 'code', 'guid', 'price', 'availability_name as availability', 'image_url', 'url', 'unit', 'foreign_id as id', 'availability_color as color')
+            ->select(
+                'name', 
+                'code', 
+                'guid', 
+                'price', 
+                'availability_name as availability', 
+                'image_url', 
+                'unit', 
+                'foreign_id as id', 
+                'availability_color as color',
+                DB::raw("CONCAT(url, '?utm_content=site-checkout&utm_source=easyupsell&utm_medium=website') as url")
+            )
             ->firstOrFail();
     }
 

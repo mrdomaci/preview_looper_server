@@ -71,4 +71,5 @@ return [
     'monthly_plan_text' => '31 days of service without limitations or commitments',
     'yearly_plan_text' => '366 days of service without limitations or commitments',
     'free_plan_notice' => 'The monthly period starts from the day of the first installation of the add-on. Without a purchased license, the service will be suspended after reaching 50 paid orders in the current period. The next period starts on the same day of the following month, and the 50-order limit is renewed.',
+    'order_count_in_period' => 'Number of orders in the current period',
 ];

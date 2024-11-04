@@ -79,6 +79,7 @@ use App\Helpers\QrHelper;
                 <div class="form-group row mt-4">
                     <div class="col-md-12 mb-4">
                         <label>{{ __('easy-upsell.licence_info')}}</label>
+                        <lable>{{ __('easy-upsell.order_count_in_period')}}: <b>{{ $ordersCount }}</b></lable>
                     </div>
                 </div>
                 <div class="form-group row mt-4">
@@ -181,6 +182,7 @@ use App\Helpers\QrHelper;
                         @endforeach
                     </tbody>
                 </table>
+                <x-pagination :page="$product_category_recommendations->currentPage()" :lastPage="$product_category_recommendations->lastPage()"/>
             @else
                 <p>{{ __('easy-upsell.no_recommendations')}}</p>
             @endif
