@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Enums\CountryEnum;
+use App\Helpers\StringHelper;
 use App\Repositories\CategoryRepository;
 use App\Repositories\ClientRepository;
 use App\Repositories\ProductCategoryRecommendationRepository;
@@ -37,7 +38,7 @@ class ProductCategoryRecommendationController extends Controller
         if ($request->input('is_forbidden') === null) {
             $isForbidden = false;
         } else {
-            $isForbidden = $request->input('is_forbidden');
+            $isForbidden = StringHelper::getBool($request->input('is_forbidden'));
         }
         try {
             $this->productCategoryRecommendationRepository->create($client, $product, $category, $isForbidden);
