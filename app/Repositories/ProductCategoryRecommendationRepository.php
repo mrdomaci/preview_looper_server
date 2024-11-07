@@ -48,7 +48,7 @@ class ProductCategoryRecommendationRepository
                 }
             )
             ->where('pc.product_id', $product->getId())
-            ->whereNotIn('pcr.product_id', function ($query, $client) {
+            ->whereNotIn('pcr.product_id', function ($query) use ($client) {
                 $query->select('product_id')
                     ->from('product_category_recommendations')
                     ->where('client_id', $client->getId())
