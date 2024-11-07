@@ -75,4 +75,9 @@ return [
     'recommendation_forbidden_title' => 'Forbidden Products',
     'recommendation_forbidden_info' => 'Here you can define products that will not be displayed to the customer as recommendations.',
     'no_fobidden_recommendations' => 'You have no defined forbidden products',
+    'license_offer_subject' => 'Easy Upsell license is exceeded',
+    'license_renewal_date' => 'License will be renewed for free from',
+    'performance_utm_check' => 'The results of product recommendations in the cart can be <b>measured using UTM tags</b> in product links. More information can be found in your web analytics tool under the tag <b>utm_content=site-checkout&utm_source=easyupsell&utm_medium=website</b>.',
+    'settings' => 'Addon Settings',
+    'eur_payment_options' => 'For payments in EUR, details are available in the add-on settings.',
 ];

@@ -205,14 +205,14 @@ class ProductRepository
             ->orderBy('availability_level', 'asc')
             ->orderBy('stock', 'desc')
             ->select(
-                'name', 
-                'code', 
-                'guid', 
-                'price', 
-                'availability_name as availability', 
-                'image_url', 
-                'unit', 
-                'foreign_id as id', 
+                'name',
+                'code',
+                'guid',
+                'price',
+                'availability_name as availability',
+                'image_url',
+                'unit',
+                'foreign_id as id',
                 'availability_color as color',
                 DB::raw("CONCAT(url, '?utm_content=site-checkout&utm_source=easyupsell&utm_medium=website') as url")
             )

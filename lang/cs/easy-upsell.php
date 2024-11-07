@@ -75,4 +75,9 @@ return [
     'recommendation_forbidden_title' => 'Zakázané produkty',
     'recommendation_forbidden_info' => 'Zde můžete definovat produkty, které se zákazníkovi nebudou zobrazovat jako doporučení.',
     'no_fobidden_recommendations' => 'Nemáte žádné definované zakázané produkty',
+    'license_offer_subject' => 'Easy Upsell licence je vyčerpaná',
+    'license_renewal_date' => 'Licence bude opět zdarma obnovena od',
+    'performance_utm_check' => 'Výsledky doporučení produktů v košíku je možné <b>měřit díky UTM značkám</b> v odkazech na produkty. Více informací naleznete ve vašem nástroji na webovou analytiku pod značkou <b>utm_content=site-checkout&utm_source=easyupsell&utm_medium=website</b>.',
+    'settings' => 'Nastavení doplňku',
+    'eur_payment_options' => 'Pro platby v EUR jsou podklady k dispozici v nastavení doplňku.',
 ];

@@ -225,4 +225,15 @@ class ClientService extends Model
         }
         return new DateTime($this->getAttribute('webhooked_at'));
     }
+
+    public function getRenewalDate(): DateTime
+    {
+        $createdAt = $this->getCreatedAt();
+        $renewalDate = clone $createdAt;
+        while ($renewalDate <= new DateTime()) {
+            $renewalDate->modify('+1 month');
+        }
+    
+        return $renewalDate;
+    }
 }

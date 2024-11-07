@@ -80,13 +80,12 @@ class QueueProductsFromApiCommand extends AbstractClientServiceCommand
 
                 try {
                     $queueResponse = ConnectorHelper::queueProducts($clientService, $productFilters);
-                    if ($queueResponse === null) {
-                        break;
+                    if ($queueResponse) {
+                        $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse, new Product());
                     }
-                    $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse, new Product());
+                    // TODO: set client service queue status to orders
                 } catch (ApiRequestFailException) {
                     $clientService->setStatusInactive();
-                    break;
                 } catch (ApiRequestTooManyRequestsException) {
                     sleep(10);
                     continue;
@@ -94,7 +93,6 @@ class QueueProductsFromApiCommand extends AbstractClientServiceCommand
                     $this->error('Error updating products ' . $t->getMessage());
                     LoggerHelper::log('Error updating products ' . $t->getMessage());
                     $success = false;
-                    break;
                 }
                 
                 $clientService->setUpdateInProgress(false, SyncEnum::PRODUCT);
