@@ -48,9 +48,10 @@ class ProductCategoryRecommendationRepository
                 }
             )
             ->where('pc.product_id', $product->getId())
-            ->whereNotIn('pcr.product_id', function ($query) {
+            ->whereNotIn('pcr.product_id', function ($query, $client) {
                 $query->select('product_id')
                     ->from('product_category_recommendations')
+                    ->where('client_id', $client->getId())
                     ->where('is_forbidden', true);
             })
             ->select('pcr.product_id', 'pcr.priority')
