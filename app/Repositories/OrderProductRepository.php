@@ -69,15 +69,13 @@ class OrderProductRepository
             )
             ->where('op.client_id', $client->getId())
             ->where('op.product_id', $product->getId())
-            ->whereNotIn('op1.product_id', function ($query) use ($client) {
+            ->whereNotIn('op1.product_id', function ($query) {
                 $query->select('product_id')
                     ->from('product_category_recommendations')
-                    ->where('client_id', $client->getId())
                     ->where('is_forbidden', true);
             })
             ->select('op1.product_id', DB::raw('COUNT(op1.product_id) as count'))
             ->groupBy('op1.product_id')
-            ->limit(100)
             ->pluck('count', 'op1.product_id')
             ->toArray();
     }
