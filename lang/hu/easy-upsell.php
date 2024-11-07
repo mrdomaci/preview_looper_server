@@ -75,4 +75,9 @@ return [
     'recommendation_forbidden_title' => 'Tiltott termékek',
     'recommendation_forbidden_info' => 'Itt meghatározhatja azokat a termékeket, amelyeket nem jeleníthet meg a vásárlónak ajánlásként',
     'no_fobidden_recommendations' => 'Nincsenek meghatározott tiltott termékek',
+    'licence_offer_subject' => 'Az Easy Upsell licenc túllépte',
+    'license_renewal_date' => 'A licenc újra ingyenesen lesz elérhető',
+    'performance_utm_check' => 'A kosárban történő termékajánlások eredményeit <b>UTM címkékkel</b> mérheti a terméklinkekben. További információk találhatók a webanalitikai eszközében a <b>utm_content=site-checkout&utm_source=easyupsell&utm_medium=website</b> címkék alatt.',
+    'settings' => 'Bővítmény beállításai',
+    'eur_payment_options' => 'Az EUR-ban történő fizetésekhez a részletek elérhetők a bővítmény beállításaiban.',
 ];

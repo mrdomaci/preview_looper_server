@@ -73,13 +73,12 @@ class QueueOrdersFromApiCommand extends AbstractClientServiceCommand
 
                 try {
                     $queueResponse = ConnectorHelper::queueOrders($clientService, $orderFilters);
-                    if ($queueResponse === null) {
-                        break;
+                    if ($queueResponse) {
+                        $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse, new Order());
                     }
-                    $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse, new Order());
+                    // TODO: set client service queue status to queue
                 } catch (ApiRequestFailException) {
                     $clientService->setStatusInactive();
-                    break;
                 } catch (ApiRequestTooManyRequestsException) {
                     sleep(10);
                     continue;
@@ -87,7 +86,6 @@ class QueueOrdersFromApiCommand extends AbstractClientServiceCommand
                     $this->error('Error updating orders ' . $t->getMessage());
                     LoggerHelper::log('Error updating orders ' . $t->getMessage());
                     $success = false;
-                    break;
                 }
                 
                 $clientService->setUpdateInProgress(false, SyncEnum::ORDER);

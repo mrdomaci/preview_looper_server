@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Helpers\DateTimeHelper;
+use App\Helpers\EmailHelper;
 use App\Models\ClientService;
 use App\Models\SettingsService;
 use App\Repositories\ClientServiceRepository;
@@ -73,6 +74,9 @@ class LicenseValidateCommand extends AbstractClientServiceCommand
                     if ($orderCount > 50) {
                         $licenseActive = false;
                     }
+                }
+                if ($clientService->isLicenseActive() === true && $licenseActive === false) {
+                    EmailHelper::licenseEasyUpsell($clientService);
                 }
                 $clientService->setLicenseActive($licenseActive);
                 $lastClientId = $client->getId();

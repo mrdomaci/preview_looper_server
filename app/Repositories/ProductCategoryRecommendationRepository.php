@@ -45,7 +45,8 @@ class ProductCategoryRecommendationRepository
                 function ($join) use ($client) {
                     $join->on('pcr.category_id', '=', 'pc.category_id')
                     ->where('pcr.client_id', $client->getId());
-                })
+                }
+            )
             ->where('pc.product_id', $product->getId())
             ->whereNotIn('pcr.product_id', function ($query) {
                 $query->select('product_id')
