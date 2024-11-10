@@ -29,7 +29,7 @@ class LicenseValidateCommand extends AbstractClientServiceCommand
      *
      * @var string
      */
-    protected $description = '';
+    protected $description = 'Set is_license_active flag in client service';
 
     public function __construct(
         private readonly ClientServiceRepository $clientServiceRepository,

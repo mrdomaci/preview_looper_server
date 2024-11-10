@@ -41,7 +41,7 @@ class WebhookUpdateCommand extends AbstractServiceCommand
     {
         try {
             $from = new DateTime((now()->subHours(12))->format('Y-m-d H:i:s'));
-            $clientService = $this->clientServiceRepository->getNextForUpdate($this->getService(), $from);
+            $clientService = $this->clientServiceRepository->getNextForUpdate($from, $this->getService());
         } catch (Throwable) {
             $this->info('No clients to update for service ' . $this->getService()->getName());
             return Command::SUCCESS;

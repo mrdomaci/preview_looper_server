@@ -9,7 +9,9 @@ use App\Connector\Shoptet\OrderPaymentMethodResponse;
 use App\Connector\Shoptet\OrderPriceResponse;
 use App\Connector\Shoptet\OrderResponse;
 use App\Connector\Shoptet\OrderShippingResponse;
+use App\Enums\ClientServiceQueueStatusEnum;
 use App\Models\ClientService;
+use App\Repositories\ClientServiceQueueRepository;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\OrderProductRepository;
 use App\Repositories\OrderRepository;
@@ -39,6 +41,7 @@ class SnapshotOrderToDBCommand extends AbstractCommand
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly OrderRepository $orderRepository,
         private readonly OrderProductRepository $orderProductRepository,
+        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
     ) {
         parent::__construct();
     }
@@ -50,15 +53,20 @@ class SnapshotOrderToDBCommand extends AbstractCommand
      */
     public function handle()
     {
-        $success = true;
+        $clientServiceStatus = ClientServiceQueueStatusEnum::SNAPSHOT_ORDERS;
+        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
+
+        if ($clientServiceQueue === null) {
+            $this->info('No client service in product snapshot queue');
+            return Command::SUCCESS;
+        }
 
         // Get all files in the 'snapshots' directory
         $files = Storage::files('snapshots');
 
-        // Filter and get the latest '_products.gz' file
+        // Filter correct file from snapshots
         $latestFile = collect($files)
-            ->filter(fn($file) => str_ends_with($file, '_orders.gz'))
-            ->sortByDesc(fn($file) => Storage::lastModified($file))
+            ->filter(fn($file) =>  $file === $clientServiceQueue->getClientServiceId() . '_orders.gz')
             ->first();
 
         if ($latestFile) {
@@ -145,19 +153,19 @@ class SnapshotOrderToDBCommand extends AbstractCommand
             } catch (\Throwable $e) {
                 DB::rollBack();
                 $this->error("Error processing the snapshot file: {$e->getMessage()}");
-                $success = false;
+                return Command::FAILURE;
             }
 
             fclose($txtFile);
             Storage::delete($txtFilePath);
             Storage::delete($latestFile);
-            $clientService->setSyncedAt(new DateTime());
-            $clientService->save();
+            $clientServiceQueue->next();
         } else {
+            $clientServiceQueue->created_at = now();
+            $clientServiceQueue->save();
             $this->info('No product snapshot file found.');
         }
-
-        return $success ? Command::SUCCESS : Command::FAILURE;
+        return Command::SUCCESS;
     }
 
     private function getClientService(string $filePath): ClientService

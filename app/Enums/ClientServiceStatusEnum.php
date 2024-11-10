@@ -6,6 +6,8 @@ namespace App\Enums;
 
 enum ClientServiceStatusEnum: string
 {
+    use BaseEnumTrait;
+
     case ACTIVE = 'active';
     case INACTIVE = 'inactive';
     case DELETED = 'deleted';

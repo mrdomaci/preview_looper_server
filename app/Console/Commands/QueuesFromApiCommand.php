@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Businesses\ClientServiceBusiness;
 use App\Businesses\QueueBusiness;
 use App\Connector\Shoptet\QueueFilter;
+use App\Enums\ClientServiceQueueStatusEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
-use App\Repositories\ClientServiceRepository;
+use App\Repositories\ClientServiceQueueRepository;
 use App\Repositories\QueueRepository;
 use DateTime;
 use Illuminate\Console\Command;
@@ -34,10 +34,9 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
     protected $description = 'Check queue status from API';
 
     public function __construct(
-        private readonly ClientServiceRepository $clientServiceRepository,
-        private readonly ClientServiceBusiness $clientServiceBusiness,
         private readonly QueueBusiness $queueBusiness,
-        private readonly QueueRepository $queueRepository,
+        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
+        private readonly QueueRepository $queueRepository
     ) {
         parent::__construct();
     }
@@ -49,57 +48,44 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
      */
     public function handle()
     {
-        $success = true;
-        $lastClientServiceId = 0;
-        $yesterday = new DateTime('yesterday');
-        for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-            $clientServices = $this->clientServiceRepository->getActive(
-                $lastClientServiceId,
-                $this->findService(),
-                $this->findClient(),
-                $this->getIterationCount(),
-            );
-            foreach ($clientServices as $clientService) {
-                $lastClientServiceId = $clientService->getId();
-                if ($this->clientServiceBusiness->isForbidenToUpdate($clientService) === true) {
-                    continue;
-                }
-                $clientService->setUpdateInProgress(true);
-                $filterQueues = [];
-                $filterQueues[] = new QueueFilter('status', 'completed');
-                $filterQueues[] = new QueueFilter('creationTimeFrom', $yesterday);
-                try {
-                    $jobListResponse = ConnectorHelper::queues($clientService, $filterQueues);
-                    if ($jobListResponse === null) {
-                        break;
-                    }
-                    $this->queueBusiness->update($clientService, $jobListResponse);
-                } catch (ApiRequestFailException) {
-                    $clientService->setStatusInactive();
-                    break;
-                } catch (ApiRequestTooManyRequestsException) {
-                    sleep(10);
-                    continue;
-                } catch (Throwable $t) {
-                    $this->error('Error updating queues ' . $t->getMessage());
-                    LoggerHelper::log('Error updating queues ' . $t->getMessage());
-                    $success = false;
-                    break;
-                }
-                
-                $clientService->setUpdateInProgress(false);
-            }
-
-            if ($clientServices->count() < $this->getIterationCount()) {
-                break;
-            }
-        }
-        $this->queueRepository->deleteOld();
-        $this->queueRepository->deleteExpired();
-        if ($success === true) {
+        $clientServiceStatus = ClientServiceQueueStatusEnum::API;
+        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
+        if ($clientServiceQueue === null) {
+            $this->info('No client service in api queue');
             return Command::SUCCESS;
-        } else {
+        }
+        $clientService = $clientServiceQueue->clientService()->first();
+        $clientService->setUpdateInProgress(true);
+        $yesterday = new DateTime('yesterday');
+
+        $filterQueues = [];
+        $filterQueues[] = new QueueFilter('status', 'completed');
+        $filterQueues[] = new QueueFilter('creationTimeFrom', $yesterday);
+
+        try {
+            $jobListResponse = ConnectorHelper::queues($clientService, $filterQueues);
+            if ($jobListResponse) {
+                $this->queueBusiness->update($clientService, $jobListResponse);
+                $this->info('Queues updated');
+            }
+            if ($this->queueRepository->isFinished($clientService)) {
+                $clientServiceQueue->next();
+            } else {
+                $clientServiceQueue->created_at = now();
+                $clientServiceQueue->save();
+            }
+        } catch (ApiRequestFailException) {
+            $clientService->setStatusInactive();
+        } catch (ApiRequestTooManyRequestsException $t) {
+            $this->error('Error updating orders due to too many requests ' . $t->getMessage());
+            LoggerHelper::log('Error updating orders due to too many requests ' . $t->getMessage());
+            return Command::FAILURE;
+        } catch (Throwable $t) {
+            $this->error('Error updating queues ' . $t->getMessage());
+            LoggerHelper::log('Error updating queues ' . $t->getMessage());
             return Command::FAILURE;
         }
+        $clientService->setUpdateInProgress(false);
+        return Command::SUCCESS;
     }
 }

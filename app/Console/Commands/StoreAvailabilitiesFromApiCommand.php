@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Businesses\AvailabilityBusiness;
+use App\Enums\ClientServiceQueueStatusEnum;
 use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\AddonSuspendedException;
 use App\Helpers\ConnectorHelper;
-use App\Models\ClientService;
-use App\Models\Service;
-use App\Repositories\ClientServiceRepository;
+use App\Helpers\LoggerHelper;
+use App\Repositories\ClientServiceQueueRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -31,8 +31,8 @@ class StoreAvailabilitiesFromApiCommand extends AbstractClientCommand
     protected $description = 'Store availabilities from API';
 
     public function __construct(
-        private readonly ClientServiceRepository $clientServiceRepository,
         private readonly AvailabilityBusiness $availabilityBusiness,
+        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
     ) {
         parent::__construct();
     }
@@ -44,35 +44,29 @@ class StoreAvailabilitiesFromApiCommand extends AbstractClientCommand
      */
     public function handle()
     {
-        $lastClientId = 0;
-        for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-            $clientServices = $this->clientServiceRepository->getActive(
-                $lastClientId,
-                Service::getUpsell(),
-                $this->findClient(),
-                $this->getIterationCount(),
-            );
-            /** @var ClientService $clientService */
-            foreach ($clientServices as $clientService) {
-                try {
-                    $clientService->setUpdateInProgress(true);
-                    $lastClientId = $clientService->getId();
-                    $this->availabilityBusiness->createOrUpdateFromResponse($clientService, ConnectorHelper::getAvailabilities($clientService));
-                    $this->info('Updating availabilities for client id:' . (string) $clientService->getClientId());
-                    $clientService->setUpdateInProgress(false);
-                } catch (AddonNotInstalledException $e) {
-                    $clientService->setStatusDeleted();
-                } catch (AddonSuspendedException $e) {
-                    $clientService->setStatusInactive();
-                } catch (Throwable $e) {
-                    $this->error($e->getMessage());
-                }
-            }
-
-            if (count($clientServices) < $this->getIterationCount()) {
-                break;
-            }
+        $clientServiceStatus = ClientServiceQueueStatusEnum::AVAILABILITIES;
+        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
+        if ($clientServiceQueue === null) {
+            $this->info('No client service in availability queue');
+            return Command::SUCCESS;
         }
+        $clientService = $clientServiceQueue->clientService()->first();
+        $clientService->setUpdateInProgress(true);
+
+        try {
+            $this->availabilityBusiness->createOrUpdateFromResponse($clientService, ConnectorHelper::getAvailabilities($clientService));
+            $clientServiceQueue->next();
+            $this->info('Client service ' . $clientService->getId() . ' availability data updated');
+        } catch (AddonNotInstalledException $e) {
+            $clientService->setStatusDeleted();
+        } catch (AddonSuspendedException $e) {
+            $clientService->setStatusInactive();
+        } catch (Throwable $e) {
+            $this->error($e->getMessage());
+            LoggerHelper::log('Error updating availabilities for client service id: ' . $clientService->getId() . ' ' . $e->getMessage());
+            return Command::FAILURE;
+        }
+        $clientService->setUpdateInProgress(false);
         return Command::SUCCESS;
     }
 }

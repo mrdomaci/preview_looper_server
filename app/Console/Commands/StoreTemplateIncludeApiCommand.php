@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Enums\ClientServiceQueueStatusEnum;
 use App\Helpers\ConnectorBodyHelper;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
-use App\Models\ClientService;
-use App\Repositories\ClientServiceRepository;
+use App\Repositories\ClientServiceQueueRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -29,7 +29,7 @@ class StoreTemplateIncludeApiCommand extends AbstractClientServiceCommand
     protected $description = 'Store template includes to API';
 
     public function __construct(
-        private readonly ClientServiceRepository $clientServiceRepository,
+        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
     ) {
         parent::__construct();
     }
@@ -41,43 +41,32 @@ class StoreTemplateIncludeApiCommand extends AbstractClientServiceCommand
      */
     public function handle()
     {
-        $success = true;
-        $lastClientServiceId = 0;
-        for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-            $clientServices = $this->clientServiceRepository->getActive(
-                $lastClientServiceId,
-                $this->findService(),
-                $this->findClient(),
-                $this->getIterationCount(),
-            );
-            /** @var ClientService $clientService */
-            foreach ($clientServices as $clientService) {
-                $lastClientServiceId = $clientService->getId();
-                $client = $clientService->client()->first();
-                $this->info('Updating templates for client ' . $client->getId());
-                $service = $clientService->service()->first();
-                try {
-                    $body = ConnectorBodyHelper::getStringBodyForTemplateInclude($service, $client);
-                    $this->info('Template include body: ' . $body);
-                    $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
-                    if ($templateIncludeResponse->getTemplateIncludes() === []) {
-                        LoggerHelper::log('Template include failed for client ' . $client->getEshopId());
-                    }
-                } catch (Throwable $t) {
-                    $this->error('Error updating client ' . $t->getMessage());
-                    LoggerHelper::log('Error updating client ' . $t->getMessage());
-                    $success = false;
-                }
-            }
-
-            if (count($clientServices) < $this->getIterationCount()) {
-                break;
-            }
-        }
-        if ($success === true) {
+        $clientServiceStatus = ClientServiceQueueStatusEnum::TEMPLATES;
+        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
+        if ($clientServiceQueue === null) {
+            $this->info('No client service in template queue');
             return Command::SUCCESS;
-        } else {
+        }
+        $clientService = $clientServiceQueue->clientService()->first();
+        $clientService->setUpdateInProgress(true);
+
+        try {
+            $body = ConnectorBodyHelper::getStringBodyForTemplateInclude(
+                $clientService->service()->first(),
+                $clientService->client()->first()
+            );
+            $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
+            if ($templateIncludeResponse->getTemplateIncludes() === []) {
+                LoggerHelper::log('Template include failed for client service' . $clientService->getId());
+            }
+            $clientServiceQueue->next();
+        } catch (Throwable $t) {
+            $this->error('Error updating template for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
+            LoggerHelper::log('Error updating template for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
             return Command::FAILURE;
         }
+
+        $clientService->setUpdateInProgress(false);
+        return Command::SUCCESS;
     }
 }

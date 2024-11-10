@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Enums\ClientServiceQueueStatusEnum;
 use App\Helpers\CacheHelper;
-use App\Models\ClientService;
-use App\Models\Service;
-use App\Repositories\ClientServiceRepository;
-use DateTime;
+use App\Helpers\LoggerHelper;
+use App\Repositories\ClientServiceQueueRepository;
 use Illuminate\Console\Command;
+use Throwable;
 
 class StoreCachedResponseCommand extends AbstractClientServiceCommand
 {
@@ -24,7 +24,7 @@ class StoreCachedResponseCommand extends AbstractClientServiceCommand
     protected $description = 'Store cached response';
 
     public function __construct(
-        private readonly ClientServiceRepository $clientServiceRepository,
+        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
     ) {
         parent::__construct();
     }
@@ -36,28 +36,23 @@ class StoreCachedResponseCommand extends AbstractClientServiceCommand
      */
     public function handle()
     {
-        $lastClientServiceId = 0;
-        $now = new DateTime();
-        for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-            $clientServices = $this->clientServiceRepository->getActive(
-                $lastClientServiceId,
-                Service::getDynamicPreviewImages(),
-                $this->findClient(),
-                $this->getIterationCount(),
-            );
-            /** @var ClientService $clientService  */
-            foreach ($clientServices as $clientService) {
-                $client = $clientService->client()->first();
-                CacheHelper::imageResponse($client);
-                $lastClientServiceId = $clientService->getId();
-                $clientService->setSyncedAt($now);
-                $clientService->save();
-                $this->info('Client ' . $client->getId() . ' updated');
-            }
-            if (count($clientServices) < $this->getIterationCount()) {
-                break;
-            }
+        $clientServiceStatus = ClientServiceQueueStatusEnum ::AVAILABILITIES;
+        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
+        if ($clientServiceQueue === null) {
+            $this->info('No client service in cache queue');
+            return Command::SUCCESS;
         }
+        $clientService = $clientServiceQueue->clientService()->first();
+        $clientService->setUpdateInProgress(true);
+        try {
+            CacheHelper::imageResponse($clientService->client()->first());
+            $clientServiceQueue->next();
+        } catch (Throwable $t) {
+            $this->info('Error caching products for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
+            LoggerHelper::log('Error caching products for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
+            return Command::FAILURE;
+        }
+        $clientService->setUpdateInProgress(false);
         return Command::SUCCESS;
     }
 }
