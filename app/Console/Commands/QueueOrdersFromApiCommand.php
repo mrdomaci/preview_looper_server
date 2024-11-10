@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Businesses\ClientServiceBusiness;
 use App\Businesses\QueueBusiness;
 use App\Connector\Shoptet\Order;
 use App\Connector\Shoptet\OrderFilter;
-use App\Enums\SyncEnum;
+use App\Enums\ClientServiceQueueStatusEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
-use App\Repositories\ClientServiceRepository;
+use App\Repositories\ClientServiceQueueRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -34,9 +33,8 @@ class QueueOrdersFromApiCommand extends AbstractClientServiceCommand
     protected $description = 'Queue orders from API';
 
     public function __construct(
-        private readonly ClientServiceRepository $clientServiceRepository,
-        private readonly ClientServiceBusiness $clientServiceBusiness,
         private readonly QueueBusiness $queueBusiness,
+        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
     ) {
         parent::__construct();
     }
@@ -48,57 +46,39 @@ class QueueOrdersFromApiCommand extends AbstractClientServiceCommand
      */
     public function handle()
     {
-        $success = true;
-        $lastClientServiceId = 0;
-
-        for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-            $clientServices = $this->clientServiceRepository->getActive(
-                $lastClientServiceId,
-                $this->findService(),
-                $this->findClient(),
-                $this->getIterationCount(),
-            );
-
-            foreach ($clientServices as $clientService) {
-                $lastClientServiceId = $clientService->getId();
-                if ($this->clientServiceBusiness->isForbidenToUpdate($clientService) === true) {
-                    continue;
-                }
-                $clientService->setUpdateInProgress(true);
-
-                $orderFilters = [];
-                if ($clientService->getOrdersLastSyncedAt() !== null) {
-                    $orderFilters[] = new OrderFilter('changeTimeFrom', $clientService->getOrdersLastSyncedAt());
-                }
-
-                try {
-                    $queueResponse = ConnectorHelper::queueOrders($clientService, $orderFilters);
-                    if ($queueResponse) {
-                        $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse, new Order());
-                    }
-                    // TODO: set client service queue status to queue
-                } catch (ApiRequestFailException) {
-                    $clientService->setStatusInactive();
-                } catch (ApiRequestTooManyRequestsException) {
-                    sleep(10);
-                    continue;
-                } catch (Throwable $t) {
-                    $this->error('Error updating orders ' . $t->getMessage());
-                    LoggerHelper::log('Error updating orders ' . $t->getMessage());
-                    $success = false;
-                }
-                
-                $clientService->setUpdateInProgress(false, SyncEnum::ORDER);
-            }
-
-            if ($clientServices->count() < $this->getIterationCount()) {
-                break;
-            }
-        }
-        if ($success === true) {
+        $clientServiceStatus = ClientServiceQueueStatusEnum::ORDERS;
+        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
+        if ($clientServiceQueue === null) {
+            $this->info('No client service in orders queue');
             return Command::SUCCESS;
-        } else {
+        }
+        $clientService = $clientServiceQueue->clientService()->first();
+        $clientService->setUpdateInProgress(true);
+
+        $orderFilters = [];
+        if ($clientService->getOrdersLastSyncedAt() !== null) {
+            $orderFilters[] = new OrderFilter('changeTimeFrom', $clientService->getOrdersLastSyncedAt());
+        }
+
+        try {
+            $queueResponse = ConnectorHelper::queueOrders($clientService, $orderFilters);
+            if ($queueResponse) {
+                $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse, new Order());
+                $this->info('Client service ' . $clientService->getId() . ' orders queued');
+                $clientServiceQueue->next();
+            }
+        } catch (ApiRequestFailException) {
+            $clientService->setStatusInactive();
+        } catch (ApiRequestTooManyRequestsException $t) {
+            $this->error('Error updating orders due to too many requests ' . $t->getMessage());
+            LoggerHelper::log('Error updating orders due to too many requests ' . $t->getMessage());
+            return Command::FAILURE;
+        } catch (Throwable $t) {
+            $this->error('Error updating orders ' . $t->getMessage());
+            LoggerHelper::log('Error updating orders ' . $t->getMessage());
             return Command::FAILURE;
         }
+        $clientService->setUpdateInProgress(false);
+        return Command::SUCCESS;
     }
 }

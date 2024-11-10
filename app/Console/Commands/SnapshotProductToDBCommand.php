@@ -9,13 +9,14 @@ use App\Connector\Shoptet\ProductBrand;
 use App\Connector\Shoptet\ProductCategory;
 use App\Connector\Shoptet\ProductResponse;
 use App\Connector\Shoptet\ProductVariantResponse;
+use App\Enums\ClientServiceQueueStatusEnum;
 use App\Helpers\ArrayHelper;
-use App\Helpers\CacheHelper;
 use App\Helpers\StringHelper;
 use App\Models\Category;
 use App\Models\Client;
 use App\Models\ClientService;
 use App\Repositories\AvailabilityRepository;
+use App\Repositories\ClientServiceQueueRepository;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\ProductCategoryRepository;
 use App\Repositories\ProductRepository;
@@ -46,6 +47,7 @@ class SnapshotProductToDBCommand extends AbstractCommand
         private readonly AvailabilityRepository $availabilityRepository,
         private readonly ProductCategoryBusiness $productCategoryBusiness,
         private readonly ProductCategoryRepository $productCategoryRepository,
+        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
     ) {
         parent::__construct();
     }
@@ -57,15 +59,20 @@ class SnapshotProductToDBCommand extends AbstractCommand
      */
     public function handle()
     {
-        $success = true;
+        $clientServiceStatus = ClientServiceQueueStatusEnum::SNAPSHOT_PRODUCTS;
+        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
+
+        if ($clientServiceQueue === null) {
+            $this->info('No client service in product snapshot queue');
+            return Command::SUCCESS;
+        }
 
         // Get all files in the 'snapshots' directory
         $files = Storage::files('snapshots');
 
-        // Filter and get the latest '_products.gz' file
+        // Filter correct file from snapshots
         $latestFile = collect($files)
-            ->filter(fn($file) => str_ends_with($file, '_products.gz'))
-            ->sortByDesc(fn($file) => Storage::lastModified($file))
+            ->filter(fn($file) =>  $file === $clientServiceQueue->getClientServiceId() . '_products.gz')
             ->first();
 
         if ($latestFile) {
@@ -214,18 +221,19 @@ class SnapshotProductToDBCommand extends AbstractCommand
             } catch (\Throwable $e) {
                 DB::rollBack();
                 $this->error("Error processing the snapshot file: {$e->getMessage()}");
-                $success = false;
+                return Command::FAILURE;
             }
 
             fclose($txtFile);
             Storage::delete($txtFilePath);
             Storage::delete($latestFile);
-            CacheHelper::imageResponse($client);
+            $clientServiceQueue->next();
         } else {
+            $clientServiceQueue->created_at = now();
+            $clientServiceQueue->save();
             $this->info('No product snapshot file found.');
         }
-
-        return $success ? Command::SUCCESS : Command::FAILURE;
+        return Command::SUCCESS;
     }
 
 

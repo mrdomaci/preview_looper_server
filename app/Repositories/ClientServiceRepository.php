@@ -61,15 +61,19 @@ class ClientServiceRepository
             ->get();
     }
 
-    public function getNextForUpdate(Service $service, DateTime $dateLastSync): ClientService
+    public function getNextForUpdate(DateTime $dateLastSync, ?Service $service): ClientService
     {
-        $q = ClientService::where('service_id', $service->getId())
-        ->where('status', ClientServiceStatusEnum::ACTIVE)
+        $q = ClientService::where('status', ClientServiceStatusEnum::ACTIVE)
         ->where('update_in_process', '=', 0)
         ->where(function ($query) use ($dateLastSync) {
             $query->where('webhooked_at', '<=', $dateLastSync)
               ->orWhereNull('webhooked_at');
+        })->whereDoesntHave('clientServiceQueues', function ($query) use ($dateLastSync) {
+            $query->where('created_at', '>', $dateLastSync);
         })->orderBy('webhooked_at', 'asc');
+        if ($service !== null) {
+            $q->where('service_id', $service->getId());
+        }
 
         return $q->firstOrFail();
     }

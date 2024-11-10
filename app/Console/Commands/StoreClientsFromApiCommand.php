@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Enums\ClientServiceQueueStatusEnum;
 use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\AddonSuspendedException;
 use App\Helpers\ConnectorHelper;
-use App\Models\ClientService;
+use App\Helpers\LoggerHelper;
 use App\Repositories\ClientRepository;
-use App\Repositories\ClientServiceRepository;
+use App\Repositories\ClientServiceQueueRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
-class StoreClientsFromApiCommand extends AbstractClientServiceCommand
+class StoreClientsFromApiCommand extends AbstractCommand
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'update:clients {--client=} {--service=}';
+    protected $signature = 'update:clients';
 
     /**
      * The console command description.
@@ -30,8 +31,8 @@ class StoreClientsFromApiCommand extends AbstractClientServiceCommand
     protected $description = 'Store clients from API';
 
     public function __construct(
-        private readonly ClientServiceRepository $clientServiceRepository,
         private readonly ClientRepository $clientRepository,
+        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
     ) {
         parent::__construct();
     }
@@ -43,34 +44,29 @@ class StoreClientsFromApiCommand extends AbstractClientServiceCommand
      */
     public function handle()
     {
-        $lastClientId = 0;
-        for ($i = 0; $i < $this->getMaxIterationCount(); $i++) {
-            $clientServices = $this->clientServiceRepository->list(
-                $lastClientId,
-                $this->findService(),
-                $this->findClient(),
-                $this->getIterationCount(),
-            );
-            /** @var ClientService $clientService */
-            foreach ($clientServices as $clientService) {
-                try {
-                    $lastClientId = $clientService->getId();
-                    $this->clientRepository->updateFromResponse($clientService, ConnectorHelper::getEshop($clientService));
-                    $this->info('Updating client id:' . (string) $clientService->getClientId());
-                    $clientService->setUpdateInProgress(false);
-                } catch (AddonNotInstalledException $e) {
-                    $clientService->setStatusDeleted();
-                } catch (AddonSuspendedException $e) {
-                    $clientService->setStatusInactive();
-                } catch (Throwable $e) {
-                    $this->error($e->getMessage());
-                }
-            }
-
-            if (count($clientServices) < $this->getIterationCount()) {
-                break;
-            }
+        $clientServiceStatus = ClientServiceQueueStatusEnum::CLIENTS;
+        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
+        if ($clientServiceQueue === null) {
+            $this->info('No client service in client queue');
+            return Command::SUCCESS;
         }
+        $clientService = $clientServiceQueue->clientService()->first();
+        $clientService->setUpdateInProgress(true);
+        try {
+            $this->clientRepository->updateFromResponse($clientService, ConnectorHelper::getEshop($clientService));
+            $clientServiceQueue->next();
+            $this->info('Client service ' . $clientService->getId() . ' client data updated');
+        } catch (AddonNotInstalledException $e) {
+            $clientService->setStatusDeleted();
+        } catch (AddonSuspendedException $e) {
+            $clientService->setStatusInactive();
+        } catch (Throwable $e) {
+            $this->error($e->getMessage());
+            LoggerHelper::log('Error updating client for client service id: ' . $clientService->getId() . ' ' . $e->getMessage());
+            return Command::FAILURE;
+        }
+
+        $clientService->setUpdateInProgress(false);
         return Command::SUCCESS;
     }
 }

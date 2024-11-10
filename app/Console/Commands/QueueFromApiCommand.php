@@ -29,7 +29,7 @@ class QueueFromApiCommand extends AbstractCommand
      *
      * @var string
      */
-    protected $description = 'Parse queue from API';
+    protected $description = 'Download data from resolved API queue';
 
     public function __construct(
         private readonly QueueRepository $queueRepository,

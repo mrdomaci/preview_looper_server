@@ -19,7 +19,7 @@ class Cors
     public function handle(Request $request, Closure $next)
     {
         // Handle OPTIONS request (CORS pre-flight check)
-        if ($request->getMethod() == "OPTIONS") {
+        if ($request->getMethod() === "OPTIONS") {
             return response('', 200)
                 ->header('Access-Control-Allow-Origin', '*')
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
