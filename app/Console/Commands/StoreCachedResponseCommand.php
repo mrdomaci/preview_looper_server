@@ -36,7 +36,7 @@ class StoreCachedResponseCommand extends AbstractClientServiceCommand
      */
     public function handle()
     {
-        $clientServiceStatus = ClientServiceQueueStatusEnum ::AVAILABILITIES;
+        $clientServiceStatus = ClientServiceQueueStatusEnum::CACHE;
         $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
         if ($clientServiceQueue === null) {
             $this->info('No client service in cache queue');
