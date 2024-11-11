@@ -86,6 +86,7 @@ class SnapshotOrderToDBCommand extends AbstractCommand
             // Loop through the file row by row
             $txtFile = fopen(Storage::path($txtFilePath), 'r');
             try {
+                $clientService->setUpdateInProgress(true);
                 while (($line = fgets($txtFile)) !== false) {
                     $orderData = json_decode($line, true);
                     if ($orderData === null && json_last_error() !== JSON_ERROR_NONE) {
@@ -146,6 +147,7 @@ class SnapshotOrderToDBCommand extends AbstractCommand
                         $this->orderProductRepository->createOrUpdate($orderResponse, $orderDetailResponse, $client, $order);
                     }
                 }
+                $clientService->setUpdateInProgress(false);
             } catch (\Throwable $e) {
                 $this->error("Error processing the snapshot file: {$e->getMessage()}");
                 return Command::FAILURE;
