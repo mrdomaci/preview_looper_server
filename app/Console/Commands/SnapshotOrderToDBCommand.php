@@ -64,7 +64,7 @@ class SnapshotOrderToDBCommand extends AbstractCommand
         // Get all files in the 'snapshots' directory
         $files = Storage::files('snapshots');
 
-        $setFileName = 'snapshots/' . $clientServiceQueue->getClientServiceId() . '_orderss.gz';
+        $setFileName = 'snapshots/' . $clientServiceQueue->getClientServiceId() . '_orders.gz';
         $latestFile = collect($files)
             ->first(fn($file) => $file === $setFileName);
 
