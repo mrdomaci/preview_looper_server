@@ -96,6 +96,7 @@ class SnapshotProductToDBCommand extends AbstractCommand
             // Loop through the file row by row
             $txtFile = fopen(Storage::path($txtFilePath), 'r');
             try {
+                $clientService->setUpdateInProgress(true);
                 while (($line = fgets($txtFile)) !== false) {
                     $productData = json_decode($line, true);
 
@@ -214,6 +215,7 @@ class SnapshotProductToDBCommand extends AbstractCommand
                         }
                     }
                 }
+                $clientService->setUpdateInProgress(false);
             } catch (\Throwable $e) {
                 $this->error("Error processing the snapshot file: {$e->getMessage()}");
                 return Command::FAILURE;
@@ -222,7 +224,6 @@ class SnapshotProductToDBCommand extends AbstractCommand
             fclose($txtFile);
             Storage::delete($txtFilePath);
             Storage::delete($latestFile);
-            $clientService = $clientServiceQueue->clientService()->first();
             $clientServiceQueue->next();
         } else {
             $clientServiceQueue->created_at = now();
