@@ -18,6 +18,7 @@ use App\Repositories\OrderRepository;
 use DateTime;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class SnapshotOrderToDBCommand extends AbstractCommand
@@ -85,6 +86,7 @@ class SnapshotOrderToDBCommand extends AbstractCommand
 
             // Loop through the file row by row
             $txtFile = fopen(Storage::path($txtFilePath), 'r');
+            DB::beginTransaction();
             try {
                 $clientService->setUpdateInProgress(true);
                 while (($line = fgets($txtFile)) !== false) {
@@ -148,7 +150,9 @@ class SnapshotOrderToDBCommand extends AbstractCommand
                     }
                 }
                 $clientService->setUpdateInProgress(false);
+                DB::commit();
             } catch (\Throwable $e) {
+                DB::rollBack();
                 $this->error("Error processing the snapshot file: {$e->getMessage()}");
                 return Command::FAILURE;
             }
