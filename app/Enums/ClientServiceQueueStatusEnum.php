@@ -19,6 +19,8 @@ enum ClientServiceQueueStatusEnum: string
     case SNAPSHOT_PRODUCTS = 'snapshot_products';
     case SNAPSHOT_ORDERS = 'snapshot_orders';
     case CACHE = 'cache';
+    case DB_PRODUCTS = 'db_products';
+    case DB_ORDERS = 'db_orders';
 
     public function next(Service $service): self
     {
@@ -28,7 +30,8 @@ enum ClientServiceQueueStatusEnum: string
                 self::TEMPLATES->name => self::PRODUCTS,
                 self::PRODUCTS->name => self::API,
                 self::API->name => self::SNAPSHOT_PRODUCTS,
-                self::SNAPSHOT_PRODUCTS->name => self::CACHE,
+                self::SNAPSHOT_PRODUCTS->name => self::DB_PRODUCTS,
+                self::DB_PRODUCTS->name => self::CACHE,
                 default => self::DONE,
             };
         }
@@ -39,7 +42,9 @@ enum ClientServiceQueueStatusEnum: string
             self::AVAILABILITIES->name => self::ORDERS,
             self::ORDERS->name => self::API,
             self::API->name => self::SNAPSHOT_PRODUCTS,
-            self::SNAPSHOT_PRODUCTS->name => self::SNAPSHOT_ORDERS,
+            self::SNAPSHOT_PRODUCTS->name => self::DB_PRODUCTS,
+            self::DB_PRODUCTS->name => self::SNAPSHOT_ORDERS,
+            self::SNAPSHOT_ORDERS->name => self::DB_ORDERS,
             default => self::DONE,
         };
     }
