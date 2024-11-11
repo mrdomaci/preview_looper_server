@@ -9,7 +9,6 @@ use App\Businesses\ImageBusiness;
 use App\Businesses\ProductBusiness;
 use App\Businesses\ProductCategoryBusiness;
 use App\Connector\Shoptet\ProductDetailResponse;
-use App\Enums\SyncEnum;
 use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\ApiRequestNonExistingResourceException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
@@ -141,7 +140,7 @@ class StoreProductDetailsFromApiCommand extends AbstractClientServiceCommand
                     }
                 }
                 $client->save();
-                $clientService->setUpdateInProgress(false, SyncEnum::PRODUCT);
+                $clientService->setUpdateInProgress(false);
             }
 
             if ($clientServices->count() < $this->getIterationCount()) {
