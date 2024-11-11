@@ -64,10 +64,9 @@ class SnapshotOrderToDBCommand extends AbstractCommand
         // Get all files in the 'snapshots' directory
         $files = Storage::files('snapshots');
 
-        // Filter correct file from snapshots
+        $setFileName = 'snapshots/' . $clientServiceQueue->getClientServiceId() . '_orderss.gz';
         $latestFile = collect($files)
-            ->filter(fn($file) =>  $file === $clientServiceQueue->getClientServiceId() . '_orders.gz')
-            ->first();
+            ->first(fn($file) => $file === $setFileName);
 
         if ($latestFile) {
             $clientService = $this->getClientService($latestFile);
@@ -163,7 +162,7 @@ class SnapshotOrderToDBCommand extends AbstractCommand
         } else {
             $clientServiceQueue->created_at = now();
             $clientServiceQueue->save();
-            $this->info('No product snapshot file found.');
+            $this->info('No order snapshot file found. for client service id: ' . $clientServiceQueue->getClientServiceId());
         }
         return Command::SUCCESS;
     }

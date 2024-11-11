@@ -150,20 +150,10 @@ class ClientService extends Model
         return (bool) $this->getAttribute('update_in_process');
     }
 
-    public function setUpdateInProgress(bool $updateInProgress, ?SyncEnum $sync = null): void
+    public function setUpdateInProgress(bool $updateInProgress): void
     {
         $this->setAttribute('update_in_process', $updateInProgress);
-        if ($sync !== null && $sync->isOrder()) {
-            $this->setAttribute('orders_last_synced_at', now()->toDateTime());
-        }
-        if ($sync !== null && $sync->isProduct()) {
-            $this->setAttribute('products_last_synced_at', now()->toDateTime());
-        }
-        try {
-            $this->save();
-        } catch (Throwable $t) {
-            throw new DataUpdateFailException($t);
-        }
+        $this->save();
     }
 
     public function setStatusDeleted(): void

@@ -7,7 +7,6 @@ namespace App\Console\Commands;
 use App\Businesses\ClientServiceBusiness;
 use App\Businesses\OrderProductBusiness;
 use App\Connector\Shoptet\OrderResponse;
-use App\Enums\SyncEnum;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ConnectorHelper;
@@ -109,7 +108,7 @@ class StoreOrdersFromApiCommand extends AbstractClientServiceCommand
                         break;
                     }
                 }
-                $clientService->setUpdateInProgress(false, SyncEnum::ORDER);
+                $clientService->setUpdateInProgress(false);
             }
 
             if ($clientServices->count() < $this->getIterationCount()) {

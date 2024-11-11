@@ -70,10 +70,9 @@ class SnapshotProductToDBCommand extends AbstractCommand
         // Get all files in the 'snapshots' directory
         $files = Storage::files('snapshots');
 
-        // Filter correct file from snapshots
+        $setFileName = 'snapshots/' . $clientServiceQueue->getClientServiceId() . '_products.gz';
         $latestFile = collect($files)
-            ->filter(fn($file) =>  $file === $clientServiceQueue->getClientServiceId() . '_products.gz')
-            ->first();
+            ->first(fn($file) => $file === $setFileName);
 
         if ($latestFile) {
             $clientService = $this->getClientService($latestFile);
@@ -227,11 +226,12 @@ class SnapshotProductToDBCommand extends AbstractCommand
             fclose($txtFile);
             Storage::delete($txtFilePath);
             Storage::delete($latestFile);
+            $clientService = $clientServiceQueue->clientService()->first();
             $clientServiceQueue->next();
         } else {
             $clientServiceQueue->created_at = now();
             $clientServiceQueue->save();
-            $this->info('No product snapshot file found.');
+            $this->info('No product snapshot file found. for client service id: ' . $clientServiceQueue->getClientServiceId());
         }
         return Command::SUCCESS;
     }
