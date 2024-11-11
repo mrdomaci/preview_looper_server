@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\ClientServiceStatusEnum;
-use App\Enums\SyncEnum;
-use App\Exceptions\DataUpdateFailException;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Throwable;
 
 class ClientService extends Model
 {
