@@ -124,7 +124,7 @@ class FileOrderToDBCommand extends AbstractCommand
 
                 $clientService->setUpdateInProgress(false);
             } catch (\Throwable $e) {
-                $this->error("Error processing the snapshot file: {$e->getMessage()}");
+                $this->error("Error processing the order snapshot file: {$e->getMessage()}");
                 return Command::FAILURE;
             }
 

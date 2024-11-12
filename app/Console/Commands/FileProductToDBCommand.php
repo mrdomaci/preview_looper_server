@@ -156,11 +156,15 @@ class FileProductToDBCommand extends AbstractCommand
                                 $availabilityId = (string) $soldOutNegativeStockForbidden->getId();
                             }
                         }
+                        $price = '0';
+                        if (ArrayHelper::containsKey($variant, 'price') && $variant['price'] !== null) {
+                            $price = $variant['price'];
+                        }
                         $productVariant['code'] = $variant['code'];
                         $productVariant['name'] .=  isset($variant['name']) ? ' ' . $variant['name'] : '';
                         $productVariant['stock'] = $stock;
                         $productVariant['unit'] = $variant['unit'];
-                        $productVariant['price'] = Currency::formatPrice($variant['price'], $variant['currencyCode']);
+                        $productVariant['price'] = Currency::formatPrice($price, $variant['currencyCode']);
                         $productVariant['availability_name'] = $availabilityName;
                         //$productVariant['availability_id'] = $availabilityId;
                         $productVariant['is_negative_stock_allowed'] = $isNegativeStockAllowed;
@@ -205,7 +209,7 @@ class FileProductToDBCommand extends AbstractCommand
                 }
                 $clientService->setUpdateInProgress(false);
             } catch (\Throwable $e) {
-                $this->error("Error processing the snapshot file: {$e->getMessage()}");
+                $this->error("Error processing the product snapshot file: {$e->getMessage()}");
                 return Command::FAILURE;
             }
             fclose($txtFile);
