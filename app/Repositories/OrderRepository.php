@@ -57,4 +57,18 @@ class OrderRepository
             ->where('paid', true)
             ->get();
     }
+
+        /**
+     * @param array<int<0, max>, array<string, mixed>>$orders
+     */
+    public function bulkCreateOrUpdate(array $orders): void
+    {
+        Order::upsert(
+            $orders,
+            ['guid', 'code', 'client_id'],
+            [
+                'paid'
+            ]
+        );
+    }
 }

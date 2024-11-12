@@ -43,21 +43,21 @@ class ProductCategoryRecommendationRepository
             ->join(
                 'product_category_recommendations as pcr',
                 function ($join) use ($client) {
-                    $join->on('pcr.category_id', '=', 'pc.category_id')
+                    $join->on('pcr.category_guid', '=', 'pc.category_guid')
                     ->where('pcr.client_id', $client->getId());
                 }
             )
-            ->where('pc.product_id', $product->getId())
-            ->whereNotIn('pcr.product_id', function ($query) use ($client) {
-                $query->select('product_id')
+            ->where('pc.product_guid', $product->getGuid())
+            ->whereNotIn('pcr.product_guid', function ($query) use ($client) {
+                $query->select('product_guid')
                     ->from('product_category_recommendations')
                     ->where('client_id', $client->getId())
                     ->where('is_forbidden', true);
             })
-            ->select('pcr.product_id', 'pcr.priority')
+            ->select('pcr.product_guid', 'pcr.priority')
             ->orderBy('pcr.priority', 'DESC')
             ->limit($maxResults)
-            ->pluck('pcr.priority', 'pcr.product_id')
+            ->pluck('pcr.priority', 'pcr.product_guid')
             ->toArray();
     }
 }

@@ -38,4 +38,18 @@ class CategoryRepository
     {
         return $client->categories;
     }
+
+    /**
+     * @param array<int<0, max>, array<string, mixed>>$categories
+     */
+    public function bulkCreateOrUpdate(array $categories): void
+    {
+        Category::upsert(
+            $categories,
+            ['guid', 'client_id'],
+            [
+                'name',
+            ]
+        );
+    }
 }
