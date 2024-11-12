@@ -145,13 +145,13 @@ class FileProductToDBCommand extends AbstractCommand
                         }
 
                         if ($availabilityId === null) {
-                            if ($stock > 0) {
+                            if ($stock > 0 && $onStockAvailability !== null) {
                                 $availabilityName = $onStockAvailability->getName();
                                 $availabilityId = (string) $onStockAvailability->getId();
-                            } else if ($isNegativeStockAllowed === true) {
+                            } else if ($isNegativeStockAllowed === true && $soldOutNegativeStockAllowed !== null) {
                                 $availabilityName = $soldOutNegativeStockAllowed->getName();
                                 $availabilityId = (string) $soldOutNegativeStockAllowed->getId();
-                            } else {
+                            } else if ($soldOutNegativeStockForbidden !== null) {
                                 $availabilityName = $soldOutNegativeStockForbidden->getName();
                                 $availabilityId = (string) $soldOutNegativeStockForbidden->getId();
                             }
