@@ -13,13 +13,13 @@ use App\Enums\ClientServiceQueueStatusEnum;
 use App\Helpers\ArrayHelper;
 use App\Helpers\StringHelper;
 use App\Models\Category;
-use App\Models\Client;
 use App\Repositories\AvailabilityRepository;
 use App\Repositories\ClientServiceQueueRepository;
 use App\Repositories\ProductCategoryRepository;
 use App\Repositories\ProductRepository;
 use DateTime;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 
 class FileProductToDBCommand extends AbstractCommand
@@ -69,6 +69,8 @@ class FileProductToDBCommand extends AbstractCommand
         $soldOutNegativeStockForbidden = $this->availabilityRepository->getSoldOutNegativeStockForbiddenkAvailability($client);
         $soldOutNegativeStockAllowed = $this->availabilityRepository->getSoldOutNegativeStockAllowedAvailability($client);
 
+        $categories = Category::where('client_id', $client->getId())->get();
+
         $txtFilePath = collect(Storage::files('snapshots'))->first(function ($files) use ($clientServiceQueue) {
             return preg_match('/' . $clientServiceQueue->client_service_id . '_products\.txt$/', $files);
         });
@@ -102,7 +104,7 @@ class FileProductToDBCommand extends AbstractCommand
                             new ProductCategory(
                                 $productData['defaultCategory']['guid'],
                                 $productData['defaultCategory']['name'],
-                                $this->getCategoryId($client, $productData['defaultCategory']['name']),
+                                $this->getCategoryId($categories, $productData['defaultCategory']['name']),
                             ) : null
                         ),
                         ($productData['url'] ?? null),
@@ -208,20 +210,16 @@ class FileProductToDBCommand extends AbstractCommand
     }
 
     /**
-     * @param Client $client
+    * @param Collection|Category[] $categories
      * @param string|null $name
      * @return int|null
      */
-    private function getCategoryId(Client $client, ?string $name): ?int
+    private function getCategoryId(Collection $categories, ?string $name): ?int
     {
         if (!$name) {
             return null;
         }
-
-        $category = Category::where('name', $name)
-                                ->where('client_id', $client->getId())
-                                ->first();
-
-        return $category ? $category->id : null;
+        $category = $categories->first(fn($category) => $category->getName() === $name);
+        return $category ? $category->getId() : null;
     }
 }
