@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('product_guid');
             $table->string('category_guid');
             $table->foreignIdFor(Client::class);
-            $table->dropForeignIdFor(Product::class);
-            $table->dropForeignIdFor(Category::class);
+            //$table->dropForeignIdFor(Product::class);
+            //$table->dropForeignIdFor(Category::class);
             $table->unique(['product_guid', 'category_guid', 'client_id']);
         });
     }
