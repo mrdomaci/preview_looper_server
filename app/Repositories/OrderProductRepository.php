@@ -19,7 +19,6 @@ class OrderProductRepository
     {
         $product = Product::where('client_id', $client->getId())
                     ->where('guid', $orderDetailResponse->getProductGuid())
-                    ->where('parent_product_id', null)
                     ->first();
         OrderProduct::where('client_id', $client->getId())
             ->where('order_guid', $orderResponse->getGuid())
@@ -75,10 +74,20 @@ class OrderProductRepository
                     ->where('is_forbidden', true)
                     ->where('client_id', $client->getId());
             })
-            ->select('op1.product_id', DB::raw('COUNT(op1.product_id) as count'))
-            ->groupBy('op1.product_id')
+            ->select('op1.product_guid', DB::raw('COUNT(op1.product_id) as count'))
+            ->groupBy('op1.product_guid')
             ->limit(100)
-            ->pluck('count', 'op1.product_id')
+            ->pluck('count', 'op1.product_guid')
             ->toArray();
+    }
+
+    /**
+     * @param array<int<0, max>, array<string, mixed>>$orderProducts
+     */
+    public function bulkCreateOrIgnore(array $orderProducts): void
+    {
+        OrderProduct::insertOrIgnore(
+            $orderProducts,
+        );
     }
 }

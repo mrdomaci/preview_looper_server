@@ -37,20 +37,6 @@ class ProductRepository
     }
 
     /**
-     * @param array<int> $ids
-     * @param int $iterationCount
-     * @return Collection<Product>
-     */
-    public function getParentsInIds(array $ids, int $iterationCount = 4): Collection
-    {
-        return Product::where('active', true)
-        ->where('parent_product_id', null)
-        ->whereIn('id', $ids)
-        ->take($iterationCount)
-        ->get();
-    }
-
-    /**
      * @param Client $client
      * @return Collection<Product>
      */
@@ -173,8 +159,8 @@ class ProductRepository
     {
         return Product::where('client_id', $client->getId())
             ->where('active', true)
-            ->where('parent_product_id', null)
             ->whereIn('guid', $guids)
+            ->distinct('guid')
             ->get();
     }
 
@@ -184,7 +170,7 @@ class ProductRepository
             ->select('id', 'name')
             ->where('active', true)
             ->where('name', 'like', '%' . $name . '%')
-            ->where('parent_product_id', null)
+            ->distinct('guid')
             ->limit(5)
             ->get();
     }
@@ -196,12 +182,12 @@ class ProductRepository
             ->firstOrFail();
     }
 
-    public function getBestVariant(Client $client, int $productId): Product
+    public function getBestVariant(Client $client, string $guid): Product
     {
         return Product::where('client_id', $client->getId())
-            ->where('parent_product_id', $productId)
             ->where('active', true)
-            ->where('availability_level', '<', 3)
+            //->where('availability_level', '<', 3)
+            ->where('guid', $guid)
             ->orderBy('availability_level', 'asc')
             ->orderBy('stock', 'desc')
             ->select(
@@ -224,5 +210,22 @@ class ProductRepository
         return Product::where('client_id', $client->getId())
             ->where('guid', $guid)
             ->first();
+    }
+
+    /**
+     * @param array<int<0, max>, array<string, mixed>>$products
+     */
+    public function bulkCreateOrUpdate(array $products): void
+    {
+        Product::upsert(
+            $products,
+            ['guid', 'code', 'client_id'],
+            [
+                'stock', 'unit', 'price', 'availability_name', 'availability_id',
+                'is_negative_stock_allowed', 'foreign_id', 'image_url', 'updated_at',
+                'created_at', 'active', 'name', 'url', 'images', 'perex',
+                'producer',
+            ]
+        );
     }
 }

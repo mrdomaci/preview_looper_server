@@ -23,7 +23,7 @@ class CacheHelper
             $products = Product::where('client_id', $clientId)
                 ->where('id', '>', $lastProductId)
                 ->where('active', 1)
-                ->where('parent_product_id', null)
+                ->distinct('guid')
                 ->limit(1000)
                 ->get();
 

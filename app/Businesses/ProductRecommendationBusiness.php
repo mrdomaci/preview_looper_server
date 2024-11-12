@@ -40,12 +40,13 @@ class ProductRecommendationBusiness
         arsort($this->recommendations);
         $this->filterProductsInCart($products);
         $loop = $maxResults;
-        foreach ($this->recommendations as $productId => $priority) {
+        foreach ($this->recommendations as $guid => $priority) {
+            $guid = (string) $guid;
             try {
-                $this->recommendations[$productId] = $this->productRepository->getBestVariant($client, $productId);
+                $this->recommendations[$guid] = $this->productRepository->getBestVariant($client, $guid);
                 $loop--;
             } catch (Throwable) {
-                unset($this->recommendations[$productId]);
+                unset($this->recommendations[$guid]);
             }
             if ($loop === 0) {
                 break;

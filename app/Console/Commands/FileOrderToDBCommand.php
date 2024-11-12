@@ -4,17 +4,11 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Connector\Shoptet\OrderDetailResponse;
-use App\Connector\Shoptet\OrderPaymentMethodResponse;
-use App\Connector\Shoptet\OrderPriceResponse;
-use App\Connector\Shoptet\OrderResponse;
-use App\Connector\Shoptet\OrderShippingResponse;
 use App\Enums\ClientServiceQueueStatusEnum;
 use App\Repositories\ClientServiceQueueRepository;
 use App\Repositories\OrderProductRepository;
 use App\Repositories\OrderRepository;
 use DateTime;
-use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
@@ -49,7 +43,7 @@ class FileOrderToDBCommand extends AbstractCommand
      */
     public function handle()
     {
-        $clientServiceStatus = ClientServiceQueueStatusEnum::SNAPSHOT_ORDERS;
+        $clientServiceStatus = ClientServiceQueueStatusEnum::DB_ORDERS;
         $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
 
         if ($clientServiceQueue === null) {
@@ -65,50 +59,39 @@ class FileOrderToDBCommand extends AbstractCommand
 
         if ($txtFilePath) {
             $txtFile = fopen(Storage::path($txtFilePath), 'r');
+            $orders = [];
+            $orderProducts = [];
+            $count = 0;
             try {
                 $clientService->setUpdateInProgress(true);
                 while (($line = fgets($txtFile)) !== false) {
                     $orderData = json_decode($line, true);
-                    if ($orderData === null && json_last_error() !== JSON_ERROR_NONE) {
-                        // Handle JSON decoding error
-                        throw new Exception('Invalid JSON: ' . json_last_error_msg());
-                    }
-                    $orderResponse = new OrderResponse(
-                        $orderData['code'],
-                        $orderData['guid'],
-                        (isset($orderData['creationTime']) ? new DateTime($orderData['creationTime']) : new DateTime()),
-                        (isset($orderData['changeTime']) ? new DateTime($orderData['changeTime']) : null),
-                        ($orderData['billingAddress']['fullName'] ?? ''),
-                        ($orderData['billingAddress']['company'] ?? null),
-                        ($orderData['email'] ?? null),
-                        ($orderData['phone'] ?? null),
-                        ($orderData['remark'] ?? null),
-                        ($orderData['cashDeskOrder'] ?? false),
-                        ($orderData['customerGuid'] ?? null),
-                        (isset($orderData['paid']) ? (bool) $orderData['paid'] : false),
-                        (isset($orderData['status']['id']) ? (string) $orderData['status']['id'] : ''),
-                        ($orderData['source']['name'] ?? null),
-                        new OrderPriceResponse(
-                            (float) $orderData['price']['vat'],
-                            (float) $orderData['price']['toPay'],
-                            $orderData['price']['currencyCode'],
-                            (float) $orderData['price']['withVat'],
-                            (float) $orderData['price']['withoutVat'],
-                            (float) $orderData['price']['exchangeRate']
-                        ),
-                        (isset($orderData['paymentMethod']['guid']) && isset($orderData['paymentMethod']['name']) ?
-                        new OrderPaymentMethodResponse(
-                            $orderData['paymentMethod']['guid'],
-                            $orderData['paymentMethod']['name']
-                        ) : null),
-                        (isset($orderData['shipping']['guid']) && isset($orderData['shipping']['name']) ?
-                        new OrderShippingResponse(
-                            $orderData['shipping']['guid'],
-                            $orderData['shipping']['name']
-                        ) : null),
-                        ($orderData['adminUrl'] ?? ''),
-                    );
-                    $order = $this->orderRepository->createOrUpdate($orderResponse, $client);
+
+                    $orders[] = [
+                        'client_id' => $client->id,
+                        'guid' => $orderData['guid'],
+                        'code' => $orderData['code'],
+                        'created_at' => new DateTime($orderData['creationTime']),
+                        'full_name' => '',
+                        'company' => '',
+                        'email' => '',
+                        'phone' =>  '',
+                        'remark' => '',
+                        'cash_desk_order' => $orderData['cashDeskOrder'],
+                        'customer_guid' => '',
+                        'paid' => $orderData['paid'] ?? false,
+                        'foreign_status_id' => $orderData['status']['id'],
+                        'source' => $orderData['source']['id'],
+                        'vat' => 0,
+                        'to_pay' => 0,
+                        'currency_code' => $orderData['price']['currencyCode'],
+                        'with_vat' => 0,
+                        'without_vat' => 0,
+                        'exchange_rate' => 0,
+                        'payment_method' => '',
+                        'shipping' => '',
+                        'admin_url' => '',
+                    ];
 
                     foreach ($orderData['items'] as $item) {
                         if ($item['itemType'] !== 'product') {
@@ -120,13 +103,25 @@ class FileOrderToDBCommand extends AbstractCommand
                         if (!isset($item['amount'])) {
                             continue;
                         }
-                        $orderDetailResponse = new OrderDetailResponse(
-                            $item['productGuid'],
-                            (float) $item['amount'],
-                        );
-                        $this->orderProductRepository->createOrUpdate($orderResponse, $orderDetailResponse, $client, $order);
+                        $orderProducts[] = [
+                            'order_guid' => $orderData['guid'],
+                            'product_guid' => $item['productGuid'],
+                            'client_id' => $client->id,
+                        ];
+                    }
+                    $count++;
+                    if ($count % 100 === 0) {
+                        $this->orderRepository->bulkCreateOrUpdate($orders);
+                        $this->orderProductRepository->bulkCreateOrIgnore($orderProducts);
+                        $orderProducts = [];
+                        $orders = [];
                     }
                 }
+                if (count($orders) > 0) {
+                    $this->orderRepository->bulkCreateOrUpdate($orders);
+                    $this->orderProductRepository->bulkCreateOrIgnore($orderProducts);
+                }
+
                 $clientService->setUpdateInProgress(false);
             } catch (\Throwable $e) {
                 $this->error("Error processing the snapshot file: {$e->getMessage()}");
