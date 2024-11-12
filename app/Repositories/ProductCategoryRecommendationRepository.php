@@ -22,6 +22,8 @@ class ProductCategoryRecommendationRepository
             'product_id' => $product->getId(),
             'category_id' => $category?->getId(),
             'client_id' => $client->getId(),
+            'product_guid' => $product->getGuid(),
+            'category_guid' => $category?->getGuid(),
             'is_forbidden' => $isForbidden,
         ]);
     }

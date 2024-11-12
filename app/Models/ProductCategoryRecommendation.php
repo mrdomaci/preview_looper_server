@@ -18,6 +18,8 @@ class ProductCategoryRecommendation extends Model
         'category_id',
         'client_id',
         'is_forbidden',
+        'product_guid',
+        'category_guid',
     ];
 
     public function getId(): int
@@ -77,12 +79,14 @@ class ProductCategoryRecommendation extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class, 'product_guid', 'guid')
+                    ->where('client_id', $this->client_id);
     }
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_guid', 'guid')
+                    ->where('client_id', $this->client_id); 
     }
 
     public function client(): BelongsTo
