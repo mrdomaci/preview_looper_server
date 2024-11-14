@@ -14,7 +14,7 @@ window.onload = function() {
                         success: function (response) {
                             $('#autocomplete_results').empty();
                             response.forEach(function (product) {
-                                $('#autocomplete_results').append('<a class="list-group-item list-group-item-action autocomplete-result" data-product-id="' + product.id + '">' + product.name + '</a>');
+                                $('#autocomplete_results').append('<a class="list-group-item list-group-item-action autocomplete-result" data-product-guid="' + product.guid + '">' + product.name + '</a>');
                             });
                             selectProduct();
                         },
@@ -37,7 +37,7 @@ window.onload = function() {
                         success: function (response) {
                             $('#autocomplete_forbidden_results').empty();
                             response.forEach(function (product) {
-                                $('#autocomplete_forbidden_results').append('<a class="list-group-item list-group-item-action autocomplete-forbidden-result" data-product-id="' + product.id + '">' + product.name + '</a>');
+                                $('#autocomplete_forbidden_results').append('<a class="list-group-item list-group-item-action autocomplete-forbidden-result" data-product-guid="' + product.guid + '">' + product.name + '</a>');
                             });
                             selectForbiddenProduct();
                         },
@@ -53,20 +53,20 @@ window.onload = function() {
         });
         function selectProduct() {
             $('#autocomplete_results').on('click', '.autocomplete-result', function () {
-                var productId = $(this).data('product-id');
+                var productGuid = $(this).data('product-guid');
                 var productName = $(this).text();
                 $('#product_autocomplete').val(productName);
-                $('input[id="product"]').val(productId);
+                $('input[id="product"]').val(productGuid);
                 $('#autocomplete_results').empty();
             });
         }
 
         function selectForbiddenProduct() {
             $('#autocomplete_forbidden_results').on('click', '.autocomplete-forbidden-result', function () {
-                var productId = $(this).data('product-id');
+                var productGuid = $(this).data('product-guid');
                 var productName = $(this).text();
                 $('#forbidden_product_autocomplete').val(productName);
-                $('input[id="forbidden_product"]').val(productId);
+                $('input[id="forbidden_product"]').val(productGuid);
                 $('#autocomplete_forbidden_results').empty();
             });
         }

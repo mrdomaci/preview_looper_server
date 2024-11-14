@@ -125,7 +125,7 @@ use App\Helpers\QrHelper;
                     <div class="col-md-6">
                         <select class="form-control" name="category" id="category">
                             @foreach ($categories as $category)
-                                <option value="{{ $category->id }}">{{ __($category->name) }}</option>
+                                <option value="{{ $category->guid }}">{{ __($category->name) }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -161,8 +161,8 @@ use App\Helpers\QrHelper;
                     <tbody>
                         @foreach ($product_category_recommendations as $productCategoryRecommendation)
                             <tr>
-                                <td>{{ $productCategoryRecommendation->category->name }}</td>
-                                <td>{{ $productCategoryRecommendation->product->name }}</td>
+                                <td>{{ $productCategoryRecommendation->getCategory()?->name }}</td>
+                                <td>{{ $productCategoryRecommendation->getProduct()?->name }}</td>
                                 <td>
                                     <form method="POST" action="{{ route('recommendation.delete',
                                             [
