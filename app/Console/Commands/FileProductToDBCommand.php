@@ -93,7 +93,7 @@ class FileProductToDBCommand extends AbstractCommand
 
                     $product = [
                         'client_id' => $client->getId(),
-                        'guid' => $productData['guid'],
+                        'guid' => ($productData['guid'] ?? ''),
                         'active' => 1,
                         'created_at' => (isset($productData['creationTime']) ? new DateTime($productData['creationTime']) : null),
                         'updated_at' => (isset($productData['changeTime']) ? new DateTime($productData['changeTime']) : null),
@@ -103,7 +103,7 @@ class FileProductToDBCommand extends AbstractCommand
                         'perex' => ($productData['shortDescription'] ?? null),
                         'producer' => (isset($productData['brand']) ? $productData['brand']['name'] : null),
                     ];
-                    $guids[] = $productData['guid'];
+                    $guids[] = ($productData['guid'] ?? '');
 
                     foreach ($productData['variants'] as $variant) {
                         $productVariant = $product;
@@ -111,28 +111,28 @@ class FileProductToDBCommand extends AbstractCommand
                         $availabilityName = null;
                         $availabilityId = null;
                         $isNegativeStockAllowed = false;
-                        $stock = (float) $variant['stock'];
-                        $image = StringHelper::removeParameter($variant['image']);
+                        $stock = (isset($variant['stock']) ? (float) $variant['stock'] : 0);
+                        $image = StringHelper::removeParameter(($variant['image'] ?? ''));
 
                         if (ArrayHelper::containsKey($variant, 'availability') === true) {
                             if ($variant['availability'] !== null) {
-                                $availabilityName = $variant['availability']['name'];
-                                $availabilityId = (string) $variant['availability']['id'];
+                                $availabilityName = ($variant['availability']['name'] ?? null);
+                                $availabilityId = (isset($variant['availability']['id']) ? (string) $variant['availability']['id'] : '');
                             }
                         }
                         if ($availabilityName === null && $stock <= 0) {
                             if (ArrayHelper::containsKey($variant, 'availabilityWhenSoldOut') === true) {
                                 if ($variant['availabilityWhenSoldOut'] !== null) {
-                                    $availabilityName = $variant['availabilityWhenSoldOut']['name'];
-                                    $availabilityId = (string) $variant['availabilityWhenSoldOut']['id'];
+                                    $availabilityName = (isset($variant['availabilityWhenSoldOut']['name']) ? $variant['availability']['name'] : null);
+                                    $availabilityId = (isset($variant['availabilityWhenSoldOut']['id']) ? (string) $variant['availability']['id'] : '');
                                 }
                             }
                         }
                         $variantName = '';
-                        if ($productVariant['name'] !== null) {
+                        if (isset($productVariant['name']) && $productVariant['name'] !== null) {
                             $variantName = $productVariant['name'];
                         }
-                        if (ArrayHelper::containsKey($variant, 'name')) {
+                        if (ArrayHelper::containsKey($variant, 'name') && $variant['name'] !== null) {
                             $variantName .= ' ' . $variant['name'];
                         }
 
@@ -160,10 +160,10 @@ class FileProductToDBCommand extends AbstractCommand
                         if (ArrayHelper::containsKey($variant, 'price') && $variant['price'] !== null) {
                             $price = $variant['price'];
                         }
-                        $productVariant['code'] = $variant['code'];
+                        $productVariant['code'] = $variant['code'] ?? '';
                         $productVariant['name'] .=  isset($variant['name']) ? ' ' . $variant['name'] : '';
                         $productVariant['stock'] = $stock;
-                        $productVariant['unit'] = $variant['unit'];
+                        $productVariant['unit'] = $variant['unit'] ?? '';
                         $productVariant['price'] = Currency::formatPrice($price, $variant['currencyCode']);
                         $productVariant['availability_name'] = $availabilityName;
                         //$productVariant['availability_id'] = $availabilityId;
@@ -176,6 +176,12 @@ class FileProductToDBCommand extends AbstractCommand
                     // TODO ->add categories bindings
                     if (isset($productData['categories'])) {
                         foreach ($productData['categories'] as $category) {
+                            if (!isset($category['guid'])) {
+                                continue;
+                            }
+                            if (!isset($category['name'])) {
+                                continue;
+                            }
                             $categories[$category['guid']] = [
                                 'client_id' => $client->getId(),
                                 'guid' => $category['guid'],
