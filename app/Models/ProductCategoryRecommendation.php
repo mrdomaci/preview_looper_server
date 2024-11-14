@@ -86,7 +86,7 @@ class ProductCategoryRecommendation extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_guid', 'guid')
-                    ->where('client_id', $this->getClientId()); 
+                    ->where('client_id', $this->getClientId());
     }
 
     public function client(): BelongsTo

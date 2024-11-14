@@ -65,7 +65,7 @@ class SnapshotProductToDBCommand extends AbstractCommand
                 $buffer .= $line;
                 $lineCount++;
 
-                if ($lineCount % 1000 === 0) {
+                if ($lineCount % 10000 === 0) {
                     Storage::put('snapshots/' . $fileIndex . '_' . $clientServiceQueue->getClientServiceId() . '_products.txt', $buffer);
                     $buffer = '';
                     $lineCount = 0;

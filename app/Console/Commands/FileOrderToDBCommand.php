@@ -132,6 +132,8 @@ class FileOrderToDBCommand extends AbstractCommand
             Storage::delete($txtFilePath);
         } else {
             $clientServiceQueue->next();
+            $clientService->setProductsLastSyncedAt(new DateTime());
+            $clientService->save();
         }
         return Command::SUCCESS;
     }
