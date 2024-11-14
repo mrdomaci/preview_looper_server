@@ -14,8 +14,6 @@ class ProductCategoryRecommendation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'product_id',
-        'category_id',
         'client_id',
         'is_forbidden',
         'product_guid',
@@ -35,26 +33,6 @@ class ProductCategoryRecommendation extends Model
     public function setClient(Client $client): self
     {
         return $this->setAttribute('client_id', $client->getId());
-    }
-
-    public function getProductId(): int
-    {
-        return $this->getAttribute('product_id');
-    }
-
-    public function setProduct(Product $product): self
-    {
-        return $this->setAttribute('product_id', $product->getId());
-    }
-
-    public function getCategoryId(): int
-    {
-        return $this->getAttribute('category_id');
-    }
-
-    public function setCategory(Category $category): self
-    {
-        return $this->setAttribute('category_id', $category->getId());
     }
 
     public function getCreatedAt(): DateTime
@@ -79,18 +57,36 @@ class ProductCategoryRecommendation extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class, 'product_guid', 'guid')
-                    ->where('client_id', $this->getClientId());
+        return $this->belongsTo(Product::class, 'product_guid', 'guid');
     }
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class, 'category_guid', 'guid')
-                    ->where('client_id', $this->getClientId());
+        return $this->belongsTo(Category::class, 'category_guid', 'guid');
     }
 
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function setProduct(string $product_guid): self
+    {
+        return $this->setAttribute('product_guid', $product_guid);
+    }
+
+    public function setCategory(string $category_guid): self
+    {
+        return $this->setAttribute('category_guid', $category_guid);
+    }
+
+    public function getProduct(): Product
+    {
+        return Product::where('guid', $this->getAttribute('product_guid'))->first();
+    }
+
+    public function getCategory(): Category
+    {
+        return Category::where('guid', $this->getAttribute('category_guid'))->first();
     }
 }

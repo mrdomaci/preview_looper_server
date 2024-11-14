@@ -19,8 +19,6 @@ class ProductCategoryRecommendationRepository
     public function create(Client $client, Product $product, ?Category $category, ?bool $isForbidden = false): ProductCategoryRecommendation
     {
         return ProductCategoryRecommendation::create([
-            'product_id' => $product->getId(),
-            'category_id' => $category?->getId(),
             'client_id' => $client->getId(),
             'product_guid' => $product->getGuid(),
             'category_guid' => $category?->getGuid(),

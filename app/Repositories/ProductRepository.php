@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Connector\Shoptet\ProductDetailResponse;
-use App\Connector\Shoptet\ProductResponse;
 use App\Connector\Shoptet\ProductVariantResponse;
 use App\Helpers\PriceHelper;
 use App\Helpers\StringHelper;
 use App\Models\Availability;
-use App\Models\Category;
 use App\Models\Client;
 use App\Models\Currency;
 use App\Models\Product;
@@ -45,12 +43,6 @@ class ProductRepository
         return Product::where('client_id', $client->getId())->where('active', true)->get();
     }
 
-    public function setProductCategory(Product $product, Category $category): void
-    {
-        $product->setAttribute('category_id', $category->getId());
-        $product->save();
-    }
-
     public function delete(Product $product): void
     {
         Product::where('id', $product->getId())->delete();
@@ -74,30 +66,7 @@ class ProductRepository
                 ->limit(10)
                 ->get();
     }
-
-    public function createOrUpdateFromResponse(Client $client, ProductResponse $productResponse): Product
-    {
-        return Product::updateOrCreate(
-            [
-                'client_id' => $client->getId(),
-                'guid' => $productResponse->getGuid()
-            ],
-            [
-                'active' => true,
-                'created_at' => $productResponse->getCreationTime(),
-                'updated_at' => $productResponse->getChangeTime(),
-                'name' => $productResponse->getName(),
-                'url' => $productResponse->getUrl(),
-                'category' => $productResponse->getDefaultCategory()?->getName(),
-                'category_id' => $productResponse->getDefaultCategory()?->getId(),
-                'perex' => $productResponse->getPerex(),
-                'producer' => $productResponse->getBrand()?->getName(),
-                'images' => $productResponse->getImages(),
-            ]
-        );
-    }
     
-
     public function updateDetailFromResponse(Product $product, ProductDetailResponse $productDetailResponse): void
     {
         /** @var Product $product */
@@ -167,7 +136,7 @@ class ProductRepository
     public function getByName(Client $client, string $name): Collection
     {
         return Product::where('client_id', $client->getId())
-            ->select('id', 'name')
+            ->select('guid', 'name')
             ->where('active', true)
             ->where('name', 'like', '%' . $name . '%')
             ->distinct('guid')
@@ -175,10 +144,10 @@ class ProductRepository
             ->get();
     }
 
-    public function getForClient(Client $client, int $id): Product
+    public function getForClient(Client $client, string $guid): Product
     {
         return Product::where('client_id', $client->getId())
-            ->where('id', $id)
+            ->where('guid', $guid)
             ->firstOrFail();
     }
 

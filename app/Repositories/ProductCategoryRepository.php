@@ -14,14 +14,14 @@ class ProductCategoryRepository
     public function create(Product $product, Category $category): ProductCategory
     {
         return ProductCategory::create([
-            'product_id' => $product->getId(),
-            'category_id' => $category->getId(),
+            'product_guid' => $product->getGuid(),
+            'category_guid' => $category->getGuid(),
         ]);
     }
 
     public function clear(Product $product): void
     {
-        ProductCategory::where('product_id', $product->getId())->delete();
+        ProductCategory::where('product_guid', $product->getGuid())->delete();
     }
 
     /**

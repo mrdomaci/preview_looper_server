@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Throwable;
 
 class Product extends Model
 {
@@ -233,23 +232,6 @@ class Product extends Model
     public function setCategoryName(?string $category): self
     {
         return $this->setAttribute('category', $category);
-    }
-
-    public function getCategory(): ?Category
-    {
-        try {
-            return $this->category()->firstOrFail();
-        } catch (Throwable) {
-            return null;
-        }
-    }
-
-    public function setCategory(?Category $category): self
-    {
-        if ($category === null) {
-            return $this->setAttribute('category_id', null);
-        }
-        return $this->setAttribute('category_id', $category->getId());
     }
 
     public function getStock(): ?float
