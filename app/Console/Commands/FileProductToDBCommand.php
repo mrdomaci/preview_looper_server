@@ -96,10 +96,13 @@ class FileProductToDBCommand extends AbstractCommand
                         }
                         $images = json_encode($images);
                     }
+                    if (!isset($productData['guid'])) {
+                        continue;
+                    }
 
                     $product = [
                         'client_id' => $client->getId(),
-                        'guid' => ($productData['guid'] ?? ''),
+                        'guid' => $productData['guid'],
                         'active' => 1,
                         'created_at' => (isset($productData['creationTime']) ? new DateTime($productData['creationTime']) : null),
                         'updated_at' => (isset($productData['changeTime']) ? new DateTime($productData['changeTime']) : null),
@@ -122,15 +125,19 @@ class FileProductToDBCommand extends AbstractCommand
 
                             if (is_array($variant) && ArrayHelper::containsKey($variant, 'availability') === true) {
                                 if ($variant['availability'] !== null) {
-                                    $availabilityName = ($variant['availability']['name'] ?? null);
-                                    $availabilityId = (isset($variant['availability']['id']) ? (string) $variant['availability']['id'] : '');
+                                    if (is_array($variant['availability'])) {
+                                        $availabilityName = $variant['availability']['name'] ?? null;
+                                        $availabilityId = isset($variant['availability']['id']) ? (string) $variant['availability']['id'] : '';
+                                    }
                                 }
                             }
                             if ($availabilityName === null && $stock <= 0) {
                                 if (is_array($variant) && ArrayHelper::containsKey($variant, 'availabilityWhenSoldOut') === true) {
                                     if ($variant['availabilityWhenSoldOut'] !== null) {
-                                        $availabilityName = (isset($variant['availabilityWhenSoldOut']['name']) ? $variant['availability']['name'] : null);
-                                        $availabilityId = (isset($variant['availabilityWhenSoldOut']['id']) ? (string) $variant['availability']['id'] : '');
+                                        if (is_array($variant['availabilityWhenSoldOut'])) {
+                                            $availabilityName = (isset($variant['availabilityWhenSoldOut']['name']) ? $variant['availability']['name'] : null);
+                                            $availabilityId = (isset($variant['availabilityWhenSoldOut']['id']) ? (string) $variant['availability']['id'] : '');
+                                        }
                                     }
                                 }
                             }
