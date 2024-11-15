@@ -83,7 +83,7 @@ class FileProductToDBCommand extends AbstractCommand
                     }
 
                     $images = null;
-                    if (isset($productData['images'])) {
+                    if (isset($productData['images']) && is_array($productData['images'])) {
                         $images = [];
                         usort($productData['images'], function ($a, $b) {
                             return $a['priority'] <=> $b['priority'];
