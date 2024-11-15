@@ -106,8 +106,8 @@ class FileProductToDBCommand extends AbstractCommand
                         'name' => ($productData['name'] ?? ''),
                         'url' => ($productData['url'] ?? ''),
                         'images' => $images,
-                        'perex' => ($productData['shortDescription'] ?? null),
-                        'producer' => (isset($productData['brand']) ? $productData['brand']['name'] : null),
+                        'perex' => ($productData['shortDescription'] ?? ''),
+                        'producer' => ($productData['brand']['name'] ?? null),
                     ];
                     $guids[] = ($productData['guid'] ?? '');
                     if (isset($productData['variants']) && is_array($productData['variants'])) {
@@ -118,7 +118,7 @@ class FileProductToDBCommand extends AbstractCommand
                             $availabilityId = null;
                             $isNegativeStockAllowed = false;
                             $stock = (isset($variant['stock']) ? (float) $variant['stock'] : 0);
-                            $image = StringHelper::removeParameter(($variant['image'] ?? ''));
+                            $image = StringHelper::removeParameter($variant['image'] ?? '');
 
                             if (is_array($variant) && ArrayHelper::containsKey($variant, 'availability') === true) {
                                 if ($variant['availability'] !== null) {
@@ -187,8 +187,8 @@ class FileProductToDBCommand extends AbstractCommand
                             }
                             $categories[$category['guid']] = [
                                 'client_id' => $client->getId(),
-                                'guid' => $category['guid'],
-                                'name' => $category['name'],
+                                'guid' => $category['guid'] ?? '',
+                                'name' => $category['name'] ?? '',
                             ];
                             $productCategories[] = [
                                 'product_guid' => $productData['guid'] ?? '',
