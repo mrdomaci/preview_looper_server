@@ -174,11 +174,6 @@ class Client extends Model
         return $this->getAttribute('updated_at');
     }
 
-    public function images(): HasMany
-    {
-        return $this->hasMany(Image::class);
-    }
-
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
