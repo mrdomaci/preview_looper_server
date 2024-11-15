@@ -78,6 +78,9 @@ class FileProductToDBCommand extends AbstractCommand
                 $guids = [];
                 while (($line = fgets($txtFile)) !== false) {
                     $productData = json_decode($line, true);
+                    if ($productData === null) {
+                        continue;
+                    }
 
                     $images = null;
                     if (isset($productData['images'])) {
@@ -117,14 +120,14 @@ class FileProductToDBCommand extends AbstractCommand
                             $stock = (isset($variant['stock']) ? (float) $variant['stock'] : 0);
                             $image = StringHelper::removeParameter(($variant['image'] ?? ''));
 
-                            if (ArrayHelper::containsKey($variant, 'availability') === true) {
+                            if (is_array($variant) && ArrayHelper::containsKey($variant, 'availability') === true) {
                                 if ($variant['availability'] !== null) {
-                                    $availabilityName = ($variant['availability']['name'] ?? null);
+                                    $availabilityName = $variant['availability']['name'] ?? null;
                                     $availabilityId = (isset($variant['availability']['id']) ? (string) $variant['availability']['id'] : '');
                                 }
                             }
                             if ($availabilityName === null && $stock <= 0) {
-                                if (ArrayHelper::containsKey($variant, 'availabilityWhenSoldOut') === true) {
+                                if (is_array($variant) && ArrayHelper::containsKey($variant, 'availabilityWhenSoldOut') === true) {
                                     if ($variant['availabilityWhenSoldOut'] !== null) {
                                         $availabilityName = (isset($variant['availabilityWhenSoldOut']['name']) ? $variant['availability']['name'] : null);
                                         $availabilityId = (isset($variant['availabilityWhenSoldOut']['id']) ? (string) $variant['availability']['id'] : '');
@@ -135,11 +138,11 @@ class FileProductToDBCommand extends AbstractCommand
                             if (isset($productVariant['name']) && $productVariant['name'] !== null) {
                                 $variantName = $productVariant['name'];
                             }
-                            if (ArrayHelper::containsKey($variant, 'name') && $variant['name'] !== null) {
+                            if (is_array($variant) && ArrayHelper::containsKey($variant, 'name') && $variant['name'] !== null) {
                                 $variantName .= ' ' . $variant['name'];
                             }
 
-                            if (ArrayHelper::containsKey($variant, 'negativeStockAllowed')) {
+                            if (is_array($variant) && ArrayHelper::containsKey($variant, 'negativeStockAllowed')) {
                                 if ($variant['negativeStockAllowed'] === 'yes') {
                                     $isNegativeStockAllowed = true;
                                 } elseif ($variant['negativeStockAllowed'] === 'yes-global') {
@@ -160,7 +163,7 @@ class FileProductToDBCommand extends AbstractCommand
                                 }
                             }
                             $price = '0';
-                            if (ArrayHelper::containsKey($variant, 'price') && $variant['price'] !== null) {
+                            if (is_array($variant) && ArrayHelper::containsKey($variant, 'price') && $variant['price'] !== null) {
                                 $price = $variant['price'];
                             }
                             $productVariant['code'] = $variant['code'] ?? '';
