@@ -214,6 +214,7 @@ class FileProductToDBCommand extends AbstractCommand
                     $this->productCategoryRepository->bulkCreateOrUpdate($productCategories);
                 }
                 $clientService->setUpdateInProgress(false);
+                $this->info('Client service ' . $clientService->getId() . ' file product');
             } catch (\Throwable $e) {
                 $this->error("Error processing the product snapshot file: {$e->getMessage()}");
                 return Command::FAILURE;

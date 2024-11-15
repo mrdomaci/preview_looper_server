@@ -5,35 +5,15 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Connector\Shoptet\ProductDetailResponse;
-use App\Connector\Shoptet\ProductVariantResponse;
 use App\Helpers\PriceHelper;
 use App\Helpers\StringHelper;
-use App\Models\Availability;
 use App\Models\Client;
-use App\Models\Currency;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
-use Throwable;
 
 class ProductRepository
 {
-    /**
-     * @param Client $client
-     * @param int $lastProductId
-     * @param int $iterationCount
-     * @return Collection<Product>
-     */
-    public function getPastId(Client $client, int $lastProductId, int $iterationCount = 100): Collection
-    {
-        return Product::where('client_id', $client->getId())
-        ->where('active', true)
-        ->where('parent_product_id', null)
-        ->where('id', '>', $lastProductId)
-        ->take($iterationCount)
-        ->get();
-    }
-
     /**
      * @param Client $client
      * @return Collection<Product>
@@ -88,35 +68,6 @@ class ProductRepository
         foreach ($chunks as $chunk) {
             Product::whereIn('id', $chunk)->delete();
         }
-    }
-
-    public function createOrUpdateVariantFromResponse(
-        ProductVariantResponse $productVariantResponse,
-        Product $product,
-        ?Availability $availability
-    ): void {
-        try {
-            $productVariant = Product::where('parent_product_id', $product->getId())->where('code', $productVariantResponse->getCode())->firstOrFail();
-        } catch (Throwable) {
-            $productVariant = Product::clone($product);
-        }
-        /** @var Product $productVariant */
-        $productVariant->setName($productVariantResponse->getName())
-            ->setCode($productVariantResponse->getCode())
-            ->setActive(true)
-            ->setAvailabilityName($availability?->getName())
-            ->setAvailabilityForeignId($productVariantResponse->getAvailabilityId())
-            ->setAvailabilityLevel($availability?->getLevel())
-            ->setAvailability($availability)
-            ->setAvailabilityColor($availability?->getColor())
-            ->setStock($productVariantResponse->getStock())
-            ->setUnit($productVariantResponse->getUnit())
-            ->setPrice(Currency::formatPrice((string)$productVariantResponse->getPrice(), $productVariantResponse->getCurrencyCode()))
-            ->setImageUrl($productVariantResponse->getImage())
-            ->setUrl($product->getUrl())
-            ->setForeignId($productVariantResponse->getForeignId())
-            ->setNegativeStockAllowed($productVariantResponse->isNegativeStockAllowed())
-            ->save();
     }
 
     /**

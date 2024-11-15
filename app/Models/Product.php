@@ -9,7 +9,6 @@ use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
@@ -242,11 +241,6 @@ class Product extends Model
     public function setStock(?float $stock): self
     {
         return $this->setAttribute('stock', $stock);
-    }
-
-    public function images(): HasMany
-    {
-        return $this->hasMany(Image::class)->orderBy('priority', 'asc');
     }
 
     public function client(): BelongsTo

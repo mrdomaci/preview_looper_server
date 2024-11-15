@@ -89,6 +89,7 @@ class QueueProductsFromApiCommand extends AbstractCommand
         }
         
         $clientService->setUpdateInProgress(false);
+        $this->info('Client service ' . $clientService->getId() . ' queue products');
         return Command::SUCCESS;
     }
 }

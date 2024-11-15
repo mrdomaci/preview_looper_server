@@ -80,6 +80,7 @@ class SnapshotOrderToDBCommand extends AbstractCommand
     
             gzclose($gz);
             $clientService->setUpdateInProgress(false);
+            $this->info('Client service ' . $clientService->getId() . ' snapshot orders');
             $clientServiceQueue->next();
         }
         return Command::SUCCESS;

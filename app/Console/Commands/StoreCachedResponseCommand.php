@@ -53,6 +53,7 @@ class StoreCachedResponseCommand extends AbstractClientServiceCommand
             return Command::FAILURE;
         }
         $clientService->setUpdateInProgress(false);
+        $this->info('Client service ' . $clientService->getId() . ' cached');
         return Command::SUCCESS;
     }
 }
