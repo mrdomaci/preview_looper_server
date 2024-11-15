@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Businesses\AccessTokenBusiness;
 use App\Businesses\BaseOauthUrlBusiness;
 use App\Businesses\SettingServiceBusiness;
-use App\Businesses\SyncEndpointBusiness;
 use App\Businesses\TemplateIncludeBusiness;
 use App\Enums\CountryEnum;
 use App\Enums\QueueStatusEnum;
@@ -38,7 +37,6 @@ class ClientController extends Controller
         private readonly BaseOauthUrlBusiness $baseOauthUrlBusiness,
         private readonly SettingServiceBusiness $settingsServiceBusiness,
         private readonly TemplateIncludeBusiness $templateIncludeBusiness,
-        private readonly SyncEndpointBusiness $syncEndpointBusiness,
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly QueueRepository $queueRepository,
         private readonly ClientSettingsServiceOptionRepository $clientSettingsServiceOptionRepository,
@@ -123,25 +121,6 @@ class ClientController extends Controller
         }
         
         return redirect()->route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', trans('general.saved'));
-    }
-
-    public function sync(string $countryCode, string $serviceUrlPath, string $language, string $eshopId, Request $request): \Illuminate\Http\RedirectResponse
-    {
-        $country = CountryEnum::getByValue($countryCode);
-        try {
-            $service = $this->serviceRepository->getByUrlPath($serviceUrlPath);
-            $client = $this->clientRepository->getByEshopId((int) $request->input('eshop_id'));
-        } catch (Throwable) {
-            abort(404, __('general.wrong_url'));
-        }
-        try {
-            $this->syncEndpointBusiness->syncClientService($client, $service);
-        } catch (Throwable $t) {
-            LoggerHelper::log('Webhook failed: ' . $t->getMessage());
-            return redirect()->route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));
-        }
-
-        return redirect()->route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('success', trans('general.synced_scheduled'));
     }
 
     public function job(Request $request): Response
