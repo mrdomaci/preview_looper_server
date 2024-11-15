@@ -107,77 +107,77 @@ class FileProductToDBCommand extends AbstractCommand
                         'producer' => (isset($productData['brand']) ? $productData['brand']['name'] : null),
                     ];
                     $guids[] = ($productData['guid'] ?? '');
+                    if (isset($productData['variants']) && is_array($productData['variants'])) {
+                        foreach ($productData['variants'] as $variant) {
+                            $productVariant = $product;
 
-                    foreach ($productData['variants'] as $variant) {
-                        $productVariant = $product;
+                            $availabilityName = null;
+                            $availabilityId = null;
+                            $isNegativeStockAllowed = false;
+                            $stock = (isset($variant['stock']) ? (float) $variant['stock'] : 0);
+                            $image = StringHelper::removeParameter(($variant['image'] ?? ''));
 
-                        $availabilityName = null;
-                        $availabilityId = null;
-                        $isNegativeStockAllowed = false;
-                        $stock = (isset($variant['stock']) ? (float) $variant['stock'] : 0);
-                        $image = StringHelper::removeParameter(($variant['image'] ?? ''));
-
-                        if (ArrayHelper::containsKey($variant, 'availability') === true) {
-                            if ($variant['availability'] !== null) {
-                                $availabilityName = ($variant['availability']['name'] ?? null);
-                                $availabilityId = (isset($variant['availability']['id']) ? (string) $variant['availability']['id'] : '');
-                            }
-                        }
-                        if ($availabilityName === null && $stock <= 0) {
-                            if (ArrayHelper::containsKey($variant, 'availabilityWhenSoldOut') === true) {
-                                if ($variant['availabilityWhenSoldOut'] !== null) {
-                                    $availabilityName = (isset($variant['availabilityWhenSoldOut']['name']) ? $variant['availability']['name'] : null);
-                                    $availabilityId = (isset($variant['availabilityWhenSoldOut']['id']) ? (string) $variant['availability']['id'] : '');
+                            if (ArrayHelper::containsKey($variant, 'availability') === true) {
+                                if ($variant['availability'] !== null) {
+                                    $availabilityName = ($variant['availability']['name'] ?? null);
+                                    $availabilityId = (isset($variant['availability']['id']) ? (string) $variant['availability']['id'] : '');
                                 }
                             }
-                        }
-                        $variantName = '';
-                        if (isset($productVariant['name']) && $productVariant['name'] !== null) {
-                            $variantName = $productVariant['name'];
-                        }
-                        if (ArrayHelper::containsKey($variant, 'name') && $variant['name'] !== null) {
-                            $variantName .= ' ' . $variant['name'];
-                        }
-
-                        if (ArrayHelper::containsKey($variant, 'negativeStockAllowed')) {
-                            if ($variant['negativeStockAllowed'] === 'yes') {
-                                $isNegativeStockAllowed = true;
-                            } elseif ($variant['negativeStockAllowed'] === 'yes-global') {
-                                $isNegativeStockAllowed = true;
+                            if ($availabilityName === null && $stock <= 0) {
+                                if (ArrayHelper::containsKey($variant, 'availabilityWhenSoldOut') === true) {
+                                    if ($variant['availabilityWhenSoldOut'] !== null) {
+                                        $availabilityName = (isset($variant['availabilityWhenSoldOut']['name']) ? $variant['availability']['name'] : null);
+                                        $availabilityId = (isset($variant['availabilityWhenSoldOut']['id']) ? (string) $variant['availability']['id'] : '');
+                                    }
+                                }
                             }
-                        }
-
-                        if ($availabilityId === null) {
-                            if ($stock > 0 && $onStockAvailability !== null) {
-                                $availabilityName = $onStockAvailability->getName();
-                                $availabilityId = (string) $onStockAvailability->getId();
-                            } else if ($isNegativeStockAllowed === true && $soldOutNegativeStockAllowed !== null) {
-                                $availabilityName = $soldOutNegativeStockAllowed->getName();
-                                $availabilityId = (string) $soldOutNegativeStockAllowed->getId();
-                            } else if ($soldOutNegativeStockForbidden !== null) {
-                                $availabilityName = $soldOutNegativeStockForbidden->getName();
-                                $availabilityId = (string) $soldOutNegativeStockForbidden->getId();
+                            $variantName = '';
+                            if (isset($productVariant['name']) && $productVariant['name'] !== null) {
+                                $variantName = $productVariant['name'];
                             }
-                        }
-                        $price = '0';
-                        if (ArrayHelper::containsKey($variant, 'price') && $variant['price'] !== null) {
-                            $price = $variant['price'];
-                        }
-                        $productVariant['code'] = $variant['code'] ?? '';
-                        $productVariant['name'] .=  isset($variant['name']) ? ' ' . $variant['name'] : '';
-                        $productVariant['stock'] = $stock;
-                        $productVariant['unit'] = $variant['unit'] ?? '';
-                        $productVariant['price'] = Currency::formatPrice($price, $variant['currencyCode']);
-                        $productVariant['availability_name'] = $availabilityName;
-                        //$productVariant['availability_id'] = $availabilityId;
-                        $productVariant['is_negative_stock_allowed'] = $isNegativeStockAllowed;
-                        $productVariant['foreign_id'] = StringHelper::getIdFromImage($image);
-                        $productVariant['image_url'] = StringHelper::removeParameter($image);
+                            if (ArrayHelper::containsKey($variant, 'name') && $variant['name'] !== null) {
+                                $variantName .= ' ' . $variant['name'];
+                            }
 
-                        $products[] = $productVariant;
+                            if (ArrayHelper::containsKey($variant, 'negativeStockAllowed')) {
+                                if ($variant['negativeStockAllowed'] === 'yes') {
+                                    $isNegativeStockAllowed = true;
+                                } elseif ($variant['negativeStockAllowed'] === 'yes-global') {
+                                    $isNegativeStockAllowed = true;
+                                }
+                            }
+
+                            if ($availabilityId === null) {
+                                if ($stock > 0 && $onStockAvailability !== null) {
+                                    $availabilityName = $onStockAvailability->getName();
+                                    $availabilityId = (string) $onStockAvailability->getId();
+                                } else if ($isNegativeStockAllowed === true && $soldOutNegativeStockAllowed !== null) {
+                                    $availabilityName = $soldOutNegativeStockAllowed->getName();
+                                    $availabilityId = (string) $soldOutNegativeStockAllowed->getId();
+                                } else if ($soldOutNegativeStockForbidden !== null) {
+                                    $availabilityName = $soldOutNegativeStockForbidden->getName();
+                                    $availabilityId = (string) $soldOutNegativeStockForbidden->getId();
+                                }
+                            }
+                            $price = '0';
+                            if (ArrayHelper::containsKey($variant, 'price') && $variant['price'] !== null) {
+                                $price = $variant['price'];
+                            }
+                            $productVariant['code'] = $variant['code'] ?? '';
+                            $productVariant['name'] .=  isset($variant['name']) ? ' ' . $variant['name'] : '';
+                            $productVariant['stock'] = $stock;
+                            $productVariant['unit'] = $variant['unit'] ?? '';
+                            $productVariant['price'] = Currency::formatPrice($price, $variant['currencyCode']);
+                            $productVariant['availability_name'] = $availabilityName;
+                            //$productVariant['availability_id'] = $availabilityId;
+                            $productVariant['is_negative_stock_allowed'] = $isNegativeStockAllowed;
+                            $productVariant['foreign_id'] = StringHelper::getIdFromImage($image);
+                            $productVariant['image_url'] = StringHelper::removeParameter($image);
+
+                            $products[] = $productVariant;
+                        }
                     }
-                    // TODO ->add categories bindings
-                    if (isset($productData['categories'])) {
+                    if (isset($productData['categories']) && is_array($productData['categories'])) {
                         foreach ($productData['categories'] as $category) {
                             if (!isset($category['guid'])) {
                                 continue;
@@ -228,6 +228,7 @@ class FileProductToDBCommand extends AbstractCommand
             $clientServiceQueue->next();
             $clientService->setProductsLastSyncedAt(new DateTime());
             $clientService->save();
+            $this->info('Client service ' . $clientService->getId() . ' file product next');
         }
         return Command::SUCCESS;
     }

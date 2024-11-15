@@ -6,9 +6,8 @@ namespace App\Http\Controllers;
 
 use App\Businesses\InstallBusiness;
 use App\Enums\CountryEnum;
-use App\Helpers\LoggerHelper;
-use App\Helpers\WebHookHelper;
 use App\Repositories\ClientRepository;
+use App\Repositories\ClientServiceQueueRepository;
 use App\Repositories\ServiceRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -20,6 +19,7 @@ class InstallController extends Controller
         private readonly InstallBusiness $installBusiness,
         private readonly ServiceRepository $serviceRepository,
         private readonly ClientRepository $clientRepository,
+        private readonly ClientServiceQueueRepository $clientServiceQueueRepository
     ) {
     }
     public function install(string $countryCode, string $serviceUrlPath, Request $request): Response
@@ -37,11 +37,7 @@ class InstallController extends Controller
         }
 
         $clientService = $this->installBusiness->install($country, $code, $service);
-
-        $webhookResponse = WebHookHelper::webhookResolver($clientService);
-        if ($webhookResponse->failed()) {
-            LoggerHelper::log('Webhook failed: ' . $webhookResponse->body() . ', Status code: ' . $webhookResponse->status());
-        }
+        $this->clientServiceQueueRepository->createOrIgnore($clientService);
         return Response('ok', 200);
     }
 

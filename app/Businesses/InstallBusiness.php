@@ -9,11 +9,11 @@ use App\Enums\CountryEnum;
 use App\Helpers\AuthorizationHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
-use App\Helpers\WebHookHelper;
 use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\Service;
 use App\Repositories\ClientRepository;
+use App\Repositories\ClientServiceQueueRepository;
 use App\Repositories\ClientServiceRepository;
 
 class InstallBusiness
@@ -21,6 +21,7 @@ class InstallBusiness
     public function __construct(
         private ClientRepository $clientRepository,
         private ClientServiceRepository $clientServiceRepository,
+        private ClientServiceQueueRepository $clientServiceQueueRepository
     ) {
     }
     public function install(CountryEnum $country, string $code, Service $service): ClientService
@@ -50,8 +51,8 @@ class InstallBusiness
 
     public function activate(Service $service, Client $client): void
     {
-        $clientSevice = $this->clientServiceRepository->updateStatus($client, $service, ClientServiceStatusEnum::ACTIVE);
+        $clientService = $this->clientServiceRepository->updateStatus($client, $service, ClientServiceStatusEnum::ACTIVE);
         LoggerHelper::log('Client ' . $client->getId() . ' activated');
-        WebHookHelper::webhookResolver($clientSevice);
+        $this->clientServiceQueueRepository->createOrIgnore($clientService);
     }
 }
