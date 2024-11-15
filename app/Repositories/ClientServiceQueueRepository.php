@@ -33,6 +33,7 @@ class ClientServiceQueueRepository
             ->whereHas('clientService', function ($query) {
                 $query->where('update_in_process', false);
             })
+            ->where('created_at', '<', now())
             ->orderBy('created_at')
             ->first();
     }

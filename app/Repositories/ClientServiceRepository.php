@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Enums\ClientServiceQueueStatusEnum;
 use App\Enums\ClientServiceStatusEnum;
 use App\Enums\CountryEnum;
 use App\Exceptions\DataNotFoundException;
@@ -68,8 +69,8 @@ class ClientServiceRepository
         ->where(function ($query) use ($dateLastSync) {
             $query->where('webhooked_at', '<=', $dateLastSync)
               ->orWhereNull('webhooked_at');
-        })->whereDoesntHave('clientServiceQueues', function ($query) use ($dateLastSync) {
-            $query->where('created_at', '>', $dateLastSync);
+        })->whereDoesntHave('clientServiceQueues', function ($query) {
+            $query->where('status', '!=', ClientServiceQueueStatusEnum::DONE->name);
         })->orderBy('webhooked_at', 'asc');
         if ($service !== null) {
             $q->where('service_id', $service->getId());
