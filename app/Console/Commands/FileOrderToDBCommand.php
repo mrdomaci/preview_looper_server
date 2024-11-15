@@ -66,10 +66,16 @@ class FileOrderToDBCommand extends AbstractCommand
                 $clientService->setUpdateInProgress(true);
                 while (($line = fgets($txtFile)) !== false) {
                     $orderData = json_decode($line, true);
+                    if (!isset($orderData['guid'])) {
+                        continue;
+                    }
+                    if (!isset($orderData['status']['id'])) {
+                        continue;
+                    }
                     $orders[] = [
                         'client_id' => $client->id,
-                        'guid' => ($orderData['guid'] ?? ''),
-                        'code' => ($orderData['code'] ?? ''),
+                        'guid' => $orderData['guid'],
+                        'code' => $orderData['code'],
                         'created_at' => (isset($orderData['creationTime']) ? new DateTime($orderData['creationTime']) : new DateTime()),
                         'full_name' => '',
                         'company' => '',
