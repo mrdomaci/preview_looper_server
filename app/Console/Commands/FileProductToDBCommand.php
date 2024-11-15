@@ -135,8 +135,8 @@ class FileProductToDBCommand extends AbstractCommand
                                 if (is_array($variant) && ArrayHelper::containsKey($variant, 'availabilityWhenSoldOut') === true) {
                                     if ($variant['availabilityWhenSoldOut'] !== null) {
                                         if (is_array($variant['availabilityWhenSoldOut'])) {
-                                            $availabilityName = (isset($variant['availabilityWhenSoldOut']['name']) ? $variant['availability']['name'] : null);
-                                            $availabilityId = (isset($variant['availabilityWhenSoldOut']['id']) ? (string) $variant['availability']['id'] : '');
+                                            $availabilityName = (isset($variant['availabilityWhenSoldOut']['name']) ? $variant['availabilityWhenSoldOut']['name'] : null);
+                                            $availabilityId = (isset($variant['availabilityWhenSoldOut']['id']) ? (string) $variant['availabilityWhenSoldOut']['id'] : '');
                                         }
                                     }
                                 }
