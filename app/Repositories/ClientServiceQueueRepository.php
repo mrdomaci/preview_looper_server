@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Enums\ClientServiceQueueStatusEnum;
+use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\DataNotFoundException;
 use App\Models\ClientService;
 use App\Models\ClientServiceQueue;
@@ -22,6 +23,7 @@ class ClientServiceQueueRepository
             $clientServiceQueue = ClientServiceQueue::create([
                 'client_service_id' => $clientService->getId(),
                 'status' => ClientServiceQueueStatusEnum::CLIENTS->name,
+                'queued_at' => now(),
             ]);
         }
         return $clientServiceQueue;
@@ -31,10 +33,11 @@ class ClientServiceQueueRepository
     {
         return ClientServiceQueue::where('status', $status->name)
             ->whereHas('clientService', function ($query) {
-                $query->where('update_in_process', false);
+                $query->where('update_in_process', false)
+                    ->where('status', ClientServiceStatusEnum::ACTIVE->name);
             })
-            ->where('created_at', '<', now())
-            ->orderBy('created_at')
+            ->where('queued_at', '<', now())
+            ->orderBy('queued_at')
             ->first();
     }
 
