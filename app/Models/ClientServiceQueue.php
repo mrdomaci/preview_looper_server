@@ -19,6 +19,11 @@ class ClientServiceQueue extends Model
     protected $fillable = [
         'status',
         'client_service_id',
+        'queued_at',
+    ];
+
+    protected $casts = [
+        'queued_at' => 'datetime',
     ];
 
     public function clientService(): BelongsTo
