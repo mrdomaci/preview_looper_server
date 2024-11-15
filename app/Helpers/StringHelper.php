@@ -31,9 +31,12 @@ class StringHelper
         return $value[0];
     }
 
-    public static function getSingelRegexResult(string $pattern, string $subject): string
+    public static function getSingelRegexResult(string $pattern, string $subject): ?string
     {
         preg_match($pattern, $subject, $matches);
+        if (count($matches) === 0) {
+            return null;
+        }
         return $matches[0];
     }
 
