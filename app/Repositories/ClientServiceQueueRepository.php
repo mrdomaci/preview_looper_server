@@ -49,4 +49,17 @@ class ClientServiceQueueRepository
         }
         return $entity;
     }
+
+    public function prune(): void
+    {
+        ClientServiceQueue::where('status', ClientServiceQueueStatusEnum::DONE->name)
+            ->delete();
+
+        ClientServiceQueue::where('created_at', '<', now()->subDays(2))
+            ->delete();
+
+        ClientServiceQueue::join('client_services', 'client_services.id', '=', 'client_service_queues.client_service_id')
+            ->where('client_services.status', ClientServiceStatusEnum::DELETED->name)
+            ->delete();
+    }
 }

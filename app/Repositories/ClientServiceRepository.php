@@ -66,6 +66,7 @@ class ClientServiceRepository
     {
         $q = ClientService::where('status', ClientServiceStatusEnum::ACTIVE)
         ->where('update_in_process', '=', 0)
+        ->where('status', ClientServiceStatusEnum::ACTIVE->name)
         ->where(function ($query) use ($dateLastSync) {
             $query->where('webhooked_at', '<=', $dateLastSync)
               ->orWhereNull('webhooked_at');
@@ -77,14 +78,6 @@ class ClientServiceRepository
         }
 
         return $q->firstOrFail();
-    }
-
-    public function hasActiveService(Client $client, Service $service): bool
-    {
-        return ClientService::where('client_id', $client->getId())
-            ->where('service_id', $service->getId())
-            ->where('status', ClientServiceStatusEnum::ACTIVE)
-            ->exists();
     }
 
     public function getByClientAndService(Client $client, Service $service): ClientService
