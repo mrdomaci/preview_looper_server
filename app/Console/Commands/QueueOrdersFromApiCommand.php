@@ -79,6 +79,7 @@ class QueueOrdersFromApiCommand extends AbstractClientServiceCommand
             return Command::FAILURE;
         }
         $clientService->setUpdateInProgress(false);
+        $this->info('Client service ' . $clientService->getId() . ' queue order');
         return Command::SUCCESS;
     }
 }

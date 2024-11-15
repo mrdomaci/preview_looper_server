@@ -120,7 +120,7 @@ class FileOrderToDBCommand extends AbstractCommand
                     $this->orderRepository->bulkCreateOrUpdate($orders);
                     $this->orderProductRepository->bulkCreateOrIgnore($orderProducts);
                 }
-
+                $this->info('Client service ' . $clientService->getId() . ' file order');
                 $clientService->setUpdateInProgress(false);
             } catch (\Throwable $e) {
                 $this->error("Error processing the order snapshot file: {$e->getMessage()}");

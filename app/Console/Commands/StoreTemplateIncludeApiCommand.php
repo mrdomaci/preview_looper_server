@@ -67,6 +67,7 @@ class StoreTemplateIncludeApiCommand extends AbstractClientServiceCommand
         }
 
         $clientService->setUpdateInProgress(false);
+        $this->info('Client service ' . $clientService->getId() . ' templates');
         return Command::SUCCESS;
     }
 }

@@ -79,6 +79,7 @@ class SnapshotProductToDBCommand extends AbstractCommand
 
             gzclose($gz);
             $clientService->setUpdateInProgress(false);
+            $this->info('Client service ' . $clientService->getId() . ' snaphot products');
             $clientServiceQueue->next();
         }
         return Command::SUCCESS;

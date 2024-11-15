@@ -67,6 +67,7 @@ class StoreAvailabilitiesFromApiCommand extends AbstractClientCommand
             return Command::FAILURE;
         }
         $clientService->setUpdateInProgress(false);
+        $this->info('Client service ' . $clientService->getId() . ' availabilities');
         return Command::SUCCESS;
     }
 }

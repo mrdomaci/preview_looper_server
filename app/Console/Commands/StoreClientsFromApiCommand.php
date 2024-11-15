@@ -67,6 +67,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
         }
 
         $clientService->setUpdateInProgress(false);
+        $this->info('Client service ' . $clientService->getId() . ' client updated');
         return Command::SUCCESS;
     }
 }
