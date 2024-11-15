@@ -86,6 +86,9 @@ class FileProductToDBCommand extends AbstractCommand
                             return $a['priority'] <=> $b['priority'];
                         });
                         foreach ($productData['images'] as $image) {
+                            if (!isset($image['seoName'])) {
+                                continue;
+                            }
                             $images[] = $image['seoName'];
                         }
                         $images = json_encode($images);
@@ -188,8 +191,8 @@ class FileProductToDBCommand extends AbstractCommand
                                 'name' => $category['name'],
                             ];
                             $productCategories[] = [
-                                'product_guid' => $productData['guid'],
-                                'category_guid' => $category['guid'],
+                                'product_guid' => $productData['guid'] ?? '',
+                                'category_guid' => $category['guid'] ?? '',
                                 'client_id' => $client->getId(),
                             ];
                         }
