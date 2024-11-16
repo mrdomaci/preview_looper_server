@@ -54,7 +54,7 @@ class ProductController extends Controller
         $header = $this->clientSettingsServiceOptionRepository->getUpsellHeader($client);
         $productRecommendations = $this->productRecommendationBusiness->recommend($products, $client);
 
-        return response()->json(['header' => $header ?? '', 'recommendations' => $productRecommendations]);
+        return response()->json(['header' => $header ?? '', 'recommendations' => array_values($productRecommendations)]);
     }
 
     public function getData(int $clientId, string $name): Collection
