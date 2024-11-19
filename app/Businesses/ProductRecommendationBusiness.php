@@ -15,7 +15,7 @@ use Throwable;
 
 class ProductRecommendationBusiness
 {
-    /** @var array<int, Product> */
+    /** @var array<string, Product> */
     private array $recommendations = [];
     public function __construct(
         private OrderProductRepository $orderProductRepository,
@@ -28,7 +28,7 @@ class ProductRecommendationBusiness
     /**
      * @param Collection<Product> $products
      * @param Client $client
-     * @return array <int, Product>
+     * @return array <string, Product>
      */
     public function recommend(Collection $products, Client $client)
     {
@@ -81,8 +81,9 @@ class ProductRecommendationBusiness
      */
     private function filterProductsInCart(Collection $products): void
     {
+        /** @var Product $product */
         foreach ($products as $product) {
-            unset($this->recommendations[$product->getId()]);
+            unset($this->recommendations[$product->getGuid()]);
         }
     }
 }

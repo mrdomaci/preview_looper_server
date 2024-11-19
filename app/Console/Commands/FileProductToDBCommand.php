@@ -135,7 +135,7 @@ class FileProductToDBCommand extends AbstractCommand
                                 if (is_array($variant) && ArrayHelper::containsKey($variant, 'availabilityWhenSoldOut') === true) {
                                     if ($variant['availabilityWhenSoldOut'] !== null) {
                                         if (is_array($variant['availabilityWhenSoldOut'])) {
-                                            $availabilityName = (isset($variant['availabilityWhenSoldOut']['name']) ? $variant['availabilityWhenSoldOut']['name'] : null);
+                                            $availabilityName = ($variant['availabilityWhenSoldOut']['name'] ?? null);
                                             $availabilityId = (isset($variant['availabilityWhenSoldOut']['id']) ? (string) $variant['availabilityWhenSoldOut']['id'] : '');
                                         }
                                     }
@@ -226,7 +226,6 @@ class FileProductToDBCommand extends AbstractCommand
                 $clientService->setUpdateInProgress(false);
                 $this->info('Client service ' . $clientService->getId() . ' file product');
             } catch (\Throwable $e) {
-                dd($e);
                 $this->error("Error processing the product snapshot file: {$e->getMessage()}");
                 return Command::FAILURE;
             }
