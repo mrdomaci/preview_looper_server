@@ -46,7 +46,7 @@ class ClientServiceQueue extends Model
         return ClientServiceQueueStatusEnum::fromCase($this->getAttribute('status'));
     }
 
-    public function next(): void
+    public function next(): self
     {
         $clientService = $this->clientService()->first();
         $clientServiceStatus = $this->getStatus();
@@ -56,5 +56,6 @@ class ClientServiceQueue extends Model
             $clientService->setSyncedAt(new DateTime());
             $clientService->save();
         }
+        return $this;
     }
 }

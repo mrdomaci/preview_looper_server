@@ -9,24 +9,31 @@ use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\DataNotFoundException;
 use App\Models\ClientService;
 use App\Models\ClientServiceQueue;
+use DateTime;
 use Throwable;
 
 class ClientServiceQueueRepository
 {
-    public function createOrIgnore(ClientService $clientService): ClientServiceQueue
+    public function createOrIgnore(ClientService $clientService): ?ClientServiceQueue
     {
         try {
             $clientServiceQueue = ClientServiceQueue::where('client_service_id', $clientService->getId())
                 ->where('status', '!=', ClientServiceQueueStatusEnum::DONE->name)
                 ->firstOrFail();
+            return null;
         } catch (Throwable) {
-            $clientServiceQueue = ClientServiceQueue::create([
-                'client_service_id' => $clientService->getId(),
-                'status' => ClientServiceQueueStatusEnum::CLIENTS->name,
-                'queued_at' => now(),
-            ]);
+            if ($clientService->getWebhoodAt() === null || $clientService->getWebhoodAt() < (new DateTime('-6 hours'))) {
+                $clientServiceQueue = ClientServiceQueue::create([
+                    'client_service_id' => $clientService->getId(),
+                    'status' => ClientServiceQueueStatusEnum::CLIENTS->name,
+                    'queued_at' => new DateTime(),
+                ]);
+                $clientService->setWebhoodAt(new DateTime());
+                $clientService->save();
+                return $clientServiceQueue;
+            }
         }
-        return $clientServiceQueue;
+        return null;
     }
 
     public function getNext(ClientServiceQueueStatusEnum $status): ?ClientServiceQueue
@@ -36,7 +43,10 @@ class ClientServiceQueueRepository
                 $query->where('update_in_process', false)
                     ->where('status', ClientServiceStatusEnum::ACTIVE->name);
             })
-            ->where('queued_at', '<', now())
+            ->where(function ($query) {
+                $query->where('queued_at', '<', now())
+                      ->orWhereNull('queued_at');
+            })
             ->orderBy('queued_at')
             ->first();
     }

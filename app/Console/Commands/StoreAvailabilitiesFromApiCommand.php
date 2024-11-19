@@ -61,12 +61,15 @@ class StoreAvailabilitiesFromApiCommand extends AbstractClientCommand
             $clientService->setStatusDeleted();
         } catch (AddonSuspendedException $e) {
             $clientService->setStatusInactive();
+            $clientService->setUpdateInProgress(false);
         } catch (Throwable $e) {
             $this->error($e->getMessage());
             LoggerHelper::log('Error updating availabilities for client service id: ' . $clientService->getId() . ' ' . $e->getMessage());
+            $clientService->setUpdateInProgress(false);
             return Command::FAILURE;
+        } finally {
+            $clientService->setUpdateInProgress(false);
         }
-        $clientService->setUpdateInProgress(false);
         $this->info('Client service ' . $clientService->getId() . ' availabilities');
         return Command::SUCCESS;
     }
