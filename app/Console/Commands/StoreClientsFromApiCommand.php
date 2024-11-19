@@ -63,10 +63,12 @@ class StoreClientsFromApiCommand extends AbstractCommand
         } catch (Throwable $e) {
             $this->error($e->getMessage());
             LoggerHelper::log('Error updating client for client service id: ' . $clientService->getId() . ' ' . $e->getMessage());
+            $clientService->setUpdateInProgress(false);
             return Command::FAILURE;
+        } finally {
+            $clientService->setUpdateInProgress(false);
         }
 
-        $clientService->setUpdateInProgress(false);
         $this->info('Client service ' . $clientService->getId() . ' client updated');
         return Command::SUCCESS;
     }

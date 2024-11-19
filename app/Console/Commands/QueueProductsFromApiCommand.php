@@ -81,14 +81,16 @@ class QueueProductsFromApiCommand extends AbstractCommand
         } catch (ApiRequestTooManyRequestsException $t) {
             $this->error('Error updating products due to too many requests ' . $t->getMessage());
             LoggerHelper::log('Error updating products due to too many requests ' . $t->getMessage());
+            $clientService->setUpdateInProgress(false);
             return Command::FAILURE;
         } catch (Throwable $t) {
             $this->error('Error updating products ' . $t->getMessage());
             LoggerHelper::log('Error updating products ' . $t->getMessage());
+            $clientService->setUpdateInProgress(false);
             return Command::FAILURE;
+        } finally {
+            $clientService->setUpdateInProgress(false);
         }
-        
-        $clientService->setUpdateInProgress(false);
         $this->info('Client service ' . $clientService->getId() . ' queue products');
         return Command::SUCCESS;
     }

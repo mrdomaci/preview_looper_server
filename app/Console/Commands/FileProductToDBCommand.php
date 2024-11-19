@@ -223,18 +223,23 @@ class FileProductToDBCommand extends AbstractCommand
                     $this->productCategoryRepository->dropForProducts($guids, $client);
                     $this->productCategoryRepository->bulkCreateOrUpdate($productCategories);
                 }
-                $clientService->setUpdateInProgress(false);
                 $this->info('Client service ' . $clientService->getId() . ' file product');
             } catch (\Throwable $e) {
                 $this->error("Error processing the product snapshot file: {$e->getMessage()}");
+                $clientService->setUpdateInProgress(false);
                 return Command::FAILURE;
+            } finally {
+                $clientService->setUpdateInProgress(false);
             }
             fclose($txtFile);
             Storage::delete($txtFilePath);
         } else {
-            $clientServiceQueue->next();
+            $clientServiceQueue = $clientServiceQueue->next();
             $clientService->setProductsLastSyncedAt(new DateTime());
             $clientService->save();
+            if ($clientServiceQueue->getStatus()->name === ClientServiceQueueStatusEnum::DONE->name) {
+                $this->clientServiceQueueRepository->createOrIgnore($clientService);
+            }
             $this->info('Client service ' . $clientService->getId() . ' file product next');
         }
         return Command::SUCCESS;

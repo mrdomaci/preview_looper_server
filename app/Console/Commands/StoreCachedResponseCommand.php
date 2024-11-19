@@ -50,9 +50,11 @@ class StoreCachedResponseCommand extends AbstractClientServiceCommand
         } catch (Throwable $t) {
             $this->info('Error caching products for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
             LoggerHelper::log('Error caching products for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
+            $clientService->setUpdateInProgress(false);
             return Command::FAILURE;
+        } finally {
+            $clientService->setUpdateInProgress(false);
         }
-        $clientService->setUpdateInProgress(false);
         $this->info('Client service ' . $clientService->getId() . ' cached');
         return Command::SUCCESS;
     }

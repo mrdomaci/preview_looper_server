@@ -127,18 +127,24 @@ class FileOrderToDBCommand extends AbstractCommand
                     $this->orderProductRepository->bulkCreateOrIgnore($orderProducts);
                 }
                 $this->info('Client service ' . $clientService->getId() . ' file order');
-                $clientService->setUpdateInProgress(false);
             } catch (\Throwable $e) {
                 $this->error("Error processing the order snapshot file: {$e->getMessage()}");
+                $clientService->setUpdateInProgress(false);
                 return Command::FAILURE;
+            } finally {
+                $clientService->setUpdateInProgress(false);
             }
 
             fclose($txtFile);
             Storage::delete($txtFilePath);
         } else {
-            $clientServiceQueue->next();
+            $clientServiceQueue = $clientServiceQueue->next();
             $clientService->setOrdersLastSyncedAt(new DateTime());
             $clientService->save();
+            if ($clientServiceQueue->getStatus()->name === ClientServiceQueueStatusEnum::DONE->name) {
+                $this->clientServiceQueueRepository->createOrIgnore($clientService);
+            }
+            $this->info('Client service ' . $clientService->getId() . ' file order next');
         }
         return Command::SUCCESS;
     }

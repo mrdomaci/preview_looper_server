@@ -63,10 +63,11 @@ class StoreTemplateIncludeApiCommand extends AbstractClientServiceCommand
         } catch (Throwable $t) {
             $this->error('Error updating template for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
             LoggerHelper::log('Error updating template for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
+            $clientService->setUpdateInProgress(false);
             return Command::FAILURE;
+        } finally {
+            $clientService->setUpdateInProgress(false);
         }
-
-        $clientService->setUpdateInProgress(false);
         $this->info('Client service ' . $clientService->getId() . ' templates');
         return Command::SUCCESS;
     }
