@@ -51,14 +51,15 @@ class StoreTemplateIncludeApiCommand extends AbstractClientServiceCommand
         $clientService->setUpdateInProgress(true);
 
         try {
-            $body = ConnectorBodyHelper::getStringBodyForTemplateInclude(
-                $clientService->service()->first(),
-                $clientService->client()->first()
-            );
-            $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
-            if ($templateIncludeResponse->getTemplateIncludes() === []) {
-                LoggerHelper::log('Template include failed for client service' . $clientService->getId());
-            }
+            // $body = ConnectorBodyHelper::getStringBodyForTemplateInclude(
+            //     $clientService->service()->first(),
+            //     $clientService->client()->first()
+            // );
+           // $templateIncludeResponse = ConnectorHelper::postTemplateInclude($clientService, $body);
+            // if ($templateIncludeResponse->getTemplateIncludes() === []) {
+            //     LoggerHelper::log('Template include failed for client service' . $clientService->getId());
+            // }
+            ConnectorHelper::deleteTemplateInclude($clientService);
             $clientServiceQueue->next();
         } catch (Throwable $t) {
             $this->error('Error updating template for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
