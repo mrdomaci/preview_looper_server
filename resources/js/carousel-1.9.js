@@ -1,14 +1,22 @@
-let pw_image_prefix;
-let pw_global_products = [];
-let pw_running_interval;
-let pw_is_running = false;
-
+const pw_carousel_settings = document.getElementById('dynamic-preview-images');
 let pw_i_r = '0';
-let pw_r_t_d = '0';
+let pw_r_t_d ='0';
 let pw_s_t = 1500;
 let pw_i_l = 500;
 let pw_a_t = 'all';
 let pw_m_i = 'circles';
+if (pw_carousel_settings) {
+  pw_i_r = pw_carousel_settings.getAttribute('data-dynamic-preview-images-infinite-repeat') || '0';
+  pw_r_t_d = pw_carousel_settings.getAttribute('data-dynamic-preview-images-return-to-default') || '0';
+  pw_s_t = pw_carousel_settings.getAttribute('data-dynamic-preview-images-show-time') || 1500;
+  pw_i_l = pw_carousel_settings.getAttribute('data-dynamic-preview-images-initial-loop') || 500;
+  pw_a_t = pw_carousel_settings.getAttribute('data-dynamic-preview-images-apply-to') || 'all';
+  pw_m_i = pw_carousel_settings.getAttribute('data-dynamic-preview-images-mobile-icons') || 'circles';
+}
+let pw_image_prefix;
+let pw_global_products = [];
+let pw_running_interval;
+let pw_is_running = false;
 
 const pw_project_id = getShoptetDataLayer('projectId');
 const pw_products = [];
@@ -36,12 +44,6 @@ if (pw_elements.length > 0) {
 
 function checkForNewProducts() {
   let pw_missing_products = [];
-  pw_i_r = sessionStorage.getItem('pw_infinite_repeat') || '0';
-  pw_r_t_d = sessionStorage.getItem('pw_return_to_default') || '0';
-  pw_s_t = sessionStorage.getItem('pw_show_time') || 1500;
-  pw_i_l = sessionStorage.getItem('pw_initial_loop') || 500;
-  pw_a_t = sessionStorage.getItem('pw_apply_to') || 'all';
-  pw_m_i = sessionStorage.getItem('pw_mobile_icons') || 'circles';
   let pw_current_product_elements = document.querySelectorAll('[data-micro="product"]:not([data-pw-init="true"]');
   for (let i = 0; i < pw_current_product_elements.length; i++) {
     const pw_current_element = pw_current_product_elements[i];
@@ -128,7 +130,13 @@ var pw_enter = function(pw_element) {
     }
     pw_img.src = pw_image_prefix + pw_image_name;
 
-    if (pw_i_r === '0' && pw_index === 0) {
+    if (pw_i_r === '0' && pw_index - 1 === pw_product.images.length - 1) {
+      if (pw_r_t_d === '1') {
+        const pw_image_name_default = pw_product.images[0];
+        if (pw_image_name_default !== undefined) {
+          pw_img.src = pw_image_prefix + pw_image_name_default;
+        }
+      }
       stopLooping(pw_element);
     }
   };
@@ -257,16 +265,8 @@ async function initPreviewImages(pw_elements, response) {
   const db = await setupIndexedDB();
   const transaction = db.transaction(["pw_images"], "readwrite");
   const objectStore = transaction.objectStore("pw_images");
-  if (response) {
-    sessionStorage.setItem('pw_infinite_repeat', response.inifinite_repeat);
-    sessionStorage.setItem('pw_return_to_default', response.return_to_default);
-    sessionStorage.setItem('pw_show_time', response.show_time);
-    sessionStorage.setItem('pw_initial_loop', response.initial_loop);
-    sessionStorage.setItem('pw_apply_to', response.apply_to);
-    sessionStorage.setItem('pw_mobile_icons', response.mobile_icons);
-    for (const [index, value] of Object.entries(response.data)) {
-      objectStore.add({ id: index, images: value });
-    }
+  for (const [index, value] of Object.entries(response)) {
+    objectStore.add({ id: index, images: value });
   }
   for(const pw_element of pw_elements) {
     pw_element.setAttribute('data-pw-init', true);
