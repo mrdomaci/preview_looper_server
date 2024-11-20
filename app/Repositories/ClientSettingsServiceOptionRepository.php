@@ -100,6 +100,72 @@ class ClientSettingsServiceOptionRepository
         return null;
     }
 
+    public function getDynamicPreviewImagesInfiniteRepeat(Client $client): ?string
+    {
+        $result = ClientSettingsServiceOption::where('client_id', $client->getId())
+            ->where('settings_service_id', SettingsService::DYNAMIC_PREVIEW_IMAGES_INFINITE_REPEAT)
+            ->first();
+        if ($result !== null) {
+            return $result->settingsServiceOption()->first()?->getValue();
+        }
+        return null;
+    }
+
+    public function getDynamicPreviewImagesReturnToDefault(Client $client): ?string
+    {
+        $result = ClientSettingsServiceOption::where('client_id', $client->getId())
+            ->where('settings_service_id', SettingsService::DYNAMIC_PREVIEW_IMAGES_RETURN_TO_DEFAULT)
+            ->first();
+        if ($result !== null) {
+            return $result->settingsServiceOption()->first()?->getValue();
+        }
+        return null;
+    }
+
+    public function getDynamicPreviewImagesShowTime(Client $client): ?string
+    {
+        $result = ClientSettingsServiceOption::where('client_id', $client->getId())
+            ->where('settings_service_id', SettingsService::DYNAMIC_PREVIEW_IMAGES_SHOW_TIME)
+            ->first();
+        if ($result !== null) {
+            return $result->settingsServiceOption()->first()?->getValue();
+        }
+        return null;
+    }
+
+    public function getDynamicPreviewImagesInitialLoop(Client $client): ?string
+    {
+        $result = ClientSettingsServiceOption::where('client_id', $client->getId())
+            ->where('settings_service_id', SettingsService::DYNAMIC_PREVIEW_IMAGES_INITIAL_LOOP)
+            ->first();
+        if ($result !== null) {
+            return $result->settingsServiceOption()->first()?->getValue();
+        }
+        return null;
+    }
+
+    public function getDynamicPreviewImagesApplyTo(Client $client): ?string
+    {
+        $result = ClientSettingsServiceOption::where('client_id', $client->getId())
+            ->where('settings_service_id', SettingsService::DYNAMIC_PREVIEW_IMAGES_APPLY_TO)
+            ->first();
+        if ($result !== null) {
+            return $result->settingsServiceOption()->first()?->getValue();
+        }
+        return null;
+    }
+
+    public function getDynamicPreviewImagesMobileIcons(Client $client): ?string
+    {
+        $result = ClientSettingsServiceOption::where('client_id', $client->getId())
+            ->where('settings_service_id', SettingsService::DYNAMIC_PREVIEW_IMAGES_MOBILE_ICONS)
+            ->first();
+        if ($result !== null) {
+            return $result->settingsServiceOption()->first()?->getValue();
+        }
+        return null;
+    }
+
     public function updateOrCreate(Client $client, SettingsService $settingsService, ?SettingsServiceOption $settingsServiceOption, ?string $value): ClientSettingsServiceOption
     {
         try {
