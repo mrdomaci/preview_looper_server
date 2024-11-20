@@ -66,7 +66,7 @@ class SnapshotOrderToDBCommand extends AbstractCommand
                 $buffer .= $line;
                 $lineCount++;
     
-                if ($lineCount % 10000 === 0) {
+                if ($lineCount % 2000 === 0) {
                     Storage::put('snapshots/' . $fileIndex . '_' . $clientServiceQueue->getClientServiceId() . '_orders.txt', $buffer);
                     $buffer = '';
                     $lineCount = 0;
