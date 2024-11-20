@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Enums\ClientServiceQueueStatusEnum;
+use App\Exceptions\ApiRequestNonExistingResourceException;
 use App\Helpers\ConnectorBodyHelper;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
@@ -60,6 +61,8 @@ class StoreTemplateIncludeApiCommand extends AbstractClientServiceCommand
             //     LoggerHelper::log('Template include failed for client service' . $clientService->getId());
             // }
             ConnectorHelper::deleteTemplateInclude($clientService);
+            $clientServiceQueue->next();
+        } catch (ApiRequestNonExistingResourceException) {
             $clientServiceQueue->next();
         } catch (Throwable $t) {
             $this->error('Error updating template for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
