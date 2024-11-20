@@ -20,7 +20,7 @@ class Response
      * @param array<string, string> $errors
      */
     public function __construct(
-        private array $data,
+        private ?array $data,
         private ?array $errors = [],
     ) {
         if ($errors !== null) {
@@ -31,8 +31,11 @@ class Response
         }
     }
 
-    public function getPaginator(): Paginator
+    public function getPaginator(): ?Paginator
     {
+        if ($this->data === null) {
+            return null;
+        }
         if (ArrayHelper::containsKey($this->data, 'paginator') === false) {
             throw new ApiResponsePaginatorFailException(new Exception('Paginator not found in response'));
         }
