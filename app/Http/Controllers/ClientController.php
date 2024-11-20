@@ -36,7 +36,7 @@ class ClientController extends Controller
         private readonly AccessTokenBusiness $accessTokenBusiness,
         private readonly BaseOauthUrlBusiness $baseOauthUrlBusiness,
         private readonly SettingServiceBusiness $settingsServiceBusiness,
-        private readonly TemplateIncludeBusiness $templateIncludeBusiness,
+        //private readonly TemplateIncludeBusiness $templateIncludeBusiness,
         private readonly ClientServiceRepository $clientServiceRepository,
         private readonly QueueRepository $queueRepository,
         private readonly ClientSettingsServiceOptionRepository $clientSettingsServiceOptionRepository,
@@ -114,7 +114,7 @@ class ClientController extends Controller
 
         try {
             $this->settingsServiceBusiness->updateOrCreateFromRequest($request, $service, $client);
-            $this->templateIncludeBusiness->post($service, $client);
+            //$this->templateIncludeBusiness->post($service, $client);
         } catch (Throwable $t) {
             LoggerHelper::log('Settings save failed: ' . $t->getMessage());
             return redirect()->route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', trans('general.error'));

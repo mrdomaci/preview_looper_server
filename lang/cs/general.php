@@ -24,7 +24,7 @@ return [
     'sync_now' => 'Synchronizovat nyní',
     'sync_in_progress' => 'Synchronizace právě probíhá',
     'synced_scheduled' => 'Synchronizace byla přidána do fronty a bude provedena v nejbližší možné době',
-    'sync_info' => 'Synchronizace dat z Shoptet API jsou spouštěny pravidelně dvakrát denně. Prosím mějte strpení a vyzjoušejte nejdříve za půl dne.',
+    'sync_info' => 'Synchronizace dat z Shoptet API jsou spouštěny pravidelně dvakrát denně. Prosím mějte strpení a vyzkoušejte nejdříve za půl dne.',
     'data_sync' => 'Synchronizace dat',
     'insert' => 'Vložit',
     'product_search' => 'Zadejte alespoň první 3 znaky názvu produktu',
