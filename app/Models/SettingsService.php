@@ -14,6 +14,12 @@ class SettingsService extends Model
 {
     use HasFactory;
 
+    public const DYNAMIC_PREVIEW_IMAGES_INFINITE_REPEAT = 1;
+    public const DYNAMIC_PREVIEW_IMAGES_RETURN_TO_DEFAULT = 2;
+    public const DYNAMIC_PREVIEW_IMAGES_SHOW_TIME = 3;
+    public const DYNAMIC_PREVIEW_IMAGES_INITIAL_LOOP = 4;
+    public const DYNAMIC_PREVIEW_IMAGES_APPLY_TO = 5;
+    public const DYNAMIC_PREVIEW_IMAGES_MOBILE_ICONS = 6;
     public const UPSELL_MAX_RESULTS = 7;
     public const UPSELL_HEADER = 8;
     public const UPSELL_COMPANY_NAME = 9;
