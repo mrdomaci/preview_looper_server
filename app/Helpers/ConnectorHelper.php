@@ -133,6 +133,14 @@ class ConnectorHelper
         return $response->postTemplateIncluded();
     }
 
+    public static function deleteTemplateInclude(ClientService $clientService): bool
+    {
+        $request = new Request($clientService);
+        $request->deleteTemplateInclude();
+        $request->sendShoptet();
+        return true;
+    }
+
     public static function postWebhook(ClientService $clientService): bool
     {
         $request = new Request($clientService);

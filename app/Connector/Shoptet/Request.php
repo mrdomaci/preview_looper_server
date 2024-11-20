@@ -133,6 +133,13 @@ class Request
         return $this;
     }
 
+    public function deleteTemplateInclude(): Request
+    {
+        $this->setMethod(TemplateIncludeDelete::getMethod());
+        $this->setEndpoint(TemplateIncludeDelete::getEndpoint());
+        return $this;
+    }
+
     public function postWebhook(string $body): Request
     {
         $this->setMethod(Webhook::getMethod());
