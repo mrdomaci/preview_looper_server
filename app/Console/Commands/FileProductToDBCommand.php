@@ -109,7 +109,7 @@ class FileProductToDBCommand extends AbstractCommand
                         'name' => ($productData['name'] ?? ''),
                         'url' => ($productData['url'] ?? ''),
                         'images' => $images,
-                        'perex' => ($productData['shortDescription'] ?? ''),
+                        'perex' => '',
                         'producer' => ($productData['brand']['name'] ?? null),
                     ];
                     $guids[] = ($productData['guid'] ?? '');
