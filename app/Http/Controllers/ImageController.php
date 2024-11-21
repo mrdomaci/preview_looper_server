@@ -16,8 +16,7 @@ class ImageController extends Controller
     public function __construct(
         private readonly ClientRepository $clientRepository,
         private readonly ClientSettingsServiceOptionRepository $clientSettingsServiceOptionRepository,
-    )
-    {
+    ) {
     }
     public function all(string $eshopID, string $moduloCheck): JsonResponse
     {

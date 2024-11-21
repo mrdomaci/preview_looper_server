@@ -58,6 +58,9 @@ class FileProductToDBCommand extends AbstractCommand
             return Command::SUCCESS;
         }
         $clientService = $clientServiceQueue->clientService()->first();
+        $clientService->setUpdateInProgress(true);
+        $this->info('Client service ' . $clientService->getId() . ' file product update started');
+        
         $client = $clientService->client()->first();
 
         $onStockAvailability = $this->availabilityRepository->getIsOnStockAvailability($client);
@@ -73,7 +76,6 @@ class FileProductToDBCommand extends AbstractCommand
             $categories = [];
             $productCategories = [];
             try {
-                $clientService->setUpdateInProgress(true);
                 $count = 0;
                 $guids = [];
                 while (($line = fgets($txtFile)) !== false) {
@@ -228,8 +230,6 @@ class FileProductToDBCommand extends AbstractCommand
                 $this->error("Error processing the product snapshot file: {$e->getMessage()}");
                 $clientService->setUpdateInProgress(false);
                 return Command::FAILURE;
-            } finally {
-                $clientService->setUpdateInProgress(false);
             }
             fclose($txtFile);
             Storage::delete($txtFilePath);
@@ -242,6 +242,7 @@ class FileProductToDBCommand extends AbstractCommand
             }
             $this->info('Client service ' . $clientService->getId() . ' file product next');
         }
+        $clientService->setUpdateInProgress(false);
         return Command::SUCCESS;
     }
 }

@@ -52,6 +52,7 @@ class StoreAvailabilitiesFromApiCommand extends AbstractClientCommand
         }
         $clientService = $clientServiceQueue->clientService()->first();
         $clientService->setUpdateInProgress(true);
+        $this->info('Client service ' . $clientService->getId() . ' availability data update started');
 
         try {
             $this->availabilityBusiness->createOrUpdateFromResponse($clientService, ConnectorHelper::getAvailabilities($clientService));

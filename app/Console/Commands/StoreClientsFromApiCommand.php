@@ -52,10 +52,11 @@ class StoreClientsFromApiCommand extends AbstractCommand
         }
         $clientService = $clientServiceQueue->clientService()->first();
         $clientService->setUpdateInProgress(true);
+        $this->info('Client service ' . $clientService->getId() . ' client data update started');
         try {
             $this->clientRepository->updateFromResponse($clientService, ConnectorHelper::getEshop($clientService));
             $clientServiceQueue->next();
-            $this->info('Client service ' . $clientService->getId() . ' client data updated');
+            $this->info('Client service ' . $clientService->getId() . ' client updated');
         } catch (AddonNotInstalledException $e) {
             $clientService->setStatusDeleted();
         } catch (AddonSuspendedException $e) {
@@ -68,8 +69,6 @@ class StoreClientsFromApiCommand extends AbstractCommand
         } finally {
             $clientService->setUpdateInProgress(false);
         }
-
-        $this->info('Client service ' . $clientService->getId() . ' client updated');
         return Command::SUCCESS;
     }
 }

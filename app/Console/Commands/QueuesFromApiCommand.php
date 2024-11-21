@@ -56,6 +56,7 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
         }
         $clientService = $clientServiceQueue->clientService()->first();
         $clientService->setUpdateInProgress(true);
+        $this->info('Client service ' . $clientService->getId() . ' queues update started');
         $yesterday = new DateTime('yesterday');
 
         $filterQueues = [];

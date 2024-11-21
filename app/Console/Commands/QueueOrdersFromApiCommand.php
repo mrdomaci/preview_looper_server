@@ -54,6 +54,7 @@ class QueueOrdersFromApiCommand extends AbstractClientServiceCommand
         }
         $clientService = $clientServiceQueue->clientService()->first();
         $clientService->setUpdateInProgress(true);
+        $this->info('Client service ' . $clientService->getId() . ' orders update started');
 
         $orderFilters = [];
         if ($clientService->getOrdersLastSyncedAt() !== null) {
