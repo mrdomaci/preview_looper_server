@@ -49,49 +49,51 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::API;
-        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
-        if ($clientServiceQueue === null) {
+        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
+        if ($clientServiceQueues->isEmpty()) {
             $this->info('No client service in api queue');
             return Command::SUCCESS;
         }
-        $clientService = $clientServiceQueue->clientService()->first();
-        $clientService->setUpdateInProgress(true);
-        $this->info('Client service ' . $clientService->getId() . ' queues update started');
-        $yesterday = new DateTime('yesterday');
+        $success = true;
+        foreach ($clientServiceQueues as $clientServiceQueue) {
+            $clientService = $clientServiceQueue->clientService()->first();
+            $clientService->setUpdateInProgress(true);
+            $this->info('Client service ' . $clientService->getId() . ' queues update started');
+            $yesterday = new DateTime('yesterday');
 
-        $filterQueues = [];
-        $filterQueues[] = new QueueFilter('status', 'completed');
-        $filterQueues[] = new QueueFilter('creationTimeFrom', $yesterday);
+            $filterQueues = [];
+            $filterQueues[] = new QueueFilter('status', 'completed');
+            $filterQueues[] = new QueueFilter('creationTimeFrom', $yesterday);
 
-        try {
-            $jobListResponse = ConnectorHelper::queues($clientService, $filterQueues);
-            if ($jobListResponse) {
-                $this->queueBusiness->update($clientService, $jobListResponse);
-                $this->info('Queues updated');
+            try {
+                $jobListResponse = ConnectorHelper::queues($clientService, $filterQueues);
+                if ($jobListResponse) {
+                    $this->queueBusiness->update($clientService, $jobListResponse);
+                    $this->info('Queues updated');
+                }
+                if ($this->queueRepository->isFinished($clientService)) {
+                    $clientServiceQueue->next();
+                } else {
+                    $clientServiceQueue->queued_at = now()->addMinutes(90);
+                    $clientServiceQueue->save();
+                }
+            } catch (ApiRequestFailException) {
+                $clientService->setStatusInactive();
+            } catch (ApiRequestTooManyRequestsException $t) {
+                $this->error('Error updating orders due to too many requests ' . $t->getMessage());
+                LoggerHelper::log('Error updating orders due to too many requests ' . $t->getMessage());
+                $success = false;
+            } catch (Throwable $t) {
+                $this->error('Error updating queues ' . $t->getMessage());
+                LoggerHelper::log('Error updating queues ' . $t->getMessage());
+                $success = false;
             }
-            if ($this->queueRepository->isFinished($clientService)) {
-                $clientServiceQueue->next();
-            } else {
-                $clientServiceQueue->queued_at = now()->addMinutes(90);
-                $clientServiceQueue->save();
-            }
-        } catch (ApiRequestFailException) {
-            $clientService->setStatusInactive();
-        } catch (ApiRequestTooManyRequestsException $t) {
-            $this->error('Error updating orders due to too many requests ' . $t->getMessage());
-            LoggerHelper::log('Error updating orders due to too many requests ' . $t->getMessage());
             $clientService->setUpdateInProgress(false);
-            return Command::FAILURE;
-        } catch (Throwable $t) {
-            $this->error('Error updating queues ' . $t->getMessage());
-            LoggerHelper::log('Error updating queues ' . $t->getMessage());
-            $clientService->setUpdateInProgress(false);
-            return Command::FAILURE;
-        } finally {
-            $clientService->setUpdateInProgress(false);
+            $this->info('Client service ' . $clientService->getId() . ' queues updated');
         }
-        $clientService->setUpdateInProgress(false);
-        $this->info('Client service ' . $clientService->getId() . ' queues updated');
-        return Command::SUCCESS;
+        if ($success) {
+            return Command::SUCCESS;
+        }
+        return Command::FAILURE;
     }
 }

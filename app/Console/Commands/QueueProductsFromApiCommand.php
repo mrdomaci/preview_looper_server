@@ -49,50 +49,51 @@ class QueueProductsFromApiCommand extends AbstractCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::PRODUCTS;
-        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
-        if ($clientServiceQueue === null) {
+        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
+        if ($clientServiceQueues->isEmpty()) {
             $this->info('No client service in product queue');
             return Command::SUCCESS;
         }
-        $clientService = $clientServiceQueue->clientService()->first();
-        $clientService->setUpdateInProgress(true);
-        $this->info('Client service ' . $clientService->getId() . ' products update started');
+        $success = true;
+        foreach ($clientServiceQueues as $clientServiceQueue) {
+            $clientService = $clientServiceQueue->clientService()->first();
+            $clientService->setUpdateInProgress(true);
+            $this->info('Client service ' . $clientService->getId() . ' products update started');
 
-        $productFilters = [];
-        $productFilters[] = new ProductFilter('visibility', 'visible');
-        $productFilters[] = new ProductFilter('include', 'images,allCategories');
-        try {
-            ConnectorHelper::postWebhook($clientService);
-        } catch (Throwable $t) {
-            if (StringHelper::contains($t->getMessage(), 'webhook-event-already-registered') === false) {
-                throw new ApiRequestFailException(new Exception($t->getMessage(), $t->getCode(), $t));
+            $productFilters = [];
+            $productFilters[] = new ProductFilter('visibility', 'visible');
+            $productFilters[] = new ProductFilter('include', 'images,allCategories');
+            try {
+                ConnectorHelper::postWebhook($clientService);
+            } catch (Throwable $t) {
+                if (StringHelper::contains($t->getMessage(), 'webhook-event-already-registered') === false) {
+                    throw new ApiRequestFailException(new Exception($t->getMessage(), $t->getCode(), $t));
+                }
             }
-        }
 
-        try {
-            $queueResponse = ConnectorHelper::queueProducts($clientService, $productFilters);
-            if ($queueResponse) {
-                $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse, new Product());
-                $this->info('Client service ' . $clientService->getId() . ' products queued');
-                $clientServiceQueue->next();
+            try {
+                $queueResponse = ConnectorHelper::queueProducts($clientService, $productFilters);
+                if ($queueResponse) {
+                    $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse, new Product());
+                    $this->info('Client service ' . $clientService->getId() . ' products queued');
+                    $clientServiceQueue->next();
+                }
+            } catch (ApiRequestFailException) {
+                $clientService->setStatusInactive();
+            } catch (ApiRequestTooManyRequestsException $t) {
+                $this->error('Error updating products due to too many requests ' . $t->getMessage());
+                LoggerHelper::log('Error updating products due to too many requests ' . $t->getMessage());
+                $success = false;
+            } catch (Throwable $t) {
+                $this->error('Error updating products ' . $t->getMessage());
+                LoggerHelper::log('Error updating products ' . $t->getMessage());
+                $success = false;
             }
-        } catch (ApiRequestFailException) {
-            $clientService->setStatusInactive();
-            return Command::FAILURE;
-        } catch (ApiRequestTooManyRequestsException $t) {
-            $this->error('Error updating products due to too many requests ' . $t->getMessage());
-            LoggerHelper::log('Error updating products due to too many requests ' . $t->getMessage());
-            $clientService->setUpdateInProgress(false);
-            return Command::FAILURE;
-        } catch (Throwable $t) {
-            $this->error('Error updating products ' . $t->getMessage());
-            LoggerHelper::log('Error updating products ' . $t->getMessage());
-            $clientService->setUpdateInProgress(false);
-            return Command::FAILURE;
-        } finally {
             $clientService->setUpdateInProgress(false);
         }
-        $this->info('Client service ' . $clientService->getId() . ' queue products');
-        return Command::SUCCESS;
+        if ($success) {
+            return Command::SUCCESS;
+        }
+        return Command::FAILURE;
     }
 }

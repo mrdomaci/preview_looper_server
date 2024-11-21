@@ -47,43 +47,45 @@ class QueueOrdersFromApiCommand extends AbstractClientServiceCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::ORDERS;
-        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
-        if ($clientServiceQueue === null) {
+        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
+        if ($clientServiceQueues->isEmpty()) {
             $this->info('No client service in orders queue');
             return Command::SUCCESS;
         }
-        $clientService = $clientServiceQueue->clientService()->first();
-        $clientService->setUpdateInProgress(true);
-        $this->info('Client service ' . $clientService->getId() . ' orders update started');
-
-        $orderFilters = [];
-        if ($clientService->getOrdersLastSyncedAt() !== null) {
-            $orderFilters[] = new OrderFilter('changeTimeFrom', $clientService->getOrdersLastSyncedAt());
-        }
-
-        try {
-            $queueResponse = ConnectorHelper::queueOrders($clientService, $orderFilters);
-            if ($queueResponse) {
-                $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse, new Order());
-                $this->info('Client service ' . $clientService->getId() . ' orders queued');
-                $clientServiceQueue->next();
+        $success = true;
+        foreach ($clientServiceQueues as $clientServiceQueue) {
+            $clientService = $clientServiceQueue->clientService()->first();
+            $clientService->setUpdateInProgress(true);
+            $this->info('Client service ' . $clientService->getId() . ' orders update started');
+    
+            $orderFilters = [];
+            if ($clientService->getOrdersLastSyncedAt() !== null) {
+                $orderFilters[] = new OrderFilter('changeTimeFrom', $clientService->getOrdersLastSyncedAt());
             }
-        } catch (ApiRequestFailException) {
-            $clientService->setStatusInactive();
-        } catch (ApiRequestTooManyRequestsException $t) {
-            $this->error('Error updating orders due to too many requests ' . $t->getMessage());
-            LoggerHelper::log('Error updating orders due to too many requests ' . $t->getMessage());
-            $clientService->setUpdateInProgress(false);
-            return Command::FAILURE;
-        } catch (Throwable $t) {
-            $this->error('Error updating orders ' . $t->getMessage());
-            LoggerHelper::log('Error updating orders ' . $t->getMessage());
-            $clientService->setUpdateInProgress(false);
-            return Command::FAILURE;
-        } finally {
+    
+            try {
+                $queueResponse = ConnectorHelper::queueOrders($clientService, $orderFilters);
+                if ($queueResponse) {
+                    $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse, new Order());
+                    $this->info('Client service ' . $clientService->getId() . ' orders queued');
+                    $clientServiceQueue->next();
+                }
+            } catch (ApiRequestFailException) {
+                $clientService->setStatusInactive();
+            } catch (ApiRequestTooManyRequestsException $t) {
+                $this->error('Error updating orders due to too many requests ' . $t->getMessage());
+                LoggerHelper::log('Error updating orders due to too many requests ' . $t->getMessage());
+                $success = false;
+            } catch (Throwable $t) {
+                $this->error('Error updating orders ' . $t->getMessage());
+                LoggerHelper::log('Error updating orders ' . $t->getMessage());
+                $success = false;
+            }
             $clientService->setUpdateInProgress(false);
         }
-        $this->info('Client service ' . $clientService->getId() . ' queue order');
-        return Command::SUCCESS;
+        if ($success) {
+            return Command::SUCCESS;
+        }
+        return Command::FAILURE;
     }
 }

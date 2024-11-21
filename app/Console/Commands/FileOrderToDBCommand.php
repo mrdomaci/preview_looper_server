@@ -44,107 +44,113 @@ class FileOrderToDBCommand extends AbstractCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::DB_ORDERS;
-        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
+        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
 
-        if ($clientServiceQueue === null) {
+        if ($clientServiceQueues->isEmpty()) {
             $this->info('No client service in product snapshot queue');
             return Command::SUCCESS;
         }
-        $clientService = $clientServiceQueue->clientService()->first();
-        $clientService->setUpdateInProgress(true);
-        $this->info('Client service ' . $clientService->getId() . ' file order started');
-        $client = $clientService->client()->first();
+        $success = true;
+        foreach ($clientServiceQueues as $clientServiceQueue) {
+            $clientService = $clientServiceQueue->clientService()->first();
+            $clientService->setUpdateInProgress(true);
+            $this->info('Client service ' . $clientService->getId() . ' file order started');
+            $client = $clientService->client()->first();
 
-        $txtFilePath = collect(Storage::files('snapshots'))->first(function ($files) use ($clientServiceQueue) {
-            return preg_match('/' . $clientServiceQueue->client_service_id . '_orders\.txt$/', $files);
-        });
+            $txtFilePath = collect(Storage::files('snapshots'))->first(function ($files) use ($clientServiceQueue) {
+                return preg_match('/' . $clientServiceQueue->client_service_id . '_orders\.txt$/', $files);
+            });
 
-        if ($txtFilePath) {
-            $txtFile = fopen(Storage::path($txtFilePath), 'r');
-            $orders = [];
-            $orderProducts = [];
-            $count = 0;
-            try {
-                while (($line = fgets($txtFile)) !== false) {
-                    $orderData = json_decode($line, true);
-                    if (!isset($orderData['guid'])) {
-                        continue;
-                    }
-                    if (!isset($orderData['status']['id'])) {
-                        continue;
-                    }
-                    $orders[] = [
-                        'client_id' => $client->id,
-                        'guid' => $orderData['guid'],
-                        'code' => $orderData['code'],
-                        'created_at' => (isset($orderData['creationTime']) ? new DateTime($orderData['creationTime']) : new DateTime()),
-                        'full_name' => '',
-                        'company' => '',
-                        'email' => '',
-                        'phone' =>  '',
-                        'remark' => '',
-                        'cash_desk_order' => ($orderData['cashDeskOrder'] ?? false),
-                        'customer_guid' => '',
-                        'paid' => ($orderData['paid'] ?? false),
-                        'foreign_status_id' => ($orderData['status']['id'] ?? ''),
-                        'source' => ($orderData['source']['id'] ?? ''),
-                        'vat' => 0,
-                        'to_pay' => 0,
-                        'currency_code' => ($orderData['price']['currencyCode'] ?? ''),
-                        'with_vat' => 0,
-                        'without_vat' => 0,
-                        'exchange_rate' => 0,
-                        'payment_method' => '',
-                        'shipping' => '',
-                        'admin_url' => '',
-                    ];
-
-                    foreach ($orderData['items'] as $item) {
-                        if ($item['itemType'] !== 'product') {
+            if ($txtFilePath) {
+                $txtFile = fopen(Storage::path($txtFilePath), 'r');
+                $orders = [];
+                $orderProducts = [];
+                $count = 0;
+                try {
+                    while (($line = fgets($txtFile)) !== false) {
+                        $orderData = json_decode($line, true);
+                        if (!isset($orderData['guid'])) {
                             continue;
                         }
-                        if (!isset($item['productGuid'])) {
+                        if (!isset($orderData['status']['id'])) {
                             continue;
                         }
-                        if (!isset($item['amount'])) {
-                            continue;
-                        }
-                        $orderProducts[] = [
-                            'order_guid' => $orderData['guid'],
-                            'product_guid' => $item['productGuid'],
+                        $orders[] = [
                             'client_id' => $client->id,
+                            'guid' => $orderData['guid'],
+                            'code' => $orderData['code'],
+                            'created_at' => (isset($orderData['creationTime']) ? new DateTime($orderData['creationTime']) : new DateTime()),
+                            'full_name' => '',
+                            'company' => '',
+                            'email' => '',
+                            'phone' =>  '',
+                            'remark' => '',
+                            'cash_desk_order' => ($orderData['cashDeskOrder'] ?? false),
+                            'customer_guid' => '',
+                            'paid' => ($orderData['paid'] ?? false),
+                            'foreign_status_id' => ($orderData['status']['id'] ?? ''),
+                            'source' => ($orderData['source']['id'] ?? ''),
+                            'vat' => 0,
+                            'to_pay' => 0,
+                            'currency_code' => ($orderData['price']['currencyCode'] ?? ''),
+                            'with_vat' => 0,
+                            'without_vat' => 0,
+                            'exchange_rate' => 0,
+                            'payment_method' => '',
+                            'shipping' => '',
+                            'admin_url' => '',
                         ];
+
+                        foreach ($orderData['items'] as $item) {
+                            if ($item['itemType'] !== 'product') {
+                                continue;
+                            }
+                            if (!isset($item['productGuid'])) {
+                                continue;
+                            }
+                            if (!isset($item['amount'])) {
+                                continue;
+                            }
+                            $orderProducts[] = [
+                                'order_guid' => $orderData['guid'],
+                                'product_guid' => $item['productGuid'],
+                                'client_id' => $client->id,
+                            ];
+                        }
+                        $count++;
+                        if ($count % 100 === 0) {
+                            $this->orderRepository->bulkCreateOrUpdate($orders);
+                            $this->orderProductRepository->bulkCreateOrIgnore($orderProducts);
+                            $orderProducts = [];
+                            $orders = [];
+                        }
                     }
-                    $count++;
-                    if ($count % 100 === 0) {
+                    if (count($orders) > 0) {
                         $this->orderRepository->bulkCreateOrUpdate($orders);
                         $this->orderProductRepository->bulkCreateOrIgnore($orderProducts);
-                        $orderProducts = [];
-                        $orders = [];
                     }
+                    $this->info('Client service ' . $clientService->getId() . ' file order');
+                    fclose($txtFile);
+                    Storage::delete($txtFilePath);
+                } catch (\Throwable $e) {
+                    $this->error("Error processing the order snapshot file: {$e->getMessage()}");
+                    $success = false;
+                    fclose($txtFile);
                 }
-                if (count($orders) > 0) {
-                    $this->orderRepository->bulkCreateOrUpdate($orders);
-                    $this->orderProductRepository->bulkCreateOrIgnore($orderProducts);
+            } else {
+                $clientServiceQueue = $clientServiceQueue->next();
+                $clientService->setOrdersLastSyncedAt(new DateTime());
+                $clientService->save();
+                if ($clientServiceQueue->getStatus()->name === ClientServiceQueueStatusEnum::DONE->name) {
+                    $this->clientServiceQueueRepository->createOrIgnore($clientService);
                 }
-                $this->info('Client service ' . $clientService->getId() . ' file order');
-            } catch (\Throwable $e) {
-                $this->error("Error processing the order snapshot file: {$e->getMessage()}");
-                $clientService->setUpdateInProgress(false);
-                return Command::FAILURE;
+                $this->info('Client service ' . $clientService->getId() . ' file order next');
             }
-            fclose($txtFile);
-            Storage::delete($txtFilePath);
-        } else {
-            $clientServiceQueue = $clientServiceQueue->next();
-            $clientService->setOrdersLastSyncedAt(new DateTime());
-            $clientService->save();
-            if ($clientServiceQueue->getStatus()->name === ClientServiceQueueStatusEnum::DONE->name) {
-                $this->clientServiceQueueRepository->createOrIgnore($clientService);
-            }
-            $this->info('Client service ' . $clientService->getId() . ' file order next');
+            $clientService->setUpdateInProgress(false);
         }
-        $clientService->setUpdateInProgress(false);
-        return Command::SUCCESS;
+        if ($success) {
+            return Command::SUCCESS;
+        }
+        return Command::FAILURE;
     }
 }
