@@ -10,6 +10,7 @@ use App\Exceptions\DataNotFoundException;
 use App\Models\ClientService;
 use App\Models\ClientServiceQueue;
 use DateTime;
+use Illuminate\Database\Eloquent\Collection;
 use Throwable;
 
 class ClientServiceQueueRepository
@@ -36,7 +37,12 @@ class ClientServiceQueueRepository
         return null;
     }
 
-    public function getNext(ClientServiceQueueStatusEnum $status): ?ClientServiceQueue
+    /**
+     * @param ClientServiceQueueStatusEnum $status
+     * @param int|null $limit
+     * @return Collection<ClientServiceQueue>
+     */
+    public function getNext(ClientServiceQueueStatusEnum $status, ?int $limit = 1): Collection
     {
         return ClientServiceQueue::where('status', $status->name)
             ->whereHas('clientService', function ($query) {
@@ -47,8 +53,9 @@ class ClientServiceQueueRepository
                 $query->where('queued_at', '<', now())
                       ->orWhereNull('queued_at');
             })
+            ->limit($limit)
             ->orderBy('queued_at')
-            ->first();
+            ->get();
     }
 
     public function get(int $id): ClientServiceQueue

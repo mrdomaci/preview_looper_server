@@ -37,26 +37,32 @@ class StoreCachedResponseCommand extends AbstractClientServiceCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::CACHE;
-        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
-        if ($clientServiceQueue === null) {
+        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
+        if ($clientServiceQueues->isEmpty()) {
             $this->info('No client service in cache queue');
             return Command::SUCCESS;
         }
-        $clientService = $clientServiceQueue->clientService()->first();
-        $clientService->setUpdateInProgress(true);
-        $this->info('Client service ' . $clientService->getId() . ' cache product data started');
-        try {
-            CacheHelper::imageResponse($clientService->client()->first());
-            $clientServiceQueue->next();
-        } catch (Throwable $t) {
-            $this->info('Error caching products for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
-            LoggerHelper::log('Error caching products for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
-            $clientService->setUpdateInProgress(false);
-            return Command::FAILURE;
-        } finally {
-            $clientService->setUpdateInProgress(false);
+        $success = true;
+        foreach ($clientServiceQueues as $clientServiceQueue) {
+            $clientService = $clientServiceQueue->clientService()->first();
+            $clientService->setUpdateInProgress(true);
+            $this->info('Client service ' . $clientService->getId() . ' cache product data started');
+            try {
+                CacheHelper::imageResponse($clientService->client()->first());
+                $clientServiceQueue->next();
+            } catch (Throwable $t) {
+                $this->info('Error caching products for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
+                LoggerHelper::log('Error caching products for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
+                $clientService->setUpdateInProgress(false);
+                $success = false;
+            } finally {
+                $clientService->setUpdateInProgress(false);
+            }
+            $this->info('Client service ' . $clientService->getId() . ' cached');
         }
-        $this->info('Client service ' . $clientService->getId() . ' cached');
-        return Command::SUCCESS;
+        if ($success) {
+            return Command::SUCCESS;
+        }
+        return Command::FAILURE;
     }
 }

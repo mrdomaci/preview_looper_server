@@ -51,198 +51,204 @@ class FileProductToDBCommand extends AbstractCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::DB_PRODUCTS;
-        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
+        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
 
-        if ($clientServiceQueue === null) {
+        if ($clientServiceQueues->isEmpty()) {
             $this->info('No client service in product snapshot queue');
             return Command::SUCCESS;
         }
-        $clientService = $clientServiceQueue->clientService()->first();
-        $clientService->setUpdateInProgress(true);
-        $this->info('Client service ' . $clientService->getId() . ' file product update started');
-        
-        $client = $clientService->client()->first();
-
-        $onStockAvailability = $this->availabilityRepository->getIsOnStockAvailability($client);
-        $soldOutNegativeStockForbidden = $this->availabilityRepository->getSoldOutNegativeStockForbiddenkAvailability($client);
-        $soldOutNegativeStockAllowed = $this->availabilityRepository->getSoldOutNegativeStockAllowedAvailability($client);
-
-        $txtFilePath = collect(Storage::files('snapshots'))->first(function ($files) use ($clientServiceQueue) {
-            return preg_match('/' . $clientServiceQueue->client_service_id . '_products\.txt$/', $files);
-        });
-        if ($txtFilePath) {
-            $txtFile = fopen(Storage::path($txtFilePath), 'r');
-            $products = [];
-            $categories = [];
-            $productCategories = [];
-            try {
-                $count = 0;
-                $guids = [];
-                while (($line = fgets($txtFile)) !== false) {
-                    $productData = json_decode($line, true);
-                    if ($productData === null) {
-                        continue;
-                    }
-
-                    $images = null;
-                    if (isset($productData['images']) && is_array($productData['images'])) {
-                        $images = [];
-                        usort($productData['images'], function ($a, $b) {
-                            return $a['priority'] <=> $b['priority'];
-                        });
-                        foreach ($productData['images'] as $image) {
-                            if (!isset($image['seoName'])) {
-                                continue;
-                            }
-                            $images[] = $image['seoName'];
+        $success = true;
+        foreach ($clientServiceQueues as $clientServiceQueue) {
+            $clientService = $clientServiceQueue->clientService()->first();
+            $clientService->setUpdateInProgress(true);
+            $this->info('Client service ' . $clientService->getId() . ' file product update started');
+            
+            $client = $clientService->client()->first();
+    
+            $onStockAvailability = $this->availabilityRepository->getIsOnStockAvailability($client);
+            $soldOutNegativeStockForbidden = $this->availabilityRepository->getSoldOutNegativeStockForbiddenkAvailability($client);
+            $soldOutNegativeStockAllowed = $this->availabilityRepository->getSoldOutNegativeStockAllowedAvailability($client);
+    
+            $txtFilePath = collect(Storage::files('snapshots'))->first(function ($files) use ($clientServiceQueue) {
+                return preg_match('/' . $clientServiceQueue->client_service_id . '_products\.txt$/', $files);
+            });
+            if ($txtFilePath) {
+                $txtFile = fopen(Storage::path($txtFilePath), 'r');
+                $products = [];
+                $categories = [];
+                $productCategories = [];
+                try {
+                    $count = 0;
+                    $guids = [];
+                    while (($line = fgets($txtFile)) !== false) {
+                        $productData = json_decode($line, true);
+                        if ($productData === null) {
+                            continue;
                         }
-                        $images = json_encode($images);
-                    }
-                    if (!isset($productData['guid'])) {
-                        continue;
-                    }
-
-                    $product = [
-                        'client_id' => $client->getId(),
-                        'guid' => $productData['guid'],
-                        'active' => 1,
-                        'created_at' => (isset($productData['creationTime']) ? new DateTime($productData['creationTime']) : null),
-                        'updated_at' => (isset($productData['changeTime']) ? new DateTime($productData['changeTime']) : null),
-                        'name' => ($productData['name'] ?? ''),
-                        'url' => ($productData['url'] ?? ''),
-                        'images' => $images,
-                        'perex' => '',
-                        'producer' => ($productData['brand']['name'] ?? null),
-                    ];
-                    $guids[] = ($productData['guid'] ?? '');
-                    if (isset($productData['variants']) && is_array($productData['variants'])) {
-                        foreach ($productData['variants'] as $variant) {
-                            $productVariant = $product;
-
-                            $availabilityName = null;
-                            $availabilityId = null;
-                            $isNegativeStockAllowed = false;
-                            $stock = (isset($variant['stock']) ? (float) $variant['stock'] : 0);
-                            $image = StringHelper::removeParameter($variant['image'] ?? '');
-
-                            if (is_array($variant) && ArrayHelper::containsKey($variant, 'availability') === true) {
-                                if ($variant['availability'] !== null) {
-                                    if (is_array($variant['availability'])) {
-                                        $availabilityName = $variant['availability']['name'] ?? null;
-                                        $availabilityId = isset($variant['availability']['id']) ? (string) $variant['availability']['id'] : '';
-                                    }
+    
+                        $images = null;
+                        if (isset($productData['images']) && is_array($productData['images'])) {
+                            $images = [];
+                            usort($productData['images'], function ($a, $b) {
+                                return $a['priority'] <=> $b['priority'];
+                            });
+                            foreach ($productData['images'] as $image) {
+                                if (!isset($image['seoName'])) {
+                                    continue;
                                 }
+                                $images[] = $image['seoName'];
                             }
-                            if ($availabilityName === null && $stock <= 0) {
-                                if (is_array($variant) && ArrayHelper::containsKey($variant, 'availabilityWhenSoldOut') === true) {
-                                    if ($variant['availabilityWhenSoldOut'] !== null) {
-                                        if (is_array($variant['availabilityWhenSoldOut'])) {
-                                            $availabilityName = ($variant['availabilityWhenSoldOut']['name'] ?? null);
-                                            $availabilityId = (isset($variant['availabilityWhenSoldOut']['id']) ? (string) $variant['availabilityWhenSoldOut']['id'] : '');
+                            $images = json_encode($images);
+                        }
+                        if (!isset($productData['guid'])) {
+                            continue;
+                        }
+    
+                        $product = [
+                            'client_id' => $client->getId(),
+                            'guid' => $productData['guid'],
+                            'active' => 1,
+                            'created_at' => (isset($productData['creationTime']) ? new DateTime($productData['creationTime']) : null),
+                            'updated_at' => (isset($productData['changeTime']) ? new DateTime($productData['changeTime']) : null),
+                            'name' => ($productData['name'] ?? ''),
+                            'url' => ($productData['url'] ?? ''),
+                            'images' => $images,
+                            'perex' => '',
+                            'producer' => ($productData['brand']['name'] ?? null),
+                        ];
+                        $guids[] = ($productData['guid'] ?? '');
+                        if (isset($productData['variants']) && is_array($productData['variants'])) {
+                            foreach ($productData['variants'] as $variant) {
+                                $productVariant = $product;
+    
+                                $availabilityName = null;
+                                $availabilityId = null;
+                                $isNegativeStockAllowed = false;
+                                $stock = (isset($variant['stock']) ? (float) $variant['stock'] : 0);
+                                $image = StringHelper::removeParameter($variant['image'] ?? '');
+    
+                                if (is_array($variant) && ArrayHelper::containsKey($variant, 'availability') === true) {
+                                    if ($variant['availability'] !== null) {
+                                        if (is_array($variant['availability'])) {
+                                            $availabilityName = $variant['availability']['name'] ?? null;
+                                            $availabilityId = isset($variant['availability']['id']) ? (string) $variant['availability']['id'] : '';
                                         }
                                     }
                                 }
-                            }
-                            $variantName = $productVariant['name'];
-                            if (is_array($variant) && ArrayHelper::containsKey($variant, 'name') && $variant['name'] !== null) {
-                                $variantName .= ' ' . $variant['name'];
-                            }
-
-                            if (is_array($variant) && ArrayHelper::containsKey($variant, 'negativeStockAllowed')) {
-                                if ($variant['negativeStockAllowed'] === 'yes') {
-                                    $isNegativeStockAllowed = true;
-                                } elseif ($variant['negativeStockAllowed'] === 'yes-global') {
-                                    $isNegativeStockAllowed = true;
+                                if ($availabilityName === null && $stock <= 0) {
+                                    if (is_array($variant) && ArrayHelper::containsKey($variant, 'availabilityWhenSoldOut') === true) {
+                                        if ($variant['availabilityWhenSoldOut'] !== null) {
+                                            if (is_array($variant['availabilityWhenSoldOut'])) {
+                                                $availabilityName = ($variant['availabilityWhenSoldOut']['name'] ?? null);
+                                                $availabilityId = (isset($variant['availabilityWhenSoldOut']['id']) ? (string) $variant['availabilityWhenSoldOut']['id'] : '');
+                                            }
+                                        }
+                                    }
                                 }
-                            }
-
-                            if ($availabilityId === null) {
-                                if ($stock > 0 && $onStockAvailability !== null) {
-                                    $availabilityName = $onStockAvailability->getName();
-                                    $availabilityId = (string) $onStockAvailability->getId();
-                                } else if ($isNegativeStockAllowed === true && $soldOutNegativeStockAllowed !== null) {
-                                    $availabilityName = $soldOutNegativeStockAllowed->getName();
-                                    $availabilityId = (string) $soldOutNegativeStockAllowed->getId();
-                                } else if ($soldOutNegativeStockForbidden !== null) {
-                                    $availabilityName = $soldOutNegativeStockForbidden->getName();
-                                    $availabilityId = (string) $soldOutNegativeStockForbidden->getId();
+                                $variantName = $productVariant['name'];
+                                if (is_array($variant) && ArrayHelper::containsKey($variant, 'name') && $variant['name'] !== null) {
+                                    $variantName .= ' ' . $variant['name'];
                                 }
+    
+                                if (is_array($variant) && ArrayHelper::containsKey($variant, 'negativeStockAllowed')) {
+                                    if ($variant['negativeStockAllowed'] === 'yes') {
+                                        $isNegativeStockAllowed = true;
+                                    } elseif ($variant['negativeStockAllowed'] === 'yes-global') {
+                                        $isNegativeStockAllowed = true;
+                                    }
+                                }
+    
+                                if ($availabilityId === null) {
+                                    if ($stock > 0 && $onStockAvailability !== null) {
+                                        $availabilityName = $onStockAvailability->getName();
+                                        $availabilityId = (string) $onStockAvailability->getId();
+                                    } else if ($isNegativeStockAllowed === true && $soldOutNegativeStockAllowed !== null) {
+                                        $availabilityName = $soldOutNegativeStockAllowed->getName();
+                                        $availabilityId = (string) $soldOutNegativeStockAllowed->getId();
+                                    } else if ($soldOutNegativeStockForbidden !== null) {
+                                        $availabilityName = $soldOutNegativeStockForbidden->getName();
+                                        $availabilityId = (string) $soldOutNegativeStockForbidden->getId();
+                                    }
+                                }
+                                $price = '0';
+                                if (is_array($variant) && ArrayHelper::containsKey($variant, 'price') && $variant['price'] !== null) {
+                                    $price = $variant['price'];
+                                }
+                                $productVariant['code'] = $variant['code'] ?? '';
+                                $productVariant['name'] .=  isset($variant['name']) ? ' ' . $variant['name'] : '';
+                                $productVariant['stock'] = $stock;
+                                $productVariant['unit'] = $variant['unit'] ?? '';
+                                $productVariant['price'] = Currency::formatPrice($price, $variant['currencyCode'] ?? 'CZK');
+                                $productVariant['availability_name'] = $availabilityName;
+                                //$productVariant['availability_id'] = $availabilityId;
+                                $productVariant['is_negative_stock_allowed'] = $isNegativeStockAllowed;
+                                $productVariant['foreign_id'] = StringHelper::getIdFromImage($image);
+                                $productVariant['image_url'] = StringHelper::removeParameter($image);
+    
+                                $products[] = $productVariant;
                             }
-                            $price = '0';
-                            if (is_array($variant) && ArrayHelper::containsKey($variant, 'price') && $variant['price'] !== null) {
-                                $price = $variant['price'];
+                        }
+                        if (isset($productData['categories']) && is_array($productData['categories'])) {
+                            foreach ($productData['categories'] as $category) {
+                                if (!isset($category['guid'])) {
+                                    continue;
+                                }
+                                if (!isset($category['name'])) {
+                                    continue;
+                                }
+                                $categories[$category['guid']] = [
+                                    'client_id' => $client->getId(),
+                                    'guid' => $category['guid'] ?? '',
+                                    'name' => $category['name'] ?? '',
+                                ];
+                                $productCategories[] = [
+                                    'product_guid' => $productData['guid'] ?? '',
+                                    'category_guid' => $category['guid'] ?? '',
+                                    'client_id' => $client->getId(),
+                                ];
                             }
-                            $productVariant['code'] = $variant['code'] ?? '';
-                            $productVariant['name'] .=  isset($variant['name']) ? ' ' . $variant['name'] : '';
-                            $productVariant['stock'] = $stock;
-                            $productVariant['unit'] = $variant['unit'] ?? '';
-                            $productVariant['price'] = Currency::formatPrice($price, $variant['currencyCode'] ?? 'CZK');
-                            $productVariant['availability_name'] = $availabilityName;
-                            //$productVariant['availability_id'] = $availabilityId;
-                            $productVariant['is_negative_stock_allowed'] = $isNegativeStockAllowed;
-                            $productVariant['foreign_id'] = StringHelper::getIdFromImage($image);
-                            $productVariant['image_url'] = StringHelper::removeParameter($image);
-
-                            $products[] = $productVariant;
+                        }
+                        $count++;
+                        if ($count % 100 === 0) {
+                            $this->productRepository->bulkCreateOrUpdate($products);
+                            $this->categoryRepository->bulkCreateOrUpdate($categories);
+                            $this->productCategoryRepository->dropForProducts($guids, $client);
+                            $this->productCategoryRepository->bulkCreateOrUpdate($productCategories);
+    
+                            $products = [];
+                            $categories = [];
+                            $productCategories = [];
+                            $guids = [];
                         }
                     }
-                    if (isset($productData['categories']) && is_array($productData['categories'])) {
-                        foreach ($productData['categories'] as $category) {
-                            if (!isset($category['guid'])) {
-                                continue;
-                            }
-                            if (!isset($category['name'])) {
-                                continue;
-                            }
-                            $categories[$category['guid']] = [
-                                'client_id' => $client->getId(),
-                                'guid' => $category['guid'] ?? '',
-                                'name' => $category['name'] ?? '',
-                            ];
-                            $productCategories[] = [
-                                'product_guid' => $productData['guid'] ?? '',
-                                'category_guid' => $category['guid'] ?? '',
-                                'client_id' => $client->getId(),
-                            ];
-                        }
-                    }
-                    $count++;
-                    if ($count % 100 === 0) {
+                    if (count($products) > 0) {
                         $this->productRepository->bulkCreateOrUpdate($products);
                         $this->categoryRepository->bulkCreateOrUpdate($categories);
                         $this->productCategoryRepository->dropForProducts($guids, $client);
                         $this->productCategoryRepository->bulkCreateOrUpdate($productCategories);
-
-                        $products = [];
-                        $categories = [];
-                        $productCategories = [];
-                        $guids = [];
                     }
+                    fclose($txtFile);
+                    Storage::delete($txtFilePath);
+                    $this->info('Client service ' . $clientService->getId() . ' file product');
+                } catch (\Throwable $e) {
+                    $this->error("Error processing the product snapshot file: {$e->getMessage()}");
+                    fclose($txtFile);
+                    $success = false;
                 }
-                if (count($products) > 0) {
-                    $this->productRepository->bulkCreateOrUpdate($products);
-                    $this->categoryRepository->bulkCreateOrUpdate($categories);
-                    $this->productCategoryRepository->dropForProducts($guids, $client);
-                    $this->productCategoryRepository->bulkCreateOrUpdate($productCategories);
+            } else {
+                $clientServiceQueue = $clientServiceQueue->next();
+                $clientService->setProductsLastSyncedAt(new DateTime());
+                $clientService->save();
+                if ($clientServiceQueue->getStatus()->name === ClientServiceQueueStatusEnum::DONE->name) {
+                    $this->clientServiceQueueRepository->createOrIgnore($clientService);
                 }
-                $this->info('Client service ' . $clientService->getId() . ' file product');
-            } catch (\Throwable $e) {
-                $this->error("Error processing the product snapshot file: {$e->getMessage()}");
-                $clientService->setUpdateInProgress(false);
-                return Command::FAILURE;
+                $this->info('Client service ' . $clientService->getId() . ' file product next');
             }
-            fclose($txtFile);
-            Storage::delete($txtFilePath);
-        } else {
-            $clientServiceQueue = $clientServiceQueue->next();
-            $clientService->setProductsLastSyncedAt(new DateTime());
-            $clientService->save();
-            if ($clientServiceQueue->getStatus()->name === ClientServiceQueueStatusEnum::DONE->name) {
-                $this->clientServiceQueueRepository->createOrIgnore($clientService);
-            }
-            $this->info('Client service ' . $clientService->getId() . ' file product next');
+            $clientService->setUpdateInProgress(false);
         }
-        $clientService->setUpdateInProgress(false);
-        return Command::SUCCESS;
+        if ($success) {
+            return Command::SUCCESS;
+        }
+        return Command::FAILURE;
     }
 }

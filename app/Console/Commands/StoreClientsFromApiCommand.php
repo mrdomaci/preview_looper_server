@@ -45,30 +45,36 @@ class StoreClientsFromApiCommand extends AbstractCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::CLIENTS;
-        $clientServiceQueue = $this->clientServiceQueueRepository->getNext($clientServiceStatus);
-        if ($clientServiceQueue === null) {
+        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
+        if ($clientServiceQueues->isEmpty()) {
             $this->info('No client service in client queue');
             return Command::SUCCESS;
         }
-        $clientService = $clientServiceQueue->clientService()->first();
-        $clientService->setUpdateInProgress(true);
-        $this->info('Client service ' . $clientService->getId() . ' client data update started');
-        try {
-            $this->clientRepository->updateFromResponse($clientService, ConnectorHelper::getEshop($clientService));
-            $clientServiceQueue->next();
-            $this->info('Client service ' . $clientService->getId() . ' client updated');
-        } catch (AddonNotInstalledException $e) {
-            $clientService->setStatusDeleted();
-        } catch (AddonSuspendedException $e) {
-            $clientService->setStatusInactive();
-        } catch (Throwable $e) {
-            $this->error($e->getMessage());
-            LoggerHelper::log('Error updating client for client service id: ' . $clientService->getId() . ' ' . $e->getMessage());
-            $clientService->setUpdateInProgress(false);
-            return Command::FAILURE;
-        } finally {
-            $clientService->setUpdateInProgress(false);
+        $success = true;
+        foreach ($clientServiceQueues as $clientServiceQueue) {
+            $clientService = $clientServiceQueue->clientService()->first();
+            $clientService->setUpdateInProgress(true);
+            $this->info('Client service ' . $clientService->getId() . ' client data update started');
+            try {
+                $this->clientRepository->updateFromResponse($clientService, ConnectorHelper::getEshop($clientService));
+                $clientServiceQueue->next();
+                $this->info('Client service ' . $clientService->getId() . ' client updated');
+            } catch (AddonNotInstalledException $e) {
+                $clientService->setStatusDeleted();
+            } catch (AddonSuspendedException $e) {
+                $clientService->setStatusInactive();
+            } catch (Throwable $e) {
+                $this->error($e->getMessage());
+                LoggerHelper::log('Error updating client for client service id: ' . $clientService->getId() . ' ' . $e->getMessage());
+                $clientService->setUpdateInProgress(false);
+                $success = false;
+            } finally {
+                $clientService->setUpdateInProgress(false);
+            }
         }
-        return Command::SUCCESS;
+        if ($success) {
+            return Command::SUCCESS;
+        }
+        return Command::FAILURE;
     }
 }
