@@ -118,7 +118,7 @@ class FileOrderToDBCommand extends AbstractCommand
                             ];
                         }
                         $count++;
-                        if ($count % 50 === 0) {
+                        if ($count % 10 === 0) {
                             $this->orderRepository->bulkCreateOrUpdate($orders);
                             $this->orderProductRepository->bulkCreateOrIgnore($orderProducts);
                             $orderProducts = [];

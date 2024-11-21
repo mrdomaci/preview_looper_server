@@ -209,7 +209,7 @@ class FileProductToDBCommand extends AbstractCommand
                             }
                         }
                         $count++;
-                        if ($count % 50 === 0) {
+                        if ($count % 10 === 0) {
                             $this->productRepository->bulkCreateOrUpdate($products);
                             $this->categoryRepository->bulkCreateOrUpdate($categories);
                             $this->productCategoryRepository->dropForProducts($guids, $client);
