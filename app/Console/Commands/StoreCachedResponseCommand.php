@@ -44,6 +44,7 @@ class StoreCachedResponseCommand extends AbstractClientServiceCommand
         }
         $clientService = $clientServiceQueue->clientService()->first();
         $clientService->setUpdateInProgress(true);
+        $this->info('Client service ' . $clientService->getId() . ' cache product data started');
         try {
             CacheHelper::imageResponse($clientService->client()->first());
             $clientServiceQueue->next();

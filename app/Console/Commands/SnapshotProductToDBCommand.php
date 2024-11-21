@@ -55,6 +55,7 @@ class SnapshotProductToDBCommand extends AbstractCommand
 
         if ($latestFile) {
             $clientService->setUpdateInProgress(true);
+            $this->info('Client service ' . $clientService->getId() . ' snaphot products');
             $gz = gzopen(Storage::path($latestFile), 'rb');
             $fileIndex = 1;
             $lineCount = 0;

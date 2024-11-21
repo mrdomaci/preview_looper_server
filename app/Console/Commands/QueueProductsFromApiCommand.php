@@ -56,6 +56,7 @@ class QueueProductsFromApiCommand extends AbstractCommand
         }
         $clientService = $clientServiceQueue->clientService()->first();
         $clientService->setUpdateInProgress(true);
+        $this->info('Client service ' . $clientService->getId() . ' products update started');
 
         $productFilters = [];
         $productFilters[] = new ProductFilter('visibility', 'visible');

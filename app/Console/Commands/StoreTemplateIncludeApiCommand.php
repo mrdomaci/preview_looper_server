@@ -6,7 +6,6 @@ namespace App\Console\Commands;
 
 use App\Enums\ClientServiceQueueStatusEnum;
 use App\Exceptions\ApiRequestNonExistingResourceException;
-use App\Helpers\ConnectorBodyHelper;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
 use App\Repositories\ClientServiceQueueRepository;

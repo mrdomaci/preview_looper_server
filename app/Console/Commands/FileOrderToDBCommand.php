@@ -51,6 +51,8 @@ class FileOrderToDBCommand extends AbstractCommand
             return Command::SUCCESS;
         }
         $clientService = $clientServiceQueue->clientService()->first();
+        $clientService->setUpdateInProgress(true);
+        $this->info('Client service ' . $clientService->getId() . ' file order started');
         $client = $clientService->client()->first();
 
         $txtFilePath = collect(Storage::files('snapshots'))->first(function ($files) use ($clientServiceQueue) {
@@ -63,7 +65,6 @@ class FileOrderToDBCommand extends AbstractCommand
             $orderProducts = [];
             $count = 0;
             try {
-                $clientService->setUpdateInProgress(true);
                 while (($line = fgets($txtFile)) !== false) {
                     $orderData = json_decode($line, true);
                     if (!isset($orderData['guid'])) {
@@ -131,10 +132,7 @@ class FileOrderToDBCommand extends AbstractCommand
                 $this->error("Error processing the order snapshot file: {$e->getMessage()}");
                 $clientService->setUpdateInProgress(false);
                 return Command::FAILURE;
-            } finally {
-                $clientService->setUpdateInProgress(false);
             }
-
             fclose($txtFile);
             Storage::delete($txtFilePath);
         } else {
@@ -146,6 +144,7 @@ class FileOrderToDBCommand extends AbstractCommand
             }
             $this->info('Client service ' . $clientService->getId() . ' file order next');
         }
+        $clientService->setUpdateInProgress(false);
         return Command::SUCCESS;
     }
 }
