@@ -16,7 +16,7 @@ class LicenseResponse
     public ?string $accountName = null;
     public ?string $bankCode;
     public string $variableSymbol;
-    public string $userIdentification;
+    public ?string $userIdentification = null;
     public string $type;
     public string $comment;
     public string $instructionId;
@@ -28,7 +28,7 @@ class LicenseResponse
      *     column2?: array{value: string},
      *     column3?: array{value: string},
      *     column5: array{value: string},
-     *     column7: array{value: string},
+     *     column7: array{value: string|null},
      *     column8: array{value: string},
      *     column10: array{value: string|null},
      *     column14: array{value: string},
@@ -51,7 +51,9 @@ class LicenseResponse
             $this->bankCode = $data['column3']['value'];
         }
         $this->variableSymbol = $data['column5']['value'];
-        $this->userIdentification = $data['column7']['value'];
+        if (isset($data['column7']) && isset($data['column7']['value'])) {
+            $this->userIdentification = $data['column7']['value'];
+        }
         $this->type = $data['column8']['value'];
         $this->comment = $data['column25']['value'];
         $this->instructionId = (string) $data['column17']['value'];
