@@ -33,14 +33,14 @@ class LicenseResponse
      *     column10?: array{value: string|null},
      *     column14?: array{value: string|null},
      *     column17?: array{value: string|null},
-     *     column22?: array{value: string|null},
+     *     column22?: array{value: int|null},
      *     column25?: array{value: string|null},
      * } $data
      */
     public function __construct(array $data)
     {
         if (isset($data['column22']) && $data['column22'] !== null) {
-            $this->foreignId = $data['column22']['value'];
+            $this->foreignId = (string) $data['column22']['value'];
         }
         $this->date = new DateTime();
         if (isset($data['column0']) && $data['column0'] !== null) {
@@ -65,6 +65,8 @@ class LicenseResponse
         if (isset($data['column25']) && isset($data['column25']['value'])) {
             $this->comment = $data['column25']['value'];
         }
-        $this->instructionId = (string) $data['column17']['value'];
+        if (isset($data['column17']) && isset($data['column17']['value'])) {
+            $this->instructionId = $data['column17']['value'];
+        }
     }
 }
