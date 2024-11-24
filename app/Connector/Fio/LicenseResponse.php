@@ -8,40 +8,47 @@ use DateTime;
 
 class LicenseResponse
 {
-    public string $foreignId;
+    public ?string $foreignId = null;
     public DateTime $date;
-    public float $amount;
-    public string $currency;
-    public string $accountNumber;
+    public float $amount = 0;
+    public string $currency = 'CZK';
+    public ?string $accountNumber = null;
     public ?string $accountName = null;
-    public ?string $bankCode;
-    public string $variableSymbol;
+    public ?string $bankCode = null;
+    public ?string $variableSymbol = null;
     public ?string $userIdentification = null;
-    public string $type;
-    public string $comment;
-    public string $instructionId;
+    public ?string $type = null;
+    public ?string $comment = null;
+    public ?string $instructionId = null;
 
     /**
      * @param array{
-     *     column0: array{value: string},
-     *     column1: array{value: float},
-     *     column2?: array{value: string},
-     *     column3?: array{value: string},
-     *     column5: array{value: string},
-     *     column7: array{value: string|null},
-     *     column8: array{value: string},
-     *     column10: array{value: string|null},
-     *     column14: array{value: string},
-     *     column17: array{value: string},
-     *     column22: array{value: string},
-     *     column25: array{value: string}
+     *     column0?: array{value: string|null},
+     *     column1?: array{value: float|null},
+     *     column2?: array{value: string|null},
+     *     column3?: array{value: string|null},
+     *     column5?: array{value: string|null},
+     *     column7?: array{value: string|null},
+     *     column8?: array{value: string|null},
+     *     column10?: array{value: string|null},
+     *     column14?: array{value: string|null},
+     *     column17?: array{value: string|null},
+     *     column22?: array{value: string|null},
+     *     column25?: array{value: string|null},
      * } $data
      */
     public function __construct(array $data)
     {
-        $this->foreignId = (string) $data['column22']['value'];
-        $this->date = new DateTime($data['column0']['value']);
-        $this->amount = $data['column1']['value'];
+        if (isset($data['column22']) && $data['column22'] !== null) {
+            $this->foreignId = $data['column22']['value'];
+        }
+        $this->date = new DateTime();
+        if (isset($data['column0']) && $data['column0'] !== null) {
+            $this->date = new DateTime($data['column0']['value']);
+        }
+        if (isset($data['column1']) && $data['column1'] !== null) {
+            $this->amount = $data['column1']['value'];
+        }
         $this->currency = $data['column14']['value'];
         if (isset($data['column2']) && $data['column2'] !== null) {
             $this->accountNumber = $data['column2']['value'];
@@ -55,7 +62,9 @@ class LicenseResponse
             $this->userIdentification = $data['column7']['value'];
         }
         $this->type = $data['column8']['value'];
-        $this->comment = $data['column25']['value'];
+        if (isset($data['column25']) && isset($data['column25']['value'])) {
+            $this->comment = $data['column25']['value'];
+        }
         $this->instructionId = (string) $data['column17']['value'];
     }
 }
