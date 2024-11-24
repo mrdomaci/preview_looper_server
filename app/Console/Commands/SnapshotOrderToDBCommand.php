@@ -83,6 +83,7 @@ class SnapshotOrderToDBCommand extends AbstractCommand
                     }
             
                     gzclose($gz);
+                    Storage::delete($latestFile);
                     $this->info('Client service ' . $clientService->getId() . ' snapshot orders');
                     $clientServiceQueue->next();
                 } catch (Throwable $t) {

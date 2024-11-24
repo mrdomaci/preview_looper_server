@@ -83,6 +83,7 @@ class SnapshotProductToDBCommand extends AbstractCommand
                     }
     
                     gzclose($gz);
+                    Storage::delete($latestFile);
                     $this->info('Client service ' . $clientService->getId() . ' snaphot products');
                     $clientServiceQueue->next();
                 } catch (Throwable $t) {
