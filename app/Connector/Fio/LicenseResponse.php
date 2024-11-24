@@ -32,7 +32,7 @@ class LicenseResponse
      *     column8?: array{value: string|null},
      *     column10?: array{value: string|null},
      *     column14?: array{value: string|null},
-     *     column17?: array{value: string|null},
+     *     column17?: array{value: int|null},
      *     column22?: array{value: int|null},
      *     column25?: array{value: string|null},
      * } $data
@@ -66,7 +66,7 @@ class LicenseResponse
             $this->comment = $data['column25']['value'];
         }
         if (isset($data['column17']) && isset($data['column17']['value'])) {
-            $this->instructionId = $data['column17']['value'];
+            $this->instructionId = (string) $data['column17']['value'];
         }
     }
 }
