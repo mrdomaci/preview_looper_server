@@ -23,18 +23,18 @@ class Response
      *     },
      *     transactionList?: array{
      *         transaction: array<array{
-     *             column0: array{value: string},
-     *             column1: array{value: float},
-     *             column2?: array{value: string},
-     *             column3?: array{value: string},
-     *             column5: array{value: string},
-     *             column7: array{value: string},
-     *             column8: array{value: string},
-     *             column10: array{value: string|null},
-     *             column14: array{value: string},
-     *             column17: array{value: string},
-     *             column22: array{value: string},
-     *             column25: array{value: string}
+     *     column0?: array{value: string|null},
+     *     column1?: array{value: float|null},
+     *     column2?: array{value: string|null},
+     *     column3?: array{value: string|null},
+     *     column5?: array{value: string|null},
+     *     column7?: array{value: string|null},
+     *     column8?: array{value: string|null},
+     *     column10?: array{value: string|null},
+     *     column14?: array{value: string|null},
+     *     column17?: array{value: int|null},
+     *     column22?: array{value: int|null},
+     *     column25?: array{value: string|null},
      *         }>
      *     }
      * } $data

@@ -10,7 +10,6 @@ enum ClientServiceQueueStatusEnum: string
 {
     use BaseEnumTrait;
     case CLIENTS = 'clients';
-    case TEMPLATES = 'templates';
     case PRODUCTS = 'products';
     case ORDERS = 'orders';
     case DONE = 'done';
@@ -26,8 +25,7 @@ enum ClientServiceQueueStatusEnum: string
     {
         if ($service->isDynamicPreviewImages()) {
             return match ($this->name) {
-                self::CLIENTS->name => self::TEMPLATES,
-                self::TEMPLATES->name => self::PRODUCTS,
+                self::CLIENTS->name => self::PRODUCTS,
                 self::PRODUCTS->name => self::API,
                 self::API->name => self::SNAPSHOT_PRODUCTS,
                 self::SNAPSHOT_PRODUCTS->name => self::DB_PRODUCTS,
@@ -36,8 +34,7 @@ enum ClientServiceQueueStatusEnum: string
             };
         }
         return match ($this->name) {
-            self::CLIENTS->name => self::TEMPLATES,
-            self::TEMPLATES->name => self::PRODUCTS,
+            self::CLIENTS->name => self::PRODUCTS,
             self::PRODUCTS->name => self::AVAILABILITIES,
             self::AVAILABILITIES->name => self::ORDERS,
             self::ORDERS->name => self::API,

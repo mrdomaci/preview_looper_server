@@ -74,7 +74,7 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
                 if ($this->queueRepository->isFinished($clientService)) {
                     $clientServiceQueue->next();
                 } else {
-                    $clientServiceQueue->queued_at = now()->addMinutes(90);
+                    $clientServiceQueue->queued_at = now()->addMinutes(30);
                     $clientServiceQueue->save();
                 }
             } catch (ApiRequestFailException) {
