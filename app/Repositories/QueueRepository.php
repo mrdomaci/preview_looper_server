@@ -83,7 +83,6 @@ class QueueRepository
                 ->setJobId($response->getJobId());
         }
         $queue->setStatus($response->getStatus())
-            ->setResultUrl($response->getResultUrl())
             ->setEndpoint($response->getEndpoint())
             ->setType($response->getType());
         $queue->save();
