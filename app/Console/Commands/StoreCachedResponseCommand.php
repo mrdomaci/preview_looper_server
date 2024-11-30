@@ -7,7 +7,7 @@ namespace App\Console\Commands;
 use App\Enums\ClientServiceQueueStatusEnum;
 use App\Helpers\CacheHelper;
 use App\Helpers\LoggerHelper;
-use App\Repositories\ClientServiceQueueRepository;
+use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -24,7 +24,7 @@ class StoreCachedResponseCommand extends AbstractClientServiceCommand
     protected $description = 'Store cached response';
 
     public function __construct(
-        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
+        private readonly ClientServiceRepository $clientServiceRepository,
     ) {
         parent::__construct();
     }
@@ -37,19 +37,20 @@ class StoreCachedResponseCommand extends AbstractClientServiceCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::CACHE;
-        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
-        if ($clientServiceQueues->isEmpty()) {
+        $clientServices = $this->clientServiceRepository->getForUpdate($clientServiceStatus, 5);
+        if ($clientServices->isEmpty()) {
             $this->info('No client service in cache queue');
             return Command::SUCCESS;
         }
         $success = true;
-        foreach ($clientServiceQueues as $clientServiceQueue) {
-            $clientService = $clientServiceQueue->clientService()->first();
+        foreach ($clientServices as $clientService) {
             $clientService->setUpdateInProgress(true);
+            $service = $clientService->service()->first();
             $this->info('Client service ' . $clientService->getId() . ' cache product data started');
             try {
                 CacheHelper::imageResponse($clientService->client()->first());
-                $clientServiceQueue->next();
+                $clientService->setQueueStatus($clientServiceStatus->next($service));
+                $clientService->save();
             } catch (Throwable $t) {
                 $this->info('Error caching products for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
                 LoggerHelper::log('Error caching products for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ClientServiceQueueStatusEnum;
 use App\Enums\ClientServiceStatusEnum;
 use DateTime;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,6 +30,7 @@ class ClientService extends Model
     /** @var array <string, string> */
     protected $casts = [
         'status' => ClientServiceStatusEnum::class,
+        'queue_status' => ClientServiceQueueStatusEnum::class,
     ];
 
     public function client(): BelongsTo
@@ -227,5 +229,15 @@ class ClientService extends Model
         }
     
         return $renewalDate;
+    }
+
+    public function getQueueStatus(): ClientServiceQueueStatusEnum
+    {
+        return $this->getAttribute('queue_status');
+    }
+
+    public function setQueueStatus(ClientServiceQueueStatusEnum $queueStatus): self
+    {
+        return $this->setAttribute('queue_status', $queueStatus);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Connector\Shoptet;
 
 use App\Enums\QueueStatusEnum;
+use App\Enums\QueueTypeEnum;
 use DateTime;
 
 class JobResponse
@@ -17,6 +18,7 @@ class JobResponse
         private QueueStatusEnum $status,
         private ?DateTime $validUntil,
         private ?string $resultUrl,
+        private QueueTypeEnum $type,
     ) {
     }
 
@@ -53,5 +55,10 @@ class JobResponse
     public function getResultUrl(): ?string
     {
         return $this->resultUrl;
+    }
+
+    public function getType(): QueueTypeEnum
+    {
+        return $this->type;
     }
 }

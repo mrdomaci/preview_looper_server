@@ -11,7 +11,7 @@ use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
-use App\Repositories\ClientServiceQueueRepository;
+use App\Repositories\ClientServiceRepository;
 use App\Repositories\QueueRepository;
 use DateTime;
 use Illuminate\Console\Command;
@@ -35,8 +35,8 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
 
     public function __construct(
         private readonly QueueBusiness $queueBusiness,
-        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
-        private readonly QueueRepository $queueRepository
+        private readonly QueueRepository $queueRepository,
+        private readonly ClientServiceRepository $clientServiceRepository,
     ) {
         parent::__construct();
     }
@@ -49,14 +49,13 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::API;
-        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
-        if ($clientServiceQueues->isEmpty()) {
+        $clientServices = $this->clientServiceRepository->getForUpdate($clientServiceStatus, 5);
+        if ($clientServices->isEmpty()) {
             $this->info('No client service in api queue');
             return Command::SUCCESS;
         }
         $success = true;
-        foreach ($clientServiceQueues as $clientServiceQueue) {
-            $clientService = $clientServiceQueue->clientService()->first();
+        foreach ($clientServices as $clientService) {
             $clientService->setUpdateInProgress(true);
             $this->info('Client service ' . $clientService->getId() . ' queues update started');
             $yesterday = new DateTime('yesterday');
@@ -72,10 +71,12 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
                     $this->info('Queues updated');
                 }
                 if ($this->queueRepository->isFinished($clientService)) {
-                    $clientServiceQueue->next();
+                    $service = $clientService->service()->first();
+                    $clientService->setQueueStatus($clientServiceStatus->next($service));
+                    $clientService->save();
                 } else {
-                    $clientServiceQueue->queued_at = now()->addMinutes(30);
-                    $clientServiceQueue->save();
+                    $clientService->setWebhoodAt(new DateTime('now + 30 minutes'));
+                    $clientService->save();
                 }
             } catch (ApiRequestFailException) {
                 $clientService->setStatusInactive();

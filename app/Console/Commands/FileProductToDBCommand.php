@@ -10,7 +10,7 @@ use App\Helpers\StringHelper;
 use App\Models\Currency;
 use App\Repositories\AvailabilityRepository;
 use App\Repositories\CategoryRepository;
-use App\Repositories\ClientServiceQueueRepository;
+use App\Repositories\ClientServiceRepository;
 use App\Repositories\ProductCategoryRepository;
 use App\Repositories\ProductRepository;
 use DateTime;
@@ -36,9 +36,9 @@ class FileProductToDBCommand extends AbstractCommand
     public function __construct(
         private readonly ProductRepository $productRepository,
         private readonly AvailabilityRepository $availabilityRepository,
-        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
         private readonly CategoryRepository $categoryRepository,
         private readonly ProductCategoryRepository $productCategoryRepository,
+        private readonly ClientServiceRepository $clientServiceRepository,
     ) {
         parent::__construct();
     }
@@ -51,15 +51,14 @@ class FileProductToDBCommand extends AbstractCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::DB_PRODUCTS;
-        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
+        $clientServices = $this->clientServiceRepository->getForUpdate($clientServiceStatus, 5);
 
-        if ($clientServiceQueues->isEmpty()) {
+        if ($clientServices->isEmpty()) {
             $this->info('No client service in product snapshot queue');
             return Command::SUCCESS;
         }
         $success = true;
-        foreach ($clientServiceQueues as $clientServiceQueue) {
-            $clientService = $clientServiceQueue->clientService()->first();
+        foreach ($clientServices as $clientService) {
             $clientService->setUpdateInProgress(true);
             $this->info('Client service ' . $clientService->getId() . ' file product update started');
             
@@ -69,8 +68,8 @@ class FileProductToDBCommand extends AbstractCommand
             $soldOutNegativeStockForbidden = $this->availabilityRepository->getSoldOutNegativeStockForbiddenkAvailability($client);
             $soldOutNegativeStockAllowed = $this->availabilityRepository->getSoldOutNegativeStockAllowedAvailability($client);
     
-            $txtFilePath = collect(Storage::files('snapshots'))->first(function ($files) use ($clientServiceQueue) {
-                return preg_match('/' . $clientServiceQueue->client_service_id . '_products\.txt$/', $files);
+            $txtFilePath = collect(Storage::files('snapshots'))->first(function ($files) use ($clientService) {
+                return preg_match('/' . $clientService->getId() . '_products\.txt$/', $files);
             });
             if ($txtFilePath) {
                 $txtFile = fopen(Storage::path($txtFilePath), 'r');
@@ -236,12 +235,10 @@ class FileProductToDBCommand extends AbstractCommand
                     $success = false;
                 }
             } else {
-                $clientServiceQueue = $clientServiceQueue->next();
+                $service = $clientService->service()->first();
+                $clientService->setQueueStatus($clientServiceStatus->next($service));
                 $clientService->setProductsLastSyncedAt(new DateTime());
                 $clientService->save();
-                if ($clientServiceQueue->getStatus()->name === ClientServiceQueueStatusEnum::DONE->name) {
-                    $this->clientServiceQueueRepository->createOrIgnore($clientService);
-                }
                 $this->info('Client service ' . $clientService->getId() . ' file product next');
             }
             $clientService->setUpdateInProgress(false);

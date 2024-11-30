@@ -10,7 +10,7 @@ use App\Exceptions\AddonSuspendedException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
 use App\Repositories\ClientRepository;
-use App\Repositories\ClientServiceQueueRepository;
+use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -32,7 +32,7 @@ class StoreClientsFromApiCommand extends AbstractCommand
 
     public function __construct(
         private readonly ClientRepository $clientRepository,
-        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
+        private readonly ClientServiceRepository $clientServiceRepository,
     ) {
         parent::__construct();
     }
@@ -45,19 +45,20 @@ class StoreClientsFromApiCommand extends AbstractCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::CLIENTS;
-        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
-        if ($clientServiceQueues->isEmpty()) {
+        $clientServices = $this->clientServiceRepository->getForUpdate($clientServiceStatus, 5);
+        if ($clientServices->isEmpty()) {
             $this->info('No client service in client queue');
             return Command::SUCCESS;
         }
         $success = true;
-        foreach ($clientServiceQueues as $clientServiceQueue) {
-            $clientService = $clientServiceQueue->clientService()->first();
+        foreach ($clientServices as $clientService) {
             $clientService->setUpdateInProgress(true);
+            $service = $clientService->service()->first();
             $this->info('Client service ' . $clientService->getId() . ' client data update started');
             try {
                 $this->clientRepository->updateFromResponse($clientService, ConnectorHelper::getEshop($clientService));
-                $clientServiceQueue->next();
+                $clientService->setQueueStatus($clientServiceStatus->next($service));
+                $clientService->save();
                 $this->info('Client service ' . $clientService->getId() . ' client updated');
             } catch (AddonNotInstalledException $e) {
                 $clientService->setStatusDeleted();

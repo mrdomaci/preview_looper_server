@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Connector\Shoptet;
 
 use App\Enums\QueueStatusEnum;
+use App\Enums\QueueTypeEnum;
 use App\Exceptions\ApiResponsePaginatorFailException;
 use App\Helpers\ArrayHelper;
 use App\Helpers\LoggerHelper;
@@ -241,6 +242,7 @@ class Response
             $completionTime = null;
             $status = null;
             $validUntil = null;
+            $type = QueueTypeEnum::PRODUCT;
 
             if (ArrayHelper::containsKey($job, 'jobId') === false) {
                 continue;
@@ -274,7 +276,24 @@ class Response
                 $validUntil = new DateTime($job['validUntil']);
             }
 
-            $tempJobs[] = new JobResponse($jobId, $endpoint, $creationTime, $completionTime, $status, $validUntil, $resultUrl);
+            if ($endpoint !== null) {
+                if (strpos($endpoint, 'products') !== false) {
+                    $type = QueueTypeEnum::PRODUCT;
+                } elseif (strpos($endpoint, 'orders') !== false) {
+                    $type = QueueTypeEnum::ORDER;
+                }
+            }
+
+            $tempJobs[] = new JobResponse(
+                $jobId,
+                $endpoint,
+                $creationTime,
+                $completionTime,
+                $status,
+                $validUntil,
+                $resultUrl,
+                $type
+            );
         }
         return new JobListResponse(
             $this->data['paginator']['totalCount'],
