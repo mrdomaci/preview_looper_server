@@ -68,7 +68,7 @@ class Queue extends Model
         return $this->getAttribute('result_url');
     }
 
-    public function setResultUrl(string $resultUrl): self
+    public function setResultUrl(?string $resultUrl): self
     {
         return $this->setAttribute('result_url', $resultUrl);
     }
