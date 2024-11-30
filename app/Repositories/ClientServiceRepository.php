@@ -158,6 +158,7 @@ class ClientServiceRepository
         return ClientService::where('queue_status', $status)
             ->where('update_in_process', false)
             ->where('status', ClientServiceStatusEnum::ACTIVE)
+            ->where('webhooked_at', '<=', now())
             ->orderBy('webhooked_at', 'desc')
             ->limit($limit)
             ->get();
