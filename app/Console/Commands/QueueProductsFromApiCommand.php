@@ -13,7 +13,7 @@ use App\Exceptions\ApiRequestTooManyRequestsException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\StringHelper;
-use App\Repositories\ClientServiceQueueRepository;
+use App\Repositories\ClientServiceRepository;
 use Exception;
 use Illuminate\Console\Command;
 use Throwable;
@@ -36,7 +36,7 @@ class QueueProductsFromApiCommand extends AbstractCommand
 
     public function __construct(
         private readonly QueueBusiness $queueBusiness,
-        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
+        private readonly ClientServiceRepository $clientServiceRepository,
     ) {
         parent::__construct();
     }
@@ -49,14 +49,13 @@ class QueueProductsFromApiCommand extends AbstractCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::PRODUCTS;
-        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
-        if ($clientServiceQueues->isEmpty()) {
+        $clientServices = $this->clientServiceRepository->getForUpdate($clientServiceStatus, 5);
+        if ($clientServices->isEmpty()) {
             $this->info('No client service in product queue');
             return Command::SUCCESS;
         }
         $success = true;
-        foreach ($clientServiceQueues as $clientServiceQueue) {
-            $clientService = $clientServiceQueue->clientService()->first();
+        foreach ($clientServices as $clientService) {
             $clientService->setUpdateInProgress(true);
             $this->info('Client service ' . $clientService->getId() . ' products update started');
 
@@ -76,7 +75,9 @@ class QueueProductsFromApiCommand extends AbstractCommand
                 if ($queueResponse) {
                     $this->queueBusiness->createOrIgnoreFromResponse($clientService, $queueResponse, new Product());
                     $this->info('Client service ' . $clientService->getId() . ' products queued');
-                    $clientServiceQueue->next();
+                    $service = $clientService->service()->first();
+                    $clientService->setQueueStatus($clientServiceStatus->next($service));
+                    $clientService->save();
                 }
             } catch (ApiRequestFailException) {
                 $clientService->setStatusInactive();

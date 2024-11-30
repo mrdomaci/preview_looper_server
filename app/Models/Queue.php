@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\QueueStatusEnum;
+use App\Enums\QueueTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,7 +19,13 @@ class Queue extends Model
         'endpoint',
         'status',
         'result_url',
-        'client_service_id'
+        'client_service_id',
+        'type',
+    ];
+
+    protected $casts = [
+        'status' => QueueStatusEnum::class,
+        'type' => QueueTypeEnum::class,
     ];
 
     public function getId(): int
@@ -53,7 +60,7 @@ class Queue extends Model
 
     public function setStatus(QueueStatusEnum $status): self
     {
-        return $this->setAttribute('status', $status->name);
+        return $this->setAttribute('status', $status);
     }
 
     public function getResultUrl(): string
@@ -79,5 +86,15 @@ class Queue extends Model
     public function clientService(): BelongsTo
     {
         return $this->belongsTo(ClientService::class);
+    }
+
+    public function getType(): QueueTypeEnum
+    {
+        return QueueTypeEnum::fromCase($this->getAttribute('type'));
+    }
+
+    public function setType(QueueTypeEnum $status): self
+    {
+        return $this->setAttribute('type', $status);
     }
 }

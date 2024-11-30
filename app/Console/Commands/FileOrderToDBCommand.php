@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Enums\ClientServiceQueueStatusEnum;
-use App\Repositories\ClientServiceQueueRepository;
+use App\Repositories\ClientServiceRepository;
 use App\Repositories\OrderProductRepository;
 use App\Repositories\OrderRepository;
 use DateTime;
@@ -31,7 +31,7 @@ class FileOrderToDBCommand extends AbstractCommand
     public function __construct(
         private readonly OrderRepository $orderRepository,
         private readonly OrderProductRepository $orderProductRepository,
-        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
+        private readonly ClientServiceRepository $clientServiceRepository,
     ) {
         parent::__construct();
     }
@@ -44,21 +44,20 @@ class FileOrderToDBCommand extends AbstractCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::DB_ORDERS;
-        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
+        $clientServices = $this->clientServiceRepository->getForUpdate($clientServiceStatus, 5);
 
-        if ($clientServiceQueues->isEmpty()) {
+        if ($clientServices->isEmpty()) {
             $this->info('No client service in product snapshot queue');
             return Command::SUCCESS;
         }
         $success = true;
-        foreach ($clientServiceQueues as $clientServiceQueue) {
-            $clientService = $clientServiceQueue->clientService()->first();
+        foreach ($clientServices as $clientService) {
             $clientService->setUpdateInProgress(true);
             $this->info('Client service ' . $clientService->getId() . ' file order started');
             $client = $clientService->client()->first();
 
-            $txtFilePath = collect(Storage::files('snapshots'))->first(function ($files) use ($clientServiceQueue) {
-                return preg_match('/' . $clientServiceQueue->client_service_id . '_orders\.txt$/', $files);
+            $txtFilePath = collect(Storage::files('snapshots'))->first(function ($files) use ($clientService) {
+                return preg_match('/' . $clientService->getId() . '_orders\.txt$/', $files);
             });
 
             if ($txtFilePath) {
@@ -138,12 +137,10 @@ class FileOrderToDBCommand extends AbstractCommand
                     fclose($txtFile);
                 }
             } else {
-                $clientServiceQueue = $clientServiceQueue->next();
+                $service = $clientService->service()->first();
+                $clientService->setQueueStatus($clientServiceStatus->next($service));
                 $clientService->setOrdersLastSyncedAt(new DateTime());
                 $clientService->save();
-                if ($clientServiceQueue->getStatus()->name === ClientServiceQueueStatusEnum::DONE->name) {
-                    $this->clientServiceQueueRepository->createOrIgnore($clientService);
-                }
                 $this->info('Client service ' . $clientService->getId() . ' file order next');
             }
             $clientService->setUpdateInProgress(false);

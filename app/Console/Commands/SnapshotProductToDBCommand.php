@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Enums\ClientServiceQueueStatusEnum;
-use App\Repositories\ClientServiceQueueRepository;
+use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
@@ -27,7 +27,7 @@ class SnapshotProductToDBCommand extends AbstractCommand
     protected $description = 'Extract products from snapshot file to txt files';
 
     public function __construct(
-        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
+        private readonly ClientServiceRepository $clientServiceRepository,
     ) {
         parent::__construct();
     }
@@ -40,19 +40,16 @@ class SnapshotProductToDBCommand extends AbstractCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::SNAPSHOT_PRODUCTS;
-        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
-
-        if ($clientServiceQueues->isEmpty()) {
+        $clientServices = $this->clientServiceRepository->getForUpdate($clientServiceStatus, 5);
+        if ($clientServices->isEmpty()) {
             $this->info('No client service in product snapshot queue');
             return Command::SUCCESS;
         }
         $success = true;
-        foreach ($clientServiceQueues as $clientServiceQueue) {
-            $clientService = $clientServiceQueue->clientService()->first();
-            // Get all files in the 'snapshots' directory
+        foreach ($clientServices as $clientService) {
             $files = Storage::files('snapshots');
 
-            $setFileName = 'snapshots/' . $clientServiceQueue->getClientServiceId() . '_products.gz';
+            $setFileName = 'snapshots/' . $clientService->getId() . '_products.gz';
             $latestFile = collect($files)
                 ->first(fn($file) => $file === $setFileName);
 
@@ -71,7 +68,7 @@ class SnapshotProductToDBCommand extends AbstractCommand
                         $lineCount++;
     
                         if ($lineCount % 2000 === 0) {
-                            Storage::put('snapshots/' . $fileIndex . '_' . $clientServiceQueue->getClientServiceId() . '_products.txt', $buffer);
+                            Storage::put('snapshots/' . $fileIndex . '_' . $clientService->getId() . '_products.txt', $buffer);
                             $buffer = '';
                             $lineCount = 0;
                             $fileIndex++;
@@ -79,13 +76,15 @@ class SnapshotProductToDBCommand extends AbstractCommand
                     }
     
                     if ($buffer !== '') {
-                        Storage::put('snapshots/' . $fileIndex . '_' . $clientServiceQueue->getClientServiceId() . '_products.txt', $buffer);
+                        Storage::put('snapshots/' . $fileIndex . '_' . $clientService->getId() . '_products.txt', $buffer);
                     }
     
                     gzclose($gz);
                     Storage::delete($latestFile);
                     $this->info('Client service ' . $clientService->getId() . ' snaphot products');
-                    $clientServiceQueue->next();
+                    $service = $clientService->service()->first();
+                    $clientService->setQueueStatus($clientServiceStatus->next($service));
+                    $clientService->save();
                 } catch (Throwable $t) {
                     $this->error('Error updating product for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
                     $success = false;

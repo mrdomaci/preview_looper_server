@@ -37,7 +37,7 @@ class QueueRepository
 
     public function getCompleted(int $limit): Collection
     {
-        return Queue::where('status', QueueStatusEnum::COMPLETED->name)
+        return Queue::where('status', QueueStatusEnum::COMPLETED)
                 ->whereNull('result_url')
                 ->limit($limit)->get();
     }
@@ -60,10 +60,10 @@ class QueueRepository
             ->first();
         if ($queue === null) {
             $queue = new Queue();
-            $queue->setClientServiceId($clientService->id);
-            $queue->setJobId($response->getJobId());
-            $queue->setEndpoint($endpoint->getEndpoint());
-            $queue->status = QueueStatusEnum::PENDING->name;
+            $queue->setClientServiceId($clientService->id)
+                ->setJobId($response->getJobId())
+                ->setEndpoint($endpoint->getEndpoint())
+                ->setStatus(QueueStatusEnum::PENDING);
             $queue->save();
         }
     }
@@ -77,22 +77,18 @@ class QueueRepository
             ->first();
         if ($queue === null) {
             $queue = new Queue();
-            $queue->setClientServiceId($clientService->id);
-            $queue->setJobId($response->getJobId());
+            $queue->setClientServiceId($clientService->id)
+                ->setJobId($response->getJobId());
         }
-        $queue->status = $response->getStatus()->name;
-        $queue->result_url = $response->getResultUrl();
-        $queue->endpoint = $response->getEndpoint();
+        $queue->setStatus($response->getStatus())
+            ->setResultUrl($response->getResultUrl())
+            ->setEndpoint($response->getEndpoint())
+            ->setType($response->getType());
         $queue->save();
     }
 
-    public function deleteOld(): void
+    public function deleteForClientService(ClientService $clientService): void
     {
-        Queue::where('created_at', '<', now()->subDays(1))->delete();
-    }
-
-    public function deleteExpired(): void
-    {
-        Queue::where('status', 'EXPIRED')->delete();
+        Queue::where('client_service_id', $clientService->getId())->delete();
     }
 }

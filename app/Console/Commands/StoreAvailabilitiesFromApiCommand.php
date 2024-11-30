@@ -10,7 +10,7 @@ use App\Exceptions\AddonNotInstalledException;
 use App\Exceptions\AddonSuspendedException;
 use App\Helpers\ConnectorHelper;
 use App\Helpers\LoggerHelper;
-use App\Repositories\ClientServiceQueueRepository;
+use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -32,7 +32,7 @@ class StoreAvailabilitiesFromApiCommand extends AbstractClientCommand
 
     public function __construct(
         private readonly AvailabilityBusiness $availabilityBusiness,
-        private readonly ClientServiceQueueRepository $clientServiceQueueRepository,
+        private readonly ClientServiceRepository $clientServiceRepository,
     ) {
         parent::__construct();
     }
@@ -45,20 +45,21 @@ class StoreAvailabilitiesFromApiCommand extends AbstractClientCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::AVAILABILITIES;
-        $clientServiceQueues = $this->clientServiceQueueRepository->getNext($clientServiceStatus, 5);
-        if ($clientServiceQueues->isEmpty()) {
+        $clientServices = $this->clientServiceRepository->getForUpdate($clientServiceStatus, 5);
+        if ($clientServices->isEmpty()) {
             $this->info('No client service in availability queue');
             return Command::SUCCESS;
         }
         $success = true;
-        foreach ($clientServiceQueues as $clientServiceQueue) {
-            $clientService = $clientServiceQueue->clientService()->first();
+        foreach ($clientServices as $clientService) {
             $clientService->setUpdateInProgress(true);
+            $service = $clientService->service()->first();
             $this->info('Client service ' . $clientService->getId() . ' availability data update started');
 
             try {
                 $this->availabilityBusiness->createOrUpdateFromResponse($clientService, ConnectorHelper::getAvailabilities($clientService));
-                $clientServiceQueue->next();
+                $clientService->setQueueStatus($clientServiceStatus->next($service));
+                $clientService->save();
                 $this->info('Client service ' . $clientService->getId() . ' availability data updated');
             } catch (AddonNotInstalledException $e) {
                 $clientService->setStatusDeleted();

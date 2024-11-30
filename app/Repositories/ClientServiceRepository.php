@@ -62,22 +62,24 @@ class ClientServiceRepository
             ->get();
     }
 
-    public function getNextForUpdate(DateTime $dateLastSync, ?Service $service): ClientService
+    /**
+     * @param DateTime $dateLastSync
+     * @param Service|null $service
+     * @param int|null $limit
+    * @return Collection<ClientService>
+    */
+    public function getNextForUpdate(DateTime $dateLastSync, ?Service $service, ?int $limit = 1): Collection
     {
         $q = ClientService::where('status', ClientServiceStatusEnum::ACTIVE)
         ->where('update_in_process', '=', 0)
-        ->where('status', ClientServiceStatusEnum::ACTIVE->name)
         ->where(function ($query) use ($dateLastSync) {
-            $query->where('webhooked_at', '<=', $dateLastSync)
-              ->orWhereNull('webhooked_at');
-        })->whereDoesntHave('clientServiceQueues', function ($query) {
-            $query->where('status', '!=', ClientServiceQueueStatusEnum::DONE->name);
-        })->orderBy('webhooked_at', 'asc');
+            $query->where('synced_at', '<=', $dateLastSync)
+              ->orWhereNull('synced_at');
+        })->orderBy('synced_at', 'asc');
         if ($service !== null) {
             $q->where('service_id', $service->getId());
         }
-
-        return $q->firstOrFail();
+        return $q->limit($limit)->get();
     }
 
     public function getByClientAndService(Client $client, Service $service): ClientService
@@ -144,5 +146,19 @@ class ClientServiceRepository
             throw new DataNotFoundException(new \Exception('ClientService not found id: ' . $id));
         }
         return $entity;
+    }
+    /**
+     * @param ClientServiceQueueStatusEnum $status
+     * @param int|null $limit
+    * @return Collection<ClientService>
+    */
+    public function getForUpdate(ClientServiceQueueStatusEnum $status, ?int $limit = 1): Collection
+    {
+        return ClientService::where('queue_status', $status)
+            ->where('update_in_process', false)
+            ->where('status', ClientServiceStatusEnum::ACTIVE)
+            ->orderBy('webhooked_at', 'desc')
+            ->limit($limit)
+            ->get();
     }
 }
