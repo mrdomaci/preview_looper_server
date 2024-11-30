@@ -13,6 +13,7 @@ use App\Models\ClientService;
 use App\Models\Service;
 use DateTime;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Date;
 use Throwable;
 
 class ClientServiceRepository
@@ -158,8 +159,8 @@ class ClientServiceRepository
         return ClientService::where('queue_status', $status)
             ->where('update_in_process', false)
             ->where('status', ClientServiceStatusEnum::ACTIVE)
-            ->where('webhooked_at', '<=', now())
-            ->orderBy('webhooked_at', 'desc')
+            ->where('webhooked_at', '>=', new DateTime('-12 hours'))
+            ->orderBy('webhooked_at', 'asc')
             ->limit($limit)
             ->get();
     }
