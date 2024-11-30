@@ -72,6 +72,7 @@ class ClientServiceRepository
     {
         $q = ClientService::where('status', ClientServiceStatusEnum::ACTIVE)
         ->where('update_in_process', '=', 0)
+        ->where('queue_status', ClientServiceQueueStatusEnum::DONE)
         ->where(function ($query) use ($dateLastSync) {
             $query->where('synced_at', '<=', $dateLastSync)
               ->orWhereNull('synced_at');
