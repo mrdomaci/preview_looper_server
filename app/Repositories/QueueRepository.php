@@ -46,7 +46,9 @@ class QueueRepository
     {
         $results = Queue::where('client_service_id', $clientService->getId())
             ->where('created_at', '>', now()->subHours(5))
-            ->whereNull('result_url')->get();
+            ->whereNull('result_url')
+            ->where('status', '!=', QueueStatusEnum::EXPIRED)
+            ->get();
         return $results->isEmpty();
     }
 
