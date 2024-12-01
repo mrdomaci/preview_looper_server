@@ -8,6 +8,7 @@ use App\Connector\Shoptet\Endpoint;
 use App\Connector\Shoptet\JobResponse;
 use App\Connector\Shoptet\QueueResponse;
 use App\Enums\QueueStatusEnum;
+use App\Enums\QueueTypeEnum;
 use App\Exceptions\DataNotFoundException;
 use App\Models\ClientService;
 use App\Models\Queue;
@@ -44,12 +45,29 @@ class QueueRepository
 
     public function isFinished(ClientService $clientService): bool
     {
-        $results = Queue::where('client_service_id', $clientService->getId())
-            ->where('created_at', '>', now()->subHours(5))
-            ->whereNull('result_url')
-            ->where('status', '!=', QueueStatusEnum::EXPIRED)
+        $service = $clientService->service()->first();
+        $queue = Queue::where('client_service_id', $clientService->getId())
+            ->where('status', QueueStatusEnum::DONE)
+            ->where('type', QueueTypeEnum::PRODUCT)
             ->get();
-        return $results->isEmpty();
+
+        if ($queue->isEmpty()) {
+            return false;
+        }
+
+        if ($service->isDynamicPreviewImages()) {
+            return true;
+        }
+
+        $queue = Queue::where('client_service_id', $clientService->getId())
+            ->where('status', QueueStatusEnum::DONE)
+            ->where('type', QueueTypeEnum::ORDER)
+            ->get();
+
+        if ($queue->isEmpty()) {
+            return false;
+        }
+        return true;
     }
 
     public function createOrIgnoreFromResponse(
@@ -91,5 +109,16 @@ class QueueRepository
     public function deleteForClientService(ClientService $clientService): void
     {
         Queue::where('client_service_id', $clientService->getId())->delete();
+    }
+
+    /**
+     * @param ClientService $clientService
+     * @return Collection<Queue>
+     */
+    public function getCompletedForClientService(ClientService $clientService): Collection
+    {
+        return Queue::where('client_service_id', $clientService->getId())
+            ->where('status', QueueStatusEnum::COMPLETED)
+            ->get();
     }
 }

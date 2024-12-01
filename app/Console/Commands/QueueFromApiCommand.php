@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Connector\Shoptet\Order;
-use App\Enums\QueueStatusEnum;
-use App\Exceptions\AddonNotInstalledException;
-use App\Exceptions\AddonSuspendedException;
-use App\Helpers\ConnectorHelper;
-use App\Helpers\StringHelper;
+use App\Businesses\QueueBusiness;
 use App\Models\Queue;
 use App\Repositories\QueueRepository;
 use Illuminate\Console\Command;
@@ -33,6 +28,7 @@ class QueueFromApiCommand extends AbstractCommand
 
     public function __construct(
         private readonly QueueRepository $queueRepository,
+        private readonly QueueBusiness $queueBusiness,
     ) {
         parent::__construct();
     }
@@ -48,43 +44,12 @@ class QueueFromApiCommand extends AbstractCommand
         $queues = $this->queueRepository->getCompleted($this->getIterationCount());
         /** @var Queue $queue */
         foreach ($queues as $queue) {
-            $clientService = $queue->clientService()->first();
             try {
-                $response = ConnectorHelper::queue($clientService, $queue);
-            } catch (AddonNotInstalledException) {
-                $queue->delete();
-                $clientService->setStatusDeleted();
-                continue;
-            } catch (AddonSuspendedException $e) {
-                $queue->delete();
-                $clientService->setStatusInactive();
-                continue;
+                $this->queueBusiness->download($queue);
             } catch (Throwable $e) {
-                $this->error($e->getMessage());
-                continue;
-            }
-            if (StringHelper::contains($queue->getEndpoint(), (new Order())->getEndpoint())) {
-                $domain = 'orders';
-            } else {
-                $domain = 'products';
-            }
-            $localFilePath = storage_path('app/snapshots/' . $clientService->getId() . '_' . $domain . '.gz');
-            if ($response->getResultUrl() === null) {
-                $queue->delete();
-                continue;
-            }
-            $fileContent = file_get_contents($response->getResultUrl());
-            if ($fileContent === false) {
                 $success = false;
-            } else {
-                $fileSaved = file_put_contents($localFilePath, $fileContent);
-                if ($fileSaved === false) {
-                    $success = false;
-                }
+                $this->error('Queue download failed: ' . $queue->getId() . ' ' . $e->getMessage());
             }
-            $queue->setStatus(QueueStatusEnum::DONE);
-            $queue->setResultUrl($response->getResultUrl());
-            $queue->save();
         }
 
         if ($success === true) {
