@@ -70,7 +70,11 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
                     $this->queueBusiness->update($clientService, $jobListResponse);
                     $this->info('Queues updated');
                 }
-                $this->info($this->queueRepository->isFinished($clientService));
+                $queues = $this->queueRepository->getCompletedForClientService($clientService);
+                foreach ($queues as $queue) {
+                    $this->queueBusiness->download($queue);
+                }
+                $this->info($this->queueRepository->isFinished($clientService) ? 'All queues finished' : 'Queues not finished');
                 if ($this->queueRepository->isFinished($clientService)) {
                     $service = $clientService->service()->first();
                     $clientService->setQueueStatus($clientServiceStatus->next($service));
