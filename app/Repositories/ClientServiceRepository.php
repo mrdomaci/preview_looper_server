@@ -77,7 +77,7 @@ class ClientServiceRepository
         ->where(function ($query) use ($dateLastSync) {
             $query->where('synced_at', '<=', $dateLastSync)
               ->orWhereNull('synced_at');
-        })->orderBy('synced_at', 'asc');
+        })->orderBy('webhooked_at', 'asc');
         if ($service !== null) {
             $q->where('service_id', $service->getId());
         }
