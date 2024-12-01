@@ -138,9 +138,9 @@ class FileOrderToDBCommand extends AbstractCommand
                 }
             } else {
                 $service = $clientService->service()->first();
-                $clientService->setQueueStatus($clientServiceStatus->next($service));
-                $clientService->setOrdersLastSyncedAt(new DateTime());
-                $clientService->save();
+                $clientService->setQueueStatus($clientServiceStatus->next($service))
+                    ->setOrdersLastSyncedAt(new DateTime())
+                    ->save();
                 $this->info('Client service ' . $clientService->getId() . ' file order next');
             }
             $clientService->setUpdateInProgress(false);

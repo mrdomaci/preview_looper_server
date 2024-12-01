@@ -49,8 +49,8 @@ class StoreCachedResponseCommand extends AbstractClientServiceCommand
             $this->info('Client service ' . $clientService->getId() . ' cache product data started');
             try {
                 CacheHelper::imageResponse($clientService->client()->first());
-                $clientService->setQueueStatus($clientServiceStatus->next($service));
-                $clientService->save();
+                $clientService->setQueueStatus($clientServiceStatus->next($service))
+                    ->save();
             } catch (Throwable $t) {
                 $this->info('Error caching products for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
                 LoggerHelper::log('Error caching products for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());

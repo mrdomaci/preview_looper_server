@@ -238,6 +238,9 @@ class ClientService extends Model
 
     public function setQueueStatus(ClientServiceQueueStatusEnum $queueStatus): self
     {
+        if ($queueStatus->isDone()) {
+            $this->setSyncedAt(new DateTime());
+        }
         return $this->setAttribute('queue_status', $queueStatus);
     }
 }
