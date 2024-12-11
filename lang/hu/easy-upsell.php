@@ -80,4 +80,5 @@ return [
     'performance_utm_check' => 'A kosárban történő termékajánlások eredményeit <b>UTM címkékkel</b> mérheti a terméklinkekben. További információk találhatók a webanalitikai eszközében a <b>utm_content=site-checkout&utm_source=easyupsell&utm_medium=website</b> címkék alatt.',
     'settings' => 'Bővítmény beállításai',
     'eur_payment_options' => 'Az EUR-ban történő fizetésekhez a részletek elérhetők a bővítmény beállításaiban.',
+    'is_subscribed' => 'Feliratkozás értesítésekre',
 ];

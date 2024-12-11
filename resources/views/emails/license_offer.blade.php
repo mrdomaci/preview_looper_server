@@ -64,6 +64,7 @@ use App\Helpers\QrHelper;
         <p>{{__('easy-upsell.eur_payment_options')}}</p>
         <!-- Footer Section -->
         <div class="footer">
+            <p> <a href="https://{{ $clientService->client()->first()->eshop_name }}/admin/action/marketplace/settings?serviceId=1794">{{__('general.subscribtion_info')}}</a></p>
             <p> <a href="mailto:info@slabihoud">info@slabihoud.cz</a></p>
         </div>
     </div>

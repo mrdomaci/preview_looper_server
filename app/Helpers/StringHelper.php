@@ -60,4 +60,20 @@ class StringHelper
     {
         return strpos($haystack, $needle) !== false;
     }
+
+    public static function bool(?string $value): bool
+    {
+        if ($value === null) {
+            return false;
+        }
+        return match ($value) {
+            'TRUE' => true,
+            'true' => true,
+            'false' => false,
+            'FALSE' => false,
+            '1' => true,
+            '0' => false,
+            default => false,
+        };
+    }
 }

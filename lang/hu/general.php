@@ -35,4 +35,7 @@ return [
     'unauthorized' => 'Hozzáférés megtagadva. Hiba történt a felhasználó hitelesítése során. Kérjük, próbálja újra később.',
     'forbidden' => 'Önnek nincs jogosultsága az oldal megtekintéséhez. Ha úgy gondolja, hogy ez egy hiba, kérjük, vegye fel a kapcsolatot a támogatással az alábbi e-mail címen.',
     'product_empty_not_allowed' => 'A termék mező nem lehet üres',
+    'subscribe' => 'feliratkozás',
+    'unsubscribe' => 'leiratkozás',
+    'subscribtion_info' => 'Az email feliratkozásokat a bővítmény beállításaiban kezelheti',
 ];
