@@ -50,4 +50,7 @@ return [
     'product_license' => 'Licencia na plný prístup k službe odporúčaní produktov v košíku Easy Upsell dostupná prostredníctvom konkrétnej inštalácie doplnku bez obmedzenia počtu objednávok do ',
     'footer_note' => 'Dodávateľ nie je platcom DPH',
     'product_empty_not_allowed' => 'Názov produktu nesmie byť prázdny',
+    'subscribe' => 'prihlásiť sa',
+    'unsubscribe' => 'odhlásiť sa',
+    'subscribtion_info' => 'Odoberanie upozornení môžete spravovať v nastaveniach doplnku',
 ];

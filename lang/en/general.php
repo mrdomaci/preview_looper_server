@@ -50,4 +50,7 @@ return [
     'product_license' => 'License for full access to the Easy Upsell recommendation service in the cart, available through a specific plugin installation without order quantity limits until ',
     'footer_note' => 'The supplier is not a VAT payer',
     'product_empty_not_allowed' => 'The product cannot be empty',
+    'subscribe' => 'subscribe',
+    'unsubscribe' => 'unsubscribe',
+    'subscribtion_info' => 'You can manage email subscriptions in the plugin settings',
 ];

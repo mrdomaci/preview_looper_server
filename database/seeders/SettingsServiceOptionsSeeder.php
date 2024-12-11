@@ -199,6 +199,20 @@ class SettingsServiceOptionsSeeder extends Seeder
                 'value' => '8',
                 'is_default' => 0,
             ],
+            [
+                'id' => 59,
+                'settings_service_id' => 14,
+                'name' => 'general.subscribe',
+                'value' => 1,
+                'is_default' => 1,
+            ],
+            [
+                'id' => 60,
+                'settings_service_id' => 14,
+                'name' => 'general.unsubscribe',
+                'value' => 0,
+                'is_default' => 0,
+            ],
         ]);
     }
 }

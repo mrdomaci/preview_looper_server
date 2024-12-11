@@ -43,7 +43,7 @@ class SnapshotOrderToDBCommand extends AbstractCommand
         $clientServices = $this->clientServiceRepository->getForUpdate($clientServiceStatus, 5);
 
         if ($clientServices->isEmpty()) {
-            $this->info('No client service in product snapshot queue');
+            $this->info('No client service in orders snapshot queue');
             return Command::SUCCESS;
         }
         $success = true;

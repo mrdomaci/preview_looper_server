@@ -80,4 +80,5 @@ return [
     'performance_utm_check' => 'Výsledky doporučení produktů v košíku je možné <b>měřit díky UTM značkám</b> v odkazech na produkty. Více informací naleznete ve vašem nástroji na webovou analytiku pod značkou <b>utm_content=site-checkout&utm_source=easyupsell&utm_medium=website</b>.',
     'settings' => 'Nastavení doplňku',
     'eur_payment_options' => 'Pro platby v EUR jsou podklady k dispozici v nastavení doplňku.',
+    'is_subscribed' => 'Odebírat upozornění',
 ];

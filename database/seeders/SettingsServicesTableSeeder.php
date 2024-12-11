@@ -108,6 +108,13 @@ class SettingsServicesTableSeeder extends Seeder
                 'service_id' => 2,
                 'type' => 'hidden',
             ],
+            [
+                'id' => 14,
+                'name' => 'easy-upsell.is_subscribed',
+                'sort' => 8,
+                'service_id' => 2,
+                'type' => 'select',
+            ],
         ]);
     }
 }

@@ -75,7 +75,10 @@ class LicenseValidateCommand extends AbstractClientServiceCommand
                         $licenseActive = false;
                     }
                 }
-                if ($clientService->isLicenseActive() === true && $licenseActive === false) {
+                if ($clientService->isLicenseActive() === true
+                    && $licenseActive === false
+                    && $this->clientSettingsServiceOptionRepository->getEasyUpsellSubscribed($client) === true
+                    ) {
                     EmailHelper::licenseEasyUpsell($clientService);
                 }
                 $clientService->setLicenseActive($licenseActive);

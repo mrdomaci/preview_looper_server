@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Helpers\StringHelper;
 use App\Models\Client;
 use App\Models\ClientSettingsServiceOption;
 use App\Models\SettingsService;
@@ -164,6 +165,17 @@ class ClientSettingsServiceOptionRepository
             return $result->settingsServiceOption()->first()?->getValue();
         }
         return null;
+    }
+
+    public function getEasyUpsellSubscribed(Client $client): bool
+    {
+        $result = ClientSettingsServiceOption::where('client_id', $client->getId())
+            ->where('settings_service_id', SettingsService::UPSELL_SUBSCRIBE)
+            ->first();
+        if ($result !== null) {
+            return StringHelper::bool($result->settingsServiceOption()->first()?->getValue());
+        }
+        return true;
     }
 
     public function updateOrCreate(Client $client, SettingsService $settingsService, ?SettingsServiceOption $settingsServiceOption, ?string $value): ClientSettingsServiceOption
