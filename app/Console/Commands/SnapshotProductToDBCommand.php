@@ -49,6 +49,13 @@ class SnapshotProductToDBCommand extends AbstractCommand
         foreach ($clientServices as $clientService) {
             $files = Storage::files('snapshots');
 
+            $filesToDelete = collect($files)
+                ->filter(fn($file) => str_ends_with($file, $clientService->getId() . '_products.txt'));
+
+            foreach ($filesToDelete as $file) {
+                Storage::delete($file);
+            }
+
             $setFileName = 'snapshots/' . $clientService->getId() . '_products.gz';
             $latestFile = collect($files)
                 ->first(fn($file) => $file === $setFileName);
