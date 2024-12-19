@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Enums\ClientServiceQueueStatusEnum;
+use App\Helpers\LoggerHelper;
 use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -56,53 +57,52 @@ class SnapshotOrderToDBCommand extends AbstractCommand
             foreach ($filesToDelete as $file) {
                 Storage::delete($file);
             }
-    
             $setFileName = 'snapshots/' . $clientService->getId() . '_orders.gz';
-            $latestFile = collect($files)
-                ->first(fn($file) => $file === $setFileName);
-    
+            $latestFile = collect($files)->first(fn($file) => $file === $setFileName);
             if ($latestFile) {
+                $gz = null;
                 try {
                     $clientService->setUpdateInProgress(true);
-                    $this->info('Client service ' . $clientService->getId() . ' snaphot orders');
+                    $this->info('Processing snapshot for client service ID: ' . $clientService->getId());
                     $gz = gzopen(Storage::path($latestFile), 'rb');
                     $fileIndex = 1;
                     $lineCount = 0;
                     $buffer = '';
-            
                     while (!gzeof($gz)) {
                         $line = gzgets($gz);
+                        if (trim($line) === '') {
+                            continue;
+                        }
                         $buffer .= $line;
                         $lineCount++;
-            
                         if ($lineCount % 2000 === 0) {
-                            Storage::put('snapshots/' . $fileIndex . '_' . $clientService->getId()  . '_orders.txt', $buffer);
+                            Storage::put("snapshots/{$fileIndex}_{$clientService->getId()}_orders.txt", $buffer);
                             $buffer = '';
                             $lineCount = 0;
                             $fileIndex++;
                         }
                     }
-            
+
                     if ($buffer !== '') {
-                        Storage::put('snapshots/' . $fileIndex . '_' . $clientService->getId()  . '_orders.txt', $buffer);
+                        Storage::put("snapshots/{$fileIndex}_{$clientService->getId()}_orders.txt", $buffer);
                     }
-            
-                    gzclose($gz);
-                    Storage::delete($latestFile);
-                    $this->info('Client service ' . $clientService->getId() . ' snapshot orders');
+                    $this->info('Snapshot processing complete for client service ID: ' . $clientService->getId());
                     $service = $clientService->service()->first();
                     $clientService->setQueueStatus($clientServiceStatus->next($service));
                     $clientService->save();
                 } catch (Throwable $t) {
-                    $this->error('Error updating orders ' . $t->getMessage());
+                    LoggerHelper::log($t->getMessage());
+                    $this->error('Error updating orders for client service ID ' . $clientService->getId() . ': ' . $t->getMessage());
                     $success = false;
+                } finally {
+                    if ($gz) {
+                        gzclose($gz);
+                    }
+                    Storage::delete($latestFile);
+                    $clientService->setUpdateInProgress(false);
                 }
-                $clientService->setUpdateInProgress(false);
             }
         }
-        if ($success) {
-            return Command::SUCCESS;
-        }
-        return Command::FAILURE;
+        return $success ? Command::SUCCESS : Command::FAILURE;
     }
 }

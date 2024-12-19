@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Enums\ClientServiceQueueStatusEnum;
 use App\Helpers\ArrayHelper;
+use App\Helpers\LoggerHelper;
 use App\Helpers\StringHelper;
 use App\Models\Currency;
 use App\Repositories\AvailabilityRepository;
@@ -77,7 +78,6 @@ class FileProductToDBCommand extends AbstractCommand
                 $categories = [];
                 $productCategories = [];
                 try {
-                    $count = 0;
                     $guids = [];
                     while (($line = fgets($txtFile)) !== false) {
                         $productData = json_decode($line, true);
@@ -221,6 +221,7 @@ class FileProductToDBCommand extends AbstractCommand
                     Storage::delete($txtFilePath);
                     $this->info('Client service ' . $clientService->getId() . ' file product');
                 } catch (\Throwable $e) {
+                    LoggerHelper::log($e->getMessage());
                     $this->error("Error processing the product snapshot file: {$e->getMessage()}");
                     fclose($txtFile);
                     $success = false;

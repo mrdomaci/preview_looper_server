@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Enums\ClientServiceQueueStatusEnum;
+use App\Helpers\LoggerHelper;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\OrderProductRepository;
 use App\Repositories\OrderRepository;
@@ -132,6 +133,7 @@ class FileOrderToDBCommand extends AbstractCommand
                     fclose($txtFile);
                     Storage::delete($txtFilePath);
                 } catch (\Throwable $e) {
+                    LoggerHelper::log($e->getMessage());
                     $this->error("Error processing the order snapshot file: {$e->getMessage()}");
                     $success = false;
                     fclose($txtFile);
