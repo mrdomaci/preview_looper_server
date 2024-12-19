@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Businesses\QueueBusiness;
+use App\Helpers\LoggerHelper;
 use App\Models\Queue;
 use App\Repositories\QueueRepository;
 use Illuminate\Console\Command;
@@ -47,6 +48,7 @@ class QueueFromApiCommand extends AbstractCommand
             try {
                 $this->queueBusiness->download($queue);
             } catch (Throwable $e) {
+                LoggerHelper::log($e->getMessage());
                 $success = false;
                 $this->error('Queue download failed: ' . $queue->getId() . ' ' . $e->getMessage());
             }

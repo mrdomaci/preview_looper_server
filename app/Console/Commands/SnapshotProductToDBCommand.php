@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Enums\ClientServiceQueueStatusEnum;
+use App\Helpers\LoggerHelper;
 use App\Repositories\ClientServiceRepository;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -62,46 +63,58 @@ class SnapshotProductToDBCommand extends AbstractCommand
 
             if ($latestFile) {
                 try {
+                    $gz = null;
                     $clientService->setUpdateInProgress(true);
-                    $this->info('Client service ' . $clientService->getId() . ' snaphot products');
+                    $this->info('Client service ' . $clientService->getId() . ' snapshot products');
+                    
                     $gz = gzopen(Storage::path($latestFile), 'rb');
+                    if (!$gz) {
+                        throw new \RuntimeException("Unable to open gz file: $latestFile");
+                    }
+                    
                     $fileIndex = 1;
                     $lineCount = 0;
                     $buffer = '';
-    
+                
                     while (!gzeof($gz)) {
                         $line = gzgets($gz);
+                        if ($line === false || trim($line) === '') {
+                            continue;
+                        }
+                        
                         $buffer .= $line;
                         $lineCount++;
     
                         if ($lineCount % 2000 === 0) {
-                            Storage::put('snapshots/' . $fileIndex . '_' . $clientService->getId() . '_products.txt', $buffer);
+                            Storage::put("snapshots/{$fileIndex}_{$clientService->getId()}_products.txt", $buffer);
                             $buffer = '';
                             $lineCount = 0;
                             $fileIndex++;
                         }
                     }
     
-                    if ($buffer !== '') {
-                        Storage::put('snapshots/' . $fileIndex . '_' . $clientService->getId() . '_products.txt', $buffer);
+                    if (!empty($buffer)) {
+                        Storage::put("snapshots/{$fileIndex}_{$clientService->getId()}_products.txt", $buffer);
                     }
-    
-                    gzclose($gz);
-                    Storage::delete($latestFile);
-                    $this->info('Client service ' . $clientService->getId() . ' snaphot products');
-                    $service = $clientService->service()->first();
-                    $clientService->setQueueStatus($clientServiceStatus->next($service));
-                    $clientService->save();
                 } catch (Throwable $t) {
-                    $this->error('Error updating product for client service id: ' . $clientService->getId() . ' ' . $t->getMessage());
+                    LoggerHelper::log($t->getMessage());
+                    $this->error('Error processing file for client service id: ' . $clientService->getId());
                     $success = false;
+                } finally {
+                    if (is_resource($gz)) {
+                        gzclose($gz);
+                    }
+                    Storage::delete($latestFile);
+                    $clientService->setUpdateInProgress(false);
+                
+                    if ($success) {
+                        $service = $clientService->service()->first();
+                        $clientService->setQueueStatus($clientServiceStatus->next($service));
+                        $clientService->save();
+                    }
                 }
-                $clientService->setUpdateInProgress(false);
             }
         }
-        if ($success) {
-            return Command::SUCCESS;
-        }
-        return Command::FAILURE;
+        return $success ? Command::SUCCESS : Command::FAILURE;
     }
 }

@@ -64,6 +64,7 @@ class StoreAvailabilitiesFromApiCommand extends AbstractClientCommand
             } catch (AddonNotInstalledException $e) {
                 $clientService->setStatusDeleted();
             } catch (AddonSuspendedException $e) {
+                LoggerHelper::log($e->getMessage());
                 $clientService->setStatusInactive();
                 $clientService->setUpdateInProgress(false);
             } catch (Throwable $e) {

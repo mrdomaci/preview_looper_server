@@ -71,7 +71,8 @@ class QueueOrdersFromApiCommand extends AbstractClientServiceCommand
                     $clientService->setQueueStatus($clientServiceStatus->next($service));
                     $clientService->save();
                 }
-            } catch (ApiRequestFailException) {
+            } catch (ApiRequestFailException $t) {
+                LoggerHelper::log($t->getMessage());
                 $clientService->setStatusInactive();
             } catch (ApiRequestTooManyRequestsException $t) {
                 $this->error('Error updating orders due to too many requests ' . $t->getMessage());

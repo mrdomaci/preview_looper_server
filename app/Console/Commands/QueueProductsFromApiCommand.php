@@ -79,7 +79,8 @@ class QueueProductsFromApiCommand extends AbstractCommand
                     $clientService->setQueueStatus($clientServiceStatus->next($service));
                     $clientService->save();
                 }
-            } catch (ApiRequestFailException) {
+            } catch (ApiRequestFailException $t) {
+                LoggerHelper::log($t->getMessage());
                 $clientService->setStatusInactive();
             } catch (ApiRequestTooManyRequestsException $t) {
                 $this->error('Error updating products due to too many requests ' . $t->getMessage());
