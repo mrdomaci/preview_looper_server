@@ -52,7 +52,7 @@ class FileProductToDBCommand extends AbstractCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::DB_PRODUCTS;
-        $clientServices = $this->clientServiceRepository->getForUpdate($clientServiceStatus, 5);
+        $clientServices = $this->clientServiceRepository->getForUpdate($clientServiceStatus, 20);
 
         if ($clientServices->isEmpty()) {
             $this->info('No client service in product snapshot queue');
