@@ -41,7 +41,7 @@ class SnapshotOrderToDBCommand extends AbstractCommand
     public function handle()
     {
         $clientServiceStatus = ClientServiceQueueStatusEnum::SNAPSHOT_ORDERS;
-        $clientServices = $this->clientServiceRepository->getForUpdate($clientServiceStatus, 5);
+        $clientServices = $this->clientServiceRepository->getForUpdate($clientServiceStatus, 10);
 
         if ($clientServices->isEmpty()) {
             $this->info('No client service in orders snapshot queue');
@@ -75,7 +75,7 @@ class SnapshotOrderToDBCommand extends AbstractCommand
                         }
                         $buffer .= $line;
                         $lineCount++;
-                        if ($lineCount % 500 === 0) {
+                        if ($lineCount % 250 === 0) {
                             Storage::put("snapshots/{$fileIndex}_{$clientService->getId()}_orders.txt", $buffer);
                             $buffer = '';
                             $lineCount = 0;
