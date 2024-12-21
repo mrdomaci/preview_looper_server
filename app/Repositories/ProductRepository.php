@@ -137,15 +137,17 @@ class ProductRepository
      */
     public function bulkCreateOrUpdate(array $products): void
     {
-        Product::upsert(
-            $products,
-            ['guid', 'code', 'client_id'],
-            [
-                'stock', 'unit', 'price', 'availability_name', 'availability_id',
-                'is_negative_stock_allowed', 'foreign_id', 'image_url', 'updated_at',
-                'created_at', 'active', 'name', 'url', 'images', 'perex',
-                'producer',
-            ]
-        );
+        DB::transaction(function () use ($products) {
+            Product::upsert(
+                $products,
+                ['guid', 'code', 'client_id'],
+                [
+                    'stock', 'unit', 'price', 'availability_name', 'availability_id',
+                    'is_negative_stock_allowed', 'foreign_id', 'image_url', 'updated_at',
+                    'created_at', 'active', 'name', 'url', 'images', 'perex',
+                    'producer',
+                ]
+            );
+        });
     }
 }
