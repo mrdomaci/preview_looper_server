@@ -11,6 +11,7 @@ use App\Repositories\OrderProductRepository;
 use App\Repositories\OrderRepository;
 use DateTime;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class FileOrderToDBCommand extends AbstractCommand
@@ -119,8 +120,22 @@ class FileOrderToDBCommand extends AbstractCommand
                         }
                         $count++;
                         if ($count % 10 === 0) {
-                            $this->orderRepository->bulkCreateOrUpdate($orders);
-                            $this->orderProductRepository->bulkCreateOrIgnore($orderProducts);
+                            $chunkedOrders = array_chunk($orders, 100);
+                            foreach ($chunkedOrders as $batch) {
+                                DB::transaction(function () use ($batch) {
+                                    $sortedBatch = collect($batch)->sortBy('guid')->toArray();
+                                    $this->orderRepository->bulkCreateOrUpdate($sortedBatch);
+                                }, 5);
+                            }
+                            $chunkedOrderProducts = array_chunk($orderProducts, 100);
+                            foreach ($chunkedOrderProducts as $batch) {
+                                DB::transaction(function () use ($batch) {
+                                    $sortedBatch = collect($batch)->sortBy('guid')->toArray();
+                                    $this->orderProductRepository->bulkCreateOrIgnore($sortedBatch);
+                                }, 5);
+                            }
+                            unset($orderProducts, $orders);
+
                             $orderProducts = [];
                             $orders = [];
                         }
@@ -130,12 +145,12 @@ class FileOrderToDBCommand extends AbstractCommand
                         $this->orderProductRepository->bulkCreateOrIgnore($orderProducts);
                     }
                     $this->info('Client service ' . $clientService->getId() . ' file order');
-                    fclose($txtFile);
                     Storage::delete($txtFilePath);
                 } catch (\Throwable $e) {
                     LoggerHelper::log($e->getMessage());
                     $this->error("Error processing the order snapshot file: {$e->getMessage()}");
                     $success = false;
+                } finally {
                     fclose($txtFile);
                 }
             } else {
