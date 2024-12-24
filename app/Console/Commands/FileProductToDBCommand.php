@@ -16,6 +16,7 @@ use App\Repositories\ProductCategoryRepository;
 use App\Repositories\ProductRepository;
 use DateTime;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class FileProductToDBCommand extends AbstractCommand
@@ -207,24 +208,37 @@ class FileProductToDBCommand extends AbstractCommand
                                 ];
                             }
                         }
-                        $this->productRepository->bulkCreateOrUpdate($products);
-                        $this->categoryRepository->bulkCreateOrUpdate($categories);
+                        $chunkedProducts = array_chunk($products, 100);
+                        foreach ($chunkedProducts as $batch) {
+                            DB::transaction(function () use ($batch) {
+                                $sortedBatch = collect($batch)->sortBy('guid')->toArray();
+                                $this->productRepository->bulkCreateOrUpdate($sortedBatch);
+                            }, 5);
+                        }
+                        $chunkedCategories = array_chunk($categories, 100);
+                        foreach ($chunkedCategories as $batch) {
+                            DB::transaction(function () use ($batch) {
+                                $sortedBatch = collect($batch)->sortBy('guid')->toArray();
+                                $this->categoryRepository->bulkCreateOrUpdate($sortedBatch);
+                            }, 5);
+                        }
                         $this->productCategoryRepository->dropForProducts($guids, $client);
                         $this->productCategoryRepository->bulkCreateOrUpdate($productCategories);
+                        unset($products, $categories, $productCategories, $guids);
 
                         $products = [];
                         $categories = [];
                         $productCategories = [];
                         $guids = [];
                     }
-                    fclose($txtFile);
                     Storage::delete($txtFilePath);
                     $this->info('Client service ' . $clientService->getId() . ' file product');
                 } catch (\Throwable $e) {
                     LoggerHelper::log($e->getMessage());
                     $this->error("Error processing the product snapshot file: {$e->getMessage()}");
-                    fclose($txtFile);
                     $success = false;
+                } finally {
+                    fclose($txtFile);
                 }
             } else {
                 $service = $clientService->service()->first();
