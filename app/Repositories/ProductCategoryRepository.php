@@ -40,6 +40,8 @@ class ProductCategoryRepository
      */
     public function dropForProducts(array $productIds, Client $client): void
     {
-        ProductCategory::where('client_id', $client->getId())->whereIn('product_guid', $productIds)->delete();
+        foreach ($productIds as $productId) {
+            ProductCategory::where('client_id', $client->getId())->where('product_guid', $productId)->delete();
+        }
     }
 }

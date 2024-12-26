@@ -223,7 +223,13 @@ class FileProductToDBCommand extends AbstractCommand
                             }, 5);
                         }
                         $this->productCategoryRepository->dropForProducts($guids, $client);
-                        $this->productCategoryRepository->bulkCreateOrUpdate($productCategories);
+                        $chunkedProductCategories = array_chunk($categories, 100);
+                        foreach ($chunkedProductCategories as $batch) {
+                            DB::transaction(function () use ($batch) {
+                                $sortedBatch = collect($batch)->sortBy('product_guid')->toArray();
+                                $this->productCategoryRepository->bulkCreateOrUpdate($sortedBatch);
+                            }, 5);
+                        }
                         unset($products, $categories, $productCategories, $guids);
 
                         $products = [];
