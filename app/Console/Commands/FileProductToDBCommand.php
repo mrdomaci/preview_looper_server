@@ -223,7 +223,7 @@ class FileProductToDBCommand extends AbstractCommand
                             }, 5);
                         }
                         $this->productCategoryRepository->dropForProducts($guids, $client);
-                        $chunkedProductCategories = array_chunk($categories, 100);
+                        $chunkedProductCategories = array_chunk($productCategories, 100);
                         foreach ($chunkedProductCategories as $batch) {
                             DB::transaction(function () use ($batch) {
                                 $sortedBatch = collect($batch)->sortBy('product_guid')->toArray();
