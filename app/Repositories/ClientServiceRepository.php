@@ -163,4 +163,17 @@ class ClientServiceRepository
             ->limit($limit)
             ->get();
     }
+
+    public function getDeleted(?int $limit = 10): Collection
+    {
+        return ClientService::where('status', ClientServiceStatusEnum::DELETED)
+            ->whereNot('queue_status', ClientServiceQueueStatusEnum::DELETED)
+            ->whereNotIn('client_id', function ($query) {
+                $query->select('client_id')
+                    ->from('client_services')
+                    ->whereNot('status', ClientServiceStatusEnum::DELETED);
+            })
+            ->limit($limit)
+            ->get();
+    }
 }

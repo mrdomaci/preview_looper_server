@@ -71,4 +71,12 @@ class OrderRepository
             ]
         );
     }
+
+    /**
+     * @param Client $client
+     */
+    public function deleteByClient(Client $client): void
+    {
+        Order::where('client_id', $client->getId())->delete();
+    }
 }

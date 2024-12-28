@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\DB;
 
 class OrderProductRepository
 {
-    
     public function createOrUpdate(OrderResponse $orderResponse, OrderDetailResponse $orderDetailResponse, Client $client, Order $order): void
     {
         $product = Product::where('client_id', $client->getId())
@@ -73,5 +72,13 @@ class OrderProductRepository
         OrderProduct::insertOrIgnore(
             $orderProducts,
         );
+    }
+
+    /**
+     * @param Client $client
+     */
+    public function deleteByClient(Client $client): void
+    {
+        OrderProduct::where('client_id', $client->getId())->delete();
     }
 }

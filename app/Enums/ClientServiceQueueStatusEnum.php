@@ -21,6 +21,7 @@ enum ClientServiceQueueStatusEnum: string
     case DB_PRODUCTS = 'db_products';
     case DB_ORDERS = 'db_orders';
     case LICENSE = 'license';
+    case DELETED = 'deleted';
 
     public function next(Service $service): self
     {
