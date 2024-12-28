@@ -44,4 +44,12 @@ class ProductCategoryRepository
             ProductCategory::where('client_id', $client->getId())->where('product_guid', $productId)->delete();
         }
     }
+
+    /**
+     * @param Client $client
+     */
+    public function deleteByClient(Client $client): void
+    {
+        ProductCategory::where('client_id', $client->getId())->delete();
+    }
 }
