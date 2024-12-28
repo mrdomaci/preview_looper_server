@@ -9,6 +9,7 @@ use App\Businesses\BaseOauthUrlBusiness;
 use App\Businesses\SettingServiceBusiness;
 use App\Enums\CountryEnum;
 use App\Enums\QueueStatusEnum;
+use App\Exceptions\DataNotFoundException;
 use App\Helpers\AuthorizationHelper;
 use App\Helpers\LicenseHelper;
 use App\Helpers\LocaleHelper;
@@ -140,8 +141,10 @@ class ClientController extends Controller
             $queue->setStatus(QueueStatusEnum::COMPLETED);
             $queue->save();
             return response('OK', 200)->header('Content-Type', 'text/plain');
-        } catch (Throwable) {
+        } catch (DataNotFoundException) {
             return response('No data found', 404)->header('Content-Type', 'text/plain');
+        } catch (Throwable $t) {
+            return response('Error updating queue', 500)->header('Content-Type', 'text/plain');
         }
     }
 
