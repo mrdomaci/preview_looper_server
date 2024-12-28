@@ -24,7 +24,8 @@ class CacheHelper
                 ->where('id', '>', $lastProductId)
                 ->where('active', 1)
                 ->distinct('guid')
-                ->limit(1000)
+                ->select('guid', 'images', 'id')
+                ->limit(100)
                 ->get();
 
             /** @var Product $product */
@@ -32,7 +33,7 @@ class CacheHelper
                 $result[$product->getGuid()] = $product->getImages();
                 $lastProductId = $product->getId();
             }
-            if (count($products) < 1000) {
+            if (count($products) < 100) {
                 break;
             }
         }
