@@ -58,6 +58,7 @@ class LicenseValidateCommand extends AbstractClientServiceCommand
             $clientService->setUpdateInProgress(true);
             $this->info('Client service ' . $clientService->getId() . ' license check started');
             $client = $clientService->client()->first();
+            $service = $clientService->service()->first();
             $licenseActive = true;
             $license = $this->licenseRepository->getValidByClientService($clientService);
             if ($license === null) {
@@ -82,6 +83,8 @@ class LicenseValidateCommand extends AbstractClientServiceCommand
             }
             $clientService->setLicenseActive($licenseActive);
             $clientService->setUpdateInProgress(false);
+            $clientService->setQueueStatus($clientServiceStatus->next($service));
+            $clientService->save();
         }
         return Command::SUCCESS;
     }
