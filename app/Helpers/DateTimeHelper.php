@@ -20,13 +20,11 @@ class DateTimeHelper
     public static function adjustDateToCurrentMonth(DateTime $date): DateTime
     {
         $currentDate = new DateTime();
-        $adjustedDate = new DateTime($currentDate->format('Y') . '-' . $currentDate->format('m') . '-' . $date->format('d'));
-        if ($adjustedDate > $currentDate) {
-            $adjustedDate->modify('-1 month');
+        $currentYearMonth = $currentDate->format('Y-m');
+        $adjustedDate = DateTime::createFromFormat('Y-m-d', $currentYearMonth . '-' . $date->format('d'));
+        if (!$adjustedDate || $adjustedDate > $currentDate) {
+            $adjustedDate = (clone $adjustedDate)->modify('-1 month');
         }
-        if ($adjustedDate < $date) {
-            return $date;
-        }
-        return $adjustedDate;
+        return $adjustedDate < $date ? $date : $adjustedDate;
     }
 }
