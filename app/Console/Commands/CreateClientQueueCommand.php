@@ -57,7 +57,7 @@ class CreateClientQueueCommand extends AbstractClientServiceCommand
         /** @var Collection<ClientService> $clientServices */
         foreach ($clientServices as $clientService) {
             $clientService->setQueueStatus(ClientServiceQueueStatusEnum::CLIENTS)
-                ->setWebhoodAt(new DateTime())
+                ->setWebhookedAt(new DateTime())
                 ->save();
             $this->queueRepository->deleteForClientService($clientService);
             $this->info('Client service ' . $clientService->getId() . ' added to queue');

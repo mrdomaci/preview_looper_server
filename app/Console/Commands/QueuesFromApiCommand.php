@@ -80,7 +80,7 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
                     $clientService->setQueueStatus($clientServiceStatus->next($service));
                     $clientService->save();
                 } else {
-                    $clientService->setWebhoodAt(new DateTime('now + 30 minutes'));
+                    $clientService->setWebhookedAt(new DateTime('now + 30 minutes'));
                     $clientService->save();
                 }
             } catch (ApiRequestFailException) {
