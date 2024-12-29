@@ -57,4 +57,5 @@ return [
     'subscribe' => 'odebírat',
     'unsubscribe' => 'odhlásit',
     'subscribtion_info' => 'Emailové odběry můžete spravovat v nastavení doplňku',
+    'settings_unauthorized_url' => 'Do nastavení doplňku je možné přistupovat pouze z URL adresy uvedené v Shoptet administraci doplňku.',
 ];
