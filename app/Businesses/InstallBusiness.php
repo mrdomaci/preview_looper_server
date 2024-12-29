@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Businesses;
 
+use App\Enums\ClientServiceQueueStatusEnum;
 use App\Enums\ClientServiceStatusEnum;
 use App\Enums\CountryEnum;
 use App\Helpers\AuthorizationHelper;
@@ -15,6 +16,7 @@ use App\Models\Service;
 use App\Repositories\ClientRepository;
 use App\Repositories\ClientServiceQueueRepository;
 use App\Repositories\ClientServiceRepository;
+use DateTime;
 
 class InstallBusiness
 {
@@ -52,6 +54,10 @@ class InstallBusiness
     public function activate(Service $service, Client $client): void
     {
         $clientService = $this->clientServiceRepository->updateStatus($client, $service, ClientServiceStatusEnum::ACTIVE);
+        $clientService
+            ->setQueueStatus(ClientServiceQueueStatusEnum::CLIENTS)
+            ->setWebhookedAt(new DateTime())
+            ->save();
         LoggerHelper::log('Client ' . $client->getId() . ' activated');
         $this->clientServiceQueueRepository->createOrIgnore($clientService);
     }

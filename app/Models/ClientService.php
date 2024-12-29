@@ -207,7 +207,7 @@ class ClientService extends Model
         $this->save();
     }
 
-    public function setWebhoodAt(?DateTime $webhoodAt): self
+    public function setWebhookedAt(?DateTime $webhoodAt): self
     {
         return $this->setAttribute('webhooked_at', $webhoodAt);
     }

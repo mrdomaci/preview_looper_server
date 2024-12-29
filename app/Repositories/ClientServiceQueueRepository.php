@@ -29,7 +29,7 @@ class ClientServiceQueueRepository
                     'status' => ClientServiceQueueStatusEnum::CLIENTS->name,
                     'queued_at' => new DateTime(),
                 ]);
-                $clientService->setWebhoodAt(new DateTime());
+                $clientService->setWebhookedAt(new DateTime());
                 $clientService->save();
                 return $clientServiceQueue;
             }
