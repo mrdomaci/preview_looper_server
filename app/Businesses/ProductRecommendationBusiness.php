@@ -6,6 +6,7 @@ namespace App\Businesses;
 
 use App\Models\Client;
 use App\Models\Product;
+use App\Repositories\AvailabilityRepository;
 use App\Repositories\ClientSettingsServiceOptionRepository;
 use App\Repositories\OrderProductRepository;
 use App\Repositories\ProductCategoryRecommendationRepository;
@@ -21,7 +22,8 @@ class ProductRecommendationBusiness
         private OrderProductRepository $orderProductRepository,
         private ClientSettingsServiceOptionRepository $clientSettingsServiceOptionRepository,
         private ProductRepository $productRepository,
-        private ProductCategoryRecommendationRepository $productCategoryRecommendationRepository
+        private ProductCategoryRecommendationRepository $productCategoryRecommendationRepository,
+        private AvailabilityRepository $availabilityRepository,
     ) {
     }
 
@@ -40,10 +42,11 @@ class ProductRecommendationBusiness
         arsort($this->recommendations);
         $this->filterProductsInCart($products);
         $loop = $maxResults;
+        $forbiddentAvailabilities = $this->availabilityRepository->getForbidden($client);
         foreach ($this->recommendations as $guid => $priority) {
             $guid = (string) $guid;
             try {
-                $this->recommendations[$guid] = $this->productRepository->getBestVariant($client, $guid);
+                $this->recommendations[$guid] = $this->productRepository->getBestVariant($client, $guid, $forbiddentAvailabilities);
                 $loop--;
             } catch (Throwable) {
                 unset($this->recommendations[$guid]);

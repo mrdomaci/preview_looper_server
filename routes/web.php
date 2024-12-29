@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\ImageController;
@@ -51,6 +52,8 @@ Route::get('/products/{clientId}/{name}', [ProductController::class, 'getData'])
 // Recommendation settings
 Route::post('/recommendation/{country}/{serviceUrlPath}/{language}/{eshopId}', [ProductCategoryRecommendationController::class, 'add'])->name('recommendation.add');
 Route::delete('/recommendation/{country}/{serviceUrlPath}/{language}/{eshopId}', [ProductCategoryRecommendationController::class, 'delete'])->name('recommendation.delete');
+Route::post('/recommendation/availability/{country}/{serviceUrlPath}/{language}/{eshopId}', [AvailabilityController::class, 'add'])->name('availability.add');
+Route::delete('/recommendation/availability/{country}/{serviceUrlPath}/{language}/{eshopId}', [AvailabilityController::class, 'delete'])->name('availability.delete');
 
 // License
 Route::get('/license/download/{license}', [ClientController::class, 'license'])->name('license.download');

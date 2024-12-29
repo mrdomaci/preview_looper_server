@@ -252,6 +252,73 @@ use App\Helpers\QrHelper;
                 <p>{{ __('easy-upsell.no_fobidden_recommendations')}}</p>
             @endif
         </div>
+        <div class="card-body">
+            <form method="POST" action="{{ route('availability.add', ['country' => $country, 'serviceUrlPath' => $service->getUrlPath(), 'language' => $language, 'eshopId' => $client->getEshopId()]) }}">
+                @csrf
+                <h4>{{ __('easy-upsell.availability_forbidden_title')}}</h4>
+                <div class="form-group row mt-4">
+                    <div class="col-md-12 mb-4">
+                        <label>{{ __('easy-upsell.availability_forbidden_info')}}</label>
+                    </div>
+                </div>
+                <div class="form-group row mt-4">
+                    <div class="col-md-4">
+                        <label>{{ __('easy-upsell.availability')}}</label>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control" name="availability" id="availability">
+                            @foreach ($availabilities as $availability)
+                                <option value="{{ $availability->foreign_id }}">{{ $availability->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-12 text-center">
+                        <input type="hidden" name="is_forbidden" value="1">
+                        <input type="hidden" name="eshop_id" value="{{$client->getEshopId()}}">
+                        <button type="submit" class="btn btn-primary m-3">{{ __('general.insert') }}</button>
+                    </div>
+                </div>
+            </form>
+        </div>    
+        <div class="card-body">
+            @if (count($forbidden_availabilities) > 0)
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>{{ __('easy-upsell.availability')}}</th>
+                            <th>{{ __('general.delete')}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($forbidden_availabilities as $forbiddenAvailability)
+                            <tr>
+                                <td>{{ $forbiddenAvailability->name }}</td>
+                                <td>
+                                    <form method="POST" action="{{ route('availability.delete',
+                                            [
+                                                'country' => $country,
+                                                'serviceUrlPath' => $service->getUrlPath(),
+                                                'language' => $language,
+                                                'eshopId' => $client->eshop_id
+                                            ]
+                                        ) }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <input type="hidden" name="foreign_id" value="{{ $forbiddenAvailability->foreign_id }}">
+                                        <button type="submit" class="btn btn-danger">{{ __('general.delete') }}</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                <x-pagination :page="$forbidden_availabilities->currentPage()" :lastPage="$forbidden_availabilities->lastPage()"/>
+            @else
+                <p>{{ __('easy-upsell.no_fobidden_availabilities')}}</p>
+            @endif
+        </div>
     </div>
   </div>
 </div>

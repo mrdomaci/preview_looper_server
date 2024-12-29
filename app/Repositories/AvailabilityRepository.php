@@ -89,4 +89,23 @@ class AvailabilityRepository
             ->where('is_sold_out_negative_stock_allowed', true)
             ->first();
     }
+
+    public function getForClient(Client $client, ?string $availability = null): ?Availability
+    {
+        if ($availability === null) {
+            return null;
+        }
+        return Availability::where('client_id', $client->getId())->where('foreign_id', $availability)->firstOrFail();
+    }
+
+    /**
+     * @param Client $client
+     * @return Collection<Availability>
+     */
+    public function getForbidden(Client $client): Collection
+    {
+        return Availability::where('client_id', $client->getId())
+            ->where('is_forbidden', true)
+            ->get();
+    }
 }
