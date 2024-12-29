@@ -145,7 +145,7 @@ class ProductRepository
                     'stock', 'unit', 'price', 'availability_name', 'availability_id',
                     'is_negative_stock_allowed', 'foreign_id', 'image_url', 'updated_at',
                     'created_at', 'active', 'name', 'url', 'images', 'perex',
-                    'producer',
+                    'producer', 'availability_foreign_id',
                 ]
             );
         });

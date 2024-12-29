@@ -122,7 +122,7 @@ class FileProductToDBCommand extends AbstractCommand
                                 $productVariant = $product;
     
                                 $availabilityName = null;
-                                $availabilityId = null;
+                                $availabilityForeignId = null;
                                 $isNegativeStockAllowed = false;
                                 $stock = (isset($variant['stock']) ? (float) $variant['stock'] : 0);
                                 $image = StringHelper::removeParameter($variant['image'] ?? '');
@@ -131,7 +131,7 @@ class FileProductToDBCommand extends AbstractCommand
                                     if ($variant['availability'] !== null) {
                                         if (is_array($variant['availability'])) {
                                             $availabilityName = $variant['availability']['name'] ?? null;
-                                            $availabilityId = isset($variant['availability']['id']) ? (string) $variant['availability']['id'] : '';
+                                            $availabilityForeignId = isset($variant['availability']['id']) ? (string) $variant['availability']['id'] : '';
                                         }
                                     }
                                 }
@@ -140,7 +140,7 @@ class FileProductToDBCommand extends AbstractCommand
                                         if ($variant['availabilityWhenSoldOut'] !== null) {
                                             if (is_array($variant['availabilityWhenSoldOut'])) {
                                                 $availabilityName = ($variant['availabilityWhenSoldOut']['name'] ?? null);
-                                                $availabilityId = (isset($variant['availabilityWhenSoldOut']['id']) ? (string) $variant['availabilityWhenSoldOut']['id'] : '');
+                                                $availabilityForeignId = (isset($variant['availabilityWhenSoldOut']['id']) ? (string) $variant['availabilityWhenSoldOut']['id'] : '');
                                             }
                                         }
                                     }
@@ -158,16 +158,16 @@ class FileProductToDBCommand extends AbstractCommand
                                     }
                                 }
     
-                                if ($availabilityId === null) {
+                                if ($availabilityForeignId === null) {
                                     if ($stock > 0 && $onStockAvailability !== null) {
                                         $availabilityName = $onStockAvailability->getName();
-                                        $availabilityId = (string) $onStockAvailability->getId();
+                                        $availabilityForeignId = (string) $onStockAvailability->getForeignId();
                                     } else if ($isNegativeStockAllowed === true && $soldOutNegativeStockAllowed !== null) {
                                         $availabilityName = $soldOutNegativeStockAllowed->getName();
-                                        $availabilityId = (string) $soldOutNegativeStockAllowed->getId();
+                                        $availabilityForeignId = (string) $soldOutNegativeStockAllowed->getForeignId();
                                     } else if ($soldOutNegativeStockForbidden !== null) {
                                         $availabilityName = $soldOutNegativeStockForbidden->getName();
-                                        $availabilityId = (string) $soldOutNegativeStockForbidden->getId();
+                                        $availabilityForeignId = (string) $soldOutNegativeStockForbidden->getForeignId();
                                     }
                                 }
                                 $price = '0';
@@ -180,7 +180,7 @@ class FileProductToDBCommand extends AbstractCommand
                                 $productVariant['unit'] = $variant['unit'] ?? '';
                                 $productVariant['price'] = Currency::formatPrice($price, $variant['currencyCode'] ?? 'CZK');
                                 $productVariant['availability_name'] = $availabilityName;
-                                //$productVariant['availability_id'] = $availabilityId;
+                                $productVariant['availability_foreign_id'] = $availabilityForeignId;
                                 $productVariant['is_negative_stock_allowed'] = $isNegativeStockAllowed;
                                 $productVariant['foreign_id'] = StringHelper::getIdFromImage($image);
                                 $productVariant['image_url'] = StringHelper::removeParameter($image);
