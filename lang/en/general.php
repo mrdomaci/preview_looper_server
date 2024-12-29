@@ -53,4 +53,5 @@ return [
     'subscribe' => 'subscribe',
     'unsubscribe' => 'unsubscribe',
     'subscribtion_info' => 'You can manage email subscriptions in the plugin settings',
+    'settings_unauthorized_url' => 'You can only access the plugin settings from the URL address specified in the Shoptet plugin administration.',
 ];

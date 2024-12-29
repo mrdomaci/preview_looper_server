@@ -38,4 +38,5 @@ return [
     'subscribe' => 'feliratkozás',
     'unsubscribe' => 'leiratkozás',
     'subscribtion_info' => 'Az email feliratkozásokat a bővítmény beállításaiban kezelheti',
+    'settings_unauthorized_url' => 'A bővítmény beállításaihoz csak a Shoptet bővítmény adminisztrációjában megadott URL-címről lehet hozzáférni.',
 ];

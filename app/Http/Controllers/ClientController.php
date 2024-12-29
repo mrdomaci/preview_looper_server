@@ -10,6 +10,7 @@ use App\Businesses\SettingServiceBusiness;
 use App\Enums\CountryEnum;
 use App\Enums\QueueStatusEnum;
 use App\Exceptions\DataNotFoundException;
+use App\Exceptions\RequestDataMissingException;
 use App\Helpers\AuthorizationHelper;
 use App\Helpers\LicenseHelper;
 use App\Helpers\LocaleHelper;
@@ -62,6 +63,8 @@ class ClientController extends Controller
         try {
             $baseOAuthUrl = $this->baseOauthUrlBusiness->getFromRequestClientService($request, $clientService);
             $accessToken = $this->accessTokenBusiness->getFromRequestClientService($request, $clientService, $baseOAuthUrl, $country);
+        } catch (RequestDataMissingException) {
+            abort(401, __('general.settings_unauthorized_url'));
         } catch (Throwable) {
             abort(401, __('general.unauthorized'));
         }

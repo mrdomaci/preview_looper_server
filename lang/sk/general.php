@@ -53,4 +53,5 @@ return [
     'subscribe' => 'prihlásiť sa',
     'unsubscribe' => 'odhlásiť sa',
     'subscribtion_info' => 'Odoberanie upozornení môžete spravovať v nastaveniach doplnku',
+    'settings_unauthorized_url' => 'K nastaveniam doplnku je možné pristupovať len z URL adresy uvedenej v Shoptet administrácii doplnku.',
 ];
