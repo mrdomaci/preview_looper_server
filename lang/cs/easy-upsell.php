@@ -81,4 +81,8 @@ return [
     'settings' => 'Nastavení doplňku',
     'eur_payment_options' => 'Pro platby v EUR jsou podklady k dispozici v nastavení doplňku.',
     'is_subscribed' => 'Odebírat upozornění',
+    'availability_forbidden_title' => 'Zakázané dostupnosti',
+    'availability_forbidden_info' => 'Zde můžete definovat dostupnosti a produkty s danou dostupností se zákazníkovi nebudou zobrazovat jako doporučení.',
+    'availability' => 'Dostupnost',
+    'no_fobidden_availabilities' => 'Nemáte žádné definované zakázané dostupnosti',
 ];

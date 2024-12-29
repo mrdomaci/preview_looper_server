@@ -7,6 +7,7 @@ namespace App\Repositories;
 use App\Connector\Shoptet\ProductDetailResponse;
 use App\Helpers\PriceHelper;
 use App\Helpers\StringHelper;
+use App\Models\Availability;
 use App\Models\Client;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Collection;
@@ -102,12 +103,19 @@ class ProductRepository
             ->firstOrFail();
     }
 
-    public function getBestVariant(Client $client, string $guid): Product
+    /**
+     * @param Client $client
+     * @param string $guid
+     * @param Collection<Availability> $forbiddenAvailabilities
+     * @return Product
+     */
+    public function getBestVariant(Client $client, string $guid, Collection $forbiddenAvailabilities): Product
     {
         return Product::where('client_id', $client->getId())
             ->where('active', true)
             //->where('availability_level', '<', 3)
             ->where('guid', $guid)
+            ->whereNotIn('availability_id', $forbiddenAvailabilities->pluck('id')->toArray())
             ->orderBy('availability_level', 'asc')
             ->orderBy('stock', 'desc')
             ->select(

@@ -81,4 +81,8 @@ return [
     'settings' => 'Addon Settings',
     'eur_payment_options' => 'For payments in EUR, details are available in the add-on settings.',
     'is_subscribed' => 'Subscribe to notifications',
+    'availability_forbidden_title' => 'Forbidden Availabilities',
+    'availability_forbidden_info' => 'Here you can define availabilities and products with that availability will not be displayed to the customer as recommendations.',
+    'availability' => 'Availability',
+    'no_fobidden_availabilities' => 'You have no defined forbidden availabilities',
 ];

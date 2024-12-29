@@ -95,6 +95,8 @@ class ClientController extends Controller
                 'licenses' => $clientService->licenses()->orderBy('valid_to', 'desc')->get(),
                 'variable_symbol' => $clientService->getVariableSymbol(),
                 'ordersCount' => $this->clientSettingsServiceOptionRepository->getUpsellOrders($client) ?? 0,
+                'availabilities' => $client->availabilities()->where('is_forbidden', false)->get(),
+                'forbidden_availabilities' => $client->availabilities()->where('is_forbidden', true)->paginate(25, ['*'], 'page', $page),
             ]
         );
     }

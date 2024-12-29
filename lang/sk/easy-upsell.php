@@ -81,4 +81,8 @@ return [
     'settings' => 'Nastavenia doplnku',
     'eur_payment_options' => 'Pre platby v EUR sú údaje k dispozícii v nastaveniach doplnku.',
     'is_subscribed' => 'Odoberať upozornenia',
+    'availability_forbidden_title' => 'Zakázané dostupnosti',
+    'availability_forbidden_info' => 'Zadajte dostupnosti a produkty s touto dostupnosťou sa zákazníkovi nebudú zobrazovať ako odporúčania.',
+    'availability' => 'Dostupnosť',
+    'no_fobidden_availabilities' => 'Nemáte žiadne definované zakázané dostupnosti',
 ];

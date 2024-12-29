@@ -81,4 +81,8 @@ return [
     'settings' => 'Bővítmény beállításai',
     'eur_payment_options' => 'Az EUR-ban történő fizetésekhez a részletek elérhetők a bővítmény beállításaiban.',
     'is_subscribed' => 'Feliratkozás értesítésekre',
+    'availability_forbidden_title' => 'Tiltott elérhetőségek',
+    'availability_forbidden_info' => 'Itt meghatározhatja azokat az elérhetőségeket és termékeket, amelyekkel az elérhetőséggel a vásárlónak nem jeleníthet meg ajánlásokat.',
+    'availability' => 'Elérhetőség',
+    'no_fobidden_availabilities' => 'Nincsenek meghatározott tiltott elérhetőségek',
 ];

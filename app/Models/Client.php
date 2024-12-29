@@ -29,6 +29,11 @@ class Client extends Model
         'last_synced_at',
     ];
 
+    public function availabilities(): HasMany
+    {
+        return $this->hasMany(Availability::class);
+    }
+
     public function getId(): int
     {
         return $this->getAttribute('id');

@@ -182,4 +182,14 @@ class Availability extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function isForbidden(): bool
+    {
+        return (bool) $this->getAttribute('is_forbidden');
+    }
+
+    public function setIsForbidden(bool $isForbidden): self
+    {
+        return $this->setAttribute('is_forbidden', $isForbidden);
+    }
 }
