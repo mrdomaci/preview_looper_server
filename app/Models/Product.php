@@ -157,19 +157,6 @@ class Product extends Model
         return $this->setAttribute('code', $code);
     }
 
-    public function getParentProduct(): ?Product
-    {
-        return $this->belongsTo(Product::class, 'parent_product_id')->first();
-    }
-
-    public function setParentProduct(?Product $product): self
-    {
-        if ($product === null) {
-            return $this->setAttribute('parent_product_id', null);
-        }
-        return $this->setAttribute('parent_product_id', $product->getId());
-    }
-
     public function getAvailabilityName(): ?string
     {
         return $this->getAttribute('availability_name');
@@ -320,7 +307,6 @@ class Product extends Model
         $clone->setAttribute('active', $product->isActive());
         $clone->setAttribute('created_at', $product->getCreatedAt());
         $clone->setAttribute('updated_at', $product->getUpdatedAt());
-        $clone->setAttribute('parent_product_id', $product->getId());
         $clone->setAttribute('code', $product->getCode());
         $clone->save();
 
