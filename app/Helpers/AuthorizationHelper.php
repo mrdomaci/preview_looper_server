@@ -75,6 +75,7 @@ class AuthorizationHelper
 
         $response = Json::decode($response, true);
         if (ArrayHelper::containsKey($response, 'error') === true) {
+            dd($response);
             throw new AddonSettingsSecurityFailException(new Exception($response['error'] . ': ' . $response['error_description']));
         }
         if (ArrayHelper::containsKey($response, 'access_token') === false) {
