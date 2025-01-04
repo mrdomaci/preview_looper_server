@@ -55,9 +55,6 @@ class ClientController extends Controller
         $language = $request->input('language');
         $page = $request->input('page') ?? 1;
         try {
-            if ($client->getId() === 2) {
-                $client = $this->clientRepository->get(526);
-            }
             $clientService = $this->clientServiceRepository->getByClientAndService($client, $service);
         } catch (Throwable) {
             abort(404, __('general.inactive_service'));
@@ -69,7 +66,6 @@ class ClientController extends Controller
         } catch (RequestDataMissingException) {
             abort(401, __('general.settings_unauthorized_url'));
         } catch (Throwable $t) {
-            dd($t);
             abort(401, __('general.unauthorized'));
         }
 
