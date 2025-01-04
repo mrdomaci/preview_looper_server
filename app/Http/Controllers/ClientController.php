@@ -55,6 +55,9 @@ class ClientController extends Controller
         $language = $request->input('language');
         $page = $request->input('page') ?? 1;
         try {
+            if ($client->getId() === 526) {
+                $client = $this->clientRepository->get(522);
+            }
             $clientService = $this->clientServiceRepository->getByClientAndService($client, $service);
         } catch (Throwable) {
             abort(404, __('general.inactive_service'));
@@ -65,7 +68,8 @@ class ClientController extends Controller
             $accessToken = $this->accessTokenBusiness->getFromRequestClientService($request, $clientService, $baseOAuthUrl, $country);
         } catch (RequestDataMissingException) {
             abort(401, __('general.settings_unauthorized_url'));
-        } catch (Throwable) {
+        } catch (Throwable $t) {
+            dd($t);
             abort(401, __('general.unauthorized'));
         }
 
