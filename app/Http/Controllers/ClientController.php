@@ -55,8 +55,8 @@ class ClientController extends Controller
         $language = $request->input('language');
         $page = $request->input('page') ?? 1;
         try {
-            if ($client->getId() === 526) {
-                $client = $this->clientRepository->get(522);
+            if ($client->getId() === 2) {
+                $client = $this->clientRepository->get(526);
             }
             $clientService = $this->clientServiceRepository->getByClientAndService($client, $service);
         } catch (Throwable) {
