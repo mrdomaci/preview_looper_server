@@ -258,19 +258,12 @@ async function initPreviewImages(pw_elements, response) {
   const transaction = db.transaction(["pw_images"], "readwrite");
   const objectStore = transaction.objectStore("pw_images");
   if (response) {
-    pw_i_r = response.infinite_repeat || '0';
-    sessionStorage.setItem('pw_infinite_repeat', pw_i_r);
-    pw_r_t_d = response.return_to_default || '0';
-    sessionStorage.setItem('pw_return_to_default', pw_r_t_d);
-    pw_s_t = response.show_time || 1500;
-    sessionStorage.setItem('pw_show_time', pw_s_t);
-    pw_i_l = response.initial_loop || 500;
-    sessionStorage.setItem('pw_initial_loop', pw_i_l);
-    pw_a_t = response.apply_to || 'all';
-    sessionStorage.setItem('pw_apply_to', pw_a_t);
-    pw_m_i = response.mobile_icons || 'circles';
-    sessionStorage.setItem('pw_mobile_icons', pw_m_i);
-
+    sessionStorage.setItem('pw_infinite_repeat', response.inifinite_repeat);
+    sessionStorage.setItem('pw_return_to_default', response.return_to_default);
+    sessionStorage.setItem('pw_show_time', response.show_time);
+    sessionStorage.setItem('pw_initial_loop', response.initial_loop);
+    sessionStorage.setItem('pw_apply_to', response.apply_to);
+    sessionStorage.setItem('pw_mobile_icons', response.mobile_icons);
     for (const [index, value] of Object.entries(response.data)) {
       objectStore.add({ id: index, images: value });
     }
