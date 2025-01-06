@@ -56,7 +56,7 @@ class AuthorizationHelper
             'code' => $code,
             'grant_type' => 'authorization_code',
             'redirect_uri' => Route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $service->getUrlPath()]),
-            'scope' => 'api',
+            'scope' => 'basic_eshop',
         ];
         
         $url = $baseOAuthUrl . 'token';
