@@ -57,12 +57,14 @@ class ProductCategoryRecommendation extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class, 'product_guid', 'guid');
+        return $this->belongsTo(Product::class, 'product_guid', 'guid')
+            ->where('client_id', $this->getAttribute('client_id'));
     }
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class, 'category_guid', 'guid');
+        return $this->belongsTo(Category::class, 'category_guid', 'guid')
+            ->where('client_id', $this->getAttribute('client_id'));
     }
 
     public function client(): BelongsTo
@@ -82,11 +84,11 @@ class ProductCategoryRecommendation extends Model
 
     public function getProduct(): Product
     {
-        return Product::where('guid', $this->getAttribute('product_guid'))->first();
+        return Product::where('guid', $this->getAttribute('product_guid'))->where('client_id', $this->getAttribute('client_id'))->first();
     }
 
     public function getCategory(): Category
     {
-        return Category::where('guid', $this->getAttribute('category_guid'))->first();
+        return Category::where('guid', $this->getAttribute('category_guid'))->where('client_id', $this->getAttribute('client_id'))->first();
     }
 }
