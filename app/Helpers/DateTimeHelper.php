@@ -28,7 +28,15 @@ class DateTimeHelper
         $newDate = new \DateTime();
         $newDate->setDate((int)$today->format('Y'), (int)$today->format('m'), (int)$date->format('d'));
         if ($newDate->format('m') !== $today->format('m')) {
-            $newDate->setDate((int)$today->format('Y'), (int)$today->format('m') + 1, 1);
+            $currentYear = (int)$today->format('Y');
+            $currentMonth = (int)$today->format('m');
+
+            $newMonth = $currentMonth + 1;
+            if ($newMonth > 12) {
+                $newMonth = 1;
+                $currentYear++;
+            }
+            $newDate->setDate($currentYear, $newMonth, 1);
         }
 
         return $newDate;
