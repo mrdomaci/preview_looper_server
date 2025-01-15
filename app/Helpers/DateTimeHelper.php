@@ -17,14 +17,20 @@ class DateTimeHelper
         return urlencode($dateTimeString);
     }
 
-    public static function adjustDateToCurrentMonth(DateTime $date): DateTime
+    public static function adjustDateToCurrentMonth(DateTime $inputDate): DateTime
     {
-        $currentDate = new DateTime();
-        $currentYearMonth = $currentDate->format('Y-m');
-        $adjustedDate = DateTime::createFromFormat('Y-m-d', $currentYearMonth . '-' . $date->format('d'));
-        if (!$adjustedDate || $adjustedDate > $currentDate) {
-            $adjustedDate = (clone $adjustedDate)->modify('-1 month');
+        $date = clone $inputDate;
+        $today = new \DateTime('today');
+        $oneMonthAgo = (clone $today)->modify('-1 month');
+        if ($date >= $oneMonthAgo) {
+            return $date;
         }
-        return $adjustedDate < $date ? $date : $adjustedDate;
+        $newDate = new \DateTime();
+        $newDate->setDate((int)$today->format('Y'), (int)$today->format('m'), (int)$date->format('d'));
+        if ($newDate->format('m') !== $today->format('m')) {
+            $newDate->setDate((int)$today->format('Y'), (int)$today->format('m') + 1, 1);
+        }
+
+        return $newDate;
     }
 }
