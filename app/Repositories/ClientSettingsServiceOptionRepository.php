@@ -199,6 +199,7 @@ class ClientSettingsServiceOptionRepository
 
         $clientSettingsServiceOption->setAttribute('settings_service_option_id', $settingsServiceOption);
         $clientSettingsServiceOption->setAttribute('value', $value);
+        $clientSettingsServiceOption->setAttribute('updated_at', now());
         $clientSettingsServiceOption->save();
         return $clientSettingsServiceOption;
     }
