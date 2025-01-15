@@ -93,9 +93,9 @@ class ClientServiceRepository
     {
         $q = ClientService::where('status', ClientServiceStatusEnum::ACTIVE)
             ->where(function ($query) use ($dateLastSync) {
-            $query->where('synced_at', '<=', $dateLastSync)
-              ->orWhereNull('synced_at');
-        })->orderBy('webhooked_at', 'asc');
+                $query->where('synced_at', '<=', $dateLastSync)
+                ->orWhereNull('synced_at');
+            })->orderBy('webhooked_at', 'asc');
         if ($service !== null) {
             $q->where('service_id', $service->getId());
         }
