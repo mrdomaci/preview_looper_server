@@ -59,18 +59,17 @@ class LicenseValidateCommand extends AbstractClientServiceCommand
             $this->info('Client service ' . $clientService->getId() . ' license check started');
             $client = $clientService->client()->first();
             $service = $clientService->service()->first();
+            $date = DateTimeHelper::adjustDateToCurrentMonth(new DateTime($clientService->getCreatedAt()->format('Y-m-d')));
+            $orders = $this->orderRepository->getFromDate($client, $date);
+            $orderCount = $orders->count();
+            $this->clientSettingsServiceOptionRepository->updateOrCreate(
+                $client,
+                $settigService,
+                null,
+                (string) $orderCount
+            );
             $licenseActive = true;
-            $license = $this->licenseRepository->getValidByClientService($clientService);
-            if ($license === null) {
-                $date = DateTimeHelper::adjustDateToCurrentMonth(new DateTime($clientService->getCreatedAt()->format('Y-m-d')));
-                $orders = $this->orderRepository->getFromDate($client, $date);
-                $orderCount = $orders->count();
-                $this->clientSettingsServiceOptionRepository->updateOrCreate(
-                    $client,
-                    $settigService,
-                    null,
-                    (string) $orderCount
-                );
+            if ($this->licenseRepository->getValidByClientService($clientService) === null) {
                 if ($orderCount > 50) {
                     $licenseActive = false;
                 }
