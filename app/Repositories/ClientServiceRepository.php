@@ -83,6 +83,25 @@ class ClientServiceRepository
         return $q->limit($limit)->get();
     }
 
+    /**
+     * @param DateTime $dateLastSync
+     * @param Service|null $service
+     * @param int|null $limit
+    * @return Collection<ClientService>
+    */
+    public function getNextForFix(DateTime $dateLastSync, ?Service $service, ?int $limit = 1): Collection
+    {
+        $q = ClientService::where('status', ClientServiceStatusEnum::ACTIVE)
+            ->where(function ($query) use ($dateLastSync) {
+            $query->where('synced_at', '<=', $dateLastSync)
+              ->orWhereNull('synced_at');
+        })->orderBy('webhooked_at', 'asc');
+        if ($service !== null) {
+            $q->where('service_id', $service->getId());
+        }
+        return $q->limit($limit)->get();
+    }
+
     public function getByClientAndService(Client $client, Service $service): ClientService
     {
         return ClientService::where('client_id', $client->getId())
