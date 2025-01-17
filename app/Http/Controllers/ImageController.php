@@ -35,7 +35,7 @@ class ImageController extends Controller
         }
         $fileContents = FileHelper::clientImagesResponse($client);
         return response()->json([
-            'inifinite_repeat' => $this->clientSettingsServiceOptionRepository->getDynamicPreviewImagesInfiniteRepeat($client) ?? '0',
+            'infinite_repeat' => $this->clientSettingsServiceOptionRepository->getDynamicPreviewImagesInfiniteRepeat($client) ?? '0',
             'return_to_default' => $this->clientSettingsServiceOptionRepository->getDynamicPreviewImagesReturnToDefault($client) ?? '0',
             'show_time' => $this->clientSettingsServiceOptionRepository->getDynamicPreviewImagesShowTime($client) ?? 1500,
             'initial_loop' => $this->clientSettingsServiceOptionRepository->getDynamicPreviewImagesInitialLoop($client) ?? 500,

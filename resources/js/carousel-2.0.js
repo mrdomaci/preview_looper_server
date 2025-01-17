@@ -258,7 +258,7 @@ async function initPreviewImages(pw_elements, response) {
   const transaction = db.transaction(["pw_images"], "readwrite");
   const objectStore = transaction.objectStore("pw_images");
   if (response) {
-    sessionStorage.setItem('pw_infinite_repeat', response.inifinite_repeat);
+    sessionStorage.setItem('pw_infinite_repeat', response.infinite_repeat);
     sessionStorage.setItem('pw_return_to_default', response.return_to_default);
     sessionStorage.setItem('pw_show_time', response.show_time);
     sessionStorage.setItem('pw_initial_loop', response.initial_loop);
