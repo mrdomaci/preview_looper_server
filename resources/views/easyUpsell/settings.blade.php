@@ -161,8 +161,8 @@ use App\Helpers\QrHelper;
                     <tbody>
                         @foreach ($product_category_recommendations as $productCategoryRecommendation)
                             <tr>
-                                <td>{{ $productCategoryRecommendation->getCategory()?->name }}</td>
-                                <td>{{ $productCategoryRecommendation->getProduct()?->name }}</td>
+                                <td>{{ $productCategoryRecommendation->category?->first()?->name }}</td>
+                                <td>{{ $productCategoryRecommendation->product?->first()?->name }}</td>
                                 <td>
                                     <form method="POST" action="{{ route('recommendation.delete',
                                             [
