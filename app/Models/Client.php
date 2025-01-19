@@ -201,13 +201,13 @@ class Client extends Model
 
     public function productCategoryRecommendations(): HasMany
     {
-        return $this->hasMany(ProductCategoryRecommendation::class)
+        return $this->hasMany(ProductCategoryRecommendation::class, 'client_id', 'id')
                     ->where('is_forbidden', false);
     }
 
     public function productForbiddenRecommendations(): HasMany
     {
-        return $this->hasMany(ProductCategoryRecommendation::class)
+        return $this->hasMany(ProductCategoryRecommendation::class, 'client_id', 'id')
                     ->where('is_forbidden', true);
     }
 
