@@ -17,7 +17,9 @@ use Throwable;
 class ProductRecommendationBusiness
 {
     /** @var array<string, Product> */
-    private array $recommendations = [];
+    private array $recommendationsByCategory = [];
+    /** @var array<string, Product> */
+    private array $recommendationsFromOrders = [];
     public function __construct(
         private OrderProductRepository $orderProductRepository,
         private ClientSettingsServiceOptionRepository $clientSettingsServiceOptionRepository,
@@ -30,32 +32,59 @@ class ProductRecommendationBusiness
     /**
      * @param Collection<Product> $products
      * @param Client $client
-     * @return array <string, Product>
+     * @return array <int, Product>
      */
     public function recommend(Collection $products, Client $client)
     {
         $maxResults = $this->clientSettingsServiceOptionRepository->getMaxResultsForUpsell($client);
         foreach ($products as $product) {
-            $this->recommendations+= $this->getProductsFromOrders($client, $product);
-            $this->recommendations+= $this->getProductsFromProductCategoryRecommendations($client, $product, $maxResults);
+            $this->recommendationsByCategory+= $this->getProductsFromProductCategoryRecommendations($client, $product, $maxResults);
+            $this->recommendationsFromOrders+= $this->getProductsFromOrders($client, $product);
         }
-        arsort($this->recommendations);
+        arsort($this->recommendationsByCategory);
+        arsort($this->recommendationsFromOrders);
         $this->filterProductsInCart($products);
         $loop = $maxResults;
         $forbiddentAvailabilities = $this->availabilityRepository->getForbidden($client);
-        foreach ($this->recommendations as $guid => $priority) {
+        foreach ($this->recommendationsByCategory as $guid => $priority) {
             $guid = (string) $guid;
             try {
-                $this->recommendations[$guid] = $this->productRepository->getBestVariant($client, $guid, $forbiddentAvailabilities);
+                $this->recommendationsByCategory[$guid] = $this->productRepository->getBestVariant($client, $guid, $forbiddentAvailabilities);
                 $loop--;
             } catch (Throwable) {
-                unset($this->recommendations[$guid]);
+                unset($this->recommendationsByCategory[$guid]);
             }
             if ($loop === 0) {
                 break;
             }
         }
-        return array_slice($this->recommendations, 0, $maxResults);
+        $loop = $maxResults;
+        foreach ($this->recommendationsFromOrders as $guid => $priority) {
+            $guid = (string) $guid;
+            try {
+                $this->recommendationsFromOrders[$guid] = $this->productRepository->getBestVariant($client, $guid, $forbiddentAvailabilities);
+                $loop--;
+            } catch (Throwable) {
+                unset($this->recommendationsFromOrders[$guid]);
+            }
+            if ($loop === 0) {
+                break;
+            }
+        }
+        $result = [];
+        $recommendationsByCategory = array_values($this->recommendationsByCategory);
+        $recommendationsFromOrders = array_values($this->recommendationsFromOrders);
+        for ($i = 0; $i < $maxResults; $i++) {
+            if (isset($recommendationsByCategory[$i])) {
+                $result[] = $recommendationsByCategory[$i];
+                $i++;
+            }
+            if (isset($recommendationsFromOrders[$i])) {
+                $result[] = $recommendationsFromOrders[$i];
+                $i++;
+            }
+        }
+        return array_slice($result, 0, $maxResults);
     }
 
     /**
@@ -86,7 +115,12 @@ class ProductRecommendationBusiness
     {
         /** @var Product $product */
         foreach ($products as $product) {
-            unset($this->recommendations[$product->getGuid()]);
+            if (isset($this->recommendationsByCategory[$product->getGuid()])) {
+                unset($this->recommendationsByCategory[$product->getGuid()]);
+            }
+            if (isset($this->recommendationsFromOrders[$product->getGuid()])) {
+                unset($this->recommendationsFromOrders[$product->getGuid()]);
+            }
         }
     }
 }
