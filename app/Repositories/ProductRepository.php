@@ -115,7 +115,10 @@ class ProductRepository
             ->where('active', true)
             //->where('availability_level', '<', 3)
             ->where('guid', $guid)
-            ->whereNotIn('availability_id', $forbiddenAvailabilities->pluck('id')->toArray())
+            ->where(function ($query) use ($forbiddenAvailabilities) {
+                $query->whereNotIn('availability_id', $forbiddenAvailabilities->pluck('id')->toArray())
+                      ->orWhereNull('availability_id');
+            })
             ->orderBy('availability_level', 'asc')
             ->orderBy('stock', 'desc')
             ->select(

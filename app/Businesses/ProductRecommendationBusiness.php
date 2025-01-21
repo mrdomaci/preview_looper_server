@@ -75,12 +75,16 @@ class ProductRecommendationBusiness
         $recommendationsByCategory = array_values($this->recommendationsByCategory);
         $recommendationsFromOrders = array_values($this->recommendationsFromOrders);
         for ($i = 0; $i < $maxResults; $i++) {
+            $increment = 0;
             if (isset($recommendationsByCategory[$i])) {
                 $result[] = $recommendationsByCategory[$i];
-                $i++;
+                $increment++;
             }
             if (isset($recommendationsFromOrders[$i])) {
                 $result[] = $recommendationsFromOrders[$i];
+                $increment++;
+            }
+            if ($increment === 2) {
                 $i++;
             }
         }
