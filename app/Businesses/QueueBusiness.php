@@ -81,11 +81,12 @@ class QueueBusiness
                 throw new FileErrorException(new Exception('File error: ' . $localFilePath));
             }
         }
+        dump($queue, $response, $domain);
         Queue::updateOrCreate(
             [
                 'client_service_id' => $clientService->getId(),
                 'job_id' => $queue->getJobId(),
-                'type' => $queue->getType()->value,
+                'type' => $domain,
             ],
             [
                 'status' => QueueStatusEnum::DONE->value,
