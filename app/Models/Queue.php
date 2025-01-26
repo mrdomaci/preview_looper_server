@@ -26,6 +26,16 @@ class Queue extends Model
         'type',
     ];
 
+    protected function setKeysForSaveQuery($query)
+    {
+        $query
+            ->where('job_id', '=', $this->getAttribute('job_id'))
+            ->where('client_service_id', '=', $this->getAttribute('client_service_id'))
+            ->where('type', '=', $this->getAttribute('type'));
+
+        return $query;
+    }
+
     public function getJobId(): string
     {
         return $this->getAttribute('job_id');
