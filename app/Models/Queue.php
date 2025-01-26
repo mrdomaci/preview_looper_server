@@ -29,7 +29,7 @@ class Queue extends Model
 
     public function getKeyName()
     {
-        return ['client_service_id', 'job_id'];
+        return ['client_service_id', 'job_id', 'type'];
     }
 
     public function getJobId(): string
