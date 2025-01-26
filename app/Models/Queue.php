@@ -60,7 +60,7 @@ class Queue extends Model
 
     public function setStatus(QueueStatusEnum $status): self
     {
-        return $this->setAttribute('status', $status);
+        return $this->setAttribute('status', $status->value);
     }
 
     public function getResultUrl(): string
@@ -93,8 +93,8 @@ class Queue extends Model
         return QueueTypeEnum::fromCase($this->getAttribute('type'));
     }
 
-    public function setType(QueueTypeEnum $status): self
+    public function setType(QueueTypeEnum $type): self
     {
-        return $this->setAttribute('type', $status);
+        return $this->setAttribute('type', $type->value);
     }
 }
