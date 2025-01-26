@@ -91,6 +91,7 @@ class QueueRepository
             [
                 'status' => $response->getStatus()->value,
                 'endpoint' => $response->getEndpoint(),
+                'result_url' => $response->getResultUrl(),
             ]
         );
     }
