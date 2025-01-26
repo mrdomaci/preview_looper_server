@@ -81,7 +81,7 @@ class QueueBusiness
                 throw new FileErrorException(new Exception('File error: ' . $localFilePath));
             }
         }
-        $queue->setStatus(QueueStatusEnum::DONE);
+        $queue->setStatus(QueueStatusEnum::DONE->value);
         $queue->setResultUrl($response->getResultUrl());
         $queue->save();
     }
