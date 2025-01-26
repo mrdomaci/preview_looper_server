@@ -113,8 +113,6 @@ class FileProductToDBCommand extends AbstractCommand
                             'name' => ($productData['name'] ?? ''),
                             'url' => ($productData['url'] ?? ''),
                             'images' => $images,
-                            'perex' => '',
-                            'producer' => ($productData['brand']['name'] ?? null),
                         ];
                         $guids[] = ($productData['guid'] ?? '');
                         if (isset($productData['variants']) && is_array($productData['variants'])) {
