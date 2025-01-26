@@ -86,11 +86,11 @@ class QueueRepository
             [
                 'client_service_id' => $clientService->getId(),
                 'job_id' => $response->getJobId(),
+                'type' => $response->getType()->value,
             ],
             [
                 'status' => $response->getStatus()->value,
                 'endpoint' => $response->getEndpoint(),
-                'type' => $response->getType()->value,
             ]
         );
     }
