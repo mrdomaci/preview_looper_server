@@ -17,16 +17,6 @@ use Illuminate\Database\Eloquent\Collection;
 
 class QueueRepository
 {
-
-    public function get(int $id): Queue
-    {
-        $entity = Queue::find($id);
-        if ($entity === null) {
-            throw new DataNotFoundException(new Exception('Queue not found id: ' . $id));
-        }
-        return $entity;
-    }
-
     public function getByJobId(string $jobId): Queue
     {
         $entity = Queue::where('job_id', $jobId)->first();
