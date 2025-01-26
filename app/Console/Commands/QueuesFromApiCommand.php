@@ -71,6 +71,7 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
                     $this->info('Queues updated');
                 }
                 $queues = $this->queueRepository->getCompletedForClientService($clientService);
+                dd($queues);
                 foreach ($queues as $queue) {
                     $this->queueBusiness->download($queue);
                 }

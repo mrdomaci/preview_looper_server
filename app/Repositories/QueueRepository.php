@@ -82,7 +82,6 @@ class QueueRepository
         ClientService $clientService,
         JobResponse $response,
     ): void {
-        dd($response);
         $queue = Queue::where('client_service_id', $clientService->getId())
             ->where('job_id', $response->getJobId())
             ->first();
