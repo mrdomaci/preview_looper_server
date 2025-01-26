@@ -59,7 +59,7 @@ class FileOrderToDBCommand extends AbstractCommand
             $client = $clientService->client()->first();
 
             $txtFilePath = collect(Storage::files('snapshots'))->first(function ($files) use ($clientService) {
-                return preg_match('/' . $clientService->getId() . '_orders\.txt$/', $files);
+                return preg_match('/_' . $clientService->getId() . '_orders\.txt$/', $files);
             });
 
             if ($txtFilePath) {
