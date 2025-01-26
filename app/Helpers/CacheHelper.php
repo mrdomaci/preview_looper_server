@@ -17,21 +17,19 @@ class CacheHelper
     public static function imageResponse(Client $client): bool
     {
         $clientId = $client->getId();
-        $lastProductId = 0;
         $result = [];
         for ($i = 0; $i < 10000; $i++) {
             $products = Product::where('client_id', $clientId)
-                ->where('id', '>', $lastProductId)
                 ->where('active', 1)
                 ->distinct('guid')
-                ->select('guid', 'images', 'id')
+                ->select('guid', 'images')
                 ->limit(100)
+                ->offset($i * 100)
                 ->get();
 
             /** @var Product $product */
             foreach ($products as $product) {
                 $result[$product->getGuid()] = $product->getImages();
-                $lastProductId = $product->getId();
             }
             if (count($products) < 100) {
                 break;
