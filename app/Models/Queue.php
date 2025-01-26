@@ -13,7 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Queue extends Model
 {
     use HasFactory;
-
+    
+    protected $primaryKey = null; 
     public $incrementing = false;
     public $timestamps = true;
     protected $keyType = 'string'; 
