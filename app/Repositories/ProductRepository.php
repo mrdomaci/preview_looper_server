@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Connector\Shoptet\ProductDetailResponse;
-use App\Helpers\PriceHelper;
-use App\Helpers\StringHelper;
 use App\Models\Availability;
 use App\Models\Client;
 use App\Models\Product;
@@ -15,60 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 class ProductRepository
 {
-    /**
-     * @param Client $client
-     * @return Collection<Product>
-     */
-    public function getActivesByClient(Client $client): Collection
-    {
-        return Product::where('client_id', $client->getId())->where('active', true)->get();
-    }
-
-    public function delete(Product $product): void
-    {
-        Product::where('id', $product->getId())->delete();
-    }
-
     public function deleteByClient(Client $client): void
     {
         Product::where('client_id', $client->getId())->delete();
-    }
-
-    /**
-     * @param Client $client
-     * @param int $lastProductId
-     * @return Collection<Product>
-     */
-    public function getActive(Client $client, int $lastProductId): Collection
-    {
-        return Product::where('client_id', $client->getId())
-                ->where('active', true)
-                ->where('id', '>', $lastProductId)
-                ->limit(10)
-                ->get();
-    }
-    
-    public function updateDetailFromResponse(Product $product, ProductDetailResponse $productDetailResponse): void
-    {
-        /** @var Product $product */
-        $product->setName($productDetailResponse->getName())
-            ->setPerex($productDetailResponse->getPerex())
-            ->setCategoryName($productDetailResponse->getDefaultCategory()?->getName())
-            ->setProducer($productDetailResponse->getBrand()?->getName())
-            ->setUrl($productDetailResponse->getUrl())
-            ->setPrice(PriceHelper::getUnfiedPriceString($productDetailResponse->getVariants()))
-            ->setImageUrl(StringHelper::removeParameter($productDetailResponse->getImageUrl()))
-            ->setForeignId(StringHelper::getIdFromImage($productDetailResponse->getImageUrl()))
-            ->save();
-    }
-
-    public function deleteCollection(Collection $products): void
-    {
-        $productIDs = $products->pluck('id')->toArray();
-        $chunks = array_chunk($productIDs, 100);
-        foreach ($chunks as $chunk) {
-            Product::whereIn('id', $chunk)->delete();
-        }
     }
 
     /**
@@ -155,8 +101,7 @@ class ProductRepository
                 [
                     'stock', 'unit', 'price', 'availability_name', 'availability_id',
                     'is_negative_stock_allowed', 'foreign_id', 'image_url', 'updated_at',
-                    'created_at', 'active', 'name', 'url', 'images', 'perex',
-                    'producer', 'availability_foreign_id',
+                    'created_at', 'active', 'name', 'url', 'images', 'availability_foreign_id',
                 ]
             );
         });

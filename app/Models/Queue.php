@@ -28,11 +28,6 @@ class Queue extends Model
         'type' => QueueTypeEnum::class,
     ];
 
-    public function getId(): int
-    {
-        return $this->getAttribute('id');
-    }
-
     public function getJobId(): string
     {
         return $this->getAttribute('job_id');

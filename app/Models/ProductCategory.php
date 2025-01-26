@@ -26,7 +26,7 @@ class ProductCategory extends Model
 
     public function setProduct(Product $product): self
     {
-        return $this->setAttribute('product_guid', $product->getId());
+        return $this->setAttribute('product_guid', $product->getGuid());
     }
 
     public function getCategory(): Category
@@ -36,6 +36,6 @@ class ProductCategory extends Model
 
     public function setCategory(Category $category): self
     {
-        return $this->setAttribute('category_guid', $category->getId());
+        return $this->setAttribute('category_guid', $category->getGuid());
     }
 }

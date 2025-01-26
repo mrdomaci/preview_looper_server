@@ -4,37 +4,13 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Connector\Shoptet\OrderDetailResponse;
-use App\Connector\Shoptet\OrderResponse;
 use App\Models\Client;
-use App\Models\Order;
 use App\Models\OrderProduct;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 
 class OrderProductRepository
 {
-    public function createOrUpdate(OrderResponse $orderResponse, OrderDetailResponse $orderDetailResponse, Client $client, Order $order): void
-    {
-        $product = Product::where('client_id', $client->getId())
-                    ->where('guid', $orderDetailResponse->getProductGuid())
-                    ->first();
-        OrderProduct::where('client_id', $client->getId())
-            ->where('order_guid', $orderResponse->getGuid())
-            ->where('product_guid', $orderDetailResponse->getProductGuid())
-            ->delete();
-        for ($j = 1; $j <= (int) $orderDetailResponse->getAmount(); $j++) {
-            /** @var OrderProduct $orderProduct */
-            $orderProduct = new OrderProduct();
-            $orderProduct->setClient($client)
-                ->setOrder($order)
-                ->setOrderGuid($orderResponse->getGuid())
-                ->setProductGuid($orderDetailResponse->getProductGuid())
-                ->setProduct($product)
-                ->save();
-        }
-    }
-
     /**
      * @param Client $client
      * @param Product $product
@@ -57,7 +33,7 @@ class OrderProductRepository
                     ->where('pcr.is_forbidden', true)
                     ->where('pcr.client_id', $client->getId());
             })
-            ->select('op1.product_guid', DB::raw('COUNT(op1.product_guid) as count'))
+            ->select('op1.product_guid', DB::raw('SUM(op1.amount) as count'))
             ->groupBy('op1.product_guid')
             ->limit(100)
             ->pluck('count', 'op1.product_guid')

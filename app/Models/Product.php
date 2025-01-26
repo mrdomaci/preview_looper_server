@@ -21,11 +21,7 @@ class Product extends Model
         'created_at',
         'updated_at',
         'name',
-        'perex',
-        'description',
         'url',
-        'category',
-        'category_id',
         'producer',
         'images',
     ];
@@ -95,36 +91,6 @@ class Product extends Model
     public function setName(?string $name): self
     {
         return $this->setAttribute('name', $name);
-    }
-
-    public function getPerex(): ?string
-    {
-        return $this->getAttribute('perex');
-    }
-
-    public function setPerex(?string $perex): self
-    {
-        return $this->setAttribute('perex', $perex);
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->getAttribute('description');
-    }
-
-    public function setDescription(?string $description): self
-    {
-        return $this->setAttribute('description', $description);
-    }
-
-    public function getProducer(): ?string
-    {
-        return $this->getAttribute('producer');
-    }
-
-    public function setProducer(?string $producer): self
-    {
-        return $this->setAttribute('producer', $producer);
     }
 
     public function getPrice(): ?string
@@ -210,16 +176,6 @@ class Product extends Model
         return $this->setAttribute('unit', $unit);
     }
 
-    function getCategoryName(): ?string
-    {
-        return $this->getAttribute('category');
-    }
-
-    public function setCategoryName(?string $category): self
-    {
-        return $this->setAttribute('category', $category);
-    }
-
     public function getStock(): ?float
     {
         return $this->getAttribute('stock');
@@ -233,11 +189,6 @@ class Product extends Model
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
-    }
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(Category::class);
     }
 
     public function getForeignId(): ?string
@@ -289,27 +240,5 @@ class Product extends Model
     public function getImages(): ?array
     {
         return $this->getAttribute('images');
-    }
-
-    /**
-     * @param array<string> $images
-     */
-    public function setImages(?array $images): self
-    {
-        return $this->setAttribute('images', $images);
-    }
-
-    public static function clone(Product $product): self
-    {
-        $clone = new Product();
-        $clone->setAttribute('client_id', $product->getClientId());
-        $clone->setAttribute('guid', $product->getGuid());
-        $clone->setAttribute('active', $product->isActive());
-        $clone->setAttribute('created_at', $product->getCreatedAt());
-        $clone->setAttribute('updated_at', $product->getUpdatedAt());
-        $clone->setAttribute('code', $product->getCode());
-        $clone->save();
-
-        return $clone;
     }
 }

@@ -48,11 +48,6 @@ class ClientService extends Model
         return $this->hasMany(License::class);
     }
 
-    public function clientServiceQueues(): HasMany
-    {
-        return $this->hasMany(ClientServiceQueue::class);
-    }
-
     public function getId(): int
     {
         return $this->getAttribute('id');

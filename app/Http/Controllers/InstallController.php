@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Businesses\InstallBusiness;
 use App\Enums\CountryEnum;
 use App\Repositories\ClientRepository;
-use App\Repositories\ClientServiceQueueRepository;
 use App\Repositories\ServiceRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,7 +18,6 @@ class InstallController extends Controller
         private readonly InstallBusiness $installBusiness,
         private readonly ServiceRepository $serviceRepository,
         private readonly ClientRepository $clientRepository,
-        private readonly ClientServiceQueueRepository $clientServiceQueueRepository
     ) {
     }
     public function install(string $countryCode, string $serviceUrlPath, Request $request): Response
@@ -36,8 +34,7 @@ class InstallController extends Controller
             abort(404, __('general.wrong_url'));
         }
 
-        $clientService = $this->installBusiness->install($country, $code, $service);
-        $this->clientServiceQueueRepository->createOrIgnore($clientService);
+        $this->installBusiness->install($country, $code, $service);
         return Response('ok', 200);
     }
 

@@ -16,16 +16,9 @@ class OrderProduct extends Model
 
     protected $fillable = [
         'client_id',
-        'order_id',
         'order_guid',
-        'product_id',
         'product_guid',
     ];
-
-    public function getId(): int
-    {
-        return $this->getAttribute('id');
-    }
 
     public function getClientId(): int
     {
@@ -37,16 +30,6 @@ class OrderProduct extends Model
         return $this->setAttribute('client_id', $client->getId());
     }
 
-    public function getOrderId(): int
-    {
-        return $this->getAttribute('order_id');
-    }
-
-    public function setOrder(Order $order): self
-    {
-        return $this->setAttribute('order_id', $order->getId());
-    }
-
     public function getOrderGuid(): string
     {
         return $this->getAttribute('order_guid');
@@ -55,19 +38,6 @@ class OrderProduct extends Model
     public function setOrderGuid(string $orderGuid): self
     {
         return $this->setAttribute('order_guid', $orderGuid);
-    }
-
-    public function getProductId(): ?int
-    {
-        return $this->getAttribute('product_id');
-    }
-
-    public function setProduct(?Product $product): self
-    {
-        if ($product === null) {
-            return $this->setAttribute('product_id', null);
-        }
-        return $this->setAttribute('product_id', $product->getId());
     }
 
     public function getProductGuid(): string
@@ -82,6 +52,6 @@ class OrderProduct extends Model
 
     public function order(): BelongsTo
     {
-        return $this->belongsTo(Order::class);
+        return $this->belongsTo(Order::class, 'order_guid', 'guid');
     }
 }
