@@ -87,15 +87,26 @@ class QueueRepository
             ->first();
         if ($queue === null) {
             $queue = new Queue();
-            $queue->setClientServiceId($clientService->id)
-                ->setJobId($response->getJobId());
+            $queue->client_service_id = $clientService->id; // Set client_service_id directly
+            $queue->job_id = $response->getJobId(); // Set job_id directly
         }
-        $queue->setStatus($response->getStatus())
-            ->setEndpoint($response->getEndpoint())
-            ->setType($response->getType());
-        dump($queue);
-        $queue->save();
+    
+        // Explicitly set the attributes and handle the enum casts
+        $queue->status = $response->getStatus(); // Set status directly
+        $queue->endpoint = $response->getEndpoint(); // Set endpoint
+        $queue->type = $response->getType(); // Set type directly
+    
+        // Debug: Check if the queue is ready to be saved
+        dump($queue->toArray()); // This will dump the array representation of the queue to check the values
+    
+        // Save the model
+        try {
+            $queue->save();
+        } catch (\Exception $e) {
+            dump('Error saving queue: ' . $e->getMessage());
+        }
     }
+    
 
     public function deleteForClientService(ClientService $clientService): void
     {
