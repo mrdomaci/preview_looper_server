@@ -14,7 +14,6 @@ use App\Models\Client;
 use App\Models\ClientService;
 use App\Models\Service;
 use App\Repositories\ClientRepository;
-use App\Repositories\ClientServiceQueueRepository;
 use App\Repositories\ClientServiceRepository;
 use DateTime;
 
@@ -23,7 +22,6 @@ class InstallBusiness
     public function __construct(
         private ClientRepository $clientRepository,
         private ClientServiceRepository $clientServiceRepository,
-        private ClientServiceQueueRepository $clientServiceQueueRepository
     ) {
     }
     public function install(CountryEnum $country, string $code, Service $service): ClientService
@@ -59,6 +57,5 @@ class InstallBusiness
             ->setWebhookedAt(new DateTime())
             ->save();
         LoggerHelper::log('Client ' . $client->getId() . ' activated');
-        $this->clientServiceQueueRepository->createOrIgnore($clientService);
     }
 }

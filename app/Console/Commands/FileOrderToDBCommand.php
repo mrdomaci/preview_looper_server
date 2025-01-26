@@ -116,6 +116,7 @@ class FileOrderToDBCommand extends AbstractCommand
                                 'order_guid' => $orderData['guid'],
                                 'product_guid' => $item['productGuid'],
                                 'client_id' => $client->id,
+                                'amount' => (int) $item['amount'],
                             ];
                         }
                         $count++;

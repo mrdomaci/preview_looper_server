@@ -50,7 +50,7 @@ class QueueFromApiCommand extends AbstractCommand
             } catch (Throwable $e) {
                 LoggerHelper::log($e->getMessage());
                 $success = false;
-                $this->error('Queue download failed: ' . $queue->getId() . ' ' . $e->getMessage());
+                $this->error('Queue download failed: ' . $queue->getJobId() . ' for client service' . $queue->getClientServiceId() . ' ' . $e->getMessage());
             }
         }
 
