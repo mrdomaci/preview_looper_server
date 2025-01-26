@@ -14,7 +14,6 @@ class Queue extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = ['client_service_id', 'job_id']; 
     public $incrementing = false;
     public $timestamps = true;
     protected $keyType = 'string'; 
