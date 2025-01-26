@@ -67,6 +67,7 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
             try {
                 $jobListResponse = ConnectorHelper::queues($clientService, $filterQueues);
                 if ($jobListResponse) {
+                    dd($jobListResponse);
                     $this->queueBusiness->update($clientService, $jobListResponse);
                     $this->info('Queues updated');
                 }
