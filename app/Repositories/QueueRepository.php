@@ -73,7 +73,7 @@ class QueueRepository
             $queue->setClientServiceId($clientService->id)
                 ->setJobId($response->getJobId())
                 ->setEndpoint($endpoint->getEndpoint())
-                ->setStatus(QueueStatusEnum::PENDING);
+                ->setStatus(QueueStatusEnum::PENDING->value);
             $queue->save();
         }
     }
@@ -82,19 +82,17 @@ class QueueRepository
         ClientService $clientService,
         JobResponse $response,
     ): void {
-        $queue = Queue::where('client_service_id', $clientService->getId())
-            ->where('job_id', $response->getJobId())
-            ->first();
-        if ($queue === null) {
-            $queue = new Queue();
-            $queue->setClientServiceId($clientService->id)
-                ->setJobId($response->getJobId());
-        }
-        $queue->setStatus($response->getStatus())
-            ->setEndpoint($response->getEndpoint())
-            ->setType($response->getType());
-        dump($queue);
-        $queue->save();
+        Queue::updateOrCreate(
+            [
+                'client_service_id' => $clientService->getId(),
+                'job_id' => $response->getJobId(),
+            ],
+            [
+                'status' => $response->getStatus()->value,
+                'endpoint' => $response->getEndpoint(),
+                'type' => $response->getType()->value,
+            ]
+        );
     }
 
     public function deleteForClientService(ClientService $clientService): void

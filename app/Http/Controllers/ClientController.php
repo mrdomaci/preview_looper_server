@@ -141,7 +141,7 @@ class ClientController extends Controller
                 throw new Exception('No eventInstance found');
             }
             $queue = $this->queueRepository->getByJobId($eventInstance);
-            $queue->setStatus(QueueStatusEnum::COMPLETED);
+            $queue->setStatus(QueueStatusEnum::COMPLETED->value);
             $queue->save();
             return response('OK', 200)->header('Content-Type', 'text/plain');
         } catch (DataNotFoundException) {
