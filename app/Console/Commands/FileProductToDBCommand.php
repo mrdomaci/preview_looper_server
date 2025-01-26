@@ -71,7 +71,7 @@ class FileProductToDBCommand extends AbstractCommand
             $soldOutNegativeStockAllowed = $this->availabilityRepository->getSoldOutNegativeStockAllowedAvailability($client);
     
             $txtFilePath = collect(Storage::files('snapshots'))->first(function ($files) use ($clientService) {
-                return preg_match('/' . $clientService->getId() . '_products\.txt$/', $files);
+                return preg_match('/_' . $clientService->getId() . '_products\.txt$/', $files);
             });
             if ($txtFilePath) {
                 $txtFile = fopen(Storage::path($txtFilePath), 'r');
