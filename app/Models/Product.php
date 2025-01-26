@@ -14,6 +14,9 @@ class Product extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = null; 
+    public $incrementing = false;
+
     protected $fillable = [
         'client_id',
         'guid',

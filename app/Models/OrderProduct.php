@@ -13,6 +13,8 @@ class OrderProduct extends Model
     use HasFactory;
 
     public $timestamps = false;
+    protected $primaryKey = null; 
+    public $incrementing = false;
 
     protected $fillable = [
         'client_id',

@@ -14,6 +14,9 @@ class Queue extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = null; 
+    public $incrementing = false;
+
     protected $fillable = [
         'job_id',
         'endpoint',
