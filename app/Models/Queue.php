@@ -15,7 +15,7 @@ class Queue extends Model
     use HasFactory;
 
     public $incrementing = false;
-    public $timestamps = true;
+    protected $primaryKey = null;
     protected $keyType = 'string'; 
 
     protected $fillable = [
@@ -26,6 +26,24 @@ class Queue extends Model
         'client_service_id',
         'type',
     ];
+
+    public function delete(): bool
+    {
+        return parent::where([
+            ['job_id', '=', $this->job_id],
+            ['client_service_id', '=', $this->client_service_id],
+            ['type', '=', $this->type]
+            
+        ])->delete();
+    }
+    public function update(array $attributes = [], array $options = []): bool
+    {
+        return parent::where([
+            ['job_id', '=', $this->job_id],
+            ['client_service_id', '=', $this->client_service_id],
+            ['type', '=', $this->type]
+        ])->update($attributes);
+    }
 
     public function getKeyName()
     {
