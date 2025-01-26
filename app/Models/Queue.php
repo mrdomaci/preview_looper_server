@@ -13,8 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Queue extends Model
 {
     use HasFactory;
-    
-    protected $primaryKey = null; 
+
     public $incrementing = false;
     public $timestamps = true;
     protected $keyType = 'string'; 
@@ -27,6 +26,11 @@ class Queue extends Model
         'client_service_id',
         'type',
     ];
+
+    public function getKeyName()
+    {
+        return ['client_service_id', 'job_id'];
+    }
 
     public function getJobId(): string
     {
