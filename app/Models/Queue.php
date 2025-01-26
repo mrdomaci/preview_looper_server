@@ -14,9 +14,6 @@ class Queue extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = null; 
-    public $incrementing = false;
-
     protected $fillable = [
         'job_id',
         'endpoint',
@@ -25,16 +22,6 @@ class Queue extends Model
         'client_service_id',
         'type',
     ];
-
-    protected function setKeysForSaveQuery($query)
-    {
-        $query
-            ->where('job_id', '=', $this->getAttribute('job_id'))
-            ->where('client_service_id', '=', $this->getAttribute('client_service_id'))
-            ->where('type', '=', $this->getAttribute('type'));
-
-        return $query;
-    }
 
     public function getJobId(): string
     {
