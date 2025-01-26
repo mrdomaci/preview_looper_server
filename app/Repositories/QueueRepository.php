@@ -90,6 +90,7 @@ class QueueRepository
             $queue->setClientServiceId($clientService->id)
                 ->setJobId($response->getJobId());
         }
+        dump($response->getStatus(), $response->getEndpoint(), $response->getType());
         $queue->setStatus($response->getStatus())
             ->setEndpoint($response->getEndpoint())
             ->setType($response->getType());
