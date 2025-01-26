@@ -92,6 +92,7 @@ class QueuesFromApiCommand extends AbstractClientServiceCommand
             } catch (Throwable $t) {
                 $this->error('Error updating queues ' . $t->getMessage());
                 LoggerHelper::log('Error updating queues ' . $t->getMessage());
+                dd($t);
                 $success = false;
             }
             $clientService->setUpdateInProgress(false);
