@@ -28,11 +28,6 @@ class Queue extends Model
         'type',
     ];
 
-    protected $casts = [
-        'status' => QueueStatusEnum::class,
-        'type' => QueueTypeEnum::class,
-    ];
-
     public function getJobId(): string
     {
         return $this->getAttribute('job_id');
@@ -58,9 +53,9 @@ class Queue extends Model
         return QueueStatusEnum::fromCase($this->getAttribute('status'));
     }
 
-    public function setStatus(QueueStatusEnum $status): self
+    public function setStatus(string $status): self
     {
-        return $this->setAttribute('status', $status->value);
+        return $this->setAttribute('status', $status);
     }
 
     public function getResultUrl(): string
@@ -93,8 +88,8 @@ class Queue extends Model
         return QueueTypeEnum::fromCase($this->getAttribute('type'));
     }
 
-    public function setType(QueueTypeEnum $type): self
+    public function setType(string $type): self
     {
-        return $this->setAttribute('type', $type->value);
+        return $this->setAttribute('type', $type);
     }
 }
