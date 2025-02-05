@@ -61,7 +61,8 @@ class ClientController extends Controller
         }
 
         try {
-            $baseOAuthUrl = $this->baseOauthUrlBusiness->getFromRequestClientService($request, $clientService);
+            //$baseOAuthUrl = $this->baseOauthUrlBusiness->getFromRequestClientService($request, $clientService);
+            $baseOAuthUrl = $client->getUrl() . 'action/OAuthServer/';
             $accessToken = $this->accessTokenBusiness->getFromRequestClientService($request, $clientService, $baseOAuthUrl, $country);
         } catch (RequestDataMissingException) {
             abort(401, __('general.settings_unauthorized_url'));
