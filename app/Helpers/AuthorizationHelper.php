@@ -7,6 +7,7 @@ namespace App\Helpers;
 use App\Enums\CountryEnum;
 use App\Exceptions\AddonInstallFailException;
 use App\Exceptions\AddonSettingsSecurityFailException;
+use App\Exceptions\AddonSettingsSecurityInvalidGrantlException;
 use App\Models\Service;
 use Exception;
 use Nette\Utils\Json;
@@ -75,6 +76,9 @@ class AuthorizationHelper
 
         $response = Json::decode($response, true);
         if (ArrayHelper::containsKey($response, 'error') === true) {
+            if (strpos($response['error'], 'invalid_grant') !== false) {
+                throw new AddonSettingsSecurityInvalidGrantlException(new Exception($response['error'] . ': ' . $response['error_description']));
+            }
             throw new AddonSettingsSecurityFailException(new Exception($response['error'] . ': ' . $response['error_description']));
         }
         if (ArrayHelper::containsKey($response, 'access_token') === false) {
