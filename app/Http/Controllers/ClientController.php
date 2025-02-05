@@ -9,6 +9,7 @@ use App\Businesses\BaseOauthUrlBusiness;
 use App\Businesses\SettingServiceBusiness;
 use App\Enums\CountryEnum;
 use App\Enums\QueueStatusEnum;
+use App\Exceptions\AddonSettingsSecurityInvalidGrantlException;
 use App\Exceptions\DataNotFoundException;
 use App\Exceptions\RequestDataMissingException;
 use App\Helpers\AuthorizationHelper;
@@ -61,20 +62,26 @@ class ClientController extends Controller
         }
 
         try {
-            //$baseOAuthUrl = $this->baseOauthUrlBusiness->getFromRequestClientService($request, $clientService);
-            $baseOAuthUrl = $client->getUrl() . 'action/OAuthServer/';
+            $baseOAuthUrl = $this->baseOauthUrlBusiness->getFromRequestClientService($request, $clientService);
             $accessToken = $this->accessTokenBusiness->getFromRequestClientService($request, $clientService, $baseOAuthUrl, $country);
+        } catch (AddonSettingsSecurityInvalidGrantlException) {
+            //loosen security for now
+            $baseOAuthUrl = null;
+            $accessToken = null;
+            LoggerHelper::log('Invalid grant for client ' . $client->getId() . ' service ' . $service->getId());
         } catch (RequestDataMissingException) {
             abort(401, __('general.settings_unauthorized_url'));
         } catch (Throwable $t) {
             abort(401, __('general.unauthorized'));
         }
 
-        $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
-        if ($checkEshopId !== $client->getEshopId()) {
-            LoggerHelper::log('Eshop ID mismatch for client ' . $client->getId() . ' from DB ' . $client->getEshopId() . ' from API ' . $checkEshopId);
-            //loosen security for now
-            //abort(403);
+        if ($baseOAuthUrl !== null &&  $accessToken !== null) {
+            $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
+            if ($checkEshopId !== $client->getEshopId()) {
+                LoggerHelper::log('Eshop ID mismatch for client ' . $client->getId() . ' from DB ' . $client->getEshopId() . ' from API ' . $checkEshopId);
+                //loosen security for now
+                //abort(403);
+            }
         }
 
         LocaleHelper::setLocale($language);
