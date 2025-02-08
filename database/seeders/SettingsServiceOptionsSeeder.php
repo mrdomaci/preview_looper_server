@@ -213,6 +213,27 @@ class SettingsServiceOptionsSeeder extends Seeder
                 'value' => 0,
                 'is_default' => 0,
             ],
+            [
+                'id' => 61,
+                'settings_service_id' => 15,
+                'name' => 'easy-upsell.mixed_recommendations',
+                'value' => 'mixed',
+                'is_default' => 1,
+            ],
+            [
+                'id' => 62,
+                'settings_service_id' => 15,
+                'name' => 'easy-upsell.orders_only_recommendations',
+                'value' => 'orders_only',
+                'is_default' => 0,
+            ],
+            [
+                'id' => 63,
+                'settings_service_id' => 15,
+                'name' => 'easy-upsell.categories_only_recommendations',
+                'value' => 'categories_only',
+                'is_default' => 0,
+            ],
         ]);
     }
 }

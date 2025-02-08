@@ -178,6 +178,27 @@ class ClientSettingsServiceOptionRepository
         return true;
     }
 
+    /**
+     * @param Client $client
+     * @return string
+     */
+    public function getEasyUpsellRecommendationType(Client $client): string
+    {
+        try {
+            return ClientSettingsServiceOption::from('client_settings_service_options as csso')
+                ->where('csso.client_id', $client->getId())
+                ->join('settings_service_options as sso', 'sso.id', '=', 'csso.settings_service_option_id')
+                ->where('csso.settings_service_id', SettingsService::UPSELL_RECOMMENDATION_TYPE)
+                ->pluck('sso.value')
+                ->firstOrFail();
+        } catch (Throwable) {
+            return SettingsServiceOption::where('settings_service_id', SettingsService::UPSELL_RECOMMENDATION_TYPE)
+                ->where('is_default', true)
+                ->pluck('value')
+                ->firstOrFail();
+        }
+    }
+
     public function updateOrCreate(Client $client, SettingsService $settingsService, ?SettingsServiceOption $settingsServiceOption, ?string $value): ClientSettingsServiceOption
     {
         try {

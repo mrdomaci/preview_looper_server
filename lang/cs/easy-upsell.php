@@ -85,4 +85,8 @@ return [
     'availability_forbidden_info' => 'Zde můžete definovat dostupnosti a produkty s danou dostupností se zákazníkovi nebudou zobrazovat jako doporučení.',
     'availability' => 'Dostupnost',
     'no_fobidden_availabilities' => 'Nemáte žádné definované zakázané dostupnosti',
+    'recommendation_type' => 'Typ doporučení',
+    'mixed_recommendations' => 'Smíšené',
+    'orders_only_recommendations' => 'Pouze na základě historických objednávek',
+    'categories_only_recommendations' => 'Pouze na základě uživatelem definovaných kategorií',
 ];

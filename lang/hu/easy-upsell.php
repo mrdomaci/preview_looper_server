@@ -85,4 +85,8 @@ return [
     'availability_forbidden_info' => 'Itt meghatározhatja azokat az elérhetőségeket és termékeket, amelyekkel az elérhetőséggel a vásárlónak nem jeleníthet meg ajánlásokat.',
     'availability' => 'Elérhetőség',
     'no_fobidden_availabilities' => 'Nincsenek meghatározott tiltott elérhetőségek',
+    'recommendation_type' => 'Ajánlás típusa',
+    'mixed_recommendations' => 'Vegyes',
+    'orders_only_recommendations' => 'Csak a rendelési előzmények alapján',
+    'categories_only_recommendations' => 'Csak a felhasználó által meghatározott kategóriák alapján',
 ];

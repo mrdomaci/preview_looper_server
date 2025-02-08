@@ -85,4 +85,8 @@ return [
     'availability_forbidden_info' => 'Zadajte dostupnosti a produkty s touto dostupnosťou sa zákazníkovi nebudú zobrazovať ako odporúčania.',
     'availability' => 'Dostupnosť',
     'no_fobidden_availabilities' => 'Nemáte žiadne definované zakázané dostupnosti',
+    'recommendation_type' => 'Typ odporúčania',
+    'mixed_recommendations' => 'Zmiešané',
+    'orders_only_recommendations' => 'Iba na základe historických objednávok',
+    'categories_only_recommendations' => 'Iba na základe kategórií definovaných používateľom',
 ];

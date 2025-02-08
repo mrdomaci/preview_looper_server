@@ -85,4 +85,8 @@ return [
     'availability_forbidden_info' => 'Here you can define availabilities and products with that availability will not be displayed to the customer as recommendations.',
     'availability' => 'Availability',
     'no_fobidden_availabilities' => 'You have no defined forbidden availabilities',
+    'recommendation_type' => 'Recommendation type',
+    'mixed_recommendations' => 'Mixed',
+    'orders_only_recommendations' => 'Based on order history only',
+    'categories_only_recommendations' => 'Based on user-defined categories only',
 ];
