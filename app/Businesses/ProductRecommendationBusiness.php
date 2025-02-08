@@ -37,9 +37,14 @@ class ProductRecommendationBusiness
     public function recommend(Collection $products, Client $client)
     {
         $maxResults = $this->clientSettingsServiceOptionRepository->getMaxResultsForUpsell($client);
+        $type = $this->clientSettingsServiceOptionRepository->getEasyUpsellRecommendationType($client);
         foreach ($products as $product) {
-            $this->recommendationsByCategory+= $this->getProductsFromProductCategoryRecommendations($client, $product, $maxResults);
-            $this->recommendationsFromOrders+= $this->getProductsFromOrders($client, $product);
+            if ($type === 'mixed' || $type === 'category') {
+                $this->recommendationsByCategory+= $this->getProductsFromProductCategoryRecommendations($client, $product, $maxResults);
+            }
+            if ($type === 'mixed' || $type === 'order') {
+                $this->recommendationsFromOrders+= $this->getProductsFromOrders($client, $product);
+            }
         }
         arsort($this->recommendationsByCategory);
         arsort($this->recommendationsFromOrders);

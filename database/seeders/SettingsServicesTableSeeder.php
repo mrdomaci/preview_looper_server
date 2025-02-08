@@ -115,6 +115,13 @@ class SettingsServicesTableSeeder extends Seeder
                 'service_id' => 2,
                 'type' => 'select',
             ],
+            [
+                'id' => 15,
+                'name' => 'easy-upsell.recommendation_type',
+                'sort' => 9,
+                'service_id' => 2,
+                'type' => 'select',
+            ],
         ]);
     }
 }

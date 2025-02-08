@@ -28,6 +28,7 @@ class SettingsService extends Model
     public const UPSELL_COMPANY_ADDRESS = 12;
     public const UPSELL_ORDERS = 13;
     public const UPSELL_SUBSCRIBE = 14;
+    public const UPSELL_RECOMMENDATION_TYPE = 15;
 
     public $timestamps = false;
 
