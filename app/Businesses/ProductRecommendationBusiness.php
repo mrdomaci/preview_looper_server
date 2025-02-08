@@ -39,10 +39,10 @@ class ProductRecommendationBusiness
         $maxResults = $this->clientSettingsServiceOptionRepository->getMaxResultsForUpsell($client);
         $type = $this->clientSettingsServiceOptionRepository->getEasyUpsellRecommendationType($client);
         foreach ($products as $product) {
-            if ($type === 'mixed' || $type === 'category') {
+            if ($type === 'mixed' || $type === 'categories_only') {
                 $this->recommendationsByCategory+= $this->getProductsFromProductCategoryRecommendations($client, $product, $maxResults);
             }
-            if ($type === 'mixed' || $type === 'order') {
+            if ($type === 'mixed' || $type === 'orders_only') {
                 $this->recommendationsFromOrders+= $this->getProductsFromOrders($client, $product);
             }
         }
