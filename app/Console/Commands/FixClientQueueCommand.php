@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Enums\ClientServiceQueueStatusEnum;
+use App\Helpers\FileHelper;
 use App\Models\ClientService;
 use App\Repositories\ClientServiceRepository;
 use App\Repositories\QueueRepository;
@@ -46,7 +47,7 @@ class FixClientQueueCommand extends AbstractClientServiceCommand
             $clientServices = new Collection();
             $clientServices->add($this->clientServiceRepository->getByClientAndService($this->findClient(), $this->findService()));
         } else {
-            $from = new DateTime((now()->subHours(20))->format('Y-m-d H:i:s'));
+            $from = new DateTime((now()->subHours(12))->format('Y-m-d H:i:s'));
             $clientServices = $this->clientServiceRepository->getNextForUpdate($from, $this->findService(), 5);
         }
         /** @var Collection<ClientService> $clientServices */
@@ -58,8 +59,9 @@ class FixClientQueueCommand extends AbstractClientServiceCommand
         foreach ($clientServices as $clientService) {
             $clientService->setQueueStatus(ClientServiceQueueStatusEnum::CLIENTS)
                 ->setWebhookedAt(new DateTime())
-                ->save();
+                ->setUpdateInProgress(false);
             $this->queueRepository->deleteForClientService($clientService);
+            FileHelper::clearFiles($clientService);
             $this->info('Client service ' . $clientService->getId() . ' added to queue');
         }
         return Command::SUCCESS;

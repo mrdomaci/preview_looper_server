@@ -12,7 +12,7 @@ class ProductCategory extends Model
     use HasFactory;
 
     public $timestamps = false;
-    protected $primaryKey = null; 
+    protected $primaryKey = null;
     public $incrementing = false;
 
     protected $fillable=[
