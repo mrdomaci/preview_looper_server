@@ -8,6 +8,7 @@ use App\Enums\ClientServiceQueueStatusEnum;
 use App\Enums\ClientServiceStatusEnum;
 use App\Enums\CountryEnum;
 use App\Helpers\AuthorizationHelper;
+use App\Helpers\FileHelper;
 use App\Helpers\LoggerHelper;
 use App\Helpers\ResponseHelper;
 use App\Models\Client;
@@ -16,6 +17,7 @@ use App\Models\Service;
 use App\Repositories\ClientRepository;
 use App\Repositories\ClientServiceRepository;
 use DateTime;
+use Throwable;
 
 class InstallBusiness
 {
@@ -46,6 +48,12 @@ class InstallBusiness
     public function uninstall(Service $service, Client $client): void
     {
         $this->clientServiceRepository->updateStatus($client, $service, ClientServiceStatusEnum::DELETED);
+        try {
+            $clientService = $this->clientServiceRepository->getByClientAndService($client, $service);
+            FileHelper::clearFiles($clientService);
+        } catch (Throwable) {
+            LoggerHelper::log('Client ' . $client->getId() . ' with service ' . $service->getId() . ' not found');
+        }
         LoggerHelper::log('Client ' . $client->getId() . ' uninstalled');
     }
 

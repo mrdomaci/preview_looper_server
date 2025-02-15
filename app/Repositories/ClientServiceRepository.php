@@ -71,12 +71,10 @@ class ClientServiceRepository
     public function getNextForUpdate(DateTime $dateLastSync, ?Service $service, ?int $limit = 1): Collection
     {
         $q = ClientService::where('status', ClientServiceStatusEnum::ACTIVE)
-        ->where('update_in_process', '=', 0)
-        ->where('queue_status', ClientServiceQueueStatusEnum::DONE)
-        ->where(function ($query) use ($dateLastSync) {
-            $query->where('synced_at', '<=', $dateLastSync)
-              ->orWhereNull('synced_at');
-        })->orderBy('webhooked_at', 'asc');
+            ->where(function ($query) use ($dateLastSync) {
+                $query->where('synced_at', '<=', $dateLastSync)
+                ->orWhereNull('synced_at');
+            })->orderBy('webhooked_at', 'asc');
         if ($service !== null) {
             $q->where('service_id', $service->getId());
         }
@@ -116,7 +114,7 @@ class ClientServiceRepository
             $clientService = ClientService::where('client_id', $client->getId())
             ->where('service_id', $service->getId())
             ->firstOrFail();
-        } catch (Throwable $t) {
+        } catch (Throwable) {
             $clientService = new ClientService();
             $clientService->setAttribute('client_id', $client->getId());
             $clientService->setAttribute('service_id', $service->getId());
@@ -125,6 +123,9 @@ class ClientServiceRepository
         $clientService->setAttribute('status', 'active');
         $clientService->setAttribute('country', $country->value);
         $clientService->setAttribute('update_in_process', false);
+        $clientService->setQueueStatus(ClientServiceQueueStatusEnum::CLIENTS);
+        $clientService->setAttribute('webhooked_at', new DateTime());
+        $clientService->setAttribute('synced_at', null);
         $clientService->save();
         return $clientService;
     }

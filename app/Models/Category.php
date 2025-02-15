@@ -13,7 +13,7 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = null; 
+    protected $primaryKey = null;
     public $incrementing = false;
 
     protected $fillable=[
