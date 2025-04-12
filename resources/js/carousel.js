@@ -24,17 +24,17 @@ if (pw_elements.length > 0) {
       pw_should_request = false;
     }
     if (pw_should_request) {
-      clearIndexedDB();
+      clearPWIndexedDB();
       sessionStorage.setItem('pw_data_updated_at', new Date().getTime());
-      sendGetRequest(pw_project_id).then((response) => {
-        initPreviewImages(pw_elements, response).then(() => {checkForNewProducts();});
+      sendPWGetRequest(pw_project_id).then((response) => {
+        initPWPreviewImages(pw_elements, response).then(() => {checkPWForNewProducts();});
       })
     } else {
-      checkForNewProducts();
+      checkPWForNewProducts();
     }
 }
 
-function checkForNewProducts() {
+function checkPWForNewProducts() {
   let pw_missing_products = [];
   pw_i_r = sessionStorage.getItem('pw_infinite_repeat') || '0';
   pw_r_t_d = sessionStorage.getItem('pw_return_to_default') || '0';
@@ -52,23 +52,23 @@ function checkForNewProducts() {
     pw_missing_products.push(pw_current_element);
   }
   if (pw_missing_products.length > 1) {
-    getAdditionalProducts(pw_missing_products);
+    getPWAdditionalProducts(pw_missing_products);
   }
-  firstImageReturn();
-  setTimeout(checkForNewProducts, 5000);
+  firstPWImageReturn();
+  setTimeout(checkPWForNewProducts, 5000);
 }
 
-function getAdditionalProducts(pw_missing_products) {
+function getPWAdditionalProducts(pw_missing_products) {
   (async () => {
-      await emptyPromise().then(
+      await emptyPWPromise().then(
         (response) => {
-          initPreviewImages(pw_missing_products, response);
+          initPWPreviewImages(pw_missing_products, response);
         }
       );
   })();
 }
 
-function stopLooping(pw_element) {
+function stopPWLooping(pw_element) {
   clearInterval(pw_running_interval);
   clearInterval();
   pw_is_running = false;
@@ -76,14 +76,14 @@ function stopLooping(pw_element) {
     const pw_product_element = pw_element.target;
     const pw_img = pw_product_element.querySelector('img[data-micro], img[data-micro-image]');
     const pw_id = pw_product_element.getAttribute('data-micro-identifier');
-    const pw_product = getProduct(pw_id);
+    const pw_product = getPWProduct(pw_id);
     if (pw_product && pw_product.images.length > 1) {
       pw_img.src = pw_image_prefix + pw_product.images[0];
     }
   }
 }
 
-function getImageIndex(pw_product, pw_current_img) {
+function getPWImageIndex(pw_product, pw_current_img) {
   for (let i = 0; i < pw_product.images.length; i++) {
     if (pw_current_img === pw_product.images[i]) {
       return i;
@@ -92,7 +92,7 @@ function getImageIndex(pw_product, pw_current_img) {
   return 0;
 }
 
-function getProduct(pw_id) {
+function getPWProduct(pw_id) {
   for (let i = 0; i < pw_global_products.length; i++) {
     if (pw_id === pw_global_products[i].id) {
       return pw_global_products[i];
@@ -105,17 +105,17 @@ var pw_start_x;
 var pw_start_y;
 
 var pw_enter = function(pw_element) {
-  firstImageReturn();
+  firstPWImageReturn();
   const pw_product_element = pw_element.target;
   const pw_id = pw_product_element.getAttribute('data-micro-identifier');
   const pw_img = pw_product_element.querySelector('img[data-micro], img[data-micro-image]');
-  const pw_product = getProduct(pw_id);
+  const pw_product = getPWProduct(pw_id);
   let pw_current_img = pw_img.src;
   pw_image_prefix = pw_current_img;
   let pw_current_img_a = pw_current_img.split('/');
   pw_current_img = pw_current_img_a.pop();
   pw_image_prefix = pw_image_prefix.substring(0, pw_image_prefix.length - pw_current_img.length);
-  let pw_index = getImageIndex(pw_product, pw_current_img);
+  let pw_index = getPWImageIndex(pw_product, pw_current_img);
   const cycleImages = () => {
     pw_index = (pw_index + 1) % pw_product.images.length;
     if (pw_product.images.length === 0) {
@@ -129,7 +129,7 @@ var pw_enter = function(pw_element) {
     pw_img.src = pw_image_prefix + pw_image_name;
 
     if (pw_i_r === '0' && pw_index === 0) {
-      stopLooping(pw_element);
+      stopPWLooping(pw_element);
     }
   };
   setTimeout(cycleImages, pw_i_l);
@@ -139,17 +139,17 @@ var pw_enter = function(pw_element) {
 };
 
 var pw_leave = function(pw_element) {
-  stopLooping(pw_element);
-  firstImageReturn();
+  stopPWLooping(pw_element);
+  firstPWImageReturn();
 }
 
-function handleTouchStart(pw_event) {
+function handlePWTouchStart(pw_event) {
   const pw_first_touch = pw_event.touches[0];
   pw_start_x = pw_first_touch.clientX;
   pw_start_y = pw_first_touch.clientY;
 }
 
-function handleTouchMove(pw_element) {
+function handlePWTouchMove(pw_element) {
   if (!pw_start_x || !pw_start_y) {
     return;
   }
@@ -158,15 +158,15 @@ function handleTouchMove(pw_element) {
   const pw_y_diff = pw_start_y - pw_element.touches[0].clientY;
 
   if (Math.abs(pw_x_diff) > Math.abs(pw_y_diff)) {
-    const pw_product_element = findParentElementByDataMicro(pw_element.target);
+    const pw_product_element = findPWParentElementByDataMicro(pw_element.target);
     const pw_id = pw_product_element.getAttribute('data-micro-identifier');
     const pw_img = pw_product_element.querySelector('img[data-micro], img[data-micro-image]');
-    const pw_product = getProduct(pw_id);
+    const pw_product = getPWProduct(pw_id);
     let pw_current_img = pw_img.src.split('?')[0];
     pw_image_prefix = pw_current_img;
-    pw_current_img = getImageName(pw_current_img);
+    pw_current_img = getPWImageName(pw_current_img);
     pw_image_prefix = pw_image_prefix.substring(0, pw_image_prefix.length - pw_current_img.length);
-    let pw_index = getImageIndex(pw_product, pw_current_img);
+    let pw_index = getPWImageIndex(pw_product, pw_current_img);
     if (pw_x_diff > 0) {
       if (pw_index === 0) {
         pw_index = pw_product.images.length - 1;
@@ -187,7 +187,7 @@ function handleTouchMove(pw_element) {
 
     const pw_image = pw_element.srcElement;
     const pw_link = pw_image.parentElement;
-    if (isCircles()) {
+    if (isPWCircles()) {
       const pw_svgs = pw_link.querySelectorAll('svg');
       pw_svgs.forEach((pw_svg, i) => {
         pw_svg.classList.remove('pw-circle');
@@ -197,7 +197,7 @@ function handleTouchMove(pw_element) {
           pw_svg.classList.add('pw-circle');
         }
       });
-    } else if (isNumbers()) {
+    } else if (isPWNumbers()) {
       const pw_number_icon = pw_link.querySelector('b.pw-number-icon');
       pw_number_icon.innerHTML = (pw_index + 1) + ' / ' + pw_product.images.length;
     }
@@ -207,19 +207,19 @@ function handleTouchMove(pw_element) {
   pw_start_y = null;
 }
 
-function findParentElementByDataMicro(pw_element) {
+function findPWParentElementByDataMicro(pw_element) {
   if (!pw_element) {
     return null;
   }
   if (pw_element.getAttribute('data-micro') === 'product') {
     return pw_element;
   }
-  return findParentElementByDataMicro(pw_element.parentElement);
+  return findPWParentElementByDataMicro(pw_element.parentElement);
 }
 
-async function sendGetRequest(pw_project_id) {
+async function sendPWGetRequest(pw_project_id) {
     try {
-      let pw_url = 'https://slabihoud.cz/images/' + pw_project_id + '/' + stringToIntModulo11(pw_project_id);
+      let pw_url = 'https://slabihoud.cz/images/' + pw_project_id + '/' + stringPWToIntModulo11(pw_project_id);
       const response = await fetch(pw_url);
       const pw_json_data = await response.json();
       return pw_json_data;
@@ -228,7 +228,7 @@ async function sendGetRequest(pw_project_id) {
     }
 }
 
-function stringToIntModulo11(inputString) {
+function stringPWToIntModulo11(inputString) {
   const integerValue = parseInt(inputString, 10);
   if (!isNaN(integerValue)) {
     const result = integerValue % 11;
@@ -238,23 +238,14 @@ function stringToIntModulo11(inputString) {
   }
 }
 
-function emptyPromise() {
+function emptyPWPromise() {
   return new Promise((resolve) => {
     resolve('');
   });
 }
 
-function parseJSONToPwProductsResponse(jsonData) {
-  try {
-    return JSON.parse(jsonData);
-  } catch (error) {
-    console.error("Error parsing JSON:", error);
-    return null;
-  }
-}
-
-async function initPreviewImages(pw_elements, response) {
-  const db = await setupIndexedDB();
+async function initPWPreviewImages(pw_elements, response) {
+  const db = await setupPWIndexedDB();
   const transaction = db.transaction(["pw_images"], "readwrite");
   const objectStore = transaction.objectStore("pw_images");
   if (response) {
@@ -302,24 +293,24 @@ async function initPreviewImages(pw_elements, response) {
     }
     pw_products.push({ id: microDataValue, images: pw_images});
 
-    if (isPc() && pw_images.length > 1) {
+    if (isPWPc() && pw_images.length > 1) {
       pw_element.addEventListener('mouseenter', pw_enter, false);
       pw_element.addEventListener('mouseleave', pw_leave, false);
     }
     pw_image.setAttribute('data-micro-identifier-parent', microDataValue);
     pw_image.addEventListener('error', function handleError() {
-      removeMissingImage(pw_image.src, pw_image.getAttribute('data-micro-identifier-parent'));
+      removePWMissingImage(pw_image.src, pw_image.getAttribute('data-micro-identifier-parent'));
     });
 
-    if (isMobile() && pw_images.length > 1) {
-      pw_image.addEventListener('touchstart', handleTouchStart, false);
-      pw_image.addEventListener('touchmove', handleTouchMove, false);
+    if (isPWMobile() && pw_images.length > 1) {
+      pw_image.addEventListener('touchstart', handlePWTouchStart, false);
+      pw_image.addEventListener('touchmove', handlePWTouchMove, false);
       pw_image.classList.add("overlay-on");
       let pw_icon = document.createElement('div');
       pw_image.after(pw_icon);
       pw_icon.classList.add('pw-overlay-container');
       let pw_inner_html = '';
-      if (isCircles()) {
+      if (isPWCircles()) {
         for (let i = 0; i < pw_images.length; i++) {
           if (i === 0) {
             pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='pw-circle'><circle cx='5' cy='5' r='4'/></svg>";
@@ -327,7 +318,7 @@ async function initPreviewImages(pw_elements, response) {
             pw_inner_html = pw_inner_html + "<svg width='10' height='10' class='pw-empty-circle'><circle cx='5' cy='5' r='4'/></svg>";
           }
         }
-      } else if (isNumbers()) {
+      } else if (isPWNumbers()) {
         pw_inner_html = pw_inner_html + "<b class='pw-number-icon flag'>1 / " + pw_images.length + "</b>";
       }
       pw_icon.innerHTML = pw_inner_html;
@@ -336,7 +327,7 @@ async function initPreviewImages(pw_elements, response) {
   pw_global_products = pw_products;
 }
 
-async function removeMissingImage(pw_missing_source, pw_product_identifier) {
+async function removePWMissingImage(pw_missing_source, pw_product_identifier) {
   let pw_missing_source_a = pw_missing_source.split('/');
   pw_missing_source = pw_missing_source_a[pw_missing_source_a.length - 1];
   for (let i = 0; i < pw_global_products.length; i++) {
@@ -367,7 +358,7 @@ async function removeMissingImage(pw_missing_source, pw_product_identifier) {
   objectStore.add({ id: pw_product_identifier, images: pw_nidb });
 }
 
-function getImageName(pw_current_img)
+function getPWImageName(pw_current_img)
 {
   if (pw_current_img === null) {
     return null;
@@ -377,8 +368,8 @@ function getImageName(pw_current_img)
   return result.split('?')[0];
 }
 
-function firstImageReturn() {
-  if (pw_r_t_d === '1' && pw_is_running === false && isMobile() === false) {
+function firstPWImageReturn() {
+  if (pw_r_t_d === '1' && pw_is_running === false && isPWMobile() === false) {
     for (let i = 0; i < pw_global_products.length; i++) {
       const pw_product = pw_global_products[i];
       const pw_product_element = document.querySelector('[data-micro-identifier="' + pw_product.id + '"]');
@@ -394,28 +385,28 @@ function firstImageReturn() {
     }
   }
 }
-function isMobile()
+function isPWMobile()
 {
   return screen.width < 768 && (pw_a_t === 'all' || pw_a_t === 'mobile');
 }
 
-function isPc() {
+function isPWPc() {
   return screen.width > 767 && (pw_a_t === 'all' || pw_a_t === 'pc');
 }
 
-function isCircles() {
+function isPWCircles() {
   return pw_m_i === 'circles';
 }
 
-function isNumbers() {
+function isPWNumbers() {
   return pw_m_i === 'numbers';
 }
 
-function clearIndexedDB() {
+function clearPWIndexedDB() {
   indexedDB.deleteDatabase('pw_db');
 }
 
-async function setupIndexedDB() {
+async function setupPWIndexedDB() {
   return new Promise((resolve, reject) => {
     const dbName = "pw_db";
     const request = indexedDB.open(dbName, 1);
