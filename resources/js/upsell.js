@@ -187,7 +187,7 @@ async function printResults() {
                         let us_result_item = `
                                 <tr class="removeable" data-micro="cartItem" data-source="easy-upsell" data-micro-identifier="${recommendation.guid}" data-micro-sku="${recommendation.code}" data-testid="productItem_${recommendation.guid}">
                                     <td class="cart-p-image"><a href="${recommendation.url}"><img src="${us_image_cdn}${recommendation.image_url}" data-src="${us_image_cdn}${recommendation.image_url}" alt="${recommendation.name}"></a></td>
-                                    <td class="p-name" data-testid="cartProductName"><a href="${recommendation.url}" class="main-link" data-testid="cartWidgetProductName">${recommendation.name}</a></td>
+                                    <td class="p-name" data-testid="cartProductName"><a href="${recommendation.url}" class="main-link" data-testid="cartWidgetProductName">${recommendation.name}</a><p>${recommendation.name}</p></td>
                                     <td class="p-availability p-cell"><strong class="availability-label" style="color: ${recommendation.color}">${recommendation.availability}</strong></td>
                                     <td class="p-quantity p-cell">
                                         <form action="/action/Cart/addCartItem/" method="post" class="pr-action csrf-enabled">
