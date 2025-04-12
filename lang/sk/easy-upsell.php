@@ -89,4 +89,7 @@ return [
     'mixed_recommendations' => 'Zmiešané',
     'orders_only_recommendations' => 'Iba na základe historických objednávok',
     'categories_only_recommendations' => 'Iba na základe kategórií definovaných používateľom',
+    'description' => 'Popis produktu',
+    'description' => 'Popisek k doporučení',
+    'description_placeholder' => 'Prečo by si mal zákazník pridať tento produkt do košíka?',
 ];

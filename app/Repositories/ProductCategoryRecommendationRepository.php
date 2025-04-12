@@ -16,13 +16,14 @@ class ProductCategoryRecommendationRepository
     {
         return ProductCategoryRecommendation::findOrFail($id);
     }
-    public function create(Client $client, Product $product, ?Category $category, ?bool $isForbidden = false): ProductCategoryRecommendation
+    public function create(Client $client, Product $product, ?Category $category = null, ?bool $isForbidden = false, ?string $description = null): ProductCategoryRecommendation
     {
         return ProductCategoryRecommendation::create([
             'client_id' => $client->getId(),
             'product_guid' => $product->getGuid(),
             'category_guid' => $category?->getGuid(),
             'is_forbidden' => $isForbidden,
+            'description' => $description,
         ]);
     }
 
@@ -54,10 +55,10 @@ class ProductCategoryRecommendationRepository
                     ->where('client_id', $client->getId())
                     ->where('is_forbidden', true);
             })
-            ->select('pcr.product_guid', 'pcr.priority')
+            ->select('pcr.product_guid', 'pcr.priority', 'pcr.description')
             ->orderBy('pcr.priority', 'DESC')
             ->limit($maxResults)
-            ->pluck('pcr.priority', 'pcr.product_guid')
+            ->pluck('pcr.description', 'pcr.product_guid')
             ->toArray();
     }
 }

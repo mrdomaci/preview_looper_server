@@ -51,10 +51,11 @@ class ProductRecommendationBusiness
         $this->filterProductsInCart($products);
         $loop = $maxResults;
         $forbiddentAvailabilities = $this->availabilityRepository->getForbidden($client);
-        foreach ($this->recommendationsByCategory as $guid => $priority) {
+        foreach ($this->recommendationsByCategory as $guid => $description) {
             $guid = (string) $guid;
             try {
                 $this->recommendationsByCategory[$guid] = $this->productRepository->getBestVariant($client, $guid, $forbiddentAvailabilities);
+                $this->recommendationsByCategory[$guid]->description = $description;
                 $loop--;
             } catch (Throwable) {
                 unset($this->recommendationsByCategory[$guid]);

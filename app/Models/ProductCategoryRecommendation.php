@@ -18,6 +18,7 @@ class ProductCategoryRecommendation extends Model
         'is_forbidden',
         'product_guid',
         'category_guid',
+        'description',
     ];
 
     public function getId(): int
@@ -53,6 +54,16 @@ class ProductCategoryRecommendation extends Model
     public function setForbidden(bool $isForbidden): self
     {
         return $this->setAttribute('is_forbidden', $isForbidden);
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->getAttribute('description');
+    }
+
+    public function setDescription(?string $description): self
+    {
+        return $this->setAttribute('description', $description);
     }
 
     public function product(): BelongsTo

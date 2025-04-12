@@ -89,4 +89,6 @@ return [
     'mixed_recommendations' => 'Mixed',
     'orders_only_recommendations' => 'Based on order history only',
     'categories_only_recommendations' => 'Based on user-defined categories only',
+    'description' => 'Description',
+    'description_placeholder' => 'Why should the customer add this product to their cart?',
 ];

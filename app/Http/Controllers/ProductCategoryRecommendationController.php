@@ -40,8 +40,14 @@ class ProductCategoryRecommendationController extends Controller
         } else {
             $isForbidden = StringHelper::getBool($request->input('is_forbidden'));
         }
+        if ($request->input('description') === null) {
+            $description = null;
+        } else {
+            $description = $request->input('description');
+        }
+
         try {
-            $this->productCategoryRecommendationRepository->create($client, $product, $category, $isForbidden);
+            $this->productCategoryRecommendationRepository->create($client, $product, $category, $isForbidden, $description);
         } catch (Throwable) {
             return redirect()->route('client.settings', ['country' => $country->value, 'serviceUrlPath' => $serviceUrlPath, 'language' => $language, 'eshop_id' => $eshopId])->with('error', __('general.error'));
         }

@@ -140,6 +140,14 @@ use App\Helpers\QrHelper;
                         <input type="hidden" id="product" name="product" required>
                     </div>
                 </div>
+                <div class="form-group row mt-4">
+                    <div class="col-md-4">
+                        <label>{{ __('easy-upsell.description')}}</label>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" name="description" id="description" placeholder="{{ __('easy-upsell.description_placeholder') }}">
+                    </div>
+                </div>
                 <div class="row mt-4">
                     <div class="col-md-12 text-center">
                         <input type="hidden" name="eshop_id" value="{{$client->getEshopId()}}">
@@ -155,6 +163,7 @@ use App\Helpers\QrHelper;
                         <tr>
                             <th>{{ __('easy-upsell.category')}}</th>
                             <th>{{ __('easy-upsell.product')}}</th>
+                            <th>{{ __('easy-upsell.description')}}</th>
                             <th>{{ __('general.delete')}}</th>
                         </tr>
                     </thead>
@@ -163,6 +172,7 @@ use App\Helpers\QrHelper;
                             <tr>
                                 <td>{{ $productCategoryRecommendation->category()?->first()?->name }}</td>
                                 <td>{{ $productCategoryRecommendation->product()?->first()?->name }}</td>
+                                <td><small>{{ $productCategoryRecommendation->getDescription() }}</small></td>
                                 <td>
                                     <form method="POST" action="{{ route('recommendation.delete',
                                             [

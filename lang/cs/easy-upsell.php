@@ -89,4 +89,6 @@ return [
     'mixed_recommendations' => 'Smíšené',
     'orders_only_recommendations' => 'Pouze na základě historických objednávek',
     'categories_only_recommendations' => 'Pouze na základě uživatelem definovaných kategorií',
+    'description' => 'Popisek k doporučení',
+    'description_placeholder' => 'Proč by si měl zákazník přihodit tento produkt do košíku?',
 ];
