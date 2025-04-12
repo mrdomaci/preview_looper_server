@@ -61,28 +61,28 @@ class ClientController extends Controller
             abort(404, __('general.inactive_service'));
         }
 
-        // try {
-        //     $baseOAuthUrl = $this->baseOauthUrlBusiness->getFromRequestClientService($request, $clientService);
-        //     $accessToken = $this->accessTokenBusiness->getFromRequestClientService($request, $clientService, $baseOAuthUrl, $country);
-        // } catch (AddonSettingsSecurityInvalidGrantlException) {
-        //     //loosen security for now
-        //     $baseOAuthUrl = null;
-        //     $accessToken = null;
-        //     LoggerHelper::log('Invalid grant for client ' . $client->getId() . ' service ' . $service->getId());
-        // } catch (RequestDataMissingException) {
-        //     abort(401, __('general.settings_unauthorized_url'));
-        // } catch (Throwable $t) {
-        //     abort(401, __('general.unauthorized'));
-        // }
+        try {
+            $baseOAuthUrl = $this->baseOauthUrlBusiness->getFromRequestClientService($request, $clientService);
+            $accessToken = $this->accessTokenBusiness->getFromRequestClientService($request, $clientService, $baseOAuthUrl, $country);
+        } catch (AddonSettingsSecurityInvalidGrantlException) {
+            //loosen security for now
+            $baseOAuthUrl = null;
+            $accessToken = null;
+            LoggerHelper::log('Invalid grant for client ' . $client->getId() . ' service ' . $service->getId());
+        } catch (RequestDataMissingException) {
+            abort(401, __('general.settings_unauthorized_url'));
+        } catch (Throwable $t) {
+            abort(401, __('general.unauthorized'));
+        }
 
-        // if ($baseOAuthUrl !== null &&  $accessToken !== null) {
-        //     $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
-        //     if ($checkEshopId !== $client->getEshopId()) {
-        //         LoggerHelper::log('Eshop ID mismatch for client ' . $client->getId() . ' from DB ' . $client->getEshopId() . ' from API ' . $checkEshopId);
-        //         //loosen security for now
-        //         //abort(403);
-        //     }
-        // }
+        if ($baseOAuthUrl !== null &&  $accessToken !== null) {
+            $checkEshopId = AuthorizationHelper::getEshopId($accessToken, $baseOAuthUrl);
+            if ($checkEshopId !== $client->getEshopId()) {
+                LoggerHelper::log('Eshop ID mismatch for client ' . $client->getId() . ' from DB ' . $client->getEshopId() . ' from API ' . $checkEshopId);
+                //loosen security for now
+                //abort(403);
+            }
+        }
 
         LocaleHelper::setLocale($language);
 

@@ -69,6 +69,7 @@ class ProductRecommendationBusiness
             $guid = (string) $guid;
             try {
                 $this->recommendationsFromOrders[$guid] = $this->productRepository->getBestVariant($client, $guid, $forbiddentAvailabilities);
+                $this->recommendationsFromOrders[$guid]->description = null;
                 $loop--;
             } catch (Throwable) {
                 unset($this->recommendationsFromOrders[$guid]);
