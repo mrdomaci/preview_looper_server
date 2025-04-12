@@ -52,6 +52,9 @@ class ProductRecommendationBusiness
         $loop = $maxResults;
         $forbiddentAvailabilities = $this->availabilityRepository->getForbidden($client);
         foreach ($this->recommendationsByCategory as $guid => $description) {
+            if ($description === null) {
+                $description = '';
+            }
             $guid = (string) $guid;
             try {
                 $this->recommendationsByCategory[$guid] = $this->productRepository->getBestVariant($client, $guid, $forbiddentAvailabilities);
@@ -69,7 +72,7 @@ class ProductRecommendationBusiness
             $guid = (string) $guid;
             try {
                 $this->recommendationsFromOrders[$guid] = $this->productRepository->getBestVariant($client, $guid, $forbiddentAvailabilities);
-                $this->recommendationsFromOrders[$guid]->description = null;
+                $this->recommendationsFromOrders[$guid]->description = '';
                 $loop--;
             } catch (Throwable) {
                 unset($this->recommendationsFromOrders[$guid]);
