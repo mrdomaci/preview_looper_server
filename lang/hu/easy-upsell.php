@@ -89,4 +89,6 @@ return [
     'mixed_recommendations' => 'Vegyes',
     'orders_only_recommendations' => 'Csak a rendelési előzmények alapján',
     'categories_only_recommendations' => 'Csak a felhasználó által meghatározott kategóriák alapján',
+    'description' => 'Ajánlás leírása',
+    'description_placeholder' => 'Miért tegye a vásárló ezt a terméket a kosárba?',
 ];
