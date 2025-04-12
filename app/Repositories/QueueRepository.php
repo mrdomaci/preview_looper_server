@@ -37,11 +37,11 @@ class QueueRepository
     {
         $service = $clientService->service()->first();
         $queue = Queue::where('client_service_id', $clientService->getId())
-            ->where('status', QueueStatusEnum::DONE)
+            ->whereIn('status', [QueueStatusEnum::PENDING, QueueStatusEnum::COMPLETED, QueueStatusEnum::RUNNING])
             ->where('type', QueueTypeEnum::PRODUCT)
             ->get();
 
-        if ($queue->isEmpty()) {
+        if ($queue->isEmpty() === false) {
             return false;
         }
 
@@ -50,11 +50,11 @@ class QueueRepository
         }
 
         $queue = Queue::where('client_service_id', $clientService->getId())
-            ->where('status', QueueStatusEnum::DONE)
+            ->whereIn('status', [QueueStatusEnum::PENDING, QueueStatusEnum::COMPLETED, QueueStatusEnum::RUNNING])
             ->where('type', QueueTypeEnum::ORDER)
             ->get();
 
-        if ($queue->isEmpty()) {
+        if ($queue->isEmpty() === false) {
             return false;
         }
         return true;
