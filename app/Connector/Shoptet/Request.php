@@ -232,6 +232,9 @@ class Request
                     if (strpos($t->getMessage(), 'project_not_found') !== false) {
                         $this->clientService->setStatus(ClientServiceStatusEnum::INACTIVE);
                         $this->clientService->save();
+                    } elseif (strpos($t->getMessage(), 'invalid-token') !== false) {
+                        $this->clientService->setStatus(ClientServiceStatusEnum::INACTIVE);
+                        $this->clientService->save();
                     } else {
                         throw new ApiRequestFailException(new Exception('API request failed for ' . self::SHOPTET_API_URL . $this->endpoint . $this->getQueryAsAString() . ' with status code ' . $e->getCode() . ' and message ' . $e->getMessage()));
                     }
