@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Connector\Shoptet;
 
 use App\Enums\ClientServiceStatusEnum;
+use App\Exceptions\AddonSuspendedException;
 use App\Exceptions\ApiAlreadyRequestedException;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestNonExistingResourceException;
@@ -229,17 +230,8 @@ class Request
                     $this->clientService->save();
                     $response = $this->sendShoptetRequest();
                 } catch (Throwable $t) {
-                    if (strpos($t->getMessage(), 'project_not_found') !== false) {
-                        $this->clientService->setStatus(ClientServiceStatusEnum::INACTIVE);
-                        $this->clientService->save();
-                    } elseif (strpos($t->getMessage(), 'invalid-token') !== false) {
-                        $this->clientService->setStatus(ClientServiceStatusEnum::INACTIVE);
-                        $this->clientService->save();
-                    } else {
-                        throw new ApiRequestFailException(new Exception('API request failed for ' . self::SHOPTET_API_URL . $this->endpoint . $this->getQueryAsAString() . ' with status code ' . $e->getCode() . ' and message ' . $e->getMessage()));
-                    }
+                    throw new AddonSuspendedException($t->getMessage(), 401);
                 }
-
             } else if ($e->getCode() === 404) {
                 throw new ApiRequestNonExistingResourceException($e->getMessage(), 404);
             } else if ($e->getCode() === 429) {
