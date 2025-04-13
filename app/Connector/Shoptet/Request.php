@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Connector\Shoptet;
 
+use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\ApiAlreadyRequestedException;
 use App\Exceptions\ApiRequestFailException;
 use App\Exceptions\ApiRequestNonExistingResourceException;
@@ -221,7 +222,7 @@ class Request
     {
         try {
             $response = $this->sendShoptetRequest();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             if ($e->getCode() === 401) {
                 try {
                     $this->clientService->setAttribute('access_token', TokenHelper::getApiAccessToken($this->clientService));
@@ -229,7 +230,7 @@ class Request
                     $response = $this->sendShoptetRequest();
                 } catch (Throwable $t) {
                     if (strpos($t->getMessage(), 'project_not_found') !== false) {
-                        $this->clientService->setStatus(ClientService::STATUS_INACTIVE);
+                        $this->clientService->setStatus(ClientServiceStatusEnum::INACTIVE);
                         $this->clientService->save();
                     } else {
                         throw new ApiRequestFailException(new Exception('API request failed for ' . self::SHOPTET_API_URL . $this->endpoint . $this->getQueryAsAString() . ' with status code ' . $e->getCode() . ' and message ' . $e->getMessage()));
@@ -239,7 +240,7 @@ class Request
             } else if ($e->getCode() === 404) {
                 throw new ApiRequestNonExistingResourceException($e->getMessage(), 404);
             } else if ($e->getCode() === 429) {
-                throw new ($e->getMessage(), 429);
+                throw new ApiRequestTooManyRequestsException($e->getMessage(), 429);
             } else if ($e->getCode() === 422) {
                 throw new ApiAlreadyRequestedException($e->getMessage(), 422);
             } else {
