@@ -15,6 +15,7 @@ use App\Models\ClientService;
 use DateTime;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
+use Throwable;
 
 class Request
 {
@@ -222,13 +223,23 @@ class Request
             $response = $this->sendShoptetRequest();
         } catch (\Throwable $e) {
             if ($e->getCode() === 401) {
-                $this->clientService->setAttribute('access_token', TokenHelper::getApiAccessToken($this->clientService));
-                $this->clientService->save();
-                $response = $this->sendShoptetRequest();
+                try {
+                    $this->clientService->setAttribute('access_token', TokenHelper::getApiAccessToken($this->clientService));
+                    $this->clientService->save();
+                    $response = $this->sendShoptetRequest();
+                } catch (Throwable $t) {
+                    if (strpos($t->getMessage(), 'project_not_found') !== false) {
+                        $this->clientService->setStatus(ClientService::STATUS_INACTIVE);
+                        $this->clientService->save();
+                    } else {
+                        throw new ApiRequestFailException(new Exception('API request failed for ' . self::SHOPTET_API_URL . $this->endpoint . $this->getQueryAsAString() . ' with status code ' . $e->getCode() . ' and message ' . $e->getMessage()));
+                    }
+                }
+
             } else if ($e->getCode() === 404) {
                 throw new ApiRequestNonExistingResourceException($e->getMessage(), 404);
             } else if ($e->getCode() === 429) {
-                throw new ApiRequestTooManyRequestsException($e->getMessage(), 429);
+                throw new ($e->getMessage(), 429);
             } else if ($e->getCode() === 422) {
                 throw new ApiAlreadyRequestedException($e->getMessage(), 422);
             } else {
