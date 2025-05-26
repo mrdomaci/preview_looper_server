@@ -77,7 +77,7 @@ class ProductRepository
                 'unit',
                 'foreign_id as id',
                 'availability_color as color',
-                DB::raw("CONCAT(url, '?utm_content=site-checkout&utm_source=easyupsell&utm_medium=website') as url")
+                DB::raw("CONCAT(RTRIM(url, '/'), '?utm_content=site-checkout&utm_source=easyupsell&utm_medium=website') as url")
             )
             ->firstOrFail();
     }
