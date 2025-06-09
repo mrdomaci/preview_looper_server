@@ -38,27 +38,27 @@ class ProductRecommendationBusiness
     {
         $maxResults = $this->clientSettingsServiceOptionRepository->getMaxResultsForUpsell($client);
         $type = $this->clientSettingsServiceOptionRepository->getEasyUpsellRecommendationType($client);
+        $recommendationsByCategory = [];
         foreach ($products as $product) {
             if ($type === 'mixed' || $type === 'categories_only') {
-                $this->recommendationsByCategory+= $this->getProductsFromProductCategoryRecommendations($client, $product, $maxResults);
+                $recommendationsByCategory+= $this->getProductsFromProductCategoryRecommendations($client, $product, $maxResults);
             }
             if ($type === 'mixed' || $type === 'orders_only') {
                 $this->recommendationsFromOrders+= $this->getProductsFromOrders($client, $product);
             }
         }
-        arsort($this->recommendationsByCategory);
+        arsort($recommendationsByCategory);
         arsort($this->recommendationsFromOrders);
         $this->filterProductsInCart($products);
         $loop = $maxResults;
         $forbiddentAvailabilities = $this->availabilityRepository->getForbidden($client);
-        foreach ($this->recommendationsByCategory as $guid => $description) {
-            if ($description === null) {
-                $description = '';
-            }
+        foreach ($recommendationsByCategory as $guid => $description) {
             $guid = (string) $guid;
             try {
-                $this->recommendationsByCategory[$guid] = $this->productRepository->getBestVariant($client, $guid, $forbiddentAvailabilities);
-                $this->recommendationsByCategory[$guid]->description = $description;
+                /** @var Product $product */
+                $product = $this->productRepository->getBestVariant($client, $guid, $forbiddentAvailabilities);
+                $product->setDescription($description);
+                $this->recommendationsByCategory[$guid] = $product;
                 $loop--;
             } catch (Throwable) {
                 unset($this->recommendationsByCategory[$guid]);
@@ -68,6 +68,7 @@ class ProductRecommendationBusiness
             }
         }
         $loop = $maxResults;
+        /** @var array<int> $priority */
         foreach ($this->recommendationsFromOrders as $guid => $priority) {
             $guid = (string) $guid;
             try {
@@ -115,7 +116,7 @@ class ProductRecommendationBusiness
      * @param Client $client
      * @param Product $product
      * @param int $maxResults
-     * @return array<int>
+     * @return array<string, string>
      */
     private function getProductsFromProductCategoryRecommendations(Client $client, Product $product, int $maxResults): array
     {

@@ -36,7 +36,7 @@ class ProductCategoryRecommendationRepository
      * @param Client $client
      * @param Product $product
      * @param int $maxResults
-     * @return array<int>
+     * @return array<string, string>
      */
     public function getByClientProduct(Client $client, Product $product, int $maxResults): array
     {

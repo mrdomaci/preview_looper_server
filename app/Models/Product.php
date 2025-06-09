@@ -27,6 +27,7 @@ class Product extends Model
         'url',
         'producer',
         'images',
+        'description'
     ];
 
     protected $casts = [
@@ -235,6 +236,16 @@ class Product extends Model
     public function setAvailabilityLevel(?AvailabilityLevelEnum $availabilityLevel): self
     {
         return $this->setAttribute('availability_level', $availabilityLevel?->value);
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->getAttribute('description');
+    }
+
+    public function setDescription(?string $description): self
+    {
+        return $this->setAttribute('description', $description);
     }
 
     /**

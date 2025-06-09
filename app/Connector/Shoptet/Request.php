@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Connector\Shoptet;
 
-use App\Enums\ClientServiceStatusEnum;
 use App\Exceptions\AddonSuspendedException;
 use App\Exceptions\ApiAlreadyRequestedException;
 use App\Exceptions\ApiRequestFailException;
