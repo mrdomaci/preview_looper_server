@@ -39,17 +39,18 @@ class ProductRecommendationBusiness
         $maxResults = $this->clientSettingsServiceOptionRepository->getMaxResultsForUpsell($client);
         $type = $this->clientSettingsServiceOptionRepository->getEasyUpsellRecommendationType($client);
         $recommendationsByCategory = [];
+        $recommendationsFromOrders = [];
         foreach ($products as $product) {
             if ($type === 'mixed' || $type === 'categories_only') {
                 $recommendationsByCategory+= $this->getProductsFromProductCategoryRecommendations($client, $product, $maxResults);
             }
             if ($type === 'mixed' || $type === 'orders_only') {
-                $this->recommendationsFromOrders+= $this->getProductsFromOrders($client, $product);
+                $recommendationsFromOrders+= $this->getProductsFromOrders($client, $product);
             }
         }
-        arsort($recommendationsByCategory);
-        arsort($this->recommendationsFromOrders);
-        $this->filterProductsInCart($products);
+        arsort($recommendationsFromOrders);
+        $recommendationsByCategory = $this->filterProductsInCart($products, $recommendationsByCategory);
+        $recommendationsFromOrders = $this->filterProductsInCart($products, $recommendationsFromOrders);
         $loop = $maxResults;
         $forbiddentAvailabilities = $this->availabilityRepository->getForbidden($client);
         foreach ($recommendationsByCategory as $guid => $description) {
@@ -69,7 +70,7 @@ class ProductRecommendationBusiness
         }
         $loop = $maxResults;
         /** @var array<int> $priority */
-        foreach ($this->recommendationsFromOrders as $guid => $priority) {
+        foreach ($recommendationsFromOrders as $guid => $priority) {
             $guid = (string) $guid;
             try {
                 $this->recommendationsFromOrders[$guid] = $this->productRepository->getBestVariant($client, $guid, $forbiddentAvailabilities);
@@ -125,17 +126,18 @@ class ProductRecommendationBusiness
 
     /**
      * @param Collection<Product> $products
+     * @param array<string, string|int> $recommendations
+     * @return array<string, string|int>
      */
-    private function filterProductsInCart(Collection $products): void
+    private function filterProductsInCart(Collection $products, array $recommendations): array
     {
         /** @var Product $product */
         foreach ($products as $product) {
-            if (isset($this->recommendationsByCategory[$product->getGuid()])) {
-                unset($this->recommendationsByCategory[$product->getGuid()]);
-            }
-            if (isset($this->recommendationsFromOrders[$product->getGuid()])) {
-                unset($this->recommendationsFromOrders[$product->getGuid()]);
+            $guid = $product->getGuid();
+            if (isset($recommendations[$guid])) {
+                unset($recommendations[$guid]);
             }
         }
+        return $recommendations;
     }
 }
